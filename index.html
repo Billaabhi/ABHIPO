@@ -347,12 +347,13 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .tfbtn.active{background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)}
 .tmpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .tc{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:13px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.tc:hover{border-color:var(--border2);background:var(--bg3);transform:translateY(-2px)}
-.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--tc)}
-.tc-cat{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tc);margin-bottom:4px}
-.tc-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:3px;line-height:1.3}
-.tc-desc{font-size:9px;color:var(--muted);line-height:1.5}
-.tc-use{margin-top:7px;font-size:9px;color:var(--accent);font-weight:600}
+.tc:hover{border-color:var(--tc);background:var(--bg3);transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--tc)}
+.tc-top{margin-bottom:5px}
+.tc-cat{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tc)}
+.tc-name{font-size:11px;font-weight:700;color:var(--text);margin-bottom:4px;line-height:1.3}
+.tc-desc{font-size:9px;color:var(--muted2);line-height:1.5}
+.tc-use{margin-top:8px;font-size:9px;color:var(--accent);font-weight:700}
 .pc{background:var(--card-bg);border:0.5px solid var(--border);border-radius:10px;padding:11px 12px;cursor:pointer;position:relative;overflow:hidden;transition:all .2s}
 .pc:hover{border-color:var(--border2);transform:translateY(-2px)}
 .pc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--pc)}
@@ -1172,22 +1173,6 @@ let activeBrain='po';
 
 const THEME_COLORS={growth:'#6C47FF',retention:'#E91E8C',infra:'#F5A623',ux:'#00D4AA',data:'#29B6F6',other:'#888'};
 
-const BRAIN_PROMPTS={
-  po: BRAIN_SYSTEM_PROMPTS.po,
-  ba: BRAIN_SYSTEM_PROMPTS.ba,
-  ux: BRAIN_SYSTEM_PROMPTS.ux,
-  techlead: BRAIN_SYSTEM_PROMPTS.techlead,
-  qa: BRAIN_SYSTEM_PROMPTS.qa,
-  scrum: BRAIN_SYSTEM_PROMPTS.scrum,
-  pm: BRAIN_SYSTEM_PROMPTS.pm,
-  developer: BRAIN_SYSTEM_PROMPTS.developer,
-  cto: BRAIN_SYSTEM_PROMPTS.cto,
-  cfo: BRAIN_SYSTEM_PROMPTS.cfo,
-  ceo: BRAIN_SYSTEM_PROMPTS.ceo,
-  marketing: BRAIN_SYSTEM_PROMPTS.marketing,
-  sales: BRAIN_SYSTEM_PROMPTS.sales,
-};
-
 // ══ BRAIN DEFINITIONS ══
 const ALL_BRAINS=[
   {id:'po',icon:'🧠',label:'PO Brain',role:'Product Owner',color:'#6C47FF'},
@@ -1932,6 +1917,24 @@ RULES:
 - Never open with pleasantries. Start with the quality diagnosis immediately.`,
 };
 
+// BRAIN_PROMPTS mirrors BRAIN_SYSTEM_PROMPTS for multi-brain collab
+// Declared AFTER BRAIN_SYSTEM_PROMPTS to avoid ReferenceError
+const BRAIN_PROMPTS={
+  po: BRAIN_SYSTEM_PROMPTS.po,
+  ba: BRAIN_SYSTEM_PROMPTS.ba,
+  ux: BRAIN_SYSTEM_PROMPTS.ux,
+  techlead: BRAIN_SYSTEM_PROMPTS.techlead,
+  qa: BRAIN_SYSTEM_PROMPTS.qa,
+  scrum: BRAIN_SYSTEM_PROMPTS.scrum,
+  pm: BRAIN_SYSTEM_PROMPTS.pm,
+  developer: BRAIN_SYSTEM_PROMPTS.developer,
+  cto: BRAIN_SYSTEM_PROMPTS.cto,
+  cfo: BRAIN_SYSTEM_PROMPTS.cfo,
+  ceo: BRAIN_SYSTEM_PROMPTS.ceo,
+  marketing: BRAIN_SYSTEM_PROMPTS.marketing,
+  sales: BRAIN_SYSTEM_PROMPTS.sales,
+};
+
 function buildBrainBar(){
   const bar=document.getElementById('brain-bar');
   if(!bar) return;
@@ -2137,12 +2140,14 @@ function toggleTheme(){
 function switchTab(tab,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  document.getElementById('page-'+tab).classList.add('active');
+  const page = document.getElementById('page-'+tab);
+  if(page) page.classList.add('active');
   if(el) el.classList.add('active');
   else {
     const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7};
     const idx=tabs[tab];
-    if(idx!==undefined) document.querySelectorAll('.nav-tab')[idx].classList.add('active');
+    const navTabs = document.querySelectorAll('.nav-tab');
+    if(idx!==undefined && navTabs[idx]) navTabs[idx].classList.add('active');
   }
   window.scrollTo(0,0);
 }
@@ -2457,19 +2462,25 @@ function runQuickAction(el, type){
 
 function quickAction(type){
   let prompt;
-  if(type==='standup')       prompt = getStandupPrompt();
+  if(type==='standup')            prompt = getStandupPrompt();
   else if(type==='sprint-review') prompt = getSprintReviewPrompt();
-  else if(type==='retro')    prompt = getRetroPrompt();
-  else if(type==='sprint-goal') prompt = getSprintGoalPrompt();
-  else prompt = QA_PROMPTS[type];
+  else if(type==='retro')         prompt = getRetroPrompt();
+  else if(type==='sprint-goal')   prompt = getSprintGoalPrompt();
+  else                            prompt = QA_PROMPTS[type];
   if(!prompt) return;
-  switchTab('chat',null);
+  // Load into chat input for review — user presses send when ready
+  switchTab('chat', null);
   setTimeout(()=>{
     const inp = document.getElementById('chat-input');
+    if(!inp) return;
     inp.value = prompt + getCtx();
     autoResize(inp);
-    sendMsg();
-  },80);
+    inp.focus();
+    // Scroll to bottom of input
+    inp.setSelectionRange(0, 0);
+    inp.scrollTop = 0;
+    toast('✅ Loaded — review and press Send (or ↑)');
+  }, 80);
 }
 
 function getSprintGoalPrompt(){
@@ -2641,14 +2652,21 @@ async function askOneBrain(id,icon,name,sys,userMsg){
   t.innerHTML=`<div class="av">${icon}</div><div class="tdots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
   msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
   try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,system:sys,messages:[{role:'user',content:userMsg}]})});
-    const data=await res.json();
-    const reply=data.content?.map(c=>c.text||'').join('')||'No response.';
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:sys,messages:[{role:'user',content:userMsg}]})});
     t.remove();
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      const msg = res.status===401 ? 'Invalid API key' : res.status===429 ? 'Rate limit — wait 30s and retry' : err?.error?.message||`HTTP ${res.status}`;
+      addMsg('assistant',`**${name} error:** ${msg}`);
+      return;
+    }
+    const data=await res.json();
+    const reply=data.content?.map(c=>c.text||'').join('')||'';
+    if(!reply){ addMsg('assistant',`**${name}:** No response returned.`); return; }
     const d=document.createElement('div');d.className='msg a';
     d.innerHTML=`<div class="av">${icon}</div><div class="bb"><div class="multi-tag">${name}</div>${formatMsg(reply)}</div>`;
     msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
-  }catch(e){t.remove();addMsg('assistant',`**${name} error:** ${e.message}`);}
+  }catch(e){t.remove();addMsg('assistant',`**${name} connection error:** ${e.message}`);}
 }
 
 // ══ CHAT ══
@@ -2662,48 +2680,72 @@ function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrol
 
 function formatMsg(text){
   if(!text) return '';
-  let html = text
-    // headings
-    .replace(/^#### (.+)$/gm,'<h5 style="font-size:12px;font-weight:700;color:var(--text);margin:12px 0 4px">$1</h5>')
+
+  // Step 1: protect code blocks before any other processing
+  const codeBlocks = [];
+  let html = text.replace(/```(\w+)?[ \t]?\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const idx = codeBlocks.length;
+    const escaped = code.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const langLabel = lang ? `<span style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:4px">${lang}</span>` : '';
+    codeBlocks.push(`<pre style="background:var(--bg4);border:0.5px solid var(--border2);border-radius:8px;padding:10px 14px;margin:8px 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;color:var(--text)">${langLabel}${escaped}</pre>`);
+    return `\x00CB${idx}\x00`;
+  });
+
+  // Step 2: headings
+  html = html
+    .replace(/^#### (.+)$/gm,'<h5 style="font-size:11.5px;font-weight:700;color:var(--text);margin:12px 0 3px">$1</h5>')
     .replace(/^### (.+)$/gm,'<h4 style="font-size:13px;font-weight:700;color:var(--text);margin:14px 0 5px">$1</h4>')
     .replace(/^## (.+)$/gm,'<h3 style="font-size:14px;font-weight:700;color:var(--accent);margin:16px 0 6px;border-bottom:0.5px solid var(--border);padding-bottom:4px">$1</h3>')
-    .replace(/^# (.+)$/gm,'<h2 style="font-size:15px;font-weight:800;color:var(--text);margin:18px 0 8px">$1</h2>')
-    // bold + italic
+    .replace(/^# (.+)$/gm,'<h2 style="font-size:16px;font-weight:800;color:var(--text);margin:18px 0 8px">$1</h2>');
+
+  // Step 3: bold, italic, inline code
+  html = html
     .replace(/\*\*\*(.*?)\*\*\*/g,'<strong><em>$1</em></strong>')
     .replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--text);font-weight:700">$1</strong>')
     .replace(/\*(.*?)\*/g,'<em>$1</em>')
-    // inline code
-    .replace(/`([^`]+)`/g,'<code style="background:var(--bg4);border:0.5px solid var(--border2);border-radius:4px;padding:1px 5px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--accent)">$1</code>')
-    // code blocks
-    .replace(/```(\w+)?\n([\s\S]*?)```/g,'<pre style="background:var(--bg4);border:0.5px solid var(--border2);border-radius:8px;padding:10px 14px;margin:8px 0;overflow-x:auto;font-family:\'JetBrains Mono\',monospace;font-size:11px;line-height:1.6;color:var(--text)">$2</pre>')
-    // horizontal rule
-    .replace(/^---$/gm,'<hr style="border:none;border-top:0.5px solid var(--border);margin:12px 0"/>')
-    // numbered lists
-    .replace(/^\d+\. (.+)$/gm,'<li class="num-li">$1</li>')
-    // bullet lists
-    .replace(/^[-•] (.+)$/gm,'<li class="bul-li">$1</li>')
-    // wrap consecutive list items
-    .replace(/(<li class="num-li">[\s\S]*?<\/li>)(\s*<li class="num-li">[\s\S]*?<\/li>)*/g, m=>`<ol style="padding-left:18px;margin:6px 0;display:flex;flex-direction:column;gap:3px">${m.replace(/class="num-li"/g,'style="font-size:12px;line-height:1.6;color:var(--text)"')}</ol>`)
-    .replace(/(<li class="bul-li">[\s\S]*?<\/li>)(\s*<li class="bul-li">[\s\S]*?<\/li>)*/g, m=>`<ul style="padding-left:16px;margin:6px 0;display:flex;flex-direction:column;gap:3px;list-style:disc">${m.replace(/class="bul-li"/g,'style="font-size:12px;line-height:1.6;color:var(--text)"')}</ul>`)
-    // simple table (| col | col |)
-    .replace(/(\|.+\|\n?)+((\|[-:]+\|\n?)+(\|.+\|\n?)+)?/g, m=>{
-      const lines=m.trim().split('\n').filter(l=>l.includes('|'));
-      const isHeader=lines.length>1 && lines[1] && /^[\|\-\: ]+$/.test(lines[1]);
-      let out='<div style="overflow-x:auto;margin:8px 0"><table style="width:100%;border-collapse:collapse;font-size:11px">';
-      lines.forEach((line,i)=>{
-        if(isHeader && i===1) return;
-        const cells=line.split('|').filter(c=>c.trim());
-        const tag=(isHeader && i===0)?'th':'td';
-        const style=`style="border:0.5px solid var(--border2);padding:6px 10px;text-align:left;${(isHeader&&i===0)?'background:var(--accent);color:#fff;font-weight:700':''}"`;
-        out+=`<tr>${cells.map(c=>`<${tag} ${style}>${c.trim()}</${tag}>`).join('')}</tr>`;
-      });
-      return out+'</table></div>';
-    })
-    // blockquote
-    .replace(/^> (.+)$/gm,'<blockquote style="border-left:3px solid var(--accent);margin:8px 0;padding:6px 12px;background:var(--accent-l);border-radius:0 6px 6px 0;font-size:12px;color:var(--muted2)">$1</blockquote>')
-    // line breaks
-    .replace(/\n\n/g,'<br style="display:block;margin:4px 0"/>')
+    .replace(/`([^`\n]+)`/g,'<code style="background:var(--bg4);border:0.5px solid var(--border2);border-radius:4px;padding:1px 5px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--accent)">$1</code>');
+
+  // Step 4: horizontal rule
+  html = html.replace(/^---$/gm,'<hr style="border:none;border-top:0.5px solid var(--border);margin:12px 0"/>');
+
+  // Step 5: lists
+  html = html
+    .replace(/^\d+\.\s+(.+)$/gm,'<li class="num-li">$1</li>')
+    .replace(/^[-•*]\s+(.+)$/gm,'<li class="bul-li">$1</li>');
+
+  // Step 6: wrap list runs
+  html = html
+    .replace(/(<li class="num-li">[\s\S]*?<\/li>)(\s*<li class="num-li">[\s\S]*?<\/li>)*/g,
+      m=>`<ol style="padding-left:18px;margin:6px 0;display:flex;flex-direction:column;gap:3px">${m.replace(/class="num-li"/g,'style="font-size:12.5px;line-height:1.65;color:var(--text)"')}</ol>`)
+    .replace(/(<li class="bul-li">[\s\S]*?<\/li>)(\s*<li class="bul-li">[\s\S]*?<\/li>)*/g,
+      m=>`<ul style="padding-left:16px;margin:6px 0;display:flex;flex-direction:column;gap:3px;list-style:disc">${m.replace(/class="bul-li"/g,'style="font-size:12.5px;line-height:1.65;color:var(--text)"')}</ul>`);
+
+  // Step 7: tables
+  html = html.replace(/(\|.+\|\n?)+((\|[-:]+\|\n?)+(\|.+\|\n?)+)?/g, m=>{
+    const lines=m.trim().split('\n').filter(l=>l.includes('|'));
+    const isHeader=lines.length>1&&lines[1]&&/^[\|\-\: ]+$/.test(lines[1]);
+    let out='<div style="overflow-x:auto;margin:8px 0"><table style="width:100%;border-collapse:collapse;font-size:11px">';
+    lines.forEach((line,i)=>{
+      if(isHeader&&i===1)return;
+      const cells=line.split('|').filter(c=>c.trim());
+      const tag=(isHeader&&i===0)?'th':'td';
+      const style=`style="border:0.5px solid var(--border2);padding:6px 10px;text-align:left;${(isHeader&&i===0)?'background:var(--accent);color:#fff;font-weight:700':''}"`;
+      out+=`<tr>${cells.map(c=>`<${tag} ${style}>${c.trim()}</${tag}>`).join('')}</tr>`;
+    });
+    return out+'</table></div>';
+  });
+
+  // Step 8: blockquotes
+  html = html.replace(/^> (.+)$/gm,'<blockquote style="border-left:3px solid var(--accent);margin:8px 0;padding:6px 12px;background:var(--accent-l);border-radius:0 6px 6px 0;font-size:12px;color:var(--muted2)">$1</blockquote>');
+
+  // Step 9: line breaks
+  html = html
+    .replace(/\n\n/g,'<br style="display:block;margin:5px 0"/>')
     .replace(/\n/g,'<br/>');
+
+  // Step 10: restore code blocks
+  codeBlocks.forEach((block,i)=>{ html=html.replace(`\x00CB${i}\x00`,block); });
+
   return html;
 }
 
@@ -2781,7 +2823,7 @@ async function sendMsg(){
   const input=document.getElementById('chat-input');
   const userText=input.value.trim();
   if(!userText && !chatAttachments.length)return;
-  if(!apiKey){openModal();toast('Please add your API key first.');return;}
+  if(!apiKey){openModal();toast('Add your API key first — click the key button top right.');return;}
 
   const displayText = userText || `Analysing ${chatAttachments.map(f=>f.name).join(', ')}…`;
   let fullPrompt = userText || 'Please analyse the attached file(s). Give me: 1) Key product insights, 2) What is missing or needs improvement, 3) Top 3 actionable next steps.';
@@ -2791,12 +2833,14 @@ async function sendMsg(){
   fullPrompt+=getChatAttachContext();
 
   input.value=''; input.style.height='auto';
-  isLoading=true; document.getElementById('send-btn').disabled=true;
+  isLoading=true;
+  const sendBtn = document.getElementById('send-btn');
+  if(sendBtn){ sendBtn.disabled=true; sendBtn.textContent='…'; }
 
   const welcome=document.getElementById('welcome-msg'); if(welcome)welcome.remove();
   const msgs=document.getElementById('chat-msgs');
 
-  // Build user message bubble with attachment previews
+  // Build user message bubble
   const uDiv=document.createElement('div'); uDiv.className='msg u';
   let attachHtml='';
   if(chatAttachments.length){
@@ -2810,9 +2854,14 @@ async function sendMsg(){
   uDiv.innerHTML=`<div class="av">👤</div><div class="bb">${attachHtml}${displayText?formatMsg(displayText):''}</div>`;
   msgs.appendChild(uDiv); msgs.scrollTop=msgs.scrollHeight;
 
-  // Build messages array — inject vision if image present
+  // Build messages — trim history to last 10 pairs (20 messages) to avoid token overflow
+  const HISTORY_LIMIT = 20;
+  const trimmedHistory = chatHistory.length > HISTORY_LIMIT
+    ? chatHistory.slice(-HISTORY_LIMIT)
+    : [...chatHistory];
+
   const currentImg = chatPendingImage;
-  let messages=[...chatHistory, {role:'user',content:fullPrompt}];
+  let messages=[...trimmedHistory, {role:'user',content:fullPrompt}];
   if(currentImg){
     const b64=currentImg.dataUrl.split(',')[1];
     messages[messages.length-1]={role:'user',content:[
@@ -2830,14 +2879,41 @@ async function sendMsg(){
   addTyping();
   const sys=getActiveBrainSystemPrompt();
   try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:sys,messages})});
-    if(res.status===401){removeTyping();apiKey='';document.getElementById('api-btn').classList.remove('connected');document.getElementById('api-btn-text').textContent='Add API Key';addMsg('assistant','**Invalid API key.** Click Add API Key in the top bar.');isLoading=false;document.getElementById('send-btn').disabled=false;return;}
-    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err?.error?.message||`HTTP ${res.status}`);}
-    const data=await res.json();removeTyping();
-    const reply=data.content?.map(c=>c.text||'').join('')||'No response.';
-    chatHistory.push({role:'assistant',content:reply}); addMsg('assistant',reply);
-  }catch(e){removeTyping();addMsg('assistant',`**Error:** ${e.message}`);}
-  isLoading=false; document.getElementById('send-btn').disabled=false;
+    const res=await fetch('/api/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:sys,messages})
+    });
+    removeTyping();
+    if(res.status===401){
+      apiKey='';
+      const apiBtn=document.getElementById('api-btn');
+      if(apiBtn){apiBtn.classList.remove('connected');document.getElementById('api-btn-text').textContent='Add API Key';}
+      addMsg('assistant','**API key invalid or expired.** Click "Add API Key" in the top bar and enter a valid key from console.anthropic.com.');
+      isLoading=false; if(sendBtn){sendBtn.disabled=false;sendBtn.textContent='↑';} return;
+    }
+    if(res.status===429){
+      addMsg('assistant','**Rate limit reached.** Wait 30–60 seconds and try again. If this persists, check your usage at console.anthropic.com → Usage.');
+      isLoading=false; if(sendBtn){sendBtn.disabled=false;sendBtn.textContent='↑';} return;
+    }
+    if(!res.ok){
+      const err=await res.json().catch(()=>({}));
+      throw new Error(err?.error?.message||`API error (HTTP ${res.status})`);
+    }
+    const data=await res.json();
+    const reply=data.content?.map(c=>c.text||'').join('')||'';
+    if(!reply){
+      addMsg('assistant','**Empty response from API.** This can happen with very long prompts. Try a shorter question or clear context.');
+    } else {
+      chatHistory.push({role:'assistant',content:reply});
+      addMsg('assistant',reply);
+    }
+  }catch(e){
+    removeTyping();
+    addMsg('assistant',`**Connection error:** ${e.message}\n\nCheck: 1) API key is valid, 2) Vercel deployment is live, 3) No network issues.`);
+  }
+  isLoading=false;
+  if(sendBtn){sendBtn.disabled=false;sendBtn.textContent='↑';}
 }
 
 // ══ KNOWLEDGE BASE ══
@@ -3285,7 +3361,25 @@ function buildTemplates(){
   renderTemplates('All');
 }
 function filterTemplates(cat,el){document.querySelectorAll('.tfbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderTemplates(cat);}
-function renderTemplates(cat){const filtered=cat==='All'?TEMPLATES:TEMPLATES.filter(t=>t.cat===cat);document.getElementById('tmpl-grid').innerHTML=filtered.map(t=>`<div class="tc" style="--tc:${t.color}" onclick="useTemplate(${JSON.stringify(t.prompt).replace(/'/g,"&#39;")})"><div class="tc-cat">${t.cat}</div><div class="tc-name">${t.name}</div><div class="tc-desc">${t.desc}</div><div class="tc-use">Use template →</div></div>`).join('');}
+function renderTemplates(cat){
+  const filtered = cat==='All' ? TEMPLATES : TEMPLATES.filter(t=>t.cat===cat);
+  // Store filtered list globally so useTemplate can look up by index
+  window._filteredTemplates = filtered;
+  document.getElementById('tmpl-grid').innerHTML = filtered.map((t,i)=>`
+    <div class="tc" style="--tc:${t.color}" data-tidx="${i}" onclick="useTemplateByIdx(this.dataset.tidx)">
+      <div class="tc-top">
+        <span class="tc-cat">${t.cat}</span>
+      </div>
+      <div class="tc-name">${t.name}</div>
+      <div class="tc-desc">${t.desc}</div>
+      <div class="tc-use">Use template →</div>
+    </div>`).join('');
+}
+function useTemplateByIdx(idx){
+  const t = (window._filteredTemplates||TEMPLATES)[parseInt(idx)];
+  if(!t) return;
+  useTemplate(t.prompt);
+}
 function useTemplate(prompt){switchTab('chat',null);document.getElementById('chat-input').value=prompt+getCtx();autoResize(document.getElementById('chat-input'));document.getElementById('chat-input').focus();toast('Template loaded — customise and send!');}
 
 // ══ API KEY ══
