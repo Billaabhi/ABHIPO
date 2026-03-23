@@ -8,46 +8,55 @@
 <style>
 /* ── THEME VARS ── */
 [data-theme="dark"]{
-  --bg:#0a0a0c;--bg2:#111114;--bg3:#18181c;--bg4:#222228;
-  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
-  --text:#efefef;--muted:#555;--muted2:#888;--card-bg:#111114;
-  --input-bg:#222228;--widget-bg:#18181c;
+  --bg:#09090d;--bg2:#111116;--bg3:#17171d;--bg4:#1e1e26;
+  --border:rgba(255,255,255,0.055);--border2:rgba(255,255,255,0.10);
+  --text:#f0f0f2;--muted:#4a4a5a;--muted2:#7a7a90;--card-bg:#111116;
+  --input-bg:#1e1e26;--widget-bg:#17171d;
+  --shadow:0 2px 12px rgba(0,0,0,0.4);--shadow-sm:0 1px 4px rgba(0,0,0,0.25);
 }
 [data-theme="light"]{
-  --bg:#f0f0f4;--bg2:#ffffff;--bg3:#f5f5f8;--bg4:#e8e8ee;
-  --border:rgba(0,0,0,0.08);--border2:rgba(0,0,0,0.14);
-  --text:#1a1a2e;--muted:#aaa;--muted2:#777;--card-bg:#ffffff;
-  --input-bg:#f0f0f4;--widget-bg:#f5f5f8;
+  --bg:#f2f2f6;--bg2:#ffffff;--bg3:#f8f8fb;--bg4:#eeeef3;
+  --border:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);
+  --text:#1a1a2a;--muted:#999;--muted2:#5a5a72;--card-bg:#ffffff;
+  --input-bg:#f2f2f6;--widget-bg:#f8f8fb;
+  --shadow:0 2px 12px rgba(0,0,0,0.08);--shadow-sm:0 1px 4px rgba(0,0,0,0.06);
 }
 :root{
-  --accent:#6C47FF;--accent-l:rgba(108,71,255,0.12);--accent-m:rgba(108,71,255,0.25);
-  --green:#00D4AA;--orange:#FF6B35;--pink:#E91E8C;--yellow:#F5A623;--red:#FF5252;--blue:#29B6F6;
-  --radius:10px;
+  --accent:#6C47FF;--accent-l:rgba(108,71,255,0.10);--accent-m:rgba(108,71,255,0.22);
+  --green:#00C896;--green-l:rgba(0,200,150,0.12);
+  --orange:#FF6B35;--pink:#E91E8C;--yellow:#F5A623;--red:#FF4757;--blue:#29B6F6;
+  --radius:12px;--radius-sm:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .2s,color .2s}
+body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .25s,color .25s}
+
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fi{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
 
 /* ── TOPBAR ── */
-.topbar{height:52px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:200}
-.logo{width:30px;height:30px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.app-title{font-size:15px;font-weight:800;letter-spacing:-.02em}
+.topbar{height:54px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:200;box-shadow:var(--shadow-sm)}
+.logo{width:32px;height:32px;background:linear-gradient(135deg,#6C47FF,#9B7BFF);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 2px 8px rgba(108,71,255,0.3)}
+.app-title{font-size:15px;font-weight:800;letter-spacing:-.025em}
 .app-title em{color:var(--accent);font-style:normal}
-.divdr{width:0.5px;height:18px;background:var(--border2);margin:0 4px}
-.live-badge{display:flex;align-items:center;gap:5px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;color:var(--accent)}
-.live-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.divdr{width:0.5px;height:16px;background:var(--border2);margin:0 3px;opacity:.6}
+.live-badge{display:flex;align-items:center;gap:5px;background:var(--green-l);border:0.5px solid rgba(0,200,150,0.25);border-radius:20px;padding:3px 10px;font-size:9.5px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.04em}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2.5s infinite}
 .tr{margin-left:auto;display:flex;gap:6px;align-items:center}
-.theme-toggle{background:var(--bg3);border:0.5px solid var(--border2);border-radius:20px;padding:4px 10px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--muted2);transition:all .15s;font-family:'Outfit',sans-serif}
-.theme-toggle:hover{color:var(--text);border-color:var(--border2)}
-.api-btn{display:flex;align-items:center;gap:5px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 11px;font-size:10px;font-weight:500;color:var(--muted2);cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
-.api-btn.connected{color:var(--green);border-color:rgba(0,212,170,.3);background:rgba(0,212,170,.06)}
-.api-btn .dot{width:5px;height:5px;border-radius:50%;background:var(--muted)}
-.api-btn.connected .dot{background:var(--green);animation:pulse 2s infinite}
+.theme-toggle{background:var(--bg3);border:0.5px solid var(--border2);border-radius:20px;padding:4px 11px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--muted2);transition:all .2s;font-family:'Outfit',sans-serif}
+.theme-toggle:hover{color:var(--text);border-color:var(--border2);background:var(--bg4)}
+.api-btn{display:flex;align-items:center;gap:6px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:5px 12px;font-size:10px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s}
+.api-btn:hover{color:var(--text);border-color:var(--border2)}
+.api-btn.connected{color:var(--green);border-color:rgba(0,200,150,0.28);background:rgba(0,200,150,0.07)}
+.api-btn .dot{width:5px;height:5px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.api-btn.connected .dot{background:var(--green);animation:pulse 2.5s infinite}
 
 /* ── NAV TABS ── */
-.nav-tabs{height:44px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:2px;overflow-x:auto;position:sticky;top:52px;z-index:190}
+.nav-tabs{height:42px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:1px;overflow-x:auto;position:sticky;top:54px;z-index:190;-ms-overflow-style:none;scrollbar-width:none}
 .nav-tabs::-webkit-scrollbar{display:none}
-.nav-tab{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:8px;border:0.5px solid transparent;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.nav-tab{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:7px;border:0.5px solid transparent;font-size:10.5px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0}
 .nav-tab:hover{background:var(--bg3);color:var(--text)}
 .nav-tab.active{background:var(--accent-l);border-color:var(--accent-m);color:var(--accent)}
 
@@ -56,20 +65,20 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .page.active{display:block}
 
 /* ── HOME PAGE ── */
-.home-wrap{padding:20px 24px;max-width:1400px;margin:0 auto}
+.home-wrap{padding:20px 24px;max-width:1440px;margin:0 auto}
 
 /* Top stats row */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-.stat-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:all .2s}
-.stat-card:hover{border-color:var(--accent-m);transform:translateY(-2px)}
+.stat-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
+.stat-card:hover{border-color:var(--accent-m);transform:translateY(-2px);box-shadow:var(--shadow)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc)}
-.stat-label{font-size:10px;color:var(--muted2);font-weight:500;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px}
-.stat-val{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--sc)}
-.stat-sub{font-size:10px;color:var(--muted2);margin-top:4px}
-.stat-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:26px;opacity:.15}
+.stat-label{font-size:9.5px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.stat-val{font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--sc)}
+.stat-sub{font-size:9.5px;color:var(--muted2);margin-top:4px}
+.stat-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:28px;opacity:.12}
 
 /* Widget grid */
-.widgets-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px}
+.widgets-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;align-items:start}
 
 /* Widget cards */
 .widget{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;transition:all .2s}
@@ -125,7 +134,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .kb-active{display:flex;align-items:center;gap:5px;padding:5px 8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:6px;margin-bottom:8px}
 .kb-active-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;flex-shrink:0}
 .kb-active-txt{font-size:9px;color:var(--accent);font-weight:600}
-.kb-files{display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto}
+.kb-files{display:flex;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto}
 .kb-files::-webkit-scrollbar{width:3px}
 .kb-files::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px}
 .kb-file{background:var(--bg4);border:0.5px solid var(--border);border-radius:6px;padding:5px 8px;display:flex;align-items:center;gap:6px}
@@ -145,26 +154,34 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 
 /* ── QUICK ACTIONS WIDGET ── */
 .qa-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
-.qa-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:10px 6px;cursor:pointer;text-align:center;transition:all .15s}
-.qa-btn:hover{border-color:var(--accent-m);background:var(--accent-l)}
-.qa-btn:hover .qa-label{color:var(--accent)}
-.qa-icon{font-size:18px;display:block;margin-bottom:5px}
-.qa-label{font-size:9px;color:var(--muted2);font-weight:500;line-height:1.3}
+.qa-grid.qa-5{grid-template-columns:repeat(5,1fr)}
+.qa-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:9px 6px 7px;cursor:pointer;text-align:center;transition:all .18s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.qa-btn:hover{transform:translateY(-2px);box-shadow:var(--shadow-sm)}
+.qa-ceremony:hover{border-color:rgba(102,187,106,.4);background:rgba(102,187,106,.08)}
+.qa-ceremony:hover .qa-label{color:#66BB6A}
+.qa-strategy:hover{border-color:var(--accent-m);background:var(--accent-l)}
+.qa-strategy:hover .qa-label{color:var(--accent)}
+.qa-icon{font-size:20px;line-height:1;display:block;margin-bottom:2px}
+.qa-label{font-size:10px;font-weight:700;color:var(--muted2);display:block;line-height:1.2;transition:color .15s}
+.qa-sub{font-size:7.5px;color:var(--muted);display:block;line-height:1.3;margin-top:1px}
 
 /* ── MULTI-BRAIN WIDGET ── */
-.mb-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:10px}
-.mb-brain{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:7px;cursor:pointer;border:0.5px solid var(--border);background:var(--bg3);transition:all .15s}
-.mb-brain:hover{border-color:var(--border2)}
+.mb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-bottom:8px}
+.mb-brain{display:flex;align-items:center;gap:5px;padding:5px 7px;border-radius:7px;cursor:pointer;border:0.5px solid var(--border);background:var(--bg3);transition:all .15s;font-size:12px}
+.mb-brain:hover{border-color:var(--border2);background:var(--bg4)}
 .mb-brain.on{background:var(--accent-l);border-color:var(--accent-m)}
-.mb-check{width:14px;height:14px;border-radius:4px;border:0.5px solid var(--border2);background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;transition:all .15s}
-.mb-brain.on .mb-check{background:var(--accent);border-color:var(--accent)}
-.mb-name{font-size:10px;color:var(--muted2);font-weight:500;transition:color .15s}
+.mb-check{width:13px;height:13px;border-radius:3px;border:0.5px solid var(--border2);background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:8px;flex-shrink:0;transition:all .15s}
+.mb-brain.on .mb-check{background:var(--accent);border-color:var(--accent);color:#fff}
+.mb-name{font-size:9px;color:var(--muted2);font-weight:600;transition:color .15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mb-brain.on .mb-name{color:var(--text)}
-.mb-input-row{display:flex;gap:8px;align-items:center;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:8px;padding:7px 10px;margin-top:8px}
+.mb-suggest{background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px;font-size:9px;color:var(--muted2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.mb-suggest:hover{border-color:var(--accent-m);color:var(--accent);background:var(--accent-l)}
+.mb-input-row{display:flex;gap:8px;align-items:center;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:8px;padding:7px 10px}
 .mb-input{flex:1;border:none;background:transparent;color:var(--text);font-size:12px;font-family:'Outfit',sans-serif;outline:none}
 .mb-input::placeholder{color:var(--muted)}
 .mb-send{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity .15s;white-space:nowrap}
 .mb-send:hover{opacity:.85}
+.mb-send:disabled{opacity:.4;cursor:not-allowed}
 
 .chat-wrap{display:flex;flex-direction:column;height:calc(100vh - 148px);min-height:500px;overflow:hidden}
 .chat-msgs{flex:1;overflow-y:auto;padding:20px 28px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
@@ -377,59 +394,80 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .toast.show{opacity:1}
 
 /* ── BRAIN SELECTOR BAR ── */
-.brain-bar{height:52px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:5px;flex-shrink:0;overflow-x:auto;position:sticky;top:96px;z-index:180}
+.brain-bar-wrap{background:var(--bg2);border-bottom:0.5px solid var(--border);position:sticky;top:96px;z-index:180;display:flex;align-items:center;padding:0 10px;gap:4px;height:46px;box-shadow:0 1px 0 var(--border)}
+.brain-bar{display:flex;align-items:center;padding:4px 0;gap:3px;overflow-x:auto;flex:1;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none}
 .brain-bar::-webkit-scrollbar{display:none}
-.brain-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg3);cursor:pointer;transition:all .2s ease;white-space:nowrap;flex-shrink:0}
-.brain-btn:hover{border-color:var(--border2);background:var(--bg4)}
-.brain-btn.active{border-color:var(--btn-color);background:color-mix(in srgb,var(--btn-color) 12%,transparent);box-shadow:0 0 10px color-mix(in srgb,var(--btn-color) 18%,transparent)}
-.brain-btn-icon{font-size:15px}
-.brain-btn-label{font-size:10.5px;font-weight:600;color:var(--muted2);transition:color .2s}
-.brain-btn.active .brain-btn-label{color:var(--btn-color)}
-.brain-btn-role{font-size:8.5px;color:var(--muted);display:block;margin-top:1px}
-/* ── BRAIN SELECTOR BAR ── */
-.brain-bar-wrap{background:var(--bg2);border-bottom:0.5px solid var(--border);position:sticky;top:96px;z-index:180;display:flex;align-items:center;padding:0 8px;gap:4px}
-.brain-bar{height:52px;display:flex;align-items:center;padding:0 4px;gap:5px;overflow-x:auto;flex:1;scroll-behavior:smooth}
-.brain-bar::-webkit-scrollbar{height:3px}
-.brain-bar::-webkit-scrollbar-track{background:transparent}
-.brain-bar::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
-.brain-bar:hover::-webkit-scrollbar-thumb{background:var(--accent-m)}
-.bb-arrow{width:26px;height:26px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;flex-shrink:0;color:var(--muted2);transition:all .15s;user-select:none}
+.bb-arrow{width:24px;height:24px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:10px;flex-shrink:0;color:var(--muted2);transition:all .15s;user-select:none}
 .bb-arrow:hover{background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)}
-.brain-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:0.5px solid var(--border);background:var(--bg3);cursor:pointer;transition:all .2s ease;white-space:nowrap;flex-shrink:0}
+.brain-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;border:0.5px solid var(--border);background:var(--bg3);cursor:pointer;transition:all .18s;white-space:nowrap;flex-shrink:0}
 .brain-btn:hover{border-color:var(--border2);background:var(--bg4)}
-.brain-btn.active{border-color:var(--btn-color);background:color-mix(in srgb,var(--btn-color) 12%,transparent);box-shadow:0 0 10px color-mix(in srgb,var(--btn-color) 18%,transparent)}
-.brain-btn-icon{font-size:15px}
-.brain-btn-label{font-size:10.5px;font-weight:600;color:var(--muted2);transition:color .2s}
+.brain-btn.active{border-color:var(--btn-color);background:color-mix(in srgb,var(--btn-color) 10%,transparent);box-shadow:0 0 10px color-mix(in srgb,var(--btn-color) 14%,transparent)}
+.brain-btn-icon{font-size:13px}
+.brain-btn-label{font-size:10px;font-weight:700;color:var(--muted2);transition:color .18s}
 .brain-btn.active .brain-btn-label{color:var(--btn-color)}
-.brain-btn-role{font-size:8.5px;color:var(--muted);display:block;margin-top:1px}
-.active-brain-pill{display:flex;align-items:center;gap:5px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:600;color:var(--accent);transition:all .3s}
-.active-brain-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;transition:background .3s}
+.brain-btn-role{font-size:8px;color:var(--muted);display:block;margin-top:1px;display:none}
+.active-brain-pill{display:flex;align-items:center;gap:5px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:20px;padding:3px 10px;font-size:9.5px;font-weight:700;color:var(--accent);transition:all .3s}
+.active-brain-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2.5s infinite;transition:background .3s}
+
 /* ── CHAT UPLOAD ── */
-.chat-upload-btn{width:30px;height:30px;background:var(--bg4);border:0.5px solid var(--border2);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;color:var(--muted2);transition:all .15s;position:relative}
+.chat-upload-btn{width:30px;height:30px;background:var(--bg4);border:0.5px solid var(--border2);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;flex-shrink:0;color:var(--muted2);transition:all .15s;position:relative}
 .chat-upload-btn:hover{background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)}
 .chat-upload-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.attach-strip{display:none;flex-wrap:wrap;gap:5px;padding:6px 12px;border-top:0.5px solid var(--border);background:var(--bg3)}
-.attach-pill{display:flex;align-items:center;gap:5px;background:var(--bg4);border:0.5px solid var(--border2);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--text);animation:fadeIn .2s ease;max-width:180px}
+.attach-strip{display:none;flex-wrap:wrap;gap:5px;padding:7px 14px 4px;border-bottom:0.5px solid var(--border)}
+.attach-pill{display:flex;align-items:center;gap:5px;background:var(--bg4);border:0.5px solid var(--border2);border-radius:6px;padding:3px 8px;font-size:10px;color:var(--text);animation:fi .2s ease;max-width:180px}
 .attach-pill-name{font-size:9px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
 .attach-pill-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;flex-shrink:0;transition:color .15s;padding:0}
 .attach-pill-del:hover{color:var(--red)}
 .attach-pill.ai-t{border-color:var(--accent-m);background:var(--accent-l)}
 .attach-pill.img-t{border-color:rgba(233,30,140,.3);background:rgba(233,30,140,.07)}
 .attach-pill.csv-t{border-color:rgba(245,166,35,.3);background:rgba(245,166,35,.07)}
+
 /* ── PROMPT REPO ── */
-.pr-filter{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
-.pr-fb{background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px;font-size:10px;font-weight:500;color:var(--muted2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.pr-filter{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.pr-fb{background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;padding:3px 11px;font-size:9.5px;font-weight:600;color:var(--muted2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px}
+.pr-fb:hover{border-color:var(--border2);color:var(--text)}
 .pr-fb.on{background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)}
-.pr-fb .pr-fb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.pr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.pr-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:11px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.pr-card:hover{border-color:var(--border2);background:var(--bg4);transform:translateY(-2px)}
+.pr-fb .pr-fb-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.pr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pr-card{background:var(--bg3);border:0.5px solid var(--border);border-radius:11px;padding:12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.pr-card:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
 .pr-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;background:var(--pc)}
 .pr-brain-tag{display:inline-flex;align-items:center;gap:3px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--pc);margin-bottom:4px}
-.pr-title{font-size:10.5px;font-weight:600;color:var(--text);margin-bottom:3px;line-height:1.3}
-.pr-desc{font-size:8.5px;color:var(--muted2);line-height:1.45}
-.pr-use{margin-top:6px;font-size:8.5px;color:var(--accent);font-weight:600}
-@media(max-width:700px){.pr-grid{grid-template-columns:repeat(2,1fr)}}</style>
+.pr-title{font-size:10.5px;font-weight:700;color:var(--text);margin-bottom:3px;line-height:1.3}
+.pr-desc{font-size:8.5px;color:var(--muted2);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pr-use{margin-top:7px;font-size:8.5px;color:var(--accent);font-weight:700;display:flex;align-items:center;gap:3px}
+
+/* ── RESPONSIVE BREAKPOINTS ── */
+@media(max-width:1100px){
+  .widgets-grid{grid-template-columns:1fr 1fr!important}
+  .pr-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .qa-grid.qa-5{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:768px){
+  .home-wrap,.tab-page{padding:14px 14px}
+  .topbar{padding:0 12px;height:50px}
+  .nav-tabs{padding:0 10px;top:50px}
+  .brain-bar-wrap{top:92px}
+  .widgets-grid{grid-template-columns:1fr!important}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .ctx-team-grid{grid-template-columns:repeat(3,1fr)!important}
+  .pr-grid{grid-template-columns:1fr 1fr}
+  .chat-wrap{height:calc(100vh - 142px)}
+  .divdr{display:none}
+  .live-badge{display:none}
+  .qa-grid,.qa-grid.qa-5{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:500px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .pr-grid{grid-template-columns:1fr}
+  .ctx-team-grid{grid-template-columns:repeat(2,1fr)!important}
+  .ctx-cap-row{grid-template-columns:repeat(2,1fr)!important}
+  .chat-wrap{height:calc(100vh - 138px)}
+  .app-title{display:none}
+  .active-brain-pill{display:none}
+  .qa-grid,.qa-grid.qa-5{grid-template-columns:repeat(2,1fr)}
+}</style>
 </head>
 <body>
 
@@ -496,7 +534,6 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
   <div class="nav-tab" onclick="switchTab('docs',this)">📄 Docs</div>
   <div class="nav-tab" onclick="switchTab('templates',this)">📚 Templates</div>
   <div class="nav-tab" onclick="switchTab('prompts',this)">💡 Prompts</div>
-  <div class="nav-tab" onclick="switchTab('prompts',this)">⚡ Prompt Repo</div>
 </div>
 
 <!-- BRAIN SELECTOR BAR -->
@@ -516,25 +553,25 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="stat-icon">📋</div>
         <div class="stat-label">Backlog Items</div>
         <div class="stat-val" id="stat-backlog">0</div>
-        <div class="stat-sub">Click to manage backlog</div>
+        <div class="stat-sub" id="stat-backlog-sub">Add items → RICE score → sprint</div>
       </div>
       <div class="stat-card" style="--sc:#00D4AA" onclick="switchTab('metrics',document.querySelectorAll('.nav-tab')[4])">
         <div class="stat-icon">📊</div>
         <div class="stat-label">KPIs Tracked</div>
         <div class="stat-val" id="stat-kpis">0</div>
-        <div class="stat-sub">Click to view metrics</div>
+        <div class="stat-sub" id="stat-kpis-sub">Define metrics → track trend → AI analyse</div>
       </div>
       <div class="stat-card" style="--sc:#FF6B35" onclick="switchTab('roadmap',document.querySelectorAll('.nav-tab')[3])">
         <div class="stat-icon">🗺️</div>
         <div class="stat-label">Roadmap Items</div>
         <div class="stat-val" id="stat-roadmap">0</div>
-        <div class="stat-sub">Click to view roadmap</div>
+        <div class="stat-sub" id="stat-roadmap-sub">Plan 6 months · theme by focus area</div>
       </div>
       <div class="stat-card" style="--sc:#E91E8C" onclick="switchTab('chat',document.querySelectorAll('.nav-tab')[1])">
-        <div class="stat-icon">💬</div>
-        <div class="stat-label">KB Files Loaded</div>
+        <div class="stat-icon">🧠</div>
+        <div class="stat-label">AI Context Active</div>
         <div class="stat-val" id="stat-kb">0</div>
-        <div class="stat-sub">Click to open AI Chat</div>
+        <div class="stat-sub" id="stat-kb-sub">KB files powering every AI response</div>
       </div>
     </div>
 
@@ -554,11 +591,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
           <!-- SECTION: PRODUCT -->
           <div class="ctx-section-lbl">Product</div>
           <div class="ctx-grid">
-            <div class="cf"><label>Product name</label><input type="text" id="ctx-product" placeholder="e.g. Aldar Digital Platform"/></div>
-            <div class="cf"><label>Industry / Domain</label><input type="text" id="ctx-domain" placeholder="e.g. PropTech / Real Estate"/></div>
-            <div class="cf"><label>Target users</label><input type="text" id="ctx-users" placeholder="e.g. Property buyers, agents"/></div>
+            <div class="cf"><label>Product name</label><input type="text" id="ctx-product" placeholder="e.g. Aldar Digital Platform" oninput="autoSaveCtx()"/></div>
+            <div class="cf"><label>Industry / Domain</label><input type="text" id="ctx-domain" placeholder="e.g. PropTech / Real Estate" oninput="autoSaveCtx()"/></div>
+            <div class="cf"><label>Target users</label><input type="text" id="ctx-users" placeholder="e.g. Property buyers, agents" oninput="autoSaveCtx()"/></div>
             <div class="cf"><label>Product stage</label>
-              <select id="ctx-stage">
+              <select id="ctx-stage" onchange="autoSaveCtx()">
                 <option value="">Select…</option>
                 <option>Pre-product / Idea</option>
                 <option>MVP / Early</option>
@@ -568,20 +605,21 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
               </select>
             </div>
           </div>
-          <div class="cf" style="margin-bottom:10px"><label>Current sprint goal / focus</label><textarea id="ctx-sprint" placeholder="e.g. Sprint 14 — reduce checkout drop-off and ship payment retry feature" style="height:44px;resize:none"></textarea></div>
-          <div class="ctx-grid">
-            <div class="cf"><label>Primary metric / OKR</label><input type="text" id="ctx-goal" placeholder="e.g. Reduce churn by 15% Q2"/></div>
-            <div class="cf"><label>Delivery methodology</label>
-              <select id="ctx-method">
-                <option value="">Select…</option>
-                <option>Scrum (2-week sprints)</option>
-                <option>Scrum (1-week sprints)</option>
-                <option>Kanban</option>
-                <option>SAFe / Scaled Agile</option>
-                <option>Shape Up</option>
-                <option>Waterfall / Hybrid</option>
-              </select>
-            </div>
+          <div class="ctx-grid" style="margin-bottom:8px">
+            <div class="cf"><label>Sprint number</label><input type="text" id="ctx-sprint-num" placeholder="e.g. Sprint 14" oninput="autoSaveCtx()"/></div>
+            <div class="cf"><label>Primary metric / OKR</label><input type="text" id="ctx-goal" placeholder="e.g. Reduce churn by 15% Q2" oninput="autoSaveCtx()"/></div>
+          </div>
+          <div class="cf" style="margin-bottom:8px"><label>Sprint goal / focus</label><textarea id="ctx-sprint" placeholder="e.g. Reduce checkout drop-off and ship payment retry feature" style="height:40px;resize:none" oninput="autoSaveCtx()"></textarea></div>
+          <div class="cf" style="margin-bottom:10px"><label>Delivery methodology</label>
+            <select id="ctx-method" onchange="autoSaveCtx()">
+              <option value="">Select…</option>
+              <option>Scrum (2-week sprints)</option>
+              <option>Scrum (1-week sprints)</option>
+              <option>Kanban</option>
+              <option>SAFe / Scaled Agile</option>
+              <option>Shape Up</option>
+              <option>Waterfall / Hybrid</option>
+            </select>
           </div>
 
           <!-- SECTION: TEAM STRUCTURE -->
@@ -671,19 +709,21 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
           <div class="ctx-section-lbl" style="margin-top:10px">Sprint Capacity</div>
           <div class="ctx-grid">
             <div class="cf"><label>Sprint length (days)</label>
-              <select id="ctx-sprint-days">
+              <select id="ctx-sprint-days" onchange="updateDaysLostMax();updateCapacity()">
                 <option value="5">5 days (1 week)</option>
                 <option value="10" selected>10 days (2 weeks)</option>
                 <option value="15">15 days (3 weeks)</option>
+                <option value="20">20 days (4 weeks)</option>
               </select>
             </div>
             <div class="cf"><label>Days lost this sprint</label><input type="number" id="ctx-days-lost" min="0" max="10" value="0" placeholder="0" oninput="updateCapacity()"/></div>
-            <div class="cf"><label>Historical velocity (SP)</label><input type="number" id="ctx-velocity" min="0" max="200" placeholder="e.g. 45" oninput="updateCapacity()"/></div>
+            <div class="cf"><label>Historical velocity (SP)</label><input type="number" id="ctx-velocity" min="0" max="999" placeholder="e.g. 45" oninput="updateCapacity()"/></div>
             <div class="cf"><label>Focus factor %</label>
               <select id="ctx-focus" onchange="updateCapacity()">
-                <option value="60">60% — highly interrupted team</option>
+                <option value="60">60% — highly interrupted</option>
                 <option value="70" selected>70% — typical team</option>
                 <option value="80">80% — focused team</option>
+                <option value="90">90% — dedicated sprint</option>
               </select>
             </div>
           </div>
@@ -708,6 +748,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
                 <div class="ctx-cap-val" id="cap-buffer" style="color:var(--green)">—</div>
               </div>
             </div>
+            <div id="cap-health" style="display:none;margin-bottom:8px;padding:5px 9px;border-radius:6px;font-size:9.5px;font-weight:600;line-height:1.4"></div>
             <button class="ctx-cap-btn" onclick="loadCapacityToChat()">⚡ Get full capacity plan in AI Chat →</button>
           </div>
 
@@ -717,9 +758,12 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
       <!-- WIDGET 2: KNOWLEDGE BASE -->
       <div class="widget">
         <div class="widget-header">
-          <div class="widget-title">📁 Knowledge Base</div>
+          <div class="widget-title">📁 Knowledge Base
+            <span id="kb-count-badge" style="display:none;background:var(--accent);color:#fff;font-size:8px;font-weight:700;border-radius:10px;padding:1px 6px;margin-left:4px">0</span>
+          </div>
           <div class="widget-actions">
-            <button class="wbtn-ghost" onclick="switchTab('chat',document.querySelectorAll('.nav-tab')[1])">Open Chat →</button>
+            <button class="wbtn-ghost" id="kb-clear-all-btn" onclick="clearAllKb()" style="display:none;color:var(--red);border-color:rgba(255,71,87,0.3)" title="Remove all files from Knowledge Base">Clear all</button>
+            <button class="wbtn" onclick="switchTab('chat',document.querySelectorAll('.nav-tab')[1])">Open Chat →</button>
           </div>
         </div>
         <div class="widget-body">
@@ -733,9 +777,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
               onchange="handleFileSelect(event)"/>
             <span class="kb-dz-icon">📂</span>
             <div class="kb-dz-text">Drop files or click to upload</div>
-            <div class="kb-dz-sub">AI reads every file in every response</div>
+            <div class="kb-dz-sub">Files are grounded into the AI context — your PRD, backlog CSV, research docs, or competitor screenshots</div>
             <div class="kb-types">
-              <span class="kb-type">PDF</span><span class="kb-type">DOCX</span><span class="kb-type">CSV</span><span class="kb-type">XLSX</span><span class="kb-type">IMG</span>
+              <span class="kb-type">PDF</span><span class="kb-type">DOCX</span><span class="kb-type">CSV</span><span class="kb-type">XLSX</span><span class="kb-type">TXT</span><span class="kb-type">IMG</span>
             </div>
           </div>
           <div class="kb-active" id="kb-active" style="display:none">
@@ -743,7 +787,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
             <span class="kb-active-txt" id="kb-active-txt">0 files active in AI brain</span>
           </div>
           <div class="kb-files" id="kb-files">
-            <div class="kb-empty">No files yet — upload to power your AI brain</div>
+            <div class="kb-empty">No files yet — upload your PRD or backlog to personalise every AI response</div>
           </div>
         </div>
       </div>
@@ -751,50 +795,113 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
       <!-- WIDGET 3: QUICK ACTIONS -->
       <div class="widget">
         <div class="widget-header">
-          <div class="widget-title">⚡ Quick Actions</div>
-          <div class="widget-actions">
-            <button class="wbtn-ghost" onclick="switchTab('chat',document.querySelectorAll('.nav-tab')[1])">View Chat →</button>
+          <div class="widget-title">⚡ Quick Actions
+            <span style="font-size:8px;font-weight:500;color:var(--muted2);margin-left:4px">context-aware · fires into AI Chat</span>
           </div>
         </div>
-        <div class="widget-body">
-          <div class="qa-grid">
-            <div class="qa-btn" onclick="quickAction('standup')"><span class="qa-icon">☀️</span><span class="qa-label">Daily Standup</span></div>
-            <div class="qa-btn" onclick="quickAction('sprint-review')"><span class="qa-icon">🏁</span><span class="qa-label">Sprint Review</span></div>
-            <div class="qa-btn" onclick="quickAction('retro')"><span class="qa-icon">🔄</span><span class="qa-label">Retro Notes</span></div>
-            <div class="qa-btn" onclick="quickAction('premortem')"><span class="qa-icon">🧨</span><span class="qa-label">Pre-mortem</span></div>
-            <div class="qa-btn" onclick="quickAction('grooming')"><span class="qa-icon">✂️</span><span class="qa-label">Backlog Groom</span></div>
-            <div class="qa-btn" onclick="quickAction('release-notes')"><span class="qa-icon">📣</span><span class="qa-label">Release Notes</span></div>
-            <div class="qa-btn" onclick="quickAction('devil')"><span class="qa-icon">😈</span><span class="qa-label">Devil's Advocate</span></div>
-            <div class="qa-btn" onclick="quickAction('rice-all')"><span class="qa-icon">⚖️</span><span class="qa-label">Score Backlog</span></div>
+        <div class="widget-body" style="padding:10px">
+
+          <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🏃 Scrum Ceremonies</div>
+          <div class="qa-grid qa-5" style="margin-bottom:10px">
+            <div class="qa-btn qa-ceremony" onclick="runQuickAction(this,'standup')" title="Sprint-aware standup — uses your sprint goal, team size, and velocity">
+              <span class="qa-icon">☀️</span>
+              <span class="qa-label">Daily Standup</span>
+              <span class="qa-sub">Sprint-aware · 🏃 Scrum</span>
+            </div>
+            <div class="qa-btn qa-ceremony" onclick="runQuickAction(this,'sprint-review')" title="Stakeholder-ready sprint review with metrics, demo points and next sprint preview">
+              <span class="qa-icon">🏁</span>
+              <span class="qa-label">Sprint Review</span>
+              <span class="qa-sub">Outcome-led · 🧠 PO</span>
+            </div>
+            <div class="qa-btn qa-ceremony" onclick="runQuickAction(this,'retro')" title="Full facilitation guide — safety framing, prompts, action format, failure modes">
+              <span class="qa-icon">🔄</span>
+              <span class="qa-label">Retrospective</span>
+              <span class="qa-sub">Full facilitation · 🏃 Scrum</span>
+            </div>
+            <div class="qa-btn qa-ceremony" onclick="runQuickAction(this,'sprint-goal')" title="3 candidate sprint goals — outcome-based, with success metric and out of scope">
+              <span class="qa-icon">🎯</span>
+              <span class="qa-label">Sprint Goal</span>
+              <span class="qa-sub">3 options · 🧠 PO</span>
+            </div>
+            <div class="qa-btn qa-ceremony" onclick="runQuickAction(this,'grooming')" title="INVEST check + BDD AC + sizing + Ready/Not Ready verdict per story">
+              <span class="qa-icon">✂️</span>
+              <span class="qa-label">Backlog Groom</span>
+              <span class="qa-sub">INVEST + DoR · 🧠 PO</span>
+            </div>
           </div>
+
+          <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🧠 Product Strategy</div>
+          <div class="qa-grid">
+            <div class="qa-btn qa-strategy" onclick="runQuickAction(this,'premortem')" title="10 failure modes ranked by likelihood × impact with mitigation and rollback plan">
+              <span class="qa-icon">🧨</span>
+              <span class="qa-label">Pre-mortem</span>
+              <span class="qa-sub">10 failure modes · 🧠 PO</span>
+            </div>
+            <div class="qa-btn qa-strategy" onclick="runQuickAction(this,'score')" title="RICE score all backlog items, flag low-confidence items needing discovery">
+              <span class="qa-icon">⚖️</span>
+              <span class="qa-label">Score Backlog</span>
+              <span class="qa-sub">RICE + 80% rule · 🧠 PO</span>
+            </div>
+            <div class="qa-btn qa-strategy" onclick="runQuickAction(this,'release-notes')" title="User-benefit language, no jargon, CTA included">
+              <span class="qa-icon">📣</span>
+              <span class="qa-label">Release Notes</span>
+              <span class="qa-sub">User-facing · 📣 Marketing</span>
+            </div>
+            <div class="qa-btn qa-strategy" onclick="runQuickAction(this,'devil')" title="Principal consultant challenges your strategy — assumptions, risks, blind spots, uncomfortable truth">
+              <span class="qa-icon">😈</span>
+              <span class="qa-label">Devil's Advocate</span>
+              <span class="qa-sub">Challenges strategy · 🧑‍💼 CEO</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
       <!-- WIDGET 4: MULTI-BRAIN -->
       <div class="widget">
         <div class="widget-header">
-          <div class="widget-title">🔁 Multi-Brain Collab</div>
+          <div class="widget-title">🔁 Multi-Brain Collab
+            <span id="mb-count" style="background:var(--accent);color:#fff;font-size:8px;font-weight:700;border-radius:10px;padding:1px 7px;margin-left:5px">1 selected</span>
+          </div>
           <div class="widget-actions">
-            <button class="wbtn-ghost" id="mb-select-all" onclick="selectAllBrains()">Select All</button>
-            <button class="wbtn-ghost" id="mb-deselect-all" onclick="deselectAllBrains()">Deselect All</button>
+            <button class="wbtn-ghost" onclick="selectAllBrains()">All</button>
+            <button class="wbtn-ghost" onclick="deselectAllBrains()">None</button>
           </div>
         </div>
-        <div class="widget-body">
-          <div class="mb-grid" id="mb-grid">
-            <div class="mb-brain on" data-brain="po" onclick="toggleBrain(this)"><div class="mb-check">✓</div><span style="font-size:13px">🧠</span><span class="mb-name">PO Brain</span></div>
-            <div class="mb-brain" data-brain="ba" onclick="toggleBrain(this)"><div class="mb-check"></div><span style="font-size:13px">🔎</span><span class="mb-name">BA Brain</span></div>
-            <div class="mb-brain" data-brain="ux" onclick="toggleBrain(this)"><div class="mb-check"></div><span style="font-size:13px">🎨</span><span class="mb-name">UX Brain</span></div>
-            <div class="mb-brain" data-brain="techlead" onclick="toggleBrain(this)"><div class="mb-check"></div><span style="font-size:13px">🧑‍🔧</span><span class="mb-name">Tech Lead</span></div>
-            <div class="mb-brain" data-brain="qa" onclick="toggleBrain(this)"><div class="mb-check"></div><span style="font-size:13px">🧪</span><span class="mb-name">QA Brain</span></div>
-            <div class="mb-brain" data-brain="scrum" onclick="toggleBrain(this)"><div class="mb-check"></div><span style="font-size:13px">🏃</span><span class="mb-name">Scrum Master</span></div>
-            <div class="mb-brain" data-brain="pm" onclick="toggleBrain(this)"><div class="mb-check"></div><span style="font-size:13px">📌</span><span class="mb-name">PM Brain</span></div>
-            <div class="mb-brain" data-brain="developer" onclick="toggleBrain(this)"><div class="mb-check"></div><span style="font-size:13px">💻</span><span class="mb-name">Developer</span></div>
-            <div class="mb-brain" data-brain="cto" onclick="toggleBrain(this)"><div class="mb-check"></div><span style="font-size:13px">🧑‍💻</span><span class="mb-name">CTO Brain</span></div>
+        <div class="widget-body" style="padding:10px">
+
+          <div class="mb-grid">
+            <div class="mb-brain on" data-brain="po"        onclick="toggleBrain(this)"><div class="mb-check">✓</div><span>🧠</span><span class="mb-name">PO Brain</span></div>
+            <div class="mb-brain"    data-brain="ba"        onclick="toggleBrain(this)"><div class="mb-check"></div><span>🔎</span><span class="mb-name">BA Brain</span></div>
+            <div class="mb-brain"    data-brain="ux"        onclick="toggleBrain(this)"><div class="mb-check"></div><span>🎨</span><span class="mb-name">UX Brain</span></div>
+            <div class="mb-brain"    data-brain="cto"       onclick="toggleBrain(this)"><div class="mb-check"></div><span>🧑‍💻</span><span class="mb-name">CTO Brain</span></div>
+            <div class="mb-brain"    data-brain="cfo"       onclick="toggleBrain(this)"><div class="mb-check"></div><span>💰</span><span class="mb-name">CFO Brain</span></div>
+            <div class="mb-brain"    data-brain="techlead"  onclick="toggleBrain(this)"><div class="mb-check"></div><span>🧑‍🔧</span><span class="mb-name">Tech Lead</span></div>
+            <div class="mb-brain"    data-brain="developer" onclick="toggleBrain(this)"><div class="mb-check"></div><span>💻</span><span class="mb-name">Developer</span></div>
+            <div class="mb-brain"    data-brain="qa"        onclick="toggleBrain(this)"><div class="mb-check"></div><span>🧪</span><span class="mb-name">QA Brain</span></div>
+            <div class="mb-brain"    data-brain="scrum"     onclick="toggleBrain(this)"><div class="mb-check"></div><span>🏃</span><span class="mb-name">Scrum Master</span></div>
+            <div class="mb-brain"    data-brain="pm"        onclick="toggleBrain(this)"><div class="mb-check"></div><span>📌</span><span class="mb-name">PM Brain</span></div>
+            <div class="mb-brain"    data-brain="marketing" onclick="toggleBrain(this)"><div class="mb-check"></div><span>📣</span><span class="mb-name">Marketing</span></div>
+            <div class="mb-brain"    data-brain="ceo"       onclick="toggleBrain(this)"><div class="mb-check"></div><span>🧑‍💼</span><span class="mb-name">CEO Brain</span></div>
+            <div class="mb-brain"    data-brain="sales"     onclick="toggleBrain(this)"><div class="mb-check"></div><span>🛒</span><span class="mb-name">Sales Brain</span></div>
           </div>
+
+          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px" id="mb-suggest-row">
+            <div class="mb-suggest" onclick="fillMbCtx('Should we build or buy this capability? Consider our team size, velocity, and timeline.')">Build vs Buy?</div>
+            <div class="mb-suggest" onclick="fillMbCtx('What are the top risks of shipping our sprint goal next sprint? Be specific to our team composition and context.')">Launch risks?</div>
+            <div class="mb-suggest" onclick="fillMbCtx('How should we prioritise our backlog given our current sprint goal and quarterly OKR? What should we cut?')">Prioritise now?</div>
+            <div class="mb-suggest" onclick="fillMbCtx('What is the single most important thing we are not talking about in our product strategy right now?')">Blind spots?</div>
+          </div>
+          <div id="mb-warning" style="display:none;font-size:9px;color:var(--yellow);background:rgba(245,166,35,0.1);border:0.5px solid rgba(245,166,35,0.3);border-radius:6px;padding:5px 8px;margin-bottom:6px">
+            ⚠️ <span id="mb-warning-txt"></span>
+          </div>
+
           <div class="mb-input-row">
-            <input class="mb-input" id="mb-input" placeholder="Type your question — selected brains will all respond…" onkeydown="if(event.key==='Enter')multiAsk()"/>
-            <button class="mb-send" onclick="multiAsk()">Ask Brains →</button>
+            <input class="mb-input" id="mb-input" placeholder="One question → multiple expert perspectives simultaneously…" onkeydown="if(event.key==='Enter')multiAsk()"/>
+            <button class="mb-send" id="mb-send-btn" onclick="multiAsk()">Ask →</button>
           </div>
+          <div style="font-size:8px;color:var(--muted);text-align:right;margin-top:4px;padding:0 2px">Press Enter to send · responses appear in AI Chat</div>
+
         </div>
       </div>
 
@@ -813,15 +920,15 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
       ondrop="chatDrop(event)"
       style="position:relative">
       <div class="welcome" id="welcome-msg">
-        <span class="welcome-icon">🧠</span>
-        <h3>Product OS — AI Brain Ready</h3>
-        <p>Your senior PO brain is active. Upload files below, paste images directly, or ask anything about your product.</p>
-        <div class="wchips">
-          <div class="wchip" onclick="fill('Prioritise my backlog using RICE')">RICE my backlog</div>
-          <div class="wchip" onclick="fill('Help me write a PRD for a feature')">Write a PRD</div>
-          <div class="wchip" onclick="fill('Define my product OKRs for Q2')">Set OKRs</div>
-          <div class="wchip" onclick="fill('Help me say no to a stakeholder request')">Say no to stakeholder</div>
-          <div class="wchip" onclick="fill('Diagnose why users drop off at onboarding')">Fix onboarding</div>
+        <span class="welcome-icon" id="welcome-icon">🧠</span>
+        <h3 id="welcome-title">Product OS — AI Brain Ready</h3>
+        <p id="welcome-sub">Your senior PO brain is active. Upload files, paste images, or ask anything about your product.</p>
+        <div class="wchips" id="welcome-chips">
+          <div class="wchip" onclick="fill('Prioritise my backlog using RICE scoring — show me the ranked commit list')">RICE my backlog</div>
+          <div class="wchip" onclick="fill('Help me write a one-page PRD for a new feature')">Write a PRD</div>
+          <div class="wchip" onclick="fill('Define my product OKRs for next quarter with baselines and measurement methods')">Set OKRs</div>
+          <div class="wchip" onclick="fill('My stakeholder wants [FEATURE]. Help me push back professionally with data')">Say no to stakeholder</div>
+          <div class="wchip" onclick="fill('Users are dropping off at onboarding — diagnose the problem and give me a recovery plan')">Fix onboarding</div>
         </div>
       </div>
     </div>
@@ -1555,16 +1662,16 @@ What is actually wrong — the design decision or assumption that made this prob
 The specific structural failure: missing error handling, mutable state that should be immutable, floating point used for money, missing null check, race condition, untested edge case, or wrong abstraction level. Name it precisely.
 ## Fix
 The specific code change. Format:
-```
-// Before (the problem)
+
+BEFORE (the problem):
 [current code or pseudocode]
 
-// After (the fix)
+AFTER (the fix):
 [corrected code]
 
-// Why this works
+WHY THIS WORKS:
 [one sentence explanation of the structural change]
-```
+
 ## Prevention
 How to make this class of problem impossible or automatically caught before production:
 - Test to write: [the specific test case with inputs and expected output]
@@ -1865,6 +1972,16 @@ function switchActiveBrain(id){
   // Reset chat history on brain switch
   chatHistory=[];
 
+  // Update welcome screen if still showing
+  const welcomeIcon  = document.getElementById('welcome-icon');
+  const welcomeTitle = document.getElementById('welcome-title');
+  const welcomeSub   = document.getElementById('welcome-sub');
+  const welcomeChips = document.getElementById('welcome-chips');
+  if(welcomeIcon)  welcomeIcon.textContent  = brain.icon;
+  if(welcomeTitle) welcomeTitle.textContent = `${brain.label} — Ready`;
+  if(welcomeSub)   welcomeSub.textContent   = `Your ${brain.role} is active. Ask anything in this domain.`;
+  if(welcomeChips) welcomeChips.innerHTML   = getWelcomeChips();
+
   // Switch chat placeholder
   const chatInput=document.getElementById('chat-input');
   if(chatInput) chatInput.placeholder=`Ask your ${brain.label} anything…`;
@@ -1942,44 +2059,47 @@ const QA_PROMPTS={
 
 function getStandupPrompt(){
   const ctx = productContext;
-  const teamSize = Object.values(ctx.team||{}).reduce((a,b)=>a+b,0);
-  const sprintGoal = ctx.sprint || '[sprint goal not set — set in Product Context]';
-  const velocity = ctx.velocity || '[velocity not set]';
-  const sprintDays = ctx.sprintDays || '10';
+  const teamSize  = Object.values(ctx.team||{}).reduce((a,b)=>a+b,0);
+  const sprintGoal= ctx.sprint    || '[sprint goal not set — set in Product Context]';
+  const sprintNum = ctx.sprintNum || '[sprint number not set]';
+  const velocity  = ctx.velocity  || '[velocity not set]';
+  const sprintDays= ctx.sprintDays|| '10';
+  const daysLost  = ctx.daysLost  || '0';
   return `Generate a structured daily standup update for our team.
 
-SPRINT CONTEXT:
-- Sprint goal: ${sprintGoal}
-- Sprint length: ${sprintDays} days
-- Historical velocity: ${velocity} SP
-- Team size: ${teamSize > 0 ? teamSize + ' people' : '[set in Product Context]'}
+SPRINT: ${sprintNum}
+SPRINT GOAL: ${sprintGoal}
+SPRINT LENGTH: ${sprintDays} days (${daysLost} days lost this sprint)
+HISTORICAL VELOCITY: ${velocity} SP
+TEAM SIZE: ${teamSize > 0 ? teamSize + ' people' : '[set in Product Context]'}
 
-Generate the following:
-1. **Yesterday** — what categories of work were progressed (be specific about sprint goal progress)
+Generate the following — ready to paste into Slack or Teams:
+1. **Yesterday** — what was progressed (specific to sprint goal)
 2. **Today** — what the focus is and why it moves us toward the sprint goal
-3. **Blockers** — format as: [Blocker] → [Who it affects] → [What is needed to unblock] → [Escalation needed? Y/N]
-4. **Sprint confidence** — on a scale of 1-5, how confident are we in meeting the sprint goal, and what is the biggest risk to it
-5. **Flow check** — is QA keeping pace with development, or is a queue building?
-
-Make the output ready to paste directly into a Slack or Teams standup channel.`;
+3. **Blockers** — format: [Blocker] → [Who affected] → [What needed to unblock] → [Escalation needed? Y/N]
+4. **Sprint confidence** — 1-5 scale. How confident are we in meeting the sprint goal and what is the biggest risk?
+5. **Flow check** — is QA keeping pace with development, or is a queue building up?`;
 }
 
 function getSprintReviewPrompt(){
   const ctx = productContext;
-  const sprintGoal = ctx.sprint || '[sprint goal not set]';
-  return `Help me structure a sprint review that is stakeholder-ready and outcome-focused.
+  const sprintGoal= ctx.sprint    || '[sprint goal not set]';
+  const sprintNum = ctx.sprintNum || '[sprint number]';
+  const product   = ctx.product   || '[product not set]';
+  return `Help me structure a sprint review for ${sprintNum} — stakeholder-ready and outcome-focused.
 
+PRODUCT: ${product}
 SPRINT GOAL: ${sprintGoal}
 
 Generate the following sprint review structure:
-1. **Sprint goal outcome** — did we achieve it? Be honest. If partial, what percentage and why.
-2. **What shipped** — for each story delivered, one sentence describing the user benefit (not the technical change)
-3. **What did not ship** — what was committed but not completed, and the honest reason why
-4. **Metrics moved** — which product metrics changed this sprint and by how much
-5. **What we learned** — one insight from this sprint that should change how we work or what we build
-6. **Demo talking points** — three specific things to show stakeholders and what to highlight about each
-7. **Next sprint preview** — what is the proposed sprint goal and why it follows logically from this sprint
-8. **Questions to ask stakeholders** — two questions to get genuine feedback rather than polite approval
+1. **Sprint goal outcome** — did we achieve it? Honest. If partial, what % and why.
+2. **What shipped** — each story in one sentence describing the user benefit, not the technical change
+3. **What did not ship** — committed but not delivered, with the honest reason
+4. **Metrics moved** — which product metrics changed and by how much
+5. **What we learned** — one insight that should change how we work or what we build
+6. **Demo talking points** — three things to show stakeholders and what to highlight
+7. **Next sprint preview** — proposed sprint goal and why it follows logically from this sprint
+8. **Questions to ask stakeholders** — two questions to get genuine feedback, not polite approval
 
 Make this ready to present in a 30-minute stakeholder review.`;
 }
@@ -2005,8 +2125,6 @@ Generate:
 
 Make this ready to facilitate tomorrow morning.`;
 }
-  'rice-all':'Help me RICE score my backlog. For each item I describe, estimate Reach, Impact, Confidence, Effort, then calculate RICE score and rank.'
-};
 
 // ══ THEME ══
 function toggleTheme(){
@@ -2037,80 +2155,121 @@ function adjustRole(id, delta){
   el.textContent = val;
   updateTeamSummary();
   updateCapacity();
+  autoSaveCtx();
 }
 
 function updateTeamSummary(){
   const roles = {
-    dev: {id:'ctx-dev', label:'Dev'}, qa: {id:'ctx-qa', label:'QA'},
-    arch: {id:'ctx-arch', label:'Arch'}, design: {id:'ctx-design', label:'Design'},
-    ba: {id:'ctx-ba', label:'BA'}, sm: {id:'ctx-sm', label:'SM'},
-    devops: {id:'ctx-devops', label:'DevOps'}, po: {id:'ctx-po', label:'PO'}
+    dev:{id:'ctx-dev',label:'Dev'}, qa:{id:'ctx-qa',label:'QA'},
+    arch:{id:'ctx-arch',label:'Arch'}, design:{id:'ctx-design',label:'Design'},
+    ba:{id:'ctx-ba',label:'BA'}, sm:{id:'ctx-sm',label:'SM'},
+    devops:{id:'ctx-devops',label:'DevOps'}, po:{id:'ctx-po',label:'PO'}
   };
   let total = 0;
   const parts = [];
-  Object.values(roles).forEach(r => {
+  Object.values(roles).forEach(r=>{
     const n = parseInt(document.getElementById(r.id)?.textContent||0);
     total += n;
-    if(n > 0) parts.push(`${n} ${r.label}`);
+    if(n>0) parts.push(`${n} ${r.label}`);
   });
   const badge = document.getElementById('ctx-total-badge');
-  const txt = document.getElementById('ctx-summary-txt');
+  const txt   = document.getElementById('ctx-summary-txt');
   if(badge) badge.textContent = `👥 ${total} total`;
-  if(txt) txt.textContent = parts.join(' · ') || 'No team members set';
+  if(txt)   txt.textContent   = parts.join(' · ') || 'No team members set';
+}
+
+function updateDaysLostMax(){
+  const sprintDays = parseInt(document.getElementById('ctx-sprint-days')?.value||10);
+  const el = document.getElementById('ctx-days-lost');
+  if(el) el.max = sprintDays - 1;
+  updateCapacity();
 }
 
 function updateCapacity(){
-  const sprintDays = parseInt(document.getElementById('ctx-sprint-days')?.value||10);
-  const daysLost   = parseInt(document.getElementById('ctx-days-lost')?.value||0);
-  const velocity   = parseInt(document.getElementById('ctx-velocity')?.value||0);
-  const focus      = parseInt(document.getElementById('ctx-focus')?.value||70);
+  const sprintDays  = parseInt(document.getElementById('ctx-sprint-days')?.value||10);
+  const daysLost    = Math.min(parseInt(document.getElementById('ctx-days-lost')?.value||0), sprintDays-1);
+  const velocity    = parseInt(document.getElementById('ctx-velocity')?.value||0);
+  const focusPct    = parseInt(document.getElementById('ctx-focus')?.value||70) / 100;
 
-  const teamRoles = ['ctx-dev','ctx-qa','ctx-arch','ctx-design','ctx-ba','ctx-sm','ctx-devops','ctx-po'];
-  const totalPeople = teamRoles.reduce((s,id)=>s+(parseInt(document.getElementById(id)?.textContent||0)),0);
+  const roleIds = ['ctx-dev','ctx-qa','ctx-arch','ctx-design','ctx-ba','ctx-sm','ctx-devops','ctx-po'];
+  const totalPeople = roleIds.reduce((s,id)=>s+(parseInt(document.getElementById(id)?.textContent||0)),0);
 
   const workingDays = Math.max(0, sprintDays - daysLost);
-  const effectiveDays = Math.round(totalPeople * workingDays * (focus/100));
-  let commit = '—', buffer = '—';
 
-  if(velocity > 0 && totalPeople > 0){
-    const dailyRate = velocity / (totalPeople * sprintDays);
-    const rawSP = Math.round(effectiveDays * dailyRate);
-    const commitSP = Math.round(rawSP * 0.8);
-    const bufferSP = rawSP - commitSP;
-    commit = commitSP + ' SP';
-    buffer = bufferSP + ' SP';
-  }
+  // Correct formula: scale historical velocity by ratio of effective days this sprint
+  // effectiveRatio = (workingDays × focus) / (sprintDays × 1.0 baseline)
+  // rawSP = velocity × effectiveRatio
+  const rawSP    = velocity > 0 ? Math.round(velocity * (workingDays / sprintDays) * focusPct) : 0;
+  const commitSP = Math.round(rawSP * 0.8);
+  const bufferSP = rawSP - commitSP;
 
+  // Update display — show team and days immediately even without velocity
   const t = document.getElementById('cap-team');
   const d = document.getElementById('cap-days');
   const c = document.getElementById('cap-commit');
   const b = document.getElementById('cap-buffer');
   if(t) t.textContent = totalPeople || '—';
-  if(d) d.textContent = workingDays || '—';
-  if(c) c.textContent = commit;
-  if(b) b.textContent = buffer;
+  if(d) d.textContent = workingDays > 0 ? workingDays : '—';
+  if(c) c.textContent = velocity > 0 && totalPeople > 0 ? commitSP + ' SP' : '—';
+  if(b) b.textContent = velocity > 0 && totalPeople > 0 ? bufferSP + ' SP' : '—';
+
+  // Sprint health indicator
+  const health = document.getElementById('cap-health');
+  if(health && velocity > 0 && totalPeople > 0 && rawSP > 0){
+    const utilizationPct = Math.round((commitSP / velocity) * 100);
+    let msg='', bg='', color='';
+    if(daysLost === 0 && focusPct >= 0.8){
+      msg = `🟢 Healthy sprint — committing ${utilizationPct}% of historic velocity. Good headroom for quality.`;
+      bg='rgba(0,200,150,0.1)'; color='var(--green)';
+    } else if(utilizationPct > 85){
+      msg = `🔴 Over-committed — ${utilizationPct}% of velocity with ${daysLost} day${daysLost!==1?'s':''} lost. Risk of not meeting sprint goal.`;
+      bg='rgba(255,71,87,0.1)'; color='var(--red)';
+    } else if(daysLost >= 3){
+      msg = `🟡 Disrupted sprint — ${daysLost} days lost. Protect the sprint goal and defer stretch stories now.`;
+      bg='rgba(245,166,35,0.1)'; color='var(--yellow)';
+    } else {
+      msg = `🟢 Normal sprint — committing ${utilizationPct}% of velocity. Buffer of ${bufferSP} SP for unplanned work.`;
+      bg='rgba(0,200,150,0.1)'; color='var(--green)';
+    }
+    health.style.display='block';
+    health.style.background=bg;
+    health.style.color=color;
+    health.style.border=`0.5px solid ${color}`;
+    health.textContent=msg;
+  } else if(health){
+    health.style.display='none';
+  }
+
+  autoSaveCtx();
 }
 
 function loadCapacityToChat(){
-  const sprintDays = document.getElementById('ctx-sprint-days')?.value || '10';
-  const daysLost   = document.getElementById('ctx-days-lost')?.value || '0';
-  const velocity   = document.getElementById('ctx-velocity')?.value || '';
-  const focus      = document.getElementById('ctx-focus')?.value || '70';
-  const dev    = document.getElementById('ctx-dev')?.textContent || '0';
-  const qa     = document.getElementById('ctx-qa')?.textContent || '0';
-  const arch   = document.getElementById('ctx-arch')?.textContent || '0';
+  const sprintDays  = document.getElementById('ctx-sprint-days')?.value || '10';
+  const daysLost    = document.getElementById('ctx-days-lost')?.value || '0';
+  const velocity    = document.getElementById('ctx-velocity')?.value || '';
+  const focus       = document.getElementById('ctx-focus')?.value || '70';
+  const sprintNum   = document.getElementById('ctx-sprint-num')?.value || '[X]';
+  const dev    = document.getElementById('ctx-dev')?.textContent    || '0';
+  const qa     = document.getElementById('ctx-qa')?.textContent     || '0';
+  const arch   = document.getElementById('ctx-arch')?.textContent   || '0';
   const design = document.getElementById('ctx-design')?.textContent || '0';
-  const ba     = document.getElementById('ctx-ba')?.textContent || '0';
-  const sm     = document.getElementById('ctx-sm')?.textContent || '0';
+  const ba     = document.getElementById('ctx-ba')?.textContent     || '0';
+  const sm     = document.getElementById('ctx-sm')?.textContent     || '0';
   const devops = document.getElementById('ctx-devops')?.textContent || '0';
-  const po     = document.getElementById('ctx-po')?.textContent || '0';
+  const po     = document.getElementById('ctx-po')?.textContent     || '0';
   const product = document.getElementById('ctx-product')?.value || '';
-  const goal    = document.getElementById('ctx-goal')?.value || '';
-  const sprint  = document.getElementById('ctx-sprint')?.value || '';
+  const goal    = document.getElementById('ctx-goal')?.value    || '';
+  const sprint  = document.getElementById('ctx-sprint')?.value  || '';
+  const method  = document.getElementById('ctx-method')?.value  || 'Scrum';
 
-  const prompt = `Sprint Capacity Planning Request
+  const prompt = `Sprint Capacity Planning — ${sprintNum}
 
-TEAM:
+PRODUCT: ${product || '[not set]'}
+METHODOLOGY: ${method}
+SPRINT GOAL: ${sprint || '[not set]'}
+QUARTERLY OKR: ${goal || '[not set]'}
+
+TEAM COMPOSITION:
 - Developers: ${dev}
 - QA Engineers: ${qa}
 - Architects: ${arch}
@@ -2119,39 +2278,79 @@ TEAM:
 - Scrum Masters: ${sm}
 - DevOps / Infra: ${devops}
 - POs / PMs: ${po}
+- Total: ${[dev,qa,arch,design,ba,sm,devops,po].reduce((s,v)=>s+parseInt(v||0),0)} people
 
-SPRINT DETAILS:
+SPRINT PARAMETERS:
 - Sprint length: ${sprintDays} working days
-- Days lost this sprint (leave/holidays/ceremonies): ${daysLost}
-- Historical velocity: ${velocity ? velocity+' SP' : 'not provided — please estimate'}
+- Days lost this sprint (leave / holidays / planning): ${daysLost}
+- Effective working days: ${Math.max(0, parseInt(sprintDays)-parseInt(daysLost))}
+- Historical velocity: ${velocity ? velocity+' SP' : 'not yet set — please estimate from team size'}
 - Focus factor: ${focus}%
-${product ? `\nPRODUCT: ${product}` : ''}${goal ? `\nSPRINT GOAL: ${goal}` : ''}${sprint ? `\nSPRINT FOCUS: ${sprint}` : ''}
 
-Please give me:
-1. Full capacity calculation with workings shown step by step
-2. Effective story points available this sprint
-3. Recommended commit (80% rule) and buffer
-4. Breakdown by role — what each role group should realistically deliver
-5. QA sequencing recommendation — when devs should hand off to QA
-6. Top 3 risks for this sprint given the team composition
-7. My opening statement for sprint planning meeting`;
+As a Principal Agile Coach, give me:
+1. Full capacity calculation — show every step of the arithmetic
+2. Recommended sprint commitment in SP (apply 80% rule)
+3. Buffer allocation and what it should be used for
+4. Role-by-role breakdown — Dev throughput vs QA throughput and whether they are balanced
+5. QA sequencing plan — which stories must be dev-complete by day ${Math.ceil(parseInt(sprintDays)*0.6)} so QA has enough time
+6. Sprint health assessment — is this sprint set up to succeed or is something already wrong
+7. The one thing most likely to cause this sprint to miss its goal
+8. My opening statement for the sprint planning meeting (word for word, 90 seconds)`;
 
   const input = document.getElementById('chat-input');
   if(input){ input.value = prompt; autoResize(input); }
   switchTab('chat', null);
-  toast('✅ Capacity plan loaded in AI Chat — review and send!');
+  toast('✅ Capacity plan loaded — switch to Scrum Master brain and send!');
+}
+
+// Auto-save silently on every change (no toast, no badge flash)
+let autoSaveTimer = null;
+function autoSaveCtx(){
+  clearTimeout(autoSaveTimer);
+  autoSaveTimer = setTimeout(()=>{
+    productContext={
+      product:    document.getElementById('ctx-product')?.value    || '',
+      domain:     document.getElementById('ctx-domain')?.value     || '',
+      users:      document.getElementById('ctx-users')?.value      || '',
+      goal:       document.getElementById('ctx-goal')?.value       || '',
+      stage:      document.getElementById('ctx-stage')?.value      || '',
+      method:     document.getElementById('ctx-method')?.value     || '',
+      sprint:     document.getElementById('ctx-sprint')?.value     || '',
+      sprintNum:  document.getElementById('ctx-sprint-num')?.value || '',
+      team:{
+        dev:    parseInt(document.getElementById('ctx-dev')?.textContent||0),
+        qa:     parseInt(document.getElementById('ctx-qa')?.textContent||0),
+        arch:   parseInt(document.getElementById('ctx-arch')?.textContent||0),
+        design: parseInt(document.getElementById('ctx-design')?.textContent||0),
+        ba:     parseInt(document.getElementById('ctx-ba')?.textContent||0),
+        sm:     parseInt(document.getElementById('ctx-sm')?.textContent||0),
+        devops: parseInt(document.getElementById('ctx-devops')?.textContent||0),
+        po:     parseInt(document.getElementById('ctx-po')?.textContent||0),
+      },
+      sprintDays: document.getElementById('ctx-sprint-days')?.value || '10',
+      daysLost:   document.getElementById('ctx-days-lost')?.value   || '0',
+      velocity:   document.getElementById('ctx-velocity')?.value    || '',
+      focus:      document.getElementById('ctx-focus')?.value       || '70',
+    };
+    updateKbChatIndicator();
+  }, 400);
 }
 
 function saveCtx(){
+  // Full save with confirmation badge
+  autoSaveCtx();
+  // Flush immediately
+  clearTimeout(autoSaveTimer);
   productContext={
-    product: document.getElementById('ctx-product')?.value || '',
-    domain:  document.getElementById('ctx-domain')?.value || '',
-    users:   document.getElementById('ctx-users')?.value || '',
-    goal:    document.getElementById('ctx-goal')?.value || '',
-    stage:   document.getElementById('ctx-stage')?.value || '',
-    method:  document.getElementById('ctx-method')?.value || '',
-    sprint:  document.getElementById('ctx-sprint')?.value || '',
-    team: {
+    product:    document.getElementById('ctx-product')?.value    || '',
+    domain:     document.getElementById('ctx-domain')?.value     || '',
+    users:      document.getElementById('ctx-users')?.value      || '',
+    goal:       document.getElementById('ctx-goal')?.value       || '',
+    stage:      document.getElementById('ctx-stage')?.value      || '',
+    method:     document.getElementById('ctx-method')?.value     || '',
+    sprint:     document.getElementById('ctx-sprint')?.value     || '',
+    sprintNum:  document.getElementById('ctx-sprint-num')?.value || '',
+    team:{
       dev:    parseInt(document.getElementById('ctx-dev')?.textContent||0),
       qa:     parseInt(document.getElementById('ctx-qa')?.textContent||0),
       arch:   parseInt(document.getElementById('ctx-arch')?.textContent||0),
@@ -2162,52 +2361,106 @@ function saveCtx(){
       po:     parseInt(document.getElementById('ctx-po')?.textContent||0),
     },
     sprintDays: document.getElementById('ctx-sprint-days')?.value || '10',
-    velocity:   document.getElementById('ctx-velocity')?.value || '',
-    focus:      document.getElementById('ctx-focus')?.value || '70',
+    daysLost:   document.getElementById('ctx-days-lost')?.value   || '0',
+    velocity:   document.getElementById('ctx-velocity')?.value    || '',
+    focus:      document.getElementById('ctx-focus')?.value       || '70',
   };
+  updateKbChatIndicator();
   const b = document.getElementById('ctx-saved');
-  b.classList.add('show');
-  setTimeout(()=>b.classList.remove('show'), 2500);
-  toast('✅ Context saved — all AI responses now fully personalised!');
+  if(b){ b.classList.add('show'); setTimeout(()=>b.classList.remove('show'), 2500); }
+  toast('✅ Context saved — every AI brain is now personalised to your product');
 }
 
 function getCtx(){
-  if(!productContext.product && !productContext.users && !productContext.goal) return '';
-  let s = '\n\n[PRODUCT & TEAM CONTEXT: ';
-  if(productContext.product) s += `Product: ${productContext.product}. `;
-  if(productContext.domain)  s += `Domain: ${productContext.domain}. `;
-  if(productContext.users)   s += `Users: ${productContext.users}. `;
-  if(productContext.goal)    s += `Primary goal: ${productContext.goal}. `;
-  if(productContext.stage)   s += `Stage: ${productContext.stage}. `;
-  if(productContext.method)  s += `Methodology: ${productContext.method}. `;
-  if(productContext.sprint)  s += `Current sprint focus: ${productContext.sprint}. `;
-  if(productContext.team){
-    const t = productContext.team;
-    const total = Object.values(t).reduce((a,b)=>a+b,0);
-    if(total > 0){
-      s += `Team (${total} total): `;
-      if(t.dev)    s += `${t.dev} Dev, `;
-      if(t.qa)     s += `${t.qa} QA, `;
-      if(t.arch)   s += `${t.arch} Architect, `;
-      if(t.design) s += `${t.design} Designer, `;
-      if(t.ba)     s += `${t.ba} BA, `;
-      if(t.sm)     s += `${t.sm} SM, `;
-      if(t.devops) s += `${t.devops} DevOps, `;
-      if(t.po)     s += `${t.po} PO. `;
-      s = s.replace(/, $/, '. ');
+  // Fire even if only some fields are set — any context is better than none
+  const p = productContext;
+  const hasAnything = p.product||p.users||p.goal||p.sprint||p.sprintNum||p.method||
+    (p.team && Object.values(p.team).some(v=>v>0));
+  if(!hasAnything) return '';
+
+  let s = '\n\n[PRODUCT & TEAM CONTEXT — use this to personalise your response:\n';
+  if(p.product)   s += `Product: ${p.product}. `;
+  if(p.domain)    s += `Domain: ${p.domain}. `;
+  if(p.users)     s += `Users: ${p.users}. `;
+  if(p.stage)     s += `Product stage: ${p.stage}. `;
+  if(p.method)    s += `Methodology: ${p.method}. `;
+  if(p.goal)      s += `Primary OKR/metric: ${p.goal}. `;
+  if(p.sprintNum) s += `Current sprint: ${p.sprintNum}. `;
+  if(p.sprint)    s += `Sprint goal: ${p.sprint}. `;
+  if(p.sprintDays)s += `Sprint length: ${p.sprintDays} days`;
+  if(p.daysLost && parseInt(p.daysLost)>0) s += ` (${p.daysLost} days lost this sprint)`;
+  if(p.sprintDays) s += `. `;
+  if(p.velocity)  s += `Historical velocity: ${p.velocity} SP. `;
+  if(p.focus && p.focus !== '70') s += `Focus factor: ${p.focus}%. `;
+  if(p.team){
+    const total = Object.values(p.team).reduce((a,b)=>a+b,0);
+    if(total>0){
+      const parts=[];
+      if(p.team.dev)    parts.push(`${p.team.dev} Dev`);
+      if(p.team.qa)     parts.push(`${p.team.qa} QA`);
+      if(p.team.arch)   parts.push(`${p.team.arch} Arch`);
+      if(p.team.design) parts.push(`${p.team.design} Design`);
+      if(p.team.ba)     parts.push(`${p.team.ba} BA`);
+      if(p.team.sm)     parts.push(`${p.team.sm} SM`);
+      if(p.team.devops) parts.push(`${p.team.devops} DevOps`);
+      if(p.team.po)     parts.push(`${p.team.po} PO`);
+      s += `Team (${total} total): ${parts.join(', ')}. `;
     }
   }
-  if(productContext.sprintDays) s += `Sprint length: ${productContext.sprintDays} days. `;
-  if(productContext.velocity)   s += `Historical velocity: ${productContext.velocity} SP. `;
-  return s + ']';
+  return s.trimEnd() + ']';
 }
 
 // ══ QUICK ACTIONS ══
+const BRAIN_WELCOME_CHIPS = {
+  po:        [['RICE my backlog','Prioritise my backlog using RICE scoring — show me the ranked commit list'],['Write a PRD','Help me write a one-page PRD for a new feature'],['Set OKRs','Define my product OKRs for next quarter with baselines and measurement methods'],['Say no to stakeholder','My stakeholder wants [FEATURE]. Help me push back professionally with data'],['Fix onboarding','Users are dropping off at onboarding — diagnose the problem and give me a recovery plan']],
+  ba:        [['Requirements plan','Write a requirements elicitation plan for [FEATURE] with workshop agenda and 15 interview questions'],['AS-IS TO-BE','Map the current [PROCESS] AS-IS and design the TO-BE with RACI and error paths'],['Gap analysis','Conduct a gap analysis on our [AREA] — current state vs required state'],['BRD section','Write a BRD section for [FEATURE] with functional and non-functional requirements'],['UAT test cases','Write 10 UAT test cases for [FEATURE] covering happy path, edge cases, and error scenarios']],
+  cto:       [['Architecture decision','Write an ADR for [TECHNICAL DECISION] — score 3 options and give a recommendation'],['Tech debt strategy','Build a tech debt reduction strategy I can present to leadership'],['Build vs buy','Analyse build vs buy vs partner for [CAPABILITY] with a scored recommendation'],['DORA metrics','Define engineering OKRs and DORA metric baselines for this quarter']],
+  cfo:       [['Unit economics','Analyse our unit economics — LTV, CAC, payback, sensitivity table'],['Runway analysis','Model our runway — current trajectory, burn reduction scenarios, break-even date'],['Pricing strategy','Design a three-tier pricing strategy for [PRODUCT] with margin at each tier']],
+  ux:        [['Usability test plan','Write a complete usability test plan for [FLOW] with 5 tasks, screener, and SUS questions'],['HEART framework','Define our HEART metrics for [PRODUCT] with signal, metric, and measurement per dimension'],['Heuristic evaluation','Conduct a heuristic evaluation of [FLOW] using Nielsen\'s 10 heuristics with severity ratings'],['User interview script','Write a 45-minute user research script to explore [PROBLEM AREA]']],
+  marketing: [['GTM launch plan','Build a go-to-market plan for [LAUNCH] with positioning, channels, calendar, and success metrics'],['Content strategy','Build a 90-day content strategy with 12 pieces, distribution plan, and ROI measurement'],['ICP definition','Define our ideal customer profile with firmographics, behaviours, triggers, and fears']],
+  ceo:       [['Strategy sharpener','Sharpen our company strategy — identify our moat, top 3 risks, and the decision we are avoiding'],['Board narrative','Write the CEO board pack narrative for this quarter in Situation-Complication-Answer format'],['All-hands message','Write an all-hands message for [OCCASION] — honest, specific, with a clear call to action']],
+  sales:     [['MEDDIC deal strategy','Build a MEDDIC deal strategy for [COMPANY] — gap analysis and top 3 actions this week'],['Objection handler','The prospect said: "[OBJECTION]" — diagnose it and give me the one best response'],['Outbound sequence','Write a 5-touch outbound sequence for [PERSONA] with full email and LinkedIn copy']],
+  scrum:     [['Sprint planning','Write my sprint planning opening statement with capacity workings and QA sequencing'],['Retro facilitator','Design a full retrospective — format, prompts, action commitment, failure mode prevention'],['Team health check','Run a Spotify health check — RAG per dimension, top 3 risks, one coaching action per red'],['Impediment removal','I have a blocker: [DESCRIBE]. Give me root cause, unblocking action, and escalation message']],
+  techlead:  [['System design','Design [SYSTEM] — components, data flow, API contract, schema, risks, open questions'],['Code review standards','Create a code review checklist — 10 blocking checks, non-blocking suggestions, feedback format'],['Developer coaching plan','Build a 90-day coaching plan for a [LEVEL] developer — milestones, assignments, 1:1 prompts']],
+  developer: [['Code review','Review this code: [PASTE CODE] — correctness, errors, security, performance, SOLID, tests'],['Debug root cause','I have a bug: [DESCRIBE]. Language: [LANG]. Find the root cause and the fix with a test'],['Refactoring plan','Refactor this code: [PASTE]. Problems: [ISSUES]. Show before/after with explanation']],
+  pm:        [['Project initiation brief','Write a project initiation brief for [PROJECT] ready for sponsor sign-off'],['RAID log','Set up a RAID log for [PROJECT] with 6 risks, 5 assumptions, 3 issues, 4 dependencies'],['Stakeholder comms plan','Build a stakeholder comms plan with power/interest matrix, communication matrix, and escalation path']],
+  qa:        [['Test strategy','Write a test strategy for [FEATURE] — scope, testing types, entry/exit criteria, automation plan'],['OWASP review','Run an OWASP Top 10 security review on [ENDPOINT] — risk, test, mitigation per category'],['Bug report','Write a complete bug report for: [DESCRIBE BUG] — steps, severity, impact, root cause hypothesis']],
+};
+
+function getWelcomeChips(){
+  const chips = BRAIN_WELCOME_CHIPS[activeBrain] || BRAIN_WELCOME_CHIPS.po;
+  return chips.map(([label, prompt]) =>
+    `<div class="wchip" onclick="fill(${JSON.stringify(prompt)})">${label}</div>`
+  ).join('');
+}
+
+function runQuickAction(el, type){
+  // Visual loading state on button
+  const origLabel = el.querySelector('.qa-label').textContent;
+  const origIcon  = el.querySelector('.qa-icon').textContent;
+  el.querySelector('.qa-icon').textContent = '⏳';
+  el.querySelector('.qa-label').textContent = 'Loading…';
+  el.style.opacity = '0.7';
+  el.style.pointerEvents = 'none';
+
+  setTimeout(()=>{
+    quickAction(type);
+    // Restore after firing
+    setTimeout(()=>{
+      el.querySelector('.qa-icon').textContent = origIcon;
+      el.querySelector('.qa-label').textContent = origLabel;
+      el.style.opacity = '';
+      el.style.pointerEvents = '';
+    }, 1200);
+  }, 60);
+}
+
 function quickAction(type){
   let prompt;
-  if(type==='standup') prompt = getStandupPrompt();
+  if(type==='standup')       prompt = getStandupPrompt();
   else if(type==='sprint-review') prompt = getSprintReviewPrompt();
-  else if(type==='retro') prompt = getRetroPrompt();
+  else if(type==='retro')    prompt = getRetroPrompt();
+  else if(type==='sprint-goal') prompt = getSprintGoalPrompt();
   else prompt = QA_PROMPTS[type];
   if(!prompt) return;
   switchTab('chat',null);
@@ -2219,44 +2472,167 @@ function quickAction(type){
   },80);
 }
 
+function getSprintGoalPrompt(){
+  const ctx = productContext;
+  const sprintNum  = ctx.sprintNum  || '[sprint number]';
+  const sprintDays = ctx.sprintDays || '10';
+  const velocity   = ctx.velocity   || '[not set]';
+  const product    = ctx.product    || '[product not set]';
+  const goal       = ctx.goal       || '[quarterly OKR not set]';
+  const teamSize   = Object.values(ctx.team||{}).reduce((a,b)=>a+b,0);
+  return `Write a sprint goal for ${sprintNum}.
+
+PRODUCT: ${product}
+QUARTERLY OKR: ${goal}
+SPRINT LENGTH: ${sprintDays} days
+TEAM SIZE: ${teamSize > 0 ? teamSize + ' people' : '[set in Product Context]'}
+VELOCITY: ${velocity} SP
+
+Stories we are planning to commit (fill these in):
+1. [STORY TITLE] — [X] SP
+2. [STORY TITLE] — [X] SP
+3. [STORY TITLE] — [X] SP
+(add all committed stories)
+
+A sprint goal must: describe an outcome the user or business experiences (NOT a task list), be specific enough to guide daily decisions, be achievable with the committed stories, and feel meaningful to miss.
+
+Produce:
+## 3 candidate sprint goals
+Different framings — user benefit / business metric / capability unlocked.
+
+## Recommended goal
+Which one and why it is stronger than the others.
+
+## Success metric
+The specific, measurable signal at the sprint review that confirms we achieved it.
+
+## Out of scope
+What is NOT in this sprint that stakeholders might assume is included.
+
+## Achievability check
+Do the committed stories support this goal? If not, what needs to change.`;
+}
+
 // ══ MULTI-BRAIN ══
+function updateMbCount(){
+  const n = selectedBrains.length;
+  const badge = document.getElementById('mb-count');
+  if(badge) badge.textContent = n === 0 ? 'none selected' : `${n} selected`;
+}
+
 function toggleBrain(el){
-  const brain=el.dataset.brain;
+  const brain = el.dataset.brain;
   el.classList.toggle('on');
-  const chk=el.querySelector('.mb-check');
-  if(el.classList.contains('on')){chk.textContent='✓';if(!selectedBrains.includes(brain))selectedBrains.push(brain);}
-  else{chk.textContent='';selectedBrains=selectedBrains.filter(b=>b!==brain);}
+  const chk = el.querySelector('.mb-check');
+  if(el.classList.contains('on')){
+    chk.textContent = '✓';
+    if(!selectedBrains.includes(brain)) selectedBrains.push(brain);
+  } else {
+    chk.textContent = '';
+    selectedBrains = selectedBrains.filter(b=>b!==brain);
+  }
+  updateMbCount();
+  updateMbWarning();
 }
 
 function selectAllBrains(){
   document.querySelectorAll('.mb-brain').forEach(el=>{
-    if(!el.classList.contains('on')){el.classList.add('on');el.querySelector('.mb-check').textContent='✓';const b=el.dataset.brain;if(!selectedBrains.includes(b))selectedBrains.push(b);}
+    if(!el.classList.contains('on')){
+      el.classList.add('on');
+      el.querySelector('.mb-check').textContent='✓';
+      const b=el.dataset.brain;
+      if(!selectedBrains.includes(b)) selectedBrains.push(b);
+    }
   });
-  toast('All brains selected');
+  updateMbCount();
+  updateMbWarning();
+  toast('All 13 brains selected — consider using 3-4 for faster results');
 }
 
 function deselectAllBrains(){
   document.querySelectorAll('.mb-brain').forEach(el=>{
-    el.classList.remove('on');el.querySelector('.mb-check').textContent='';
+    el.classList.remove('on');
+    el.querySelector('.mb-check').textContent='';
   });
   selectedBrains=[];
+  updateMbCount();
+  updateMbWarning();
   toast('All brains deselected');
 }
 
+function fillMb(text){
+  const inp = document.getElementById('mb-input');
+  if(inp){ inp.value=text; inp.focus(); }
+}
+
+function fillMbCtx(text){
+  // Inject product context into the suggestion if available
+  let enriched = text;
+  if(productContext.product) enriched += ` (Product: ${productContext.product})`;
+  if(productContext.sprintNum) enriched += ` (${productContext.sprintNum})`;
+  fillMb(enriched);
+}
+
+function updateMbWarning(){
+  const n = selectedBrains.length;
+  const warn = document.getElementById('mb-warning');
+  const txt  = document.getElementById('mb-warning-txt');
+  if(!warn) return;
+  if(n >= 6){
+    warn.style.display='block';
+    txt.textContent = `${n} brains selected — this sends ${n} simultaneous API calls. Consider using 3-4 for faster, more focused results.`;
+  } else {
+    warn.style.display='none';
+  }
+}
+
+function clearAllKb(){
+  if(knowledgeBase.length===0) return;
+  if(!confirm(`Remove all ${knowledgeBase.length} files from the Knowledge Base?`)) return;
+  knowledgeBase=[];
+  renderKbList();
+  updateKbStatus();
+  updateKbChatIndicator();
+  updateStats();
+  toast('Knowledge Base cleared');
+}
+
 async function multiAsk(){
-  if(selectedBrains.length===0){toast('Select at least one brain');return;}
-  const prompt=document.getElementById('mb-input').value.trim();
+  if(selectedBrains.length===0){toast('Select at least one brain first');return;}
+  const prompt = document.getElementById('mb-input').value.trim();
   if(!prompt){toast('Type a question first');return;}
   if(!apiKey){openModal();return;}
+
+  const btn = document.getElementById('mb-send-btn');
+  if(btn){btn.disabled=true;btn.textContent='Asking…';}
   document.getElementById('mb-input').value='';
   switchTab('chat',null);
   const welcome=document.getElementById('welcome-msg');if(welcome)welcome.remove();
-  addMsg('user',`[Multi-Brain] ${prompt}`);
+  addMsg('user',`[Multi-Brain — ${selectedBrains.length} expert${selectedBrains.length>1?'s':''}] ${prompt}`);
+
+  const BRAIN_META = {
+    po:       {icon:'🧠', name:'PO Brain'},
+    ba:       {icon:'🔎', name:'BA Brain'},
+    ux:       {icon:'🎨', name:'UX Brain'},
+    cto:      {icon:'🧑‍💻',name:'CTO Brain'},
+    cfo:      {icon:'💰', name:'CFO Brain'},
+    techlead: {icon:'🧑‍🔧',name:'Tech Lead'},
+    developer:{icon:'💻', name:'Developer'},
+    qa:       {icon:'🧪', name:'QA Brain'},
+    scrum:    {icon:'🏃', name:'Scrum Master'},
+    pm:       {icon:'📌', name:'PM Brain'},
+    marketing:{icon:'📣', name:'Marketing'},
+    ceo:      {icon:'🧑‍💼',name:'CEO Brain'},
+    sales:    {icon:'🛒', name:'Sales Brain'},
+  };
+
   for(const brainId of selectedBrains){
-    const icons={po:'🧠',ba:'🔎',ux:'🎨',techlead:'🧑‍🔧',qa:'🧪',scrum:'🏃',pm:'📌',developer:'💻',cto:'🧑‍💻'};
-    const names={po:'PO Brain',ba:'BA Brain',ux:'UX Brain',techlead:'Tech Lead Brain',qa:'QA Brain',scrum:'Scrum Master',pm:'PM Brain',developer:'Developer Brain',cto:'CTO Brain'};
-    await askOneBrain(brainId,icons[brainId]||'🧠',names[brainId]||brainId,BRAIN_PROMPTS[brainId]||BRAIN_PROMPTS.po,prompt+getCtx()+getKbContext());
+    const meta = BRAIN_META[brainId] || {icon:'🧠', name:brainId};
+    await askOneBrain(brainId, meta.icon, meta.name,
+      BRAIN_PROMPTS[brainId]||BRAIN_PROMPTS.po,
+      prompt+getCtx()+getKbContext());
   }
+  if(btn){btn.disabled=false;btn.textContent='Ask →';}
 }
 
 async function askOneBrain(id,icon,name,sys,userMsg){
@@ -2605,17 +2981,12 @@ async function chatDrop(e){
 function clearChat(){
   const msgs = document.getElementById('chat-msgs');
   if(!msgs) return;
+  const brain = ALL_BRAINS.find(b=>b.id===activeBrain)||{icon:'🧠',label:'PO Brain',role:'Product Owner'};
   msgs.innerHTML = `<div class="welcome" id="welcome-msg">
-    <span class="welcome-icon">🧠</span>
-    <h3>Product OS — AI Brain Ready</h3>
-    <p>Your senior PO brain is active. Upload files below, paste images directly, or ask anything about your product.</p>
-    <div class="wchips">
-      <div class="wchip" onclick="fill('Prioritise my backlog using RICE scoring')">RICE my backlog</div>
-      <div class="wchip" onclick="fill('Help me write a PRD for a new feature')">Write a PRD</div>
-      <div class="wchip" onclick="fill('Define my product OKRs for next quarter')">Set OKRs</div>
-      <div class="wchip" onclick="fill('Help me push back on a stakeholder request professionally')">Say no to stakeholder</div>
-      <div class="wchip" onclick="fill('Run a pre-mortem for our upcoming launch')">Run pre-mortem</div>
-    </div>
+    <span class="welcome-icon" id="welcome-icon">${brain.icon}</span>
+    <h3 id="welcome-title">${brain.label} — Ready</h3>
+    <p id="welcome-sub">Your ${brain.role} is active. Ask anything in this domain.</p>
+    <div class="wchips" id="welcome-chips">${getWelcomeChips()}</div>
   </div>`;
   chatHistory = [];
   toast('Chat cleared');
@@ -2770,9 +3141,22 @@ function renderKbList(){
 }
 
 function updateKbStatus(){
-  const bar=document.getElementById('kb-active');const txt=document.getElementById('kb-active-txt');
-  if(knowledgeBase.length>0){bar.style.display='flex';txt.textContent=`${knowledgeBase.length} file${knowledgeBase.length>1?'s':''} active in AI brain`;}
-  else bar.style.display='none';
+  const n = knowledgeBase.length;
+  const bar = document.getElementById('kb-active');
+  const txt = document.getElementById('kb-active-txt');
+  const badge = document.getElementById('kb-count-badge');
+  const clearBtn = document.getElementById('kb-clear-all-btn');
+
+  if(n > 0){
+    if(bar){ bar.style.display='flex'; }
+    if(txt){ txt.textContent=`${n} file${n>1?'s':''} active — AI reads these in every response`; }
+    if(badge){ badge.style.display='inline'; badge.textContent=n; }
+    if(clearBtn){ clearBtn.style.display=''; }
+  } else {
+    if(bar) bar.style.display='none';
+    if(badge) badge.style.display='none';
+    if(clearBtn) clearBtn.style.display='none';
+  }
 }
 
 function removeKbFile(id){knowledgeBase=knowledgeBase.filter(f=>f.id!=id);renderKbList();updateKbStatus();updateStats();toast('File removed');}
@@ -2780,8 +3164,15 @@ function removeKbFile(id){knowledgeBase=knowledgeBase.filter(f=>f.id!=id);render
 function chatAboutFile(id){
   const f=knowledgeBase.find(f=>f.id==id);if(!f)return;
   switchTab('chat',null);
-  if(f.type==='image'){document.getElementById('chat-input').value=`Analyse this image: ${f.name}. Give me product insights, UX observations, and recommendations.`;pendingImageId=f.id;}
-  else document.getElementById('chat-input').value=`I uploaded "${f.name}". Analyse it and give me: 1) Key insights, 2) What's missing or could improve, 3) Top 3 action items as a PO.`;
+  if(f.type==='image'){
+    // Wire into the new chat attachment system
+    chatAttachments=[{id:f.id,name:f.name,type:'image',ext:'png',sizeKb:Math.round((f.dataUrl?.length||0)*0.75/1024),content:'',dataUrl:f.dataUrl}];
+    chatPendingImage={id:f.id,dataUrl:f.dataUrl,mtype:'image/png'};
+    renderChatAttachments();updateKbChatIndicator();
+    document.getElementById('chat-input').value=`Analyse this image: ${f.name}. Give me: 1) Key UX or product observations, 2) What is working well, 3) What should be improved and how.`;
+  } else {
+    document.getElementById('chat-input').value=`I uploaded "${f.name}". Analyse it and give me: 1) Key insights relevant to product decisions, 2) What is missing or could improve, 3) Top 3 action items as a PO.`;
+  }
   autoResize(document.getElementById('chat-input'));document.getElementById('chat-input').focus();
 }
 
@@ -2905,10 +3296,65 @@ function saveApiKey(){const val=document.getElementById('api-key-input').value.t
 
 // ══ STATS ══
 function updateStats(){
-  document.getElementById('stat-backlog').textContent=backlogItems.length;
-  document.getElementById('stat-kpis').textContent=kpiItems.length;
-  document.getElementById('stat-roadmap').textContent=roadmapItems.length;
-  document.getElementById('stat-kb').textContent=knowledgeBase.length;
+  const updates = [
+    ['stat-backlog', backlogItems.length,  'stat-backlog-sub'],
+    ['stat-kpis',    kpiItems.length,      'stat-kpis-sub'],
+    ['stat-roadmap', roadmapItems.length,  'stat-roadmap-sub'],
+    ['stat-kb',      knowledgeBase.length, 'stat-kb-sub'],
+  ];
+  updates.forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if(!el) return;
+    const prev = parseInt(el.textContent||0);
+    if(prev !== val){
+      el.textContent = val;
+      el.style.transform = 'scale(1.15)';
+      el.style.transition = 'transform .2s ease';
+      setTimeout(()=>{ el.style.transform = ''; }, 200);
+    }
+  });
+
+  // Dynamic sub-text reflecting actual state
+  const blSub = document.getElementById('stat-backlog-sub');
+  if(blSub){
+    if(backlogItems.length === 0) blSub.textContent = 'Add items → RICE score → sprint';
+    else {
+      const inSprint = backlogItems.filter(b=>b.status==='sprint').length;
+      const done     = backlogItems.filter(b=>b.status==='done').length;
+      blSub.textContent = `${inSprint} in sprint · ${done} done · ${backlogItems.length} total`;
+    }
+  }
+  const kpiSub = document.getElementById('stat-kpis-sub');
+  if(kpiSub){
+    if(kpiItems.length === 0) kpiSub.textContent = 'Define metrics → track trend → AI analyse';
+    else {
+      const onTrack = kpiItems.filter(k=>k.trend==='up').length;
+      kpiSub.textContent = `${onTrack} trending up · ${kpiItems.length} tracked`;
+    }
+  }
+  const rmSub = document.getElementById('stat-roadmap-sub');
+  if(rmSub){
+    if(roadmapItems.length === 0) rmSub.textContent = 'Plan 6 months · theme by focus area';
+    else rmSub.textContent = `${roadmapItems.length} initiative${roadmapItems.length!==1?'s':''} across 6 months`;
+  }
+  const kbSub = document.getElementById('stat-kb-sub');
+  if(kbSub){
+    if(knowledgeBase.length === 0) kbSub.textContent = 'KB files power every AI response';
+    else {
+      const types = [...new Set(knowledgeBase.map(f=>f.ext?.toUpperCase()||'FILE'))].join(', ');
+      kbSub.textContent = `${knowledgeBase.length} file${knowledgeBase.length!==1?'s':''} active · ${types}`;
+    }
+  }
+
+  // KB count badge
+  const kbBadge = document.getElementById('kb-count-badge');
+  if(kbBadge){
+    if(knowledgeBase.length > 0){ kbBadge.style.display='inline-block'; kbBadge.textContent=knowledgeBase.length; }
+    else kbBadge.style.display='none';
+  }
+  // KB clear button
+  const clearBtn = document.getElementById('kb-clear-all-btn');
+  if(clearBtn) clearBtn.style.display = knowledgeBase.length > 0 ? 'inline-flex' : 'none';
 }
 
 // ══ TOAST ══
@@ -2916,85 +3362,127 @@ function toast(msg){document.getElementById('toast-msg').textContent=msg;const t
 
 // ══ PROMPT REPOSITORY ══
 const PROMPT_REPO = [
-  // ── PO BRAIN ──
-  {brain:'po',icon:'🧠',color:'#6C47FF',name:'RICE Backlog Sprint',prompt:'I have a backlog with these items: [LIST ITEMS]. Our sprint is [X] days, team of [X] people. Our product goal is [GOAL]. Apply RICE scoring (Reach, Impact, Confidence, Effort) to each item and give me a prioritised commit list for the sprint with reasoning.'},
-  {brain:'po',icon:'🧠',color:'#6C47FF',name:'OKR Quarter Plan',prompt:'Help me set OKRs for Q[X]. Our product is [PRODUCT], primary users are [USERS], and our company goal this quarter is [GOAL]. Write 1 Objective with 3 Key Results. Each KR must have a baseline, target, and how it will be measured.'},
-  {brain:'po',icon:'🧠',color:'#6C47FF',name:'Stakeholder No Script',prompt:'My [ROLE e.g. CEO/CTO/Director] wants to add [FEATURE REQUEST] to the roadmap. I believe this is wrong because [YOUR REASON]. Write me a professional, data-led pushback script I can use in our next meeting. Include questions to ask them and alternative I can propose.'},
-  {brain:'po',icon:'🧠',color:'#6C47FF',name:'Sprint Review Write-Up',prompt:'Write my Sprint [X] review update. We shipped: [LIST STORIES]. Sprint goal was: [GOAL]. What we achieved: [OUTCOMES]. What we learned: [LEARNINGS]. Audience: [STAKEHOLDERS]. Format as a crisp, professional update with a next sprint preview.'},
-  {brain:'po',icon:'🧠',color:'#6C47FF',name:'Pre-mortem Launch',prompt:'We are launching [FEATURE/PRODUCT] in [TIMEFRAME]. Facilitate a pre-mortem. List the top 10 specific ways this launch could fail. For each: likelihood (H/M/L), impact (H/M/L), and the mitigation action we should take now before launch.'},
-  {brain:'po',icon:'🧠',color:'#6C47FF',name:'North Star Metric',prompt:'Help me define a North Star Metric for [PRODUCT]. Our users are [USERS]. The core value we deliver is [VALUE]. We currently measure [EXISTING METRICS]. Recommend a single North Star, explain why, and list 3-5 input metrics that predict it.'},
 
-  // ── BA BRAIN ──
-  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'Requirements Elicitation',prompt:'I need to elicit requirements for [SYSTEM/FEATURE]. Stakeholders include [LIST ROLES]. Write a structured requirements elicitation plan including: workshop agenda, 15 open-ended interview questions, survey questions, and a requirements sign-off checklist.'},
-  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'AS-IS TO-BE Process Map',prompt:'Help me map a business process. Current (AS-IS) state: [DESCRIBE CURRENT PROCESS]. Problems: [LIST PROBLEMS]. Desired (TO-BE) state: [DESCRIBE GOAL]. Create a structured process comparison showing each step, who owns it, system involved, and improvement made.'},
-  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'Gap Analysis Report',prompt:'Conduct a gap analysis for [AREA e.g. our checkout flow / reporting capability]. Current state: [DESCRIBE]. Required future state: [DESCRIBE]. List each gap with: gap description, root cause, priority (H/M/L), and recommended action to close it.'},
-  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'BRD Section Writer',prompt:'Write a Business Requirements Document section for [FEATURE]. Background: [CONTEXT]. Business objective: [OBJECTIVE]. In scope: [SCOPE]. Out of scope: [OUT]. Stakeholders: [LIST]. Include functional requirements as numbered list, non-functional requirements, assumptions, constraints, and open questions.'},
-  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'UAT Test Cases',prompt:'Write UAT test cases for [FEATURE]. User type: [USER]. Acceptance criteria: [LIST AC]. Write 10 test cases covering happy path, edge cases, and error scenarios. Format: Test ID | Scenario | Steps | Expected Result | Pass/Fail.'},
+  // ── PO BRAIN — 6 prompts ──
+  {brain:'po',icon:'🧠',color:'#6C47FF',name:'RICE Backlog Sprint',prompt:'RICE score my backlog for sprint planning.\n\nBacklog items:\n1. [STORY TITLE] — [ONE SENTENCE DESCRIPTION]\n2. [STORY TITLE] — [ONE SENTENCE DESCRIPTION]\n3. [STORY TITLE] — [ONE SENTENCE DESCRIPTION]\n(add all items)\n\nContext:\n- Sprint length: [X] working days\n- Team: [X] Dev, [X] QA\n- Product goal: [GOAL e.g. reduce checkout drop-off by 20%]\n- Historical velocity: [X] SP\n\nFor each item produce a RICE score table:\n| Story | Reach (1-100) | Impact (1-3) | Confidence % | Effort days | RICE Score |\n\nThen:\n1. Rank all items by RICE score highest to lowest\n2. Recommend which stories to commit this sprint (stop when you reach 80% of velocity)\n3. Flag any story with Confidence below 60% — these need discovery before committing\n4. Name the single highest-risk assumption in the top-priority item'},
 
-  // ── CTO BRAIN ──
-  {brain:'cto',icon:'🧑‍💻',color:'#00BCD4',name:'Architecture Decision Record',prompt:'Write an Architecture Decision Record (ADR) for [TECHNICAL DECISION]. Context: [PROBLEM/SITUATION]. Options considered: [OPTION A], [OPTION B], [OPTION C]. Constraints: [CONSTRAINTS]. Write a full ADR with: Status, Context, Decision, Rationale, Consequences (positive and negative), and Alternatives rejected.'},
-  {brain:'cto',icon:'🧑‍💻',color:'#00BCD4',name:'Tech Debt Strategy',prompt:'Help me build a tech debt reduction strategy. Our main tech debt areas are: [LIST AREAS]. Business impact of this debt: [IMPACT]. Team size: [X] engineers. Write: a prioritised tech debt register, how to get product buy-in, and a phased reduction plan I can present to leadership.'},
-  {brain:'cto',icon:'🧑‍💻',color:'#00BCD4',name:'Eng Team OKRs + DORA',prompt:'Help me define engineering OKRs for Q[X] and a DORA metrics baseline. Our current pain points: [LIST]. Team: [X] engineers. Write 1 engineering Objective with 3 KRs, and define our baseline and targets for Deployment Frequency, Lead Time, MTTR, and Change Failure Rate.'},
-  {brain:'cto',icon:'🧑‍💻',color:'#00BCD4',name:'Build vs Buy Analysis',prompt:'I need to decide whether to build or buy [CAPABILITY]. Our requirements: [LIST]. Budget: [BUDGET]. Team capacity: [CAPACITY]. Timeline: [TIMELINE]. Analyse build vs buy vs partner. Score each on cost, time, control, risk, and strategic fit. Give a clear recommendation with reasoning.'},
+  {brain:'po',icon:'🧠',color:'#6C47FF',name:'OKR Quarter Plan',prompt:'Write a complete OKR document for [Q1/Q2/Q3/Q4 YEAR].\n\nContext:\n- Product: [PRODUCT NAME]\n- Primary users: [WHO USES IT]\n- Company goal this quarter: [COMPANY-LEVEL GOAL]\n- Current baseline metrics: [YOUR KEY METRICS TODAY e.g. MAU: 4,200 / Conversion: 3.2% / NPS: 34]\n- Team size: [X] people\n- Constraints: [BUDGET/TIME/HEADCOUNT CONSTRAINTS]\n\nProduce:\n## Objective\nOne inspiring, qualitative statement of what we will achieve this quarter. Not a task list.\n\n## Key Result 1\n- Metric: [what we measure]\n- Baseline: [current value — taken from the metrics I provided]\n- Target: [end-of-quarter target]\n- Measurement method: [exactly how and when we measure this]\n- Leading indicator: [what tells us in week 4 whether we are on track]\n\n## Key Result 2 and 3 in same format\n\n## Why these KRs and not others\nOne paragraph explaining the logic.\n\n## Biggest risk to achieving this OKR\nOne specific, named risk with the mitigation action.'},
 
-  // ── UX BRAIN ──
-  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'Usability Test Plan',prompt:'Create a usability test plan for [FEATURE/FLOW]. Research question: [QUESTION]. Users to recruit: [USER TYPE, N=X]. Write: test objectives, 5 task scenarios with success criteria, pre-task screener, post-task questions (SUS scale + follow-up), and a moderation guide.'},
-  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'HEART Metrics Framework',prompt:'Set up a HEART framework for [PRODUCT/FEATURE]. For each dimension (Happiness, Engagement, Adoption, Retention, Task Success): define the signal, metric, and how we will measure it. Then identify the top 3 metrics to prioritise and why.'},
-  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'Heuristic Evaluation',prompt:'Conduct a heuristic evaluation of [FLOW/SCREEN e.g. our checkout, our onboarding]. Apply Nielsen\'s 10 usability heuristics. For each heuristic: rate our current experience (1-5), describe the specific issue found, and recommend the fix. Prioritise by severity.'},
-  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'User Interview Script',prompt:'Write a user research interview script to explore [PROBLEM AREA]. Target user: [USER TYPE]. Duration: 45 mins. Include: warm-up questions, 8 core discovery questions, probing follow-ups, and a closing exercise. All questions must be open-ended and non-leading.'},
+  {brain:'po',icon:'🧠',color:'#6C47FF',name:'Stakeholder No Script',prompt:'I need to push back on a stakeholder request professionally and with data.\n\nSituation:\n- Who is asking: [ROLE e.g. CEO / CTO / Head of Sales]\n- What they want: [THE REQUEST IN THEIR WORDS]\n- Why I think it is wrong: [YOUR REASONING]\n- What I know about their underlying motivation: [WHAT PROBLEM ARE THEY REALLY TRYING TO SOLVE]\n- Our current product goal: [GOAL THIS QUARTER]\n- The meeting context: [1:1 / team meeting / steering committee]\n\nProduce:\n1. The opening statement — acknowledge what they want without agreeing to it\n2. The three questions to ask them that expose the underlying problem vs the proposed solution\n3. The data or framework I should bring to the meeting to support my position\n4. The alternative I can propose that addresses their underlying need\n5. The exact words to use if they push back on my pushback\n6. The decision I need to force by end of the meeting'},
 
-  // ── QA BRAIN ──
-  {brain:'qa',icon:'🧪',color:'#29B6F6',name:'Test Strategy Document',prompt:'Write a test strategy for [FEATURE/RELEASE]. Tech stack: [STACK]. Team: [X QA engineers]. Timeline: [TIMELINE]. Cover: test scope, types of testing (unit/integration/E2E/performance/security), test environment requirements, entry/exit criteria, risk areas needing most coverage, and automation recommendations.'},
-  {brain:'qa',icon:'🧪',color:'#29B6F6',name:'Regression Test Plan',prompt:'Create a regression test plan for [RELEASE]. Changed areas: [LIST CHANGES]. Critical user journeys: [LIST JOURNEYS]. Write: regression scope (what to test and what to skip), test execution order, pass/fail criteria, and a risk-based prioritisation of test cases.'},
-  {brain:'qa',icon:'🧪',color:'#29B6F6',name:'Bug Report Template',prompt:'Create a comprehensive bug report for: [DESCRIBE BUG]. Include: title, environment (browser/OS/device), steps to reproduce (numbered), expected result, actual result, severity (Critical/High/Medium/Low), priority, screenshot description, and root cause hypothesis.'},
-  {brain:'qa',icon:'🧪',color:'#29B6F6',name:'OWASP Security Checklist',prompt:'Run an OWASP Top 10 security review against [FEATURE/ENDPOINT]. For each OWASP category: describe the specific risk for our context, test we should perform, and mitigation recommendation. Flag any critical risks immediately.'},
+  {brain:'po',icon:'🧠',color:'#6C47FF',name:'Sprint Review Write-Up',prompt:'Write a complete sprint review update ready to send to stakeholders.\n\nSprint details:\n- Sprint number: [X]\n- Sprint goal: [GOAL]\n- Did we achieve the sprint goal: [YES / PARTIALLY — explain / NO — explain]\n- What shipped (list each story with one sentence on user benefit, not technical change):\n  1. [STORY] — benefit: [USER BENEFIT]\n  2. [STORY] — benefit: [USER BENEFIT]\n- What did NOT ship and why: [LIST WITH HONEST REASON]\n- Metrics moved this sprint: [METRIC: before → after]\n- What we learned: [ONE INSIGHT THAT CHANGES HOW WE WORK OR WHAT WE BUILD]\n- Audience: [WHO WILL READ THIS e.g. product leadership / engineering / exec team]\n\nProduce:\n1. Email subject line\n2. One-paragraph executive summary (3 sentences max)\n3. What shipped — in user benefit language, not technical language\n4. What did not ship — honest, no spin\n5. Metrics moved — with context on whether that is good or bad\n6. What we are doing next sprint and why it follows from this sprint\n7. One question for stakeholders to get genuine feedback'},
 
-  // ── SCRUM BRAIN ──
-  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Retrospective Facilitator',prompt:'Facilitate a sprint retrospective for Sprint [X]. Team size: [X]. Sprint goal: [GOAL]. Were we successful? [YES/NO]. Format: [4Ls / Start-Stop-Continue / Mad-Sad-Glad]. Generate: opening framing for psychological safety, data gathering prompts, insight grouping method, action commitment format (owned + timeboxed), and a closing check-in. Include the 3 most common ways this retro will produce no real change and how to prevent each.'},
-  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Sprint Planning Opening',prompt:'Write my sprint planning opening statement for Sprint [X]. Working days: [X]. Team: [X] Dev, [X] QA, [X] other. Capacity: [X] SP. Sprint goal: [GOAL]. Candidate stories: [LIST WITH POINTS]. Include: capacity walkthrough showing the working, how we will select stories, sequencing recommendation (QA cannot test what dev has not built — name the stories that need to be completed in week 1 for QA to have enough in week 2), and ground rules for the session.'},
-  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Impediment Removal Plan',prompt:'I have an impediment blocking the team. Blocker: [DESCRIBE]. Affecting: [WHO]. Blocked for: [X DAYS]. My authority to resolve: [HIGH/MED/LOW]. Escalation available: [YES/NO — and to whom]. Give me: root cause (not just the surface symptom), the immediate unblocking action I can take today, the escalation message to send if I cannot resolve it myself, and the systemic fix to prevent this class of impediment recurring.'},
-  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Team Health Check',prompt:'Run a team health Spotify-model assessment. Team: [X] people, [X months] together. Delivery methodology: [SCRUM/KANBAN]. Current symptoms: [LIST OBSERVABLE BEHAVIOURS e.g. quiet retros, standups that run long, stories slipping, reduced velocity]. For each Spotify health dimension: assess Red/Amber/Green with specific observable evidence. Identify the 3 dimensions with highest risk. Give one coaching action per red dimension that I can run in the next sprint.'},
-  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Definition of Ready',prompt:'Create a Definition of Ready for our team. We build [PRODUCT TYPE]. Our sprint length is [X days]. Our team includes [ROLES]. A story must meet all DoR criteria before it can enter sprint planning. Write: 8-10 specific, binary (yes/no) DoR criteria — not vague principles. Include criteria for: acceptance criteria quality, sizing, dependency resolution, UX/design readiness, and technical unknowns. Also write the 3 most common ways DoR gets ignored in practice and how to enforce it.'},
-  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Definition of Done',prompt:'Create a Definition of Done for our team. We build [PRODUCT TYPE] using [TECH STACK]. Our team: [X Dev, X QA]. We deploy to [ENV e.g. cloud/on-premise]. Write: a binary (yes/no) DoD checklist covering code quality, testing (unit, integration, regression), security checks, accessibility, documentation, performance validation, product owner acceptance, and deployment verification. Include: who is responsible for each criterion, and the 2 most common DoD violations that allow poor quality to reach production.'},
-  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Velocity Analysis',prompt:'Analyse our sprint velocity data. Last 5 sprints: [SPRINT 1: X SP committed, Y SP delivered. SPRINT 2: X committed, Y delivered. SPRINT 3-5: same format]. Sprint length: [X days]. Team changes in this period: [ANY CHANGES TO TEAM SIZE OR COMPOSITION]. Give me: 1) Whether our velocity is stable, trending up, or trending down and the likely cause. 2) Our realistic planning velocity (not the highest sprint — the reliable baseline). 3) Whether our commitment accuracy is improving or worsening. 4) The single most important thing to change to make velocity more predictable. 5) What our capacity should be for next sprint based on this history.'},
-  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Backlog Refinement Session',prompt:'Facilitate a backlog refinement session for these stories: [LIST STORIES WITH BRIEF DESCRIPTIONS]. Team context: [X Dev, X QA, sprint length X days]. For each story: 1) Write missing acceptance criteria in BDD Given/When/Then format. 2) Check INVEST — flag Independent (depends on another story?), Negotiable (gold-plating?), Valuable (clear user benefit?), Estimable (do we understand it enough to size?), Small (can be done in one sprint?), Testable (can QA define a test?). 3) Flag technical unknowns that need a spike. 4) Suggest size in story points. 5) Mark Ready or Not Ready with specific reason. End with: which stories are Ready for next sprint planning and which need more work.'},
-  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Sprint Goal Writing',prompt:'Write a compelling sprint goal for Sprint [X]. Stories in scope: [LIST]. Our product goal this quarter: [GOAL]. Previous sprint goal: [PREVIOUS GOAL]. A sprint goal must: describe an outcome not a task list, be achievable in the sprint, be specific enough to guide daily decisions, and be meaningful enough that missing it would feel significant. Write 3 candidate sprint goals — different framings of the same work — then recommend one with reasoning. Include: why this goal matters to the user, what the success metric is, and what is explicitly out of scope.'},
+  {brain:'po',icon:'🧠',color:'#6C47FF',name:'Pre-mortem Launch',prompt:'Run a pre-mortem for our upcoming launch.\n\nLaunch details:\n- What we are launching: [FEATURE / PRODUCT / CHANGE]\n- Launch date: [DATE]\n- Who is affected: [USERS / INTERNAL TEAMS]\n- What success looks like: [SUCCESS METRIC]\n- Known risks already identified: [LIST ANY YOU ALREADY KNOW]\n- Team: [X] Dev, [X] QA, [X] other\n\nProduce a pre-mortem table with exactly 10 failure modes:\n| # | Failure mode | How it happens specifically | Likelihood H/M/L | Business impact H/M/L | Mitigation action (owner + deadline) |\n\nThen:\n1. Rank the top 3 risks by combined likelihood × impact\n2. For each top 3: write the specific action to take THIS WEEK to reduce the risk\n3. Write the rollback plan — exactly what we do if we need to undo this launch within 24 hours of going live'},
 
-  // ── TECH LEAD BRAIN ──
-  {brain:'techlead',icon:'🧑‍🔧',color:'#FFA726',name:'System Design Review',prompt:'Help me design [SYSTEM/FEATURE]. Requirements: [LIST]. Scale: [EXPECTED LOAD]. Constraints: [TECH STACK/BUDGET/TIME]. Produce: component breakdown, data flow description, API contract (endpoints + payloads), database schema outline, key technical risks, and open questions before we start building.'},
-  {brain:'techlead',icon:'🧑‍🔧',color:'#FFA726',name:'Code Review Standards',prompt:'Create a code review checklist and standards guide for our team. We build [PRODUCT TYPE] using [TECH STACK]. Cover: what reviewers must check (correctness, tests, security, performance, readability), what is optional style feedback, how to give kind but honest feedback, and turnaround time expectations.'},
-  {brain:'techlead',icon:'🧑‍🔧',color:'#FFA726',name:'Developer Coaching Plan',prompt:'Help me build a coaching plan for [DEVELOPER NAME/ROLE e.g. a mid-level developer]. Strengths: [STRENGTHS]. Growth areas: [AREAS TO IMPROVE]. Career goal: [GOAL]. Write a 90-day coaching plan with: monthly milestones, recommended learning resources, stretch assignments, and 1:1 discussion prompts.'},
+  {brain:'po',icon:'🧠',color:'#6C47FF',name:'North Star Metric',prompt:'Help me define a North Star Metric and input metric tree.\n\nContext:\n- Product: [PRODUCT NAME]\n- What the product does: [ONE SENTENCE]\n- Primary users: [WHO]\n- Core value we deliver: [THE MOMENT THE USER GETS VALUE — be specific]\n- Current metrics we track: [LIST WHAT YOU MEASURE TODAY]\n- Business model: [HOW WE MAKE MONEY]\n- Stage: [MVP / GROWTH / SCALE]\n\nProduce:\n## North Star Metric recommendation\nOne metric. The name, the exact definition, and how it is calculated. Explain why this specific metric captures the value exchange between the product and the user better than the alternatives.\n\n## Why not [the obvious alternative metric]\nExplain specifically why the most tempting alternative is the wrong choice.\n\n## Input metric tree\n3-5 metrics that, if improved, will predictably move the North Star. For each: name, definition, which team owns it, and current typical benchmark for this type of product.\n\n## One thing to stop measuring\nThe vanity metric currently being tracked that is distracting the team from what matters.'},
 
-  // ── PM BRAIN ──
-  {brain:'pm',icon:'📌',color:'#EF5350',name:'Project Initiation Brief',prompt:'Write a project initiation brief for [PROJECT NAME]. Business objective: [OBJECTIVE]. Scope: [WHAT IS IN/OUT]. Timeline: [START → END]. Budget: [BUDGET]. Team: [ROLES]. Key risks: [LIST]. Produce a one-page brief covering: background, objectives, success criteria, governance structure, and immediate next steps.'},
-  {brain:'pm',icon:'📌',color:'#EF5350',name:'RAID Log Setup',prompt:'Set up a RAID log for [PROJECT]. Populate with realistic examples for our context: [PROJECT CONTEXT]. Create entries for: Risks (5+, with probability/impact/mitigation), Assumptions (5+, with validation method), Issues (3+, with owner and resolution plan), Dependencies (5+, with due date and owner). Format as a table.'},
-  {brain:'pm',icon:'📌',color:'#EF5350',name:'Stakeholder Comms Plan',prompt:'Build a stakeholder communication plan for [PROJECT]. Stakeholders: [LIST ROLES]. Duration: [X weeks/months]. Create a matrix showing: stakeholder, interest level, influence level, communication method, frequency, key messages, and owner. Include an escalation path for issues.'},
+  // ── BA BRAIN — 5 prompts ──
+  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'Requirements Elicitation',prompt:'Plan and produce a requirements elicitation package for a new system or feature.\n\nContext:\n- System / feature: [WHAT WE ARE BUILDING]\n- Business problem it solves: [THE PROBLEM]\n- Stakeholders involved:\n  - [ROLE]: responsible for [WHAT]\n  - [ROLE]: responsible for [WHAT]\n  - [ROLE]: responsible for [WHAT]\n- Timeline for elicitation: [X weeks]\n- What we already know: [ANY EXISTING DOCUMENTATION OR DECISIONS]\n\nProduce:\n1. Workshop agenda (90-minute session) with timebox for each section\n2. 15 open-ended elicitation questions — grouped by: business objectives / user needs / system behaviour / constraints / data requirements\n3. A follow-up survey (8 questions) for stakeholders who cannot attend the workshop\n4. Requirements sign-off checklist — the criteria a requirement must meet before it is accepted as complete\n5. The 3 questions most likely to reveal hidden requirements that stakeholders assume are obvious'},
 
-  // ── SALES BRAIN ──
-  {brain:'sales',icon:'🛒',color:'#8BC34A',name:'Deal Strategy MEDDIC',prompt:'Help me build a deal strategy using MEDDIC for this opportunity: Company: [COMPANY], Deal size: [VALUE], Timeline: [CLOSE DATE]. What I know: [KNOWN INFO]. Apply MEDDIC — identify gaps in Metrics, Economic Buyer, Decision Criteria, Decision Process, Identify Pain, Champion. Give me the 3 most important actions to take this week.'},
-  {brain:'sales',icon:'🛒',color:'#8BC34A',name:'Objection Handler',prompt:'The prospect said: "[EXACT OBJECTION]". Context: [DEAL CONTEXT, STAGE]. Write 3 different responses ranging from soft to direct. For each: acknowledge, reframe, and move forward. End each with a question that keeps the conversation going.'},
-  {brain:'sales',icon:'🛒',color:'#8BC34A',name:'Outbound Sequence',prompt:'Write a 5-touch outbound prospecting sequence for [PERSONA e.g. Head of Product at PropTech companies, 100-500 employees]. Our product: [PRODUCT]. Key value prop: [VALUE PROP]. Channels: [EMAIL/LINKEDIN/CALL]. Include: subject lines, full message copy, optimal send timing, and call script for touch 4.'},
+  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'AS-IS TO-BE Process Map',prompt:'Create a structured AS-IS to TO-BE process analysis.\n\nProcess details:\n- Process name: [NAME]\n- AS-IS (current state): [DESCRIBE EACH STEP OF HOW IT WORKS TODAY]\n- Known problems with AS-IS: [LIST PAIN POINTS]\n- TO-BE (desired state): [DESCRIBE WHAT GOOD LOOKS LIKE]\n- Trigger event (what starts this process): [TRIGGER]\n- End state (what does done look like): [END STATE]\n- Roles involved: [LIST ROLES]\n- Systems involved: [LIST SYSTEMS]\n\nProduce:\n## AS-IS Process Table\n| Step # | Action | Role | System used | Time taken | Pain point / problem |\n\n## TO-BE Process Table\n| Step # | Action | Role | System used | Change from AS-IS | Benefit delivered |\n\n## Gap analysis\nFor each gap between AS-IS and TO-BE: what needs to change, who owns the change, and what is the dependency.\n\n## RACI for the new process\n| Activity | Responsible | Accountable | Consulted | Informed |\n\n## Error paths\nThe 3 most likely things that will go wrong in the TO-BE process and how each is handled.'},
 
-  // ── CEO BRAIN ──
-  {brain:'ceo',icon:'🧑‍💼',color:'#F5A623',name:'Company Strategy Sharpener',prompt:'Help me sharpen our company strategy. We are a [STAGE] company in [MARKET]. Our current positioning: [POSITIONING]. Revenue: [REVENUE]. Team: [HEADCOUNT]. Biggest competitor: [COMPETITOR]. Identify: our genuine competitive moat, the 3 biggest strategic risks in next 12 months, and 3 strategic options we should evaluate now.'},
-  {brain:'ceo',icon:'🧑‍💼',color:'#F5A623',name:'Board Pack Narrative',prompt:'Write the CEO narrative for our board pack. Period: [QUARTER]. Headline metrics: [METRICS]. What went well: [WINS]. What did not: [CHALLENGES]. What we are doing about it: [ACTIONS]. Ask of the board: [ASK]. Write in a clear, confident, honest tone — no spin, just signal.'},
-  {brain:'ceo',icon:'🧑‍💼',color:'#F5A623',name:'All-Hands Message',prompt:'Write an all-hands message for [OCCASION e.g. end of quarter / restructure / major milestone]. Audience: [X] employees. Key message: [CORE MESSAGE]. Tone: [TONE e.g. honest and optimistic / celebratory / candid]. Include: context, what it means for the team, what is not changing, and a clear call to action.'},
+  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'Gap Analysis Report',prompt:'Conduct a structured gap analysis.\n\nContext:\n- Area being analysed: [e.g. our property search experience / our reporting capability / our onboarding process]\n- Current state: [DESCRIBE WHAT EXISTS TODAY IN DETAIL]\n- Required future state: [DESCRIBE WHAT IS NEEDED AND WHY]\n- Driver for change: [REGULATORY / BUSINESS REQUIREMENT / USER NEED / TECHNOLOGY]\n- Stakeholder who owns this: [ROLE]\n- Timeline to close gaps: [TARGET DATE]\n\nProduce:\n## Gap analysis table\n| Gap # | Current state | Required state | Gap description | Root cause | Business impact H/M/L | Priority H/M/L | Recommended action | Owner | Effort estimate |\n\n## Summary\n- Total gaps identified: [number]\n- Critical gaps (must close to proceed): [list]\n- Quick wins (can close in <2 weeks): [list]\n\n## Risks if gaps are not closed\nFor the top 2 priority gaps: what specifically happens if we do not close them by [TARGET DATE]\n\n## Assumptions\nNumbered list of every assumption made in this analysis that, if wrong, would change the recommendations.'},
 
-  // ── MARKETING BRAIN ──
-  {brain:'marketing',icon:'📣',color:'#FF6B35',name:'GTM Launch Plan',prompt:'Build a go-to-market plan for [PRODUCT/FEATURE LAUNCH]. ICP: [TARGET CUSTOMER]. Key value prop: [VALUE PROP]. Launch date: [DATE]. Budget: [BUDGET]. Channels available: [CHANNELS]. Produce: positioning statement, launch messaging framework, channel plan with tactics per channel, success metrics, and week-by-week launch calendar.'},
-  {brain:'marketing',icon:'📣',color:'#FF6B35',name:'Content Strategy',prompt:'Build a 90-day content marketing strategy for [PRODUCT]. ICP: [TARGET AUDIENCE]. SEO focus: [KEY TOPICS]. Goal: [GOAL e.g. 30% increase in organic leads]. Produce: content pillars (3-4), content calendar with 12 pieces (title, format, keyword, goal per piece), distribution plan, and how we will measure ROI.'},
+  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'BRD Section Writer',prompt:'Write a Business Requirements Document section ready for stakeholder review.\n\nContext:\n- Feature / system: [NAME]\n- Background: [WHAT IS THE BUSINESS CONTEXT — why are we building this now]\n- Business objective: [THE MEASURABLE OUTCOME THIS MUST ACHIEVE]\n- In scope: [WHAT THIS COVERS]\n- Out of scope: [WHAT THIS EXPLICITLY DOES NOT COVER — this is as important as scope]\n- Primary stakeholders: [LIST WITH ROLES]\n- Constraints: [TECHNICAL / REGULATORY / BUDGET / TIME]\n- Related documents: [ANY EXISTING SPECS, DESIGNS, DECISIONS]\n\nProduce a BRD section with:\n## 1. Business requirements (numbered, each testable and unambiguous)\nFormat: BR-[N]: [The system shall / The process must] [specific, measurable requirement]\n\n## 2. Functional requirements (numbered, traceable to business requirements)\nFormat: FR-[N] [traces to BR-X]: [specific functional behaviour]\n\n## 3. Non-functional requirements\nCover: performance, security, accessibility, data retention, availability, scalability\n\n## 4. Assumptions (numbered)\n## 5. Constraints (numbered)\n## 6. Open questions (numbered, with owner and resolution date)\n## 7. Sign-off required from\n[List each role that must sign off before work begins]'},
 
-  // ── CFO BRAIN ──
-  {brain:'cfo',icon:'💰',color:'#00D4AA',name:'Unit Economics Deep Dive',prompt:'Help me analyse our unit economics. CAC: [VALUE]. LTV: [VALUE]. Gross margin: [%]. Monthly churn: [%]. Payback period: [MONTHS]. Calculate: LTV:CAC ratio, payback period analysis, gross margin impact on LTV, and sensitivity analysis showing what happens if churn decreases by 1%, 2%, 3%.'},
-  {brain:'cfo',icon:'💰',color:'#00D4AA',name:'Runway & Burn Analysis',prompt:'Help me analyse our financial runway. Current cash: [AMOUNT]. Monthly burn: [AMOUNT]. Monthly revenue: [AMOUNT]. MoM revenue growth: [%]. Model: current trajectory runway, what happens if we cut burn by 20%, what revenue growth rate do we need to hit to reach break-even, and at what point should we start a fundraise process.'},
-  {brain:'cfo',icon:'💰',color:'#00D4AA',name:'Pricing Strategy',prompt:'Help me design a pricing strategy for [PRODUCT]. Our users are [USERS]. Current pricing: [CURRENT]. Competitors charge: [COMP PRICING]. Our cost to serve per customer: [COST]. Analyse: value-based pricing options, packaging tiers (3 tiers), psychological pricing tactics, annual vs monthly discount recommendation, and expected impact on conversion and revenue.'},
+  {brain:'ba',icon:'🔎',color:'#26C6DA',name:'UAT Test Cases',prompt:'Write complete UAT test cases ready for execution.\n\nContext:\n- Feature being tested: [FEATURE NAME]\n- User type executing UAT: [ROLE e.g. property buyer / admin / agent]\n- Acceptance criteria: [LIST EACH AC FROM THE USER STORY]\n- Test environment: [ENV NAME e.g. UAT / Staging]\n- Build version / release: [VERSION]\n- Test data required: [WHAT DATA NEEDS TO EXIST BEFORE TESTING STARTS]\n- UAT coordinator: [ROLE]\n- Sign-off deadline: [DATE]\n\nProduce 10 UAT test cases covering: happy path, edge cases, error scenarios, and accessibility.\n\nFormat each test case as:\n| TC-ID | Test scenario | Preconditions | Test steps (numbered) | Expected result | Actual result | Pass/Fail | Tester | Date |\n\nThen produce:\n- UAT entry criteria: what must be true before UAT can start\n- UAT exit criteria: what must be true before UAT sign-off is given\n- Defect severity guide: Critical / High / Medium / Low with definition of each\n- Sign-off statement template for the UAT coordinator to complete'},
 
-  // ── DEVELOPER BRAIN ──
-  {brain:'developer',icon:'💻',color:'#AB47BC',name:'Code Review Deep Dive',prompt:'Please review the following code and give me senior-level feedback. Language/Framework: [LANGUAGE]. Context: [WHAT THIS CODE DOES]. Code:\n\n[PASTE CODE HERE]\n\nReview for: correctness, edge cases, performance, security vulnerabilities, readability, SOLID principles, test coverage gaps, and specific refactoring suggestions. Be direct and precise.'},
-  {brain:'developer',icon:'💻',color:'#AB47BC',name:'Debug Root Cause',prompt:'I have a bug I cannot solve. Language: [LANGUAGE]. Environment: [ENV]. Expected behaviour: [EXPECTED]. Actual behaviour: [ACTUAL]. Error message: [ERROR or "no error"]. Code snippet: [CODE]. Steps to reproduce: [STEPS]. I have already tried: [WHAT YOU TRIED]. Help me find the root cause and the fix.'},
-  {brain:'developer',icon:'💻',color:'#AB47BC',name:'System Design — API',prompt:'Design a REST API for [FEATURE/SYSTEM]. Requirements: [LIST]. Expected load: [RPS/USERS]. Auth method: [AUTH]. Help me design: endpoint structure (method + path + request/response), error handling strategy, pagination approach, versioning strategy, rate limiting recommendation, and OpenAPI schema outline.'},
-  {brain:'developer',icon:'💻',color:'#AB47BC',name:'Refactoring Plan',prompt:'Help me refactor this code. Current code: [PASTE CODE]. Problems with it: [PROBLEMS e.g. too long, hard to test, violates SRP]. Constraints: [CONSTRAINTS e.g. cannot change the public API]. Produce: refactored version with explanation of each change, tests I should write, and migration steps if breaking changes exist.'},
-  {brain:'developer',icon:'💻',color:'#AB47BC',name:'Tech Debt Spike',prompt:'Write a technical spike document for investigating [TECH DEBT AREA or UNKNOWN]. Problem statement: [PROBLEM]. Why we need to understand it: [REASON]. Timebox: [X days]. Produce: spike goal, questions to answer, proposed investigation approach, output artifacts, and definition of done for the spike.'},
+  // ── CTO BRAIN — 4 prompts ──
+  {brain:'cto',icon:'🧑‍💻',color:'#00BCD4',name:'Architecture Decision Record',prompt:'Write a complete Architecture Decision Record (ADR).\n\nContext:\n- Decision title: [e.g. Choice of message queue for payment event processing]\n- Problem / context: [WHAT SITUATION FORCES THIS DECISION NOW]\n- Constraints: [TECHNICAL / TEAM / BUDGET / REGULATORY]\n- Options being considered:\n  Option A: [NAME] — [ONE SENTENCE DESCRIPTION]\n  Option B: [NAME] — [ONE SENTENCE DESCRIPTION]\n  Option C: [NAME] — [ONE SENTENCE DESCRIPTION]\n- Decision maker: [ROLE]\n- Decision deadline: [DATE]\n\nScore each option on a 1-5 scale across:\n| Criterion | Option A | Option B | Option C | Weight |\n| Operational complexity | | | | High |\n| Team skill fit | | | | High |\n| Cost | | | | Medium |\n| Performance at scale | | | | Medium |\n| Security posture | | | | High |\n| Vendor/community risk | | | | Low |\n\nThen produce the full ADR:\n## Status: [Proposed / Accepted / Deprecated]\n## Context\n## Decision\n## Rationale (reference the scoring table)\n## Consequences — positive\n## Consequences — negative\n## Alternatives rejected and why\n## Review date'},
+
+  {brain:'cto',icon:'🧑‍💻',color:'#00BCD4',name:'Tech Debt Strategy',prompt:'Build a tech debt reduction strategy I can present to leadership.\n\nContext:\n- Tech debt areas: [LIST EACH AREA e.g. monolithic auth service / no test coverage on payment module / legacy database schema]\n- Business impact of each: [FOR EACH: what does it cost us — slower delivery / production incidents / inability to scale / security risk]\n- Team: [X] engineers, [Y] sprints remaining in [QUARTER]\n- Current velocity: [X] SP per sprint\n- % of current sprint capacity going to unplanned work / bugs: [%]\n\nProduce:\n## Tech debt register\n| Debt item | Business impact | Effort to fix (SP) | Risk if not fixed | Priority | Recommended sprint |\n\n## The business case (for leadership)\nThree paragraphs: what the debt is costing now in concrete terms, what fixing it enables, what the ROI is on addressing the top priority item.\n\n## Phased reduction plan\nPhase 1 (this quarter): [specific items, SP commitment, expected outcome]\nPhase 2 (next quarter): [items, commitment, outcome]\n\n## How to protect tech debt capacity\nExact wording to use in sprint planning to protect [X]% of velocity for debt reduction without negotiating it away to feature requests every sprint.\n\n## Success metrics\nHow we will know in 90 days that this strategy is working.'},
+
+  {brain:'cto',icon:'🧑‍💻',color:'#00BCD4',name:'Eng Team OKRs + DORA',prompt:'Define engineering OKRs and establish a DORA metrics baseline.\n\nContext:\n- Quarter: [Q]\n- Team: [X] engineers\n- Current pain points: [LIST — e.g. slow deployments / high incident rate / low test coverage / long PR review times]\n- Current known metrics (fill in what you know, leave blank what you do not):\n  - Deployment frequency: [daily / weekly / monthly / ?]\n  - Lead time for changes: [X days from commit to production / ?]\n  - Mean time to recovery (MTTR): [X hours when incidents occur / ?]\n  - Change failure rate: [X% of deployments cause an incident / ?]\n- Company engineering goal this quarter: [GOAL]\n\nProduce:\n## Engineering OKR\nObjective: [one inspiring statement]\nKR1: [specific DORA metric] from [baseline] to [target] by [date]\nKR2: [specific quality or delivery metric] from [baseline] to [target]\nKR3: [team capability or process metric] from [baseline] to [target]\n\n## DORA baseline and targets\n| Metric | Current baseline | Elite benchmark | Our Q target | How we measure it |\n\n## DORA measurement setup\nFor each of the 4 DORA metrics: exactly what to instrument, what tool to use, and how to report it weekly.\n\n## The one thing that, if improved, will move all four DORA metrics simultaneously\n[This is almost always deployment pipeline or testing — be specific about what to change]'},
+
+  {brain:'cto',icon:'🧑‍💻',color:'#00BCD4',name:'Build vs Buy Analysis',prompt:'Run a build vs buy vs partner analysis.\n\nContext:\n- Capability needed: [WHAT WE NEED TO BE ABLE TO DO]\n- Why we need it now: [BUSINESS DRIVER]\n- Our requirements (must-have):\n  1. [REQUIREMENT]\n  2. [REQUIREMENT]\n  3. [REQUIREMENT]\n- Our requirements (nice-to-have):\n  1. [REQUIREMENT]\n- Budget: [AMOUNT or UNKNOWN]\n- Team capacity available: [X engineer weeks]\n- Timeline: [WHEN WE NEED THIS WORKING]\n- Integration complexity: [WHAT DOES IT NEED TO CONNECT TO]\n- Data residency / compliance requirements: [ANY REGULATORY CONSTRAINTS]\n\nScore each option:\n| Criterion | Build | Buy | Partner | Weight |\n| Meets requirements | | | | Critical |\n| Time to value | | | | High |\n| Total cost of ownership (3yr) | | | | High |\n| Control and flexibility | | | | Medium |\n| Vendor/dependency risk | | | | Medium |\n| Team skill fit | | | | Medium |\n| Security and compliance | | | | High |\n\nThen produce:\n## Recommendation\nOne option. The decision. With the explicit trade-off you are accepting.\n\n## The assumption this recommendation depends on most\nIf this one thing is wrong, the recommendation changes to [X].\n\n## Decision conditions\nIf [condition], revisit this decision within [timeframe].'},
+
+  // ── UX BRAIN — 4 prompts ──
+  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'Usability Test Plan',prompt:'Write a complete usability test plan ready to execute.\n\nContext:\n- Feature / flow being tested: [WHAT WE ARE TESTING]\n- Research question: [THE ONE QUESTION THIS TEST MUST ANSWER]\n- User type to recruit: [WHO]\n- Number of participants: [N — typically 5 for qualitative, 20+ for quantitative]\n- Test format: [Moderated remote / Moderated in-person / Unmoderated]\n- Platform: [WHERE THE PRODUCT EXISTS — web / iOS / Android]\n- Duration per session: [30 / 45 / 60 mins]\n\nProduce:\n## Test objectives (3 max)\n\n## Participant screener\n5 screening questions with disqualifying answers marked. Include: role, experience with [relevant domain], device usage, and availability.\n\n## 5 Task scenarios\nFor each task:\n- Task statement (given to participant — no hints about where to click)\n- Success criteria (observable behaviour that means the task succeeded)\n- Time limit\n- Think-aloud prompt if they go silent\n\n## Post-task questions (after each task)\n- Single Ease Question: "How difficult was that task on a scale of 1-7?"\n- 2 follow-up qualitative questions\n\n## Post-session questions\n- System Usability Scale (SUS) — all 10 statements listed\n- 2 open questions\n\n## Moderation guide\n- Opening script (word for word)\n- How to handle when participant gets stuck without giving hints\n- Closing script\n\n## Analysis plan\nHow you will synthesise findings and what you will produce from this research.'},
+
+  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'HEART Metrics Framework',prompt:'Define a HEART framework for measuring UX quality.\n\nContext:\n- Product / feature: [WHAT WE ARE MEASURING]\n- Primary user type: [WHO]\n- Business goal this framework supports: [GOAL]\n- Data sources available: [e.g. analytics platform, survey tool, support tickets, session recordings]\n- Measurement cadence: [WEEKLY / MONTHLY / PER RELEASE]\n\nProduce a complete HEART table:\n\n| Dimension | Goal | Signal | Metric | Measurement method | Current baseline | Target |\n|---|---|---|---|---|---|---|\n| Happiness | | | | | | |\n| Engagement | | | | | | |\n| Adoption | | | | | | |\n| Retention | | | | | | |\n| Task Success | | | | | | |\n\nFor each dimension:\n- Goal: what user behaviour are we trying to influence\n- Signal: the observable user action that tells us we achieved the goal\n- Metric: the specific, measurable expression of that signal\n- Measurement method: exactly where the data comes from and how to pull it\n\nThen:\n## Top 3 metrics to prioritise\nWhich 3 HEART metrics matter most for this product right now, and why the others are lower priority.\n\n## Anti-metric\nThe one metric that would go up if UX gets WORSE — watch this as a guardrail.'},
+
+  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'Heuristic Evaluation',prompt:'Conduct a heuristic evaluation using Nielsen\'s 10 usability heuristics.\n\nContext:\n- Flow or screen being evaluated: [e.g. property checkout / user onboarding / search results page]\n- User type: [WHO USES THIS]\n- Their goal at this point in the journey: [WHAT ARE THEY TRYING TO ACCOMPLISH]\n- Platform: [WEB / MOBILE]\n- Known complaints or support tickets about this area: [LIST ANY KNOWN ISSUES]\n\nFor each of Nielsen\'s 10 heuristics, produce:\n| Heuristic | Severity 0-4 | Issue found (specific, observable) | Recommended fix |\n\nSeverity scale (Jakob Nielsen\'s original):\n0 = Not a usability problem\n1 = Cosmetic only — fix if time\n2 = Minor usability problem — low priority\n3 = Major usability problem — high priority\n4 = Usability catastrophe — must fix before launch\n\nHeuristics to evaluate:\n1. Visibility of system status\n2. Match between system and real world\n3. User control and freedom\n4. Consistency and standards\n5. Error prevention\n6. Recognition rather than recall\n7. Flexibility and efficiency of use\n8. Aesthetic and minimalist design\n9. Help users recognise, diagnose, and recover from errors\n10. Help and documentation\n\nThen produce:\n## Priority fix list\nTop 3 issues ranked by severity. For each: the specific fix, estimated effort (hours), and the user harm it prevents.'},
+
+  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'User Interview Script',prompt:'Write a complete user research interview script.\n\nContext:\n- Research goal: [WHAT DECISION WILL THIS RESEARCH INFORM]\n- Problem area to explore: [WHAT ASPECT OF THE USER EXPERIENCE OR BEHAVIOUR]\n- User type: [WHO WE ARE INTERVIEWING]\n- Session duration: [30-45 mins recommended]\n- Format: [Remote video call / In-person]\n- Incentive: [WHAT PARTICIPANTS RECEIVE]\n- Number of interviews planned: [N]\n\nProduce:\n## Screener criteria\nWho qualifies and who does not — 4 criteria max.\n\n## Interviewer briefing\nWhat NOT to do in this interview (leading questions, binary questions, suggesting answers).\n\n## Opening script (word for word)\nIntroduction, consent, recording permission, think-aloud explanation.\n\n## Warm-up questions (3)\nEasy questions to build rapport — about their role, daily routine in the relevant context.\n\n## Core discovery questions (8)\nAll open-ended. Grouped by: context and behaviour / pain points / current workarounds / unmet needs.\nFor each: the main question + 2 probing follow-ups if they give a short answer.\n\n## Closing\n- The single most important question to end on\n- How to close the session\n\n## Analysis framework\nHow to code and synthesise responses across [N] interviews into actionable insights.'},
+
+  // ── QA BRAIN — 4 prompts ──
+  {brain:'qa',icon:'🧪',color:'#29B6F6',name:'Test Strategy Document',prompt:'Write a test strategy document ready for team sign-off.\n\nContext:\n- Feature / release: [WHAT IS BEING TESTED]\n- Tech stack: [LANGUAGES / FRAMEWORKS / DATABASES]\n- Team: [X] QA engineers, [X] developers\n- Timeline: [START DATE → RELEASE DATE]\n- Environments available: [DEV / QA / STAGING / PROD]\n- CI/CD pipeline: [EXISTS / PARTIAL / NONE]\n- Existing test coverage: [% unit / % integration / % E2E]\n- Key business risk areas: [WHERE A DEFECT WOULD CAUSE MOST DAMAGE]\n\nProduce:\n## Test scope\nIn scope / Out of scope — explicitly stated.\n\n## Testing types and coverage targets\n| Test type | Owner | Tool | Coverage target | Automated? |\n| Unit | Dev | | 80% | Yes |\n| Integration | | | | |\n| E2E | | | | |\n| Performance | | | | |\n| Security | | | | |\n| Accessibility | | | | |\n\n## Entry criteria\nWhat must be true before QA testing begins.\n\n## Exit criteria\nWhat must be true before the release is approved.\n\n## Risk-based test prioritisation\nRank the 5 highest-risk areas. For each: the risk, the test coverage required, and the business impact of a miss.\n\n## Defect management\nSeverity definitions / triage process / SLA for fix by severity\n\n## Automation recommendation\nThe single highest ROI automation investment for this release cycle.'},
+
+  {brain:'qa',icon:'🧪',color:'#29B6F6',name:'Regression Test Plan',prompt:'Write a targeted regression test plan for an upcoming release.\n\nContext:\n- Release / version: [NAME]\n- What changed in this release:\n  1. [CHANGED AREA] — nature of change: [NEW FEATURE / BUG FIX / REFACTOR]\n  2. [CHANGED AREA] — nature of change: [TYPE]\n- Critical user journeys (must not break):\n  1. [JOURNEY e.g. property search → listing view → enquiry submission]\n  2. [JOURNEY]\n  3. [JOURNEY]\n- Last known stable build: [VERSION]\n- QA time available: [X person-days]\n- Automated regression suite exists: [YES — coverage X% / NO]\n\nProduce:\n## Regression scope decision\nWhat to test: [REASONING BASED ON CHANGE IMPACT]\nWhat to skip and why: [EXPLICITLY STATE WHAT WE ARE NOT RETESTING]\n\n## Test execution plan\n| Priority | Test area | Test cases | Automated? | Tester | Time estimate |\n\n## Risk-based prioritisation\nRank the regression areas by risk of a new defect being introduced. Test in this order.\n\n## Sanity checks (30 min smoke test)\n10 critical paths to run immediately after deployment before full regression begins.\n\n## Pass / fail criteria\nThe specific condition that triggers a go / no-go decision for the release.'},
+
+  {brain:'qa',icon:'🧪',color:'#29B6F6',name:'Bug Report Template',prompt:'Write a complete, actionable bug report.\n\nBug details:\n- What went wrong: [DESCRIBE IN ONE SENTENCE]\n- Where it happened: [FEATURE / PAGE / SCREEN]\n- Severity: [CRITICAL / HIGH / MEDIUM / LOW]\n- Priority: [P1 / P2 / P3]\n\nContext I can provide:\n- Environment: [BROWSER + VERSION / OS / DEVICE]\n- Build / release version: [VERSION]\n- Test environment name: [QA / STAGING / PRODUCTION]\n- User account used for testing: [ROLE TYPE — do not include actual credentials]\n- Test data used: [RELEVANT DATA DETAILS]\n\nSteps to reproduce: [DESCRIBE WHAT YOU DID]\nExpected result: [WHAT SHOULD HAVE HAPPENED]\nActual result: [WHAT ACTUALLY HAPPENED]\nError message (if any): [EXACT TEXT]\n\nProduce a complete bug report with:\n1. Title (format: [Screen/Feature] — [What broke] — [Severity])\n2. Summary (2 sentences maximum)\n3. Environment block (all fields)\n4. Steps to reproduce (numbered, precise enough for a developer who has never seen this to reproduce it in under 5 minutes)\n5. Expected vs actual result\n6. Root cause hypothesis (your best guess at what is causing it)\n7. Business impact (what breaks for the user and how often this is likely to occur)\n8. Suggested fix or investigation starting point\n9. Attachments checklist (what screenshots or logs to include)'},
+
+  {brain:'qa',icon:'🧪',color:'#29B6F6',name:'OWASP Security Checklist',prompt:'Run an OWASP Top 10 security review.\n\nContext:\n- Feature / endpoint being reviewed: [WHAT WE ARE REVIEWING]\n- Tech stack: [LANGUAGES / FRAMEWORKS]\n- Authentication method: [JWT / SESSION / API KEY / OTHER]\n- Data handled: [TYPES OF DATA e.g. PII / payment data / property transaction data]\n- Regulatory context: [GDPR / PCI-DSS / UAE PDPL / OTHER]\n\nFor each of the OWASP Top 10 (2021 edition), produce:\n| # | OWASP Category | Specific risk in our context | Test to perform | Mitigation recommendation | Risk level H/M/L |\n|---|---|---|---|---|---|\n| A01 | Broken Access Control | | | | |\n| A02 | Cryptographic Failures | | | | |\n| A03 | Injection | | | | |\n| A04 | Insecure Design | | | | |\n| A05 | Security Misconfiguration | | | | |\n| A06 | Vulnerable Components | | | | |\n| A07 | Auth & Session Failures | | | | |\n| A08 | Software Integrity Failures | | | | |\n| A09 | Logging & Monitoring Failures | | | | |\n| A10 | Server-Side Request Forgery | | | | |\n\nThen:\n## Critical risks requiring immediate action\nAny H risk that should block the release — named, with the specific test and the fix.\n\n## Security test checklist\n10 specific tests a QA engineer can run in the test environment right now.'},
+
+  // ── SCRUM BRAIN — 9 prompts ──
+  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Retrospective Facilitator',prompt:'Design and facilitate a sprint retrospective.\n\nContext:\n- Sprint number: [X]\n- Sprint goal: [GOAL]\n- Did we achieve the sprint goal: [YES / PARTIALLY / NO]\n- Team size: [X] people\n- Team has been together: [X months]\n- Format preference: [4Ls / Start-Stop-Continue / Mad-Sad-Glad / Starfish / LEAVE BLANK for recommendation]\n- Known tension or issue to address: [ANY SPECIFIC DYNAMIC e.g. tension between dev and QA / lots of unplanned work / people not speaking up]\n- Time available: [60 / 90 minutes]\n\nProduce:\n## Recommended format and why\n(Override the preference if a different format better addresses the known tension)\n\n## Opening script (word for word)\nHow to frame the retrospective to establish psychological safety in the first 2 minutes.\n\n## Data gathering (timebox: 20 mins)\nExact prompts for each column/category. Include a silent writing period before group sharing.\n\n## Insight generation (timebox: 15 mins)\nHow to cluster themes, identify the 2-3 highest-leverage issues, and prevent the team from spreading action across 10 items.\n\n## Action commitment (timebox: 15 mins)\nFormat for each action: What / Who owns it / Done by when / How we check it next sprint.\nMaximum 3 actions. Rule: if you have more than 3, you have insights, not actions.\n\n## Closing check-in\nOne-word round to test whether the team felt heard.\n\n## The 3 ways this retro will fail — and how to prevent each'},
+
+  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Sprint Planning Opening',prompt:'Write my sprint planning opening statement and facilitation guide.\n\nContext:\n- Sprint number: [X]\n- Sprint length: [X] working days\n- Days lost this sprint (leave / holidays / other): [X days — specify reason]\n- Team: [X] Dev, [X] QA, [X] other\n- Historical velocity (last 3 sprints): [S1: X SP / S2: X SP / S3: X SP]\n- Planned capacity this sprint: [X] SP (at 80% rule)\n- Proposed sprint goal: [GOAL]\n- Candidate stories (list with points):\n  1. [STORY] — [X] SP\n  2. [STORY] — [X] SP\n  (continue for all candidates)\n\nProduce:\n## Opening statement (word for word — 2 minutes)\nCapacity explanation, sprint goal, how we will select stories, ground rules.\n\n## Capacity working (show the arithmetic)\nTotal person-days → minus lost days → minus ceremonies → times focus factor → equals effective SP.\n\n## Story selection guide\nHow to sequence the candidate stories: which must go in first (sprint goal critical), which are buffers, which are cut first if we run out of capacity.\n\n## QA sequencing recommendation\nWhich stories must be completed by Dev in days 1-[X] for QA to have sufficient testing time in days [X]-[end]. Name the specific stories.\n\n## Ground rules for the session\n5 rules to read aloud at the start.\n\n## The question to ask at the end of planning\nThe single closing question that confirms genuine team commitment rather than polite agreement.'},
+
+  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Impediment Removal Plan',prompt:'Help me remove an impediment blocking the team.\n\nImpediment details:\n- What is blocked: [DESCRIBE THE BLOCKER SPECIFICALLY]\n- Who it is affecting: [WHICH TEAM MEMBERS / WHICH STORIES]\n- How long it has been blocked: [X days]\n- What has already been tried: [LIST ATTEMPTS]\n- My authority to resolve this: [CAN I FIX THIS MYSELF / NEED HELP FROM WITHIN TEAM / NEED EXTERNAL ESCALATION]\n- Who has the authority to resolve it: [ROLE / PERSON if known]\n- Urgency: [SPRINT AT RISK / NEXT SPRINT AT RISK / LONGER TERM]\n\nProduce:\n## Diagnosis\nIs this a technical blocker / dependency blocker / process blocker / people blocker? Each type needs a different response.\n\n## Root cause\nNot just the surface symptom — what is the underlying reason this became a blocker?\n\n## Immediate action (do this today)\nThe single most impactful thing to do in the next 4 hours.\n\n## Escalation message (ready to send)\nSubject: [SUBJECT]\nTo: [ROLE]\nBody: [COMPLETE MESSAGE — context, impact, what I need, by when]\n\n## Systemic fix\nWhat process change, agreement, or decision would prevent this class of impediment from recurring in future sprints?\n\n## Escalation path if unresolved in 24 hours\nThe next person to involve and what to ask them.'},
+
+  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Team Health Check',prompt:'Run a Spotify Squad Health Check model assessment.\n\nContext:\n- Team size: [X] people\n- Roles: [X Dev, X QA, X PO, X SM, X other]\n- Time together as a team: [X months]\n- Delivery methodology: [SCRUM / KANBAN / HYBRID]\n- Recent observable symptoms (be specific — not "morale is low" but "people arrive late to standup" or "retro actions are not completed"):\n  1. [SYMPTOM]\n  2. [SYMPTOM]\n  3. [SYMPTOM]\n- Last known velocity: [X] SP\n- Sprint goal achievement rate last 3 sprints: [X/3 achieved]\n\nFor each Spotify health dimension, assess with specific evidence:\n| Dimension | RAG | Observable evidence | Trend (improving/stable/declining) |\n| Easy to release | | | |\n| Suitable process | | | |\n| Tech quality | | | |\n| Value | | | |\n| Speed | | | |\n| Mission | | | |\n| Fun | | | |\n| Learning | | | |\n| Support | | | |\n| Pawns or players | | | |\n\nThen:\n## Top 3 health risks\nRanked by severity. For each: the specific risk, the likely cause, and one coaching action to run in the next sprint.\n\n## The one conversation the team is not having\nBased on the symptoms, what topic is being avoided that is at the root of multiple health issues?'},
+
+  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Definition of Ready',prompt:'Create a Definition of Ready for sprint planning.\n\nContext:\n- Product type: [WHAT WE BUILD]\n- Sprint length: [X] working days\n- Team: [X Dev, X QA, X other]\n- Current problem: [WHY ARE WE CREATING / UPDATING THE DoR — e.g. stories arrive at planning half-baked / QA not involved early enough / stories too large]\n\nProduce a DoR with 10 criteria — every criterion must be binary (YES/NO — not "mostly" or "roughly"):\n\n| # | Criterion | Who checks it | When it is checked |\n|---|---|---|---|\n| 1 | | | |\n...\n\nCriteria must cover:\n- Acceptance criteria (format and completeness)\n- Story size (no story larger than X SP enters planning)\n- Dependencies identified and resolved or explicitly accepted as a risk\n- UX design available and signed off (if applicable)\n- Technical unknowns identified — spike completed or accepted risk\n- Non-functional requirements defined (performance, security, accessibility)\n- Test approach agreed between Dev and QA before planning\n- Business value / user benefit clear and stated\n- Data requirements defined\n- Definition of Done confirmed as achievable in one sprint\n\nThen:\n## Enforcement mechanism\nExactly what happens in sprint planning when a story fails DoR — who calls it, what the team does, and the rule about not accepting not-ready stories under schedule pressure.\n\n## The 3 most common ways DoR gets bypassed\nAnd the specific response to each bypass attempt.'},
+
+  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Definition of Done',prompt:'Create a Definition of Done that protects quality without being bureaucratic.\n\nContext:\n- Product type: [WHAT WE BUILD]\n- Tech stack: [LANGUAGES / FRAMEWORKS]\n- Team: [X Dev, X QA]\n- Deployment target: [CLOUD PROVIDER / ON-PREMISE / BOTH]\n- Regulatory requirements: [ANY COMPLIANCE — GDPR / PCI / UAE PDPL / ACCESSIBILITY STANDARD]\n- Current quality gaps (why we are creating / updating the DoD):\n  1. [GAP e.g. bugs found in production that should have been caught in QA]\n  2. [GAP]\n\nProduce a DoD with every criterion binary (YES/NO only):\n\n| # | Criterion | Who is responsible | Evidence required |\n|---|---|---|---|\n\nMust cover:\n- Code reviewed and approved by at least one other developer\n- Unit tests written and passing (coverage target: [X]%)\n- Integration tests passing\n- QA sign-off — all acceptance criteria verified\n- Accessibility: WCAG [2.1 / 2.2] AA compliance checked\n- Security: no new HIGH or CRITICAL vulnerabilities introduced\n- Performance: response time within agreed SLO ([X]ms at [X] concurrent users)\n- Documentation updated where applicable\n- Product Owner acceptance confirmed\n- Feature flag configured (if applicable)\n- Deployed to [ENV] and verified working post-deployment\n- Rollback procedure confirmed\n\nThen:\n## The 2 DoD violations most likely to occur\nBased on the quality gaps provided — what will be skipped first under pressure, and how to prevent it.\n\n## DoD exception process\nWhen and how a team can ship something that does not fully meet DoD — who approves it and what the consequence is.'},
+
+  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Velocity Analysis',prompt:'Analyse our sprint velocity and give me a data-driven capacity recommendation.\n\nVelocity data (fill in all sprints you have):\n| Sprint | SP committed | SP delivered | Team size | Notable events (leave / holiday / incident / team change) |\n| Sprint 1 | | | | |\n| Sprint 2 | | | | |\n| Sprint 3 | | | | |\n| Sprint 4 | | | | |\n| Sprint 5 | | | | |\n\nContext:\n- Sprint length: [X] working days\n- Team composition: [X Dev, X QA, X other]\n- Next sprint notable events: [ANY LEAVE OR CHANGES]\n\nProduce:\n## Velocity trend analysis\nIs velocity stable, trending up, or trending down? What is causing the trend? (Do not just describe the numbers — explain what is driving them.)\n\n## Commitment accuracy\nFor each sprint: commitment accuracy % (delivered/committed). Is this improving or worsening?\n\n## Reliable planning velocity\nThe number to use for next sprint planning. This is NOT the average and NOT the highest. It is the number you can commit to with 80% confidence based on the data.\n\n## Why velocity varies\nThe specific factors causing sprint-to-sprint variation — and which are controllable vs external.\n\n## Recommended next sprint capacity\nThe SP to commit, the buffer to hold, and the reasoning.\n\n## The one change that would most improve velocity predictability\nSpecific and actionable — not "improve estimation" but the specific root cause and the specific fix.'},
+
+  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Backlog Refinement Session',prompt:'Facilitate a backlog refinement session for these stories.\n\nStories to refine:\n1. [STORY TITLE] — [BRIEF DESCRIPTION OF WHAT IT NEEDS TO DO]\n2. [STORY TITLE] — [BRIEF DESCRIPTION]\n3. [STORY TITLE] — [BRIEF DESCRIPTION]\n(add all stories)\n\nContext:\n- Team: [X Dev, X QA]\n- Sprint length: [X] working days\n- Next planning in: [X days]\n- Product goal: [GOAL]\n\nFor each story produce:\n\n**[Story title]**\n- INVEST check: [flag any of the 6 INVEST criteria that are violated and explain specifically why]\n  - Independent: [pass/fail + reason]\n  - Negotiable: [pass/fail + reason]\n  - Valuable: [pass/fail + reason]\n  - Estimable: [pass/fail + reason]\n  - Small: [pass/fail + reason]\n  - Testable: [pass/fail + reason]\n- Missing acceptance criteria: [write them in Given/When/Then BDD format]\n- Technical unknowns: [list any unknowns that need a spike before this story can be sized reliably]\n- Story point estimate: [X SP — with the single biggest uncertainty in the estimate named]\n- Readiness verdict: [READY FOR PLANNING / NOT READY — specific reason]\n\nThen:\n## Refinement summary\n- Stories ready for next sprint planning: [list]\n- Stories needing further work: [list with specific action per story]\n- Spikes needed before next planning: [list with timebox]\n- Capacity impact: if all ready stories are selected, that is approximately [X] SP'},
+
+  {brain:'scrum',icon:'🏃',color:'#66BB6A',name:'Sprint Goal Writing',prompt:'Write a compelling sprint goal.\n\nContext:\n- Sprint number: [X]\n- Sprint length: [X] working days\n- Team capacity: [X] SP this sprint\n- Candidate stories committed:\n  1. [STORY] — [X] SP\n  2. [STORY] — [X] SP\n  3. [STORY] — [X] SP\n- Product goal this quarter: [GOAL]\n- Previous sprint goal: [PREVIOUS GOAL]\n- Sprint goal must NOT be: a task list ("complete stories 1, 2, 3") or a technical description\n\nA good sprint goal:\n- Describes an outcome the user or business experiences, not work the team does\n- Is specific enough to guide a daily decision ("should we work on X or Y today?")\n- Is achievable within the sprint with the committed stories\n- Would feel meaningful to miss — the team would feel the impact of not achieving it\n\nProduce:\n## 3 candidate sprint goals\nDifferent framings of the same sprint — from different angles (user benefit / business metric / capability unlocked).\n\n## Recommended goal\nWhich of the 3 and specifically why — what makes it better than the alternatives.\n\n## Success metric\nThe specific, measurable indicator that tells us at the sprint review whether we achieved the goal. Not the stories delivered — the outcome.\n\n## Explicitly out of scope\nWhat is not in scope this sprint that stakeholders might assume is included.\n\n## Goal achievability check\nDoes the committed capacity support this goal? If not, what would need to change.'},
+
+  // ── TECH LEAD BRAIN — 3 prompts ──
+  {brain:'techlead',icon:'🧑‍🔧',color:'#FFA726',name:'System Design Review',prompt:'Design a technical solution and produce the documentation.\n\nContext:\n- System / feature to design: [NAME AND PURPOSE]\n- Functional requirements:\n  1. [REQUIREMENT]\n  2. [REQUIREMENT]\n- Non-functional requirements:\n  - Response time: [X ms at Pn]\n  - Concurrent users: [X at peak]\n  - Availability: [X.XX%]\n  - Data retention: [X years]\n  - Compliance: [GDPR / PCI / UAE PDPL / OTHER]\n- Tech stack constraint: [WHAT WE MUST USE]\n- Team skill set: [LANGUAGES AND FRAMEWORKS THE TEAM KNOWS]\n- Timeline: [X weeks to production]\n\nProduce:\n## Component breakdown\nList every component needed. For each: name, responsibility, technology choice, and why.\n\n## Data flow\nStep-by-step description of how data moves through the system for the primary use case.\n\n## API contract (for the main interface)\n| Method | Endpoint | Request body | Response | Error codes |\n\n## Database schema (key entities)\n| Table | Key fields | Relationships | Indexes needed |\n\n## The 3 highest technical risks\nFor each: what could go wrong, at what scale / load / condition it breaks, and the mitigation.\n\n## Open questions\nWhat must be answered before development starts — with who answers it and by when.\n\n## Effort estimate\nBreakdown by component with the highest-uncertainty items flagged.'},
+
+  {brain:'techlead',icon:'🧑‍🔧',color:'#FFA726',name:'Code Review Standards',prompt:'Create a code review standards guide for our team.\n\nContext:\n- Product type: [WHAT WE BUILD]\n- Tech stack: [PRIMARY LANGUAGES AND FRAMEWORKS]\n- Team: [X developers, experience levels: X senior / X mid / X junior]\n- Current code review problems: [e.g. reviews take too long / feedback is too harsh / PRs are too large / style debates block functional feedback]\n- PR size convention: [X lines max — or state if not yet defined]\n- Review turnaround expectation: [X hours]\n\nProduce:\n## What reviewers MUST check (blocking issues)\n10 specific binary checks. If any fail, the PR cannot be merged.\nExample format: "All error conditions are explicitly handled — not swallowed or logged without action."\n\n## What reviewers SHOULD check (non-blocking)\n5 checks that are important but do not block merge — commented as suggestions.\n\n## What reviewers should NOT block on\n3 categories of feedback that belong in a linter or style guide, not a code review.\n\n## How to give feedback\n- The rule for framing critical feedback (prefix with the type: "Blocker:", "Suggestion:", "Question:")\n- What a good PR comment looks like (template)\n- How to handle disagreement\n\n## PR size and structure standards\nMaximum size, how to split large PRs, what to include in the PR description.\n\n## Review turnaround SLA\nExpectation per reviewer, what to do if reviews are not completed within the SLA.\n\n## The code review anti-pattern this team is most at risk of\n(Based on the problems described) — and the specific rule to prevent it.'},
+
+  {brain:'techlead',icon:'🧑‍🔧',color:'#FFA726',name:'Developer Coaching Plan',prompt:'Build a 90-day developer coaching plan.\n\nContext:\n- Developer role: [e.g. mid-level backend developer / junior frontend developer]\n- Time in role: [X months]\n- Strengths: [LIST — be specific e.g. "strong algorithmic thinking" not "good developer"]\n- Growth areas: [LIST — be specific e.g. "struggles to structure code for testability" not "needs to improve code quality"]\n- Career goal: [WHAT THEY WANT TO ACHIEVE — promotion / skill expansion / domain expertise]\n- Team context: [WHAT THE TEAM WORKS ON, WHAT EXPOSURE IS AVAILABLE]\n- 1:1 cadence: [WEEKLY / BIWEEKLY]\n- Your relationship: [DIRECT MANAGER / TECH LEAD / MENTOR]\n\nProduce:\n## 30-day goals\nSpecific, observable outcomes. Not "improve code quality" but "all PRs pass code review without blocking feedback by week 4."\n\n## 60-day goals\nProgression from 30-day. What new capability or responsibility should be visible.\n\n## 90-day goals\nThe state they should be in at the end of this plan.\n\n## Stretch assignments (one per month)\nReal work that creates growth. For each: the assignment, why it develops the specific growth area, and what success looks like.\n\n## Recommended learning resources\n3 specific resources (not generic categories) — books, courses, documentation — linked to the growth areas.\n\n## 1:1 discussion prompts\n5 questions to use across the 90 days to draw out their thinking and accelerate growth.\n\n## The most important thing NOT to do\nThe coaching mistake most likely to occur with this specific developer and growth area — and the alternative.'},
+
+  // ── PM BRAIN — 3 prompts ──
+  {brain:'pm',icon:'📌',color:'#EF5350',name:'Project Initiation Brief',prompt:'Write a project initiation brief ready for sponsor sign-off.\n\nContext:\n- Project name: [NAME]\n- Business problem / opportunity: [WHY ARE WE DOING THIS]\n- Business objective (measurable): [WHAT SUCCESS LOOKS LIKE IN NUMBERS]\n- In scope:\n  1. [DELIVERABLE]\n  2. [DELIVERABLE]\n- Out of scope (explicitly):\n  1. [WHAT WE ARE NOT DOING — this is as important as scope]\n- Start date: [DATE]\n- Target completion: [DATE]\n- Budget: [AMOUNT or UNKNOWN]\n- Sponsor: [ROLE]\n- Core team: [ROLES]\n- Key stakeholders: [ROLES]\n- Key risks at this stage:\n  1. [RISK]\n  2. [RISK]\n\nProduce a one-page project initiation brief:\n## Executive summary (3 sentences)\n## Business case (why now, what it costs to do nothing)\n## Objectives and success criteria\n| Objective | Success metric | Baseline | Target | Measurement date |\n## Scope (in and out)\n## Governance\n| Decision type | Decision maker | Escalation path |\n## Key milestones\n| Milestone | Target date | Dependencies |\n## Initial risk register (top 3)\n| Risk | Likelihood | Impact | Mitigation |\n## Immediate next steps (next 2 weeks)\n| Action | Owner | By when |\n## Sign-off required from\n[List each role — document is not active until all sign]'},
+
+  {brain:'pm',icon:'📌',color:'#EF5350',name:'RAID Log Setup',prompt:'Set up a complete RAID log for project tracking.\n\nContext:\n- Project name: [NAME]\n- Project context: [2 sentences on what this project is and who it affects]\n- Project phase: [INITIATION / PLANNING / EXECUTION / CLOSURE]\n- Known risks from early conversations: [LIST ANY ALREADY KNOWN]\n- Key dependencies identified: [LIST ANY KNOWN]\n- Project manager: [YOUR ROLE]\n- Steering committee meets: [CADENCE]\n\nProduce a fully populated RAID log with realistic examples calibrated to this project type.\n\n## RISKS (minimum 6 entries)\n| Risk ID | Risk description | Probability H/M/L | Impact H/M/L | Risk score | Owner | Mitigation action | Contingency plan | Review date | Status |\n\n## ASSUMPTIONS (minimum 5 entries)\n| Assumption ID | Assumption | Made by | Date | Validation method | Validation date | Status |\n\n## ISSUES (minimum 3 entries — current live issues)\n| Issue ID | Issue description | Raised by | Date raised | Impact | Owner | Resolution action | Target resolution | Status |\n\n## DEPENDENCIES (minimum 4 entries)\n| Dependency ID | What we depend on | Who provides it | Due date | Owner (their side) | Owner (our side) | Risk if late | Status |\n\nThen:\n## RAID review cadence\nWhen and how to review each section — who attends, what decisions are made, how it feeds into steering committee reporting.'},
+
+  {brain:'pm',icon:'📌',color:'#EF5350',name:'Stakeholder Comms Plan',prompt:'Build a stakeholder communication plan.\n\nContext:\n- Project name: [NAME]\n- Project duration: [X weeks / months]\n- Stakeholders:\n  1. [ROLE / NAME] — interest in project: [HIGH/MED/LOW] — influence: [HIGH/MED/LOW] — attitude: [SUPPORTIVE/NEUTRAL/RESISTANT]\n  2. [ROLE / NAME] — interest: — influence: — attitude:\n  (list all stakeholders)\n- Key messages that must land:\n  1. [MESSAGE]\n  2. [MESSAGE]\n- Communication constraints: [e.g. exec team only reads emails on Mondays / no public announcements until board approval]\n\nProduce:\n## Stakeholder power/interest matrix\n| Stakeholder | Power | Interest | Quadrant | Strategy |\n| | | | Manage closely / Keep satisfied / Keep informed / Monitor | |\n\n## Communication matrix\n| Stakeholder | Communication objective | Key messages | Channel | Frequency | Format | Owner | First comms date |\n\n## Escalation path\nFor issues that cannot be resolved at project level: who gets involved, in what order, within what timeframe.\n\n## Resistance management plan\nFor each resistant stakeholder: the likely objection, the approach to address it, and who handles it.\n\n## Communication calendar (first 4 weeks)\n| Week | Date | Communication | Audience | Owner | Content |\n\n## Success indicator\nHow you will know the communication plan is working — specific, observable signal.'},
+
+  // ── SALES BRAIN — 3 prompts ──
+  {brain:'sales',icon:'🛒',color:'#8BC34A',name:'Deal Strategy MEDDIC',prompt:'Build a deal strategy using MEDDIC.\n\nDeal details:\n- Company: [COMPANY NAME]\n- Deal size: [VALUE]\n- Target close date: [DATE]\n- Sales stage: [STAGE]\n- What I know so far: [EVERYTHING YOU KNOW — contacts met, conversations had, pain discussed]\n- What I do not know: [GAPS IN KNOWLEDGE]\n- Competitive situation: [WHO ELSE IS IN CONSIDERATION / UNKNOWN]\n\nMEDDIC analysis — for each element, state what you know and what you do not:\n\n**M — Metrics**: What quantifiable value does this solution deliver? What is the economic impact in their currency?\n**E — Economic Buyer**: Who holds the budget and the authority to sign? Have you spoken to them?\n**D — Decision Criteria**: What criteria will they use to choose a vendor? Technical / commercial / relationship?\n**D — Decision Process**: Who is involved in the decision, in what order, and what does the formal process look like?\n**I — Identify Pain**: What is the specific, named business pain? What is the cost of doing nothing?\n**C — Champion**: Who inside the buyer organisation wants you to win and will advocate for you?\n\nThen produce:\n## MEDDIC gap analysis\n| Element | What I know | What I do not know | Risk if not resolved |\n\n## Top 3 actions for this week\nSpecific, time-bound. For each: the action, the person to take it with, the exact question to ask, and what a good response looks like.\n\n## The most likely reason this deal will not close\nThe specific risk — and the one thing to do about it now, not in 3 weeks.'},
+
+  {brain:'sales',icon:'🛒',color:'#8BC34A',name:'Objection Handler',prompt:'Help me handle a sales objection.\n\nSituation:\n- The exact words the prospect used: "[PASTE THEIR EXACT WORDS]"\n- Deal context: [STAGE / DEAL SIZE / HOW LONG WE HAVE BEEN IN CONVERSATION]\n- What I know about their situation: [RELEVANT CONTEXT — budget, timeline, competitors, champion]\n- What I think the real concern is (different from what they said): [YOUR HYPOTHESIS]\n- What I have already tried: [RESPONSES ATTEMPTED]\n\nDiagnose the objection — is this:\n- A genuine concern (they mean what they say)\n- A stall (they are not ready / not the right person)\n- A test (they want to see how I respond)\n- A negotiation move (they want something)\n\nThen produce ONE recommended response — the best response for this specific situation:\n\n## The response (word for word)\nOpening (acknowledge without agreeing) → Reframe → Evidence or question → Advance the conversation\n\n## Why this response and not the obvious alternative\nThe mistake most salespeople make in this exact situation.\n\n## The follow-up question to ask\nThe question that either advances the deal or reveals the real blocker.\n\n## If they give this response again\nWhat it means and what to do next.'},
+
+  {brain:'sales',icon:'🛒',color:'#8BC34A',name:'Outbound Sequence',prompt:'Write a complete outbound prospecting sequence.\n\nContext:\n- Target persona: [JOB TITLE at COMPANY TYPE e.g. Head of Digital at UAE real estate developers, 500-5000 employees]\n- Our product / service: [WHAT WE SELL]\n- Key value proposition: [THE SPECIFIC PROBLEM WE SOLVE AND THE MEASURABLE OUTCOME]\n- Channels available: [EMAIL / LINKEDIN / PHONE / COMBINATION]\n- Number of touches: [5 recommended]\n- Timing: [how many days between each touch]\n- One customer story or proof point I can use: [CASE STUDY OR RESULT]\n\nProduce a 5-touch sequence. For each touch:\n- Channel\n- Day to send (relative to touch 1)\n- Subject line (email) or opening line (LinkedIn / phone)\n- Full message body (not a template — the actual message, personalised to the persona)\n- The specific call to action\n- What to do if no response\n\nTouch 1: First email\nTouch 2: LinkedIn connection + message (day 3)\nTouch 3: Follow-up email — different angle (day 7)\nTouch 4: Phone call — script for voicemail and for live answer (day 12)\nTouch 5: Break-up email — closes the loop and leaves the door open (day 18)\n\nThen:\n## The one thing most outbound sequences get wrong at this stage in this market\nAnd what this sequence does differently.'},
+
+  // ── CEO BRAIN — 3 prompts ──
+  {brain:'ceo',icon:'🧑‍💼',color:'#F5A623',name:'Company Strategy Sharpener',prompt:'Help me sharpen our company strategy.\n\nContext:\n- Company: [NAME]\n- Stage: [SEED / SERIES A / GROWTH / ENTERPRISE / LISTED]\n- Market: [WHAT MARKET YOU OPERATE IN]\n- Current positioning (how you describe yourself today): [POSITIONING]\n- Revenue: [ARR / GMV / REVENUE — whatever is most relevant]\n- Team size: [HEADCOUNT]\n- Biggest competitor: [NAME and what they do better than you]\n- What we are best at: [YOUR GENUINE ADVANTAGE]\n- What the board / investors are asking about: [CURRENT PRESSURE]\n- What keeps you up at night: [YOUR BIGGEST STRATEGIC CONCERN]\n\nProduce:\n## Diagnosis of current strategic position\nHonest assessment — what is strong, what is weak, what is the strategic gap.\n\n## The genuine competitive moat\nNot what you say publicly — what would actually make it hard for a well-funded competitor to displace you in 24 months.\n\n## The strategic choice you are avoiding\nThe decision that keeps getting deferred. Name it.\n\n## 3 strategic options to evaluate\nFor each: what it requires, what it gives up, who it benefits, and the biggest risk.\n\n## Recommended direction\nOne of the 3 options. With the specific reasoning and the explicit trade-off accepted.\n\n## 90-day test\nHow you will know in 90 days whether this strategic direction is correct — the specific signals to watch.'},
+
+  {brain:'ceo',icon:'🧑‍💼',color:'#F5A623',name:'Board Pack Narrative',prompt:'Write the CEO narrative for a board pack.\n\nContext:\n- Period: [QUARTER / MONTH]\n- Headline metrics (fill in all that are relevant):\n  - Revenue: [AMOUNT] vs target [AMOUNT] vs last period [AMOUNT]\n  - [KEY METRIC 2]: [VALUE] vs target\n  - [KEY METRIC 3]: [VALUE] vs target\n  - Headcount: [X] vs last period [X]\n  - Runway: [X months]\n- What went well: [LIST — be specific, with numbers]\n- What did not go well: [LIST — be honest, with the root cause]\n- What we are doing about what did not go well: [SPECIFIC ACTIONS with owners and dates]\n- What you need from the board: [THE SPECIFIC ASK — approval / advice / connections / none]\n- One thing you want the board to understand that the numbers do not show: [QUALITATIVE CONTEXT]\n\nProduce a CEO narrative following the Situation-Complication-Question-Answer structure:\n\n## Headline (one sentence — the most important thing the board needs to know)\n## Metrics narrative (what the numbers mean, not just what they are)\n## What went well (with why it went well — not just the achievement)\n## What did not go well (honest, with root cause named, not just the outcome)\n## What we are doing about it (specific, owned, time-bound)\n## Ask of the board (one specific ask — boards are more useful when asked for something specific)\n## What to expect next quarter\n\nTone: confident, honest, no spin. Every sentence carries a fact or a decision.'},
+
+  {brain:'ceo',icon:'🧑‍💼',color:'#F5A623',name:'All-Hands Message',prompt:'Write an all-hands message.\n\nContext:\n- Occasion: [WHAT HAS HAPPENED / WHAT IS CHANGING e.g. end of quarter / restructure / major milestone / difficult news]\n- Audience: [X] employees\n- What employees are likely feeling right now: [YOUR HONEST ASSESSMENT — anxious / excited / confused / proud / uncertain]\n- Key message: [THE SINGLE MOST IMPORTANT THING THEY MUST LEAVE THIS MESSAGE KNOWING]\n- What is changing: [BE SPECIFIC]\n- What is NOT changing: [THIS IS OFTEN MORE IMPORTANT THAN WHAT IS CHANGING]\n- What you need from them: [THE SPECIFIC CALL TO ACTION]\n- What they are likely to worry about that you cannot address yet: [ACKNOWLEDGE THE GAP]\n- Tone: [HONEST AND OPTIMISTIC / CELEBRATORY / CANDID / SERIOUS]\n- Format: [EMAIL / TOWN HALL SCRIPT / SLACK MESSAGE]\n\nProduce:\n## The message (ready to send or deliver)\nStructure:\n1. Opening — acknowledge the moment without being dramatic\n2. Context — why this is happening (honest, not spin)\n3. What is changing — specific\n4. What is not changing — specific (this builds stability)\n5. What this means for you — personalised to the audience\n6. What I need from you — one clear ask\n7. Where to go with questions — specific channel and timeline for response\n8. Closing — genuine, not formulaic\n\n## The question employees will ask that this message does not answer\nAcknowledge what you cannot say yet and when you will be able to say more.'},
+
+  // ── MARKETING BRAIN — 2 prompts ──
+  {brain:'marketing',icon:'📣',color:'#FF6B35',name:'GTM Launch Plan',prompt:'Build a go-to-market plan for a product or feature launch.\n\nContext:\n- What we are launching: [PRODUCT / FEATURE / UPDATE]\n- ICP (Ideal Customer Profile): [WHO THIS IS FOR — be specific: role, company type, size, geography]\n- Core value proposition: [THE SPECIFIC PROBLEM SOLVED AND THE MEASURABLE OUTCOME]\n- Primary differentiator: [WHY THIS AND NOT THE ALTERNATIVE]\n- Launch date: [DATE]\n- Budget available: [AMOUNT or UNKNOWN]\n- Channels available: [LIST WHAT YOU HAVE ACCESS TO]\n- One customer story or proof point: [CASE STUDY / RESULT / QUOTE]\n- Key risk: [WHAT COULD MAKE THIS LAUNCH FAIL]\n\nProduce:\n## Positioning statement\nFor [ICP], [Product] is the [category] that [primary benefit] unlike [alternative] because [proof point].\n\n## Launch messaging framework\n| Audience | Core message | Supporting proof | CTA |\n\n## Channel plan\n| Channel | Tactic | Message | Budget allocation | Owner | Launch date | KPI |\n\n## Week-by-week launch calendar (4 weeks)\n| Week | Activity | Owner | Output |\n\n## Success metrics\n| Metric | Baseline | Week 2 target | Week 4 target | How measured |\n\n## Contingency\nIf week 2 metrics are below target: the specific pivot to make, not "review and adjust."'},
+
+  {brain:'marketing',icon:'📣',color:'#FF6B35',name:'Content Strategy',prompt:'Build a 90-day content marketing strategy.\n\nContext:\n- Product / brand: [NAME]\n- ICP: [SPECIFIC TARGET AUDIENCE — role, industry, company size]\n- Business goal this content strategy must support: [GOAL e.g. generate 50 qualified leads / increase trial signups by 30%]\n- Current content situation: [WHAT EXISTS / WHAT IS WORKING / WHAT IS NOT]\n- SEO focus: [KEY TOPICS OR KEYWORDS]\n- Distribution channels available: [WEBSITE / LINKEDIN / EMAIL / OTHER]\n- Content resources: [X writers / budget / internal SMEs available]\n- One proof point or story we can use: [CASE STUDY / DATA / CUSTOMER STORY]\n\nProduce:\n## Content pillars (3-4 only)\nFor each pillar: the topic, why it matters to the ICP, and the content types it supports.\n\n## 90-day content calendar (12 pieces — one per week)\n| Week | Title | Format | Pillar | Target keyword | Distribution | CTA | Success metric |\n\n## Distribution plan\nFor each channel: how content is amplified, by whom, and at what cadence.\n\n## Measurement framework\n| Metric | Baseline | Month 1 target | Month 2 target | Month 3 target | How measured |\n\n## The content piece to produce first\nNot week 1 in the calendar — the single most impactful piece to create immediately and why.\n\n## What we should stop producing\nContent currently being created that is not contributing to the business goal.'},
+
+  // ── CFO BRAIN — 3 prompts ──
+  {brain:'cfo',icon:'💰',color:'#00D4AA',name:'Unit Economics Deep Dive',prompt:'Analyse our unit economics.\n\nContext:\n- Business model: [SAAS / MARKETPLACE / TRANSACTION / REAL ESTATE / OTHER]\n- Revenue model: [SUBSCRIPTION / COMMISSION / ONE-TIME / HYBRID]\n- Customer acquisition cost (CAC): [AMOUNT — fully loaded including marketing + sales time]\n- Average contract / transaction value: [AMOUNT]\n- Gross margin: [%]\n- Customer / transaction churn: [ANNUAL % or per-transaction basis for real estate]\n- Average customer lifetime: [MONTHS / YEARS or transactions]\n- Payback period (if known): [MONTHS]\n\nNote: if this is a real estate / property platform, LTV is not calculated as MRR × months — it must account for transaction-based revenue, ancillary services, and referral value.\n\nProduce:\n## Unit economics table\n| Metric | Formula | Your numbers | Benchmark for this business model |\n| LTV | | | |\n| CAC | | | |\n| LTV:CAC | | | Target: >3x |\n| Payback period | | | Target: <18 months |\n| Gross margin contribution | | | |\n\n## The assumption doing the most work in this model\nWhich input, if wrong by 20%, changes the business viability?\n\n## Sensitivity table\n| If [key assumption] changes by... | LTV:CAC becomes | Payback becomes | Business viability |\n| -20% | | | |\n| Base case | | | |\n| +20% | | | |\n\n## The lever with highest ROI to improve\nWhich of: reducing CAC / increasing LTV / improving gross margin / reducing churn has the greatest impact on LTV:CAC ratio — with the specific calculation.\n\n## Board-ready summary (3 sentences)\nThe state of unit economics, the direction they are trending, and the action we are taking.'},
+
+  {brain:'cfo',icon:'💰',color:'#00D4AA',name:'Runway & Burn Analysis',prompt:'Analyse our financial runway.\n\nContext:\n- Current cash balance: [AMOUNT]\n- Monthly gross burn (total cash out): [AMOUNT]\n- Monthly revenue (cash received, not recognised): [AMOUNT]\n- Monthly net burn (gross burn minus revenue): [AMOUNT]\n- Revenue growth rate (MoM): [%]\n- Committed future expenses not yet in burn: [ANY KNOWN LARGE UPCOMING COSTS]\n- Next fundraise plans: [PLANNING TO RAISE / NOT PLANNING / UNKNOWN]\n- Revenue model: [RECURRING / TRANSACTIONAL / MIXED]\n\nProduce:\n## Current trajectory\nAt current burn and growth rate, cash runs out in [X months] on [DATE].\n\n## Scenario analysis\n| Scenario | Assumption change | New runway | Action required |\n| Base case | No change | | |\n| Conservative | Revenue growth -30% | | |\n| Optimistic | Revenue growth +30% | | |\n| Cost reduction | Burn reduced 20% | | |\n| Combined (reduce burn + maintain growth) | | | |\n\n## The fundraise decision\nIf raising: given typical 6-month fundraise timeline, the start date to begin the process is [DATE].\nThe minimum runway to have when closing a round is 3 months — that means close by [DATE].\n\n## Break-even analysis\nAt current gross margin, the monthly revenue needed to break even is [AMOUNT].\nAt current growth rate, break-even occurs in [X months] on [DATE].\n\n## The single most important financial action this month\nSpecific and actionable — not "manage burn carefully."'},
+
+  {brain:'cfo',icon:'💰',color:'#00D4AA',name:'Pricing Strategy',prompt:'Design a pricing strategy.\n\nContext:\n- Product: [NAME AND BRIEF DESCRIPTION]\n- Business model: [SAAS / MARKETPLACE / TRANSACTION / REAL ESTATE / OTHER]\n- Primary users: [WHO BUYS AND WHO USES — sometimes different]\n- Current pricing (if exists): [DESCRIBE]\n- Competitor pricing:\n  - [COMPETITOR 1]: [THEIR PRICING MODEL AND APPROXIMATE PRICE]\n  - [COMPETITOR 2]: [THEIR PRICING]\n- Cost to serve per customer / transaction: [AMOUNT or UNKNOWN]\n- Target gross margin: [%]\n- Customer willingness to pay signals: [ANY DATA — survey results, sales conversations, churn at price increases]\n- Geographic market: [WHERE — this affects pricing significantly]\n\nProduce:\n## Pricing model recommendation\nOne model. The specific structure (per seat / per transaction / tiered / usage-based / hybrid). Why this model for this product and this buyer.\n\n## Three-tier packaging\n| Tier | Name | Price | Included | Target customer | Gross margin at this tier |\n\n## Anchor pricing rationale\nWhich tier is designed to make the middle tier look like the obvious choice, and why.\n\n## Annual vs monthly discount\nRecommended discount for annual commitment and the payback period calculation that justifies it.\n\n## Sensitivity analysis\n| Price point | Estimated conversion impact | Revenue per 100 customers | Gross margin |\n\n## The pricing assumption that needs to be tested first\nBefore committing to this pricing, the one thing to validate with 5-10 customers.\n\n## Implementation risk\nThe most likely reason this pricing change fails in the market — and the contingency.'},
+
+  // ── DEVELOPER BRAIN — 5 prompts ──
+  {brain:'developer',icon:'💻',color:'#AB47BC',name:'Code Review Deep Dive',prompt:'Give me a senior-level code review.\n\nContext:\n- Language / framework: [e.g. TypeScript / React / Node.js / Python / Django]\n- What this code does: [ONE SENTENCE]\n- The part I am most uncertain about: [WHERE YOU WANT FOCUSED ATTENTION]\n\nCode to review:\n```\n[PASTE YOUR CODE HERE]\n```\n\nReview for each of the following — be specific about line numbers or function names:\n\n1. **Correctness**: Does the code do what it is supposed to do? Edge cases it misses?\n2. **Error handling**: Every failure path handled? What happens when this code fails?\n3. **Security**: Any injection risks, insecure data handling, missing auth checks, secrets in code?\n4. **Performance**: Any N+1 queries, unnecessary loops, missing indexes, memory leaks?\n5. **Testability**: Can this be unit tested? What makes it hard to test?\n6. **SOLID principles**: Which principles are violated and how?\n7. **Readability**: Would a developer unfamiliar with this codebase understand it in 5 minutes?\n8. **Missing tests**: The 3 test cases that must exist for this code\n\nFormat each finding as:\n- **Location**: [function name / line range]\n- **Issue**: [what is wrong]\n- **Risk**: [what breaks if this is not fixed]\n- **Fix**: [the specific change to make]\n\nEnd with: the single most important change to make before this is merged.'},
+
+  {brain:'developer',icon:'💻',color:'#AB47BC',name:'Debug Root Cause',prompt:'Help me find the root cause of a bug.\n\nContext:\n- Language: [LANGUAGE]\n- Framework: [FRAMEWORK]\n- Environment: [local / dev / staging / production]\n- Build / version: [VERSION]\n\nBug details:\n- What I expected: [EXPECTED BEHAVIOUR]\n- What actually happens: [ACTUAL BEHAVIOUR]\n- Error message (exact text or "no visible error"): [ERROR]\n- When it started: [AFTER DEPLOY X / AFTER CODE CHANGE X / UNKNOWN]\n- Frequency: [ALWAYS / INTERMITTENT — X% of the time / ONLY UNDER CERTAIN CONDITIONS]\n\nCode / stack trace (paste what is relevant):\n```\n[CODE OR STACK TRACE]\n```\n\nSteps to reproduce:\n1. [STEP]\n2. [STEP]\n\nWhat I have already tried:\n1. [ATTEMPT AND RESULT]\n2. [ATTEMPT AND RESULT]\n\nProduce:\n## Root cause diagnosis\nNot the symptom — the underlying reason this is happening. The design decision or assumption that made this bug possible.\n\n## The fix\n```\n// Before\n[CURRENT CODE]\n\n// After\n[FIXED CODE]\n\n// Why this works\n[ONE SENTENCE]\n```\n\n## The test that proves it is fixed\nThe specific test case: inputs, expected output, and why it catches this specific bug.\n\n## How to prevent this class of bug\nNot just this instance — the general pattern that makes this type of bug impossible or automatically detectable.'},
+
+  {brain:'developer',icon:'💻',color:'#AB47BC',name:'System Design — API',prompt:'Design a REST API.\n\nContext:\n- What this API enables: [ONE SENTENCE]\n- Consumers of this API: [INTERNAL SERVICES / MOBILE APP / THIRD PARTY / OTHER]\n- Expected load: [REQUESTS PER SECOND at peak / TOTAL DAILY REQUESTS]\n- Auth method: [JWT / API KEY / OAUTH / SESSION]\n- Data involved: [KEY ENTITIES e.g. property listing, user, transaction]\n- Tech stack: [LANGUAGE / FRAMEWORK]\n- Constraints: [BACKWARDS COMPATIBILITY REQUIRED / REGULATORY / RESPONSE TIME SLA]\n\nProduce:\n## API design principles for this specific API\nNot general REST principles — the 3 decisions that matter most for this particular API.\n\n## Endpoint specification\n| Method | Path | Request body | Response body | Auth required | Status codes |\nCover all endpoints needed for the primary use case plus the most common error cases.\n\n## Error handling strategy\nHow errors are structured, what the error response body looks like, and the client contract for handling errors.\n\n## Pagination approach\nWhich pattern (cursor / offset / keyset) and why — given the data and load characteristics.\n\n## Versioning strategy\nHow breaking changes will be managed. The specific version header or path convention.\n\n## Rate limiting\nThe limits, the response headers, and what happens when limits are exceeded.\n\n## The one design decision with the most long-term impact\nThe API contract decision that will be hardest to change in 18 months — and whether the current approach is the right one.'},
+
+  {brain:'developer',icon:'💻',color:'#AB47BC',name:'Refactoring Plan',prompt:'Plan a code refactoring.\n\nContext:\n- Language / framework: [LANGUAGE]\n- What this code does: [PURPOSE]\n- Why it needs refactoring (be specific):\n  1. [PROBLEM e.g. "function is 300 lines and does 5 different things"]\n  2. [PROBLEM e.g. "no error handling — failures are silent"]\n  3. [PROBLEM e.g. "impossible to unit test because of hard-coded dependencies"]\n- Constraints:\n  - Cannot change the public API / interface: [YES / NO]\n  - Must maintain backwards compatibility: [YES / NO]\n  - Production traffic runs on this: [YES / NO — deployment risk]\n  - Test coverage today: [%]\n\nCurrent code:\n```\n[PASTE CODE TO REFACTOR]\n```\n\nProduce:\n## Diagnosis\nThe specific design problems — not "it is messy" but the structural violations that make this hard to maintain and test.\n\n## Refactored version\n```\n[REFACTORED CODE]\n```\n\n## What changed and why\nFor each significant change: what was changed, the principle it applies (SRP / dependency injection / etc.), and what it makes possible that was not possible before.\n\n## Tests to write before refactoring\nThe tests to write against the CURRENT code before changing anything — these act as the safety net during refactoring.\n\n## Migration steps\nIf the refactoring is large: the sequence of smaller changes, each safe to deploy independently.\n\n## The risk most likely to cause a regression\nThe specific behaviour most at risk of breaking, and the test that catches it.'},
+
+  {brain:'developer',icon:'💻',color:'#AB47BC',name:'Tech Debt Spike',prompt:'Write a technical spike document.\n\nContext:\n- Area to investigate: [WHAT TECHNICAL UNKNOWN OR DEBT AREA]\n- Problem statement: [WHY THIS IS A PROBLEM NOW — be specific about the impact]\n- Why we need to understand this before building: [THE RISK OF BUILDING WITHOUT THIS KNOWLEDGE]\n- Timebox: [X days — spikes should be 1-3 days maximum]\n- Who runs the spike: [ROLE / PERSON]\n- What decisions depend on this spike: [WHAT CANNOT BE DECIDED UNTIL THE SPIKE IS DONE]\n\nProduce a complete spike document:\n\n## Spike goal\nOne sentence: what question does this spike answer?\n\n## Questions to answer (ranked by importance)\n1. [QUESTION — must be answerable in the timebox]\n2. [QUESTION]\n3. [QUESTION]\n\n## Investigation approach\nFor each question: the specific approach to find the answer. Not "research" — the specific repository, documentation, test, or prototype to build.\n\n## Definition of Done\nThe spike is complete when:\n- [ ] Question 1 is answered with [specific evidence or artefact]\n- [ ] Question 2 is answered with [specific evidence or artefact]\n- [ ] A recommendation has been written for [the decision that depends on this spike]\n- [ ] The recommendation has been reviewed by [who]\n\n## Output artefacts\nWhat the spike must produce: [e.g. a written recommendation, a proof of concept, a benchmark result, an ADR]\n\n## If the spike reveals we need more time\nThe rule for deciding whether to extend the timebox or proceed with current knowledge and accept the uncertainty as a risk.\n\n## Spike is NOT\nWhat is out of scope for this spike — what we are explicitly not building or deciding yet.'},
 ];
 
 let activePromptBrain = 'all';
@@ -3067,7 +3555,9 @@ window.addEventListener('DOMContentLoaded',()=>{
   buildTemplates();
   buildPromptRepo();
   updateTeamSummary();
+  updateDaysLostMax();
   updateCapacity();
+  updateMbCount();
   openModal();
 });
 </script>
