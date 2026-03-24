@@ -4,7 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Product OS — AI-Powered Product Workspace</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Fonts: loads from Google if online, falls back to system fonts instantly if offline -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"></noscript>
 <style>
 /* ── THEME VARS ── */
 [data-theme="dark"]{
@@ -28,7 +32,7 @@
   --radius:12px;--radius-sm:8px;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .25s,color .25s}
+body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .25s,color .25s}
 
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
@@ -45,9 +49,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .live-badge{display:flex;align-items:center;gap:5px;background:var(--green-l);border:0.5px solid rgba(0,200,150,0.25);border-radius:20px;padding:3px 10px;font-size:9.5px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.04em}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2.5s infinite}
 .tr{margin-left:auto;display:flex;gap:6px;align-items:center}
-.theme-toggle{background:var(--bg3);border:0.5px solid var(--border2);border-radius:20px;padding:4px 11px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--muted2);transition:all .2s;font-family:'Outfit',sans-serif}
+.theme-toggle{background:var(--bg3);border:0.5px solid var(--border2);border-radius:20px;padding:4px 11px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--muted2);transition:all .2s;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif}
 .theme-toggle:hover{color:var(--text);border-color:var(--border2);background:var(--bg4)}
-.api-btn{display:flex;align-items:center;gap:6px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:5px 12px;font-size:10px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:'Outfit',sans-serif;transition:all .2s}
+.api-btn{display:flex;align-items:center;gap:6px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:5px 12px;font-size:10px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:all .2s}
 .api-btn:hover{color:var(--text);border-color:var(--border2)}
 .api-btn.connected{color:var(--green);border-color:rgba(0,200,150,0.28);background:rgba(0,200,150,0.07)}
 .api-btn .dot{width:5px;height:5px;border-radius:50%;background:var(--muted);flex-shrink:0}
@@ -85,9 +89,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .widget-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:0.5px solid var(--border);background:var(--bg3)}
 .widget-title{font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px}
 .widget-actions{display:flex;gap:5px}
-.wbtn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity .15s}
+.wbtn{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:opacity .15s}
 .wbtn:hover{opacity:.85}
-.wbtn-ghost{background:var(--bg4);border:0.5px solid var(--border2);color:var(--muted2);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.wbtn-ghost{background:var(--bg4);border:0.5px solid var(--border2);color:var(--muted2);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:500;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:all .15s}
 .wbtn-ghost:hover{color:var(--text);border-color:var(--accent-m)}
 .widget-body{padding:14px}
 
@@ -100,10 +104,10 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .ctx-role-icon{font-size:14px;display:block;margin-bottom:2px}
 .ctx-role-label{font-size:7.5px;color:var(--muted2);font-weight:500;margin-bottom:5px;line-height:1.2}
 .ctx-role-controls{display:flex;align-items:center;justify-content:center;gap:4px}
-.ctx-minus,.ctx-plus{background:var(--bg4);border:0.5px solid var(--border2);border-radius:4px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted2);line-height:1;padding:0;font-family:'Outfit',sans-serif;transition:all .15s}
+.ctx-minus,.ctx-plus{background:var(--bg4);border:0.5px solid var(--border2);border-radius:4px;width:16px;height:16px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;font-weight:700;color:var(--muted2);line-height:1;padding:0;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:all .15s}
 .ctx-minus:hover{background:rgba(255,82,82,.15);color:var(--red);border-color:rgba(255,82,82,.3)}
 .ctx-plus:hover{background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)}
-.ctx-role-count{font-size:13px;font-weight:700;color:var(--text);min-width:18px;text-align:center;font-family:'JetBrains Mono',monospace}
+.ctx-role-count{font-size:13px;font-weight:700;color:var(--text);min-width:18px;text-align:center;font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace}
 .ctx-team-summary{display:flex;align-items:center;gap:7px;padding:6px 9px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:7px;margin-bottom:4px;flex-wrap:wrap}
 .ctx-total-badge{font-size:10px;font-weight:700;color:var(--accent);flex-shrink:0}
 .ctx-summary-txt{font-size:8.5px;color:var(--muted2);line-height:1.4}
@@ -111,11 +115,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .ctx-cap-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px}
 .ctx-cap-item{text-align:center}
 .ctx-cap-lbl{font-size:8px;color:var(--muted2);font-weight:500;margin-bottom:2px}
-.ctx-cap-val{font-size:17px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--text)}
-.ctx-cap-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:7px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity .15s}
+.ctx-cap-val{font-size:17px;font-weight:800;font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace;color:var(--text)}
+.ctx-cap-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:7px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:opacity .15s}
 .ctx-cap-btn:hover{opacity:.85}
 .cf label{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:600}
-.cf input,.cf select,.cf textarea{width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:6px 8px;font-family:'Outfit',sans-serif;outline:none;transition:border-color .15s;resize:none}
+.cf input,.cf select,.cf textarea{width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:6px 8px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;outline:none;transition:border-color .15s;resize:none}
 .cf input:focus,.cf select:focus,.cf textarea:focus{border-color:var(--accent-m)}
 .cf select option{background:var(--bg3)}
 .cf textarea{height:46px}
@@ -177,9 +181,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .mb-suggest{background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;padding:3px 10px;font-size:9px;color:var(--muted2);cursor:pointer;transition:all .15s;white-space:nowrap}
 .mb-suggest:hover{border-color:var(--accent-m);color:var(--accent);background:var(--accent-l)}
 .mb-input-row{display:flex;gap:8px;align-items:center;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:8px;padding:7px 10px}
-.mb-input{flex:1;border:none;background:transparent;color:var(--text);font-size:12px;font-family:'Outfit',sans-serif;outline:none}
+.mb-input{flex:1;border:none;background:transparent;color:var(--text);font-size:12px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;outline:none}
 .mb-input::placeholder{color:var(--muted)}
-.mb-send{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity .15s;white-space:nowrap}
+.mb-send{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:opacity .15s;white-space:nowrap}
 .mb-send:hover{opacity:.85}
 .mb-send:disabled{opacity:.4;cursor:not-allowed}
 
@@ -204,11 +208,11 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .bb{background:var(--bg3);border:0.5px solid var(--border);border-radius:4px 14px 14px 14px;padding:12px 16px;font-size:13px;line-height:1.7;color:var(--text)}
 .u .bb{background:var(--accent-l);border-color:var(--accent-m);border-radius:14px 4px 14px 14px}
 .bb b{color:var(--accent)}
-.bb code{background:var(--bg4);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11.5px}
+.bb code{background:var(--bg4);padding:1px 6px;border-radius:4px;font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace;font-size:11.5px}
 .bb ul{padding-left:18px;margin:6px 0}.bb li{margin-bottom:3px;font-size:12.5px}
 .bb h4{font-size:11.5px;font-weight:700;margin:8px 0 4px;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em}
 .bb-img{max-width:260px;max-height:200px;border-radius:8px;border:0.5px solid var(--border2);display:block;margin-bottom:8px;object-fit:cover;cursor:pointer}
-.copy-msg-btn{background:none;border:0.5px solid var(--border);border-radius:5px;color:var(--muted);font-size:9px;padding:2px 8px;cursor:pointer;margin-top:6px;font-family:'Outfit',sans-serif;transition:all .15s;display:inline-block}
+.copy-msg-btn{background:none;border:0.5px solid var(--border);border-radius:5px;color:var(--muted);font-size:9px;padding:2px 8px;cursor:pointer;margin-top:6px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:all .15s;display:inline-block}
 .copy-msg-btn:hover{color:var(--text);border-color:var(--border2)}
 .multi-tag{font-size:9px;background:var(--bg4);border:0.5px solid var(--border2);border-radius:4px;padding:1px 7px;margin-bottom:6px;color:var(--muted2);display:inline-block}
 .tdots{display:flex;align-items:center;gap:4px;padding:12px 16px;background:var(--bg3);border:0.5px solid var(--border);border-radius:4px 14px 14px 14px}
@@ -247,7 +251,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .chat-upload-btn{width:30px;height:30px;background:var(--bg4);border:0.5px solid var(--border2);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;flex-shrink:0;color:var(--muted2);transition:all .15s;position:relative}
 .chat-upload-btn:hover{background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)}
 .chat-upload-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:2}
-.chat-ta{flex:1;border:none;background:transparent;font-size:13px;color:var(--text);font-family:'Outfit',sans-serif;outline:none;resize:none;max-height:110px;min-height:20px;line-height:1.5}
+.chat-ta{flex:1;border:none;background:transparent;font-size:13px;color:var(--text);font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;outline:none;resize:none;max-height:110px;min-height:20px;line-height:1.5}
 .chat-ta::placeholder{color:var(--muted)}
 .send-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;font-size:14px}
 .send-btn:hover{opacity:.85;transform:scale(1.05)}
@@ -259,9 +263,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .tb h2{font-size:16px;font-weight:700}
 .tstat{background:var(--bg3);border:0.5px solid var(--border);border-radius:6px;padding:3px 10px;font-size:10px;color:var(--muted2)}
 .tstat b{color:var(--text);font-weight:700}
-.btn{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity .15s;display:flex;align-items:center;gap:5px}
+.btn{background:var(--accent);color:#fff;border:none;border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:opacity .15s;display:flex;align-items:center;gap:5px}
 .btn:hover{opacity:.85}
-.gbtn{background:var(--bg3);color:var(--muted2);border:0.5px solid var(--border);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.gbtn{background:var(--bg3);color:var(--muted2);border:0.5px solid var(--border);border-radius:7px;padding:6px 12px;font-size:11px;font-weight:500;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:all .15s}
 .gbtn:hover{color:var(--text);border-color:var(--border2)}
 .empty-state{text-align:center;padding:50px 20px;color:var(--muted)}
 .empty-state span{font-size:32px;display:block;margin-bottom:8px}
@@ -275,7 +279,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .bl-cell{padding:8px 8px;font-size:11px;color:var(--text)}
 .bl-item-title{font-weight:500;font-size:11px}
 .bl-item-desc{font-size:9.5px;color:var(--muted2);margin-top:1px}
-.rice-score{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--accent)}
+.rice-score{font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace;font-size:11px;font-weight:700;color:var(--accent)}
 .status-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px}
 .s-backlog{background:rgba(136,136,136,.15);color:#888;border:0.5px solid rgba(136,136,136,.3)}
 .s-sprint{background:rgba(108,71,255,.15);color:#6C47FF;border:0.5px solid rgba(108,71,255,.3)}
@@ -292,7 +296,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .form-row{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:8px}
 .form-row.wide{grid-template-columns:1fr}
 .ff label{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:600}
-.ff input,.ff select,.ff textarea{width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:6px 8px;font-family:'Outfit',sans-serif;outline:none;transition:border-color .15s;resize:none}
+.ff input,.ff select,.ff textarea{width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:6px 8px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;outline:none;transition:border-color .15s;resize:none}
 .ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--accent-m)}
 .ff textarea{height:52px}
 .ff select option{background:var(--bg3)}
@@ -321,8 +325,8 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .kpi-card:hover .kpi-actions{opacity:1}
 .kpi-log-item{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg3);border-radius:6px;font-size:11px}
 .kpi-log-name{font-weight:600;color:var(--text);min-width:120px}
-.kpi-log-val{font-family:'JetBrains Mono',monospace;color:var(--accent);font-size:10px}
-.kpi-log-time{font-size:9px;color:var(--muted);margin-left:auto;font-family:'JetBrains Mono',monospace}
+.kpi-log-val{font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace;color:var(--accent);font-size:10px}
+.kpi-log-time{font-size:9px;color:var(--muted);margin-left:auto;font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace}
 .color-swatches{display:flex;gap:5px}
 .swatch{width:18px;height:18px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s}
 .swatch.selected{border-color:var(--text);transform:scale(1.2)}
@@ -337,7 +341,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .doc-gen-panel h3{font-size:13px;font-weight:700;margin-bottom:12px}
 .doc-form{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
 .dff label{font-size:9px;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:3px;font-weight:600}
-.dff input{width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:6px 8px;font-family:'Outfit',sans-serif;outline:none}
+.dff input{width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:6px;color:var(--text);font-size:11px;padding:6px 8px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;outline:none}
 .dff input:focus{border-color:var(--accent-m)}
 .doc-output{background:var(--bg2);border:0.5px solid var(--border2);border-radius:var(--radius);padding:14px;margin-top:10px;font-size:12px;line-height:1.7;color:var(--text);white-space:pre-wrap;max-height:400px;overflow-y:auto}
 .doc-output b{color:var(--accent)}
@@ -361,7 +365,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .pc-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px;line-height:1.3}
 .pc-prompt{font-size:9px;color:var(--muted);line-height:1.5;margin-bottom:7px}
 .pc-use{font-size:9px;font-weight:600;color:var(--accent)}
-.pr-filter-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:500;color:var(--muted2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px;font-family:'Outfit',sans-serif}
+.pr-filter-btn{background:var(--bg3);border:0.5px solid var(--border);border-radius:20px;padding:4px 12px;font-size:10px;font-weight:500;color:var(--muted2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:4px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif}
 .pr-filter-btn.on{background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)}
 
 /* ── MODALS ── */
@@ -373,25 +377,25 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
 .modal-sub{font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:16px}
 .modal-field label{font-size:9px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;display:block;margin-bottom:5px}
 .modal-input-row{display:flex;gap:8px;align-items:center;background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:9px 12px;margin-bottom:10px}
-.modal-input-row input{flex:1;border:none;background:transparent;color:var(--text);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none}
-.modal-input-row input::placeholder{color:var(--muted);font-family:'Outfit',sans-serif}
+.modal-input-row input{flex:1;border:none;background:transparent;color:var(--text);font-size:12px;font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace;outline:none}
+.modal-input-row input::placeholder{color:var(--muted);font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif}
 .eye-btn{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0}
 .modal-hint{font-size:10px;color:var(--muted);line-height:1.5;margin-bottom:16px;padding:9px 12px;background:var(--bg3);border-radius:8px;border-left:2px solid var(--accent)}
 .modal-hint a{color:var(--accent);text-decoration:none}
 .modal-btn-row{display:flex;gap:8px}
-.modal-primary{flex:1;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',sans-serif;transition:opacity .15s}
+.modal-primary{flex:1;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:opacity .15s}
 .modal-primary:hover{opacity:.85}
-.modal-secondary{background:var(--bg3);color:var(--muted2);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all .15s}
+.modal-secondary{background:var(--bg3);color:var(--muted2);border:0.5px solid var(--border);border-radius:8px;padding:10px 14px;font-size:12px;cursor:pointer;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;transition:all .15s}
 .modal-secondary:hover{color:var(--text)}
 /* csv modal */
 .csv-modal{background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;padding:22px;width:460px;max-width:92vw;box-shadow:0 32px 80px rgba(0,0,0,.6);animation:fi .25s ease}
-.csv-preview{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:10px;margin:10px 0;max-height:120px;overflow-y:auto;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--muted2);line-height:1.6}
+.csv-preview{background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:10px;margin:10px 0;max-height:120px;overflow-y:auto;font-size:10px;font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace;color:var(--muted2);line-height:1.6}
 .csv-map-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:5px;font-size:11px}
-.csv-map-select{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;color:var(--text);font-size:10px;padding:4px 7px;font-family:'Outfit',sans-serif;outline:none}
+.csv-map-select{width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;color:var(--text);font-size:10px;padding:4px 7px;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;outline:none}
 .csv-map-label{color:var(--muted2);font-weight:500}
 
 /* ── TOAST ── */
-.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--text);font-size:12px;padding:9px 14px;border-radius:8px;opacity:0;transition:opacity .3s;pointer-events:none;font-family:'Outfit',sans-serif;display:flex;align-items:center;gap:6px;z-index:999}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--text);font-size:12px;padding:9px 14px;border-radius:8px;opacity:0;transition:opacity .3s;pointer-events:none;font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;display:flex;align-items:center;gap:6px;z-index:999}
 .toast.show{opacity:1}
 
 /* ── BRAIN SELECTOR BAR ── */
@@ -610,7 +614,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
             <div class="cf"><label>Sprint number</label><input type="text" id="ctx-sprint-num" placeholder="e.g. Sprint 14" oninput="autoSaveCtx()"/></div>
             <div class="cf"><label>Primary metric / OKR</label><input type="text" id="ctx-goal" placeholder="e.g. Reduce churn by 15% Q2" oninput="autoSaveCtx()"/></div>
           </div>
-          <div class="cf" style="margin-bottom:8px"><label>Sprint goal / focus</label><textarea id="ctx-sprint" placeholder="e.g. Reduce checkout drop-off and ship payment retry feature" style="height:40px;resize:none" oninput="autoSaveCtx()"></textarea></div>
+          <div class="cf" style="margin-bottom:8px"><label>Sprint goal / focus</label><textarea id="ctx-sprint" placeholder="e.g. Reduce checkout drop-off and ship payment retry feature" style="height:40px;resize:none" oninput="autoSaveCtx();autoResize(this)"></textarea></div>
           <div class="cf" style="margin-bottom:10px"><label>Delivery methodology</label>
             <select id="ctx-method" onchange="autoSaveCtx()">
               <option value="">Select…</option>
@@ -733,7 +737,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
           <div class="ctx-capacity-card" id="ctx-capacity-card">
             <div class="ctx-cap-row">
               <div class="ctx-cap-item">
-                <div class="ctx-cap-lbl">Team size</div>
+                <div class="ctx-cap-lbl">Delivery team</div>
                 <div class="ctx-cap-val" id="cap-team">—</div>
               </div>
               <div class="ctx-cap-item">
@@ -855,10 +859,32 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
             </div>
           </div>
 
+          <div style="font-size:8px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">🚀 Launch & Risk</div>
+          <div class="qa-grid">
+            <div class="qa-btn qa-strategy" onclick="runQuickAction(this,'bug-triage')" title="Structured bug triage — severity, impact, owner, fix-vs-defer decision">
+              <span class="qa-icon">🐛</span>
+              <span class="qa-label">Bug Triage</span>
+              <span class="qa-sub">P1-P4 · 🧪 QA Brain</span>
+            </div>
+            <div class="qa-btn qa-strategy" onclick="runQuickAction(this,'launch-check')" title="Launch readiness checklist — T-2 weeks through launch day">
+              <span class="qa-icon">✅</span>
+              <span class="qa-label">Launch Check</span>
+              <span class="qa-sub">Go/No-Go · 🧠 PO</span>
+            </div>
+            <div class="qa-btn qa-strategy" onclick="runQuickAction(this,'rollback')" title="Rollback decision framework — triggers, steps, comms">
+              <span class="qa-icon">⏪</span>
+              <span class="qa-label">Rollback Plan</span>
+              <span class="qa-sub">Incident · 🧑‍💻 CTO</span>
+            </div>
+            <div class="qa-btn qa-strategy" onclick="runQuickAction(this,'assumption-map')" title="Surface and prioritise assumptions before building">
+              <span class="qa-icon">🗺️</span>
+              <span class="qa-label">Assumption Map</span>
+              <span class="qa-sub">Discovery · 🧠 PO</span>
+            </div>
+          </div>
+
         </div>
       </div>
-
-      <!-- WIDGET 4: MULTI-BRAIN -->
       <div class="widget">
         <div class="widget-header">
           <div class="widget-title">🔁 Multi-Brain Collab
@@ -949,10 +975,19 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="fc" onclick="toggleFw(this)">5 Whys</div>
         <div class="fc" onclick="toggleFw(this)">Kano</div>
         <div class="fc" onclick="toggleFw(this)">WSJF</div>
+        <div class="fc" onclick="toggleFw(this)">HEART</div>
+        <div class="fc" onclick="toggleFw(this)">Assumption Map</div>
+        <div class="fc" onclick="toggleFw(this)">TAM/SAM/SOM</div>
+        <div class="fc" onclick="toggleFw(this)">Story Mapping</div>
+        <div class="fc" onclick="toggleFw(this)">Impact Mapping</div>
+        <div class="fc" onclick="toggleFw(this)">Lean Canvas</div>
+        <div class="fc" onclick="toggleFw(this)">Value Prop Canvas</div>
+        <div class="fc" onclick="toggleFw(this)">Design Thinking</div>
+        <div class="fc" onclick="toggleFw(this)">OST</div>
       </div>
 
       <!-- MAIN INPUT BOX -->
-      <div class="cin-box">
+      <div class="cin-box" id="cin-box">
 
         <!-- ATTACHMENT PREVIEW STRIP -->
         <div class="attach-strip" id="attach-strip"></div>
@@ -1022,22 +1057,26 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
     <div id="add-item-form" style="display:none">
       <div class="add-form">
         <div class="form-row wide"><div class="ff"><label>Title</label><input type="text" id="bi-title" placeholder="e.g. Improve search results"/></div></div>
-        <div class="form-row wide"><div class="ff"><label>Description</label><textarea id="bi-desc" placeholder="What needs to be done and why?"></textarea></div></div>
+        <div class="form-row wide"><div class="ff"><label>Description</label><textarea id="bi-desc" placeholder="What needs to be done and why?" oninput="autoResize(this)"></textarea></div></div>
         <div class="form-row">
-          <div class="ff"><label>Reach (1-10)</label><input type="number" id="bi-reach" min="1" max="10" placeholder="8"/></div>
-          <div class="ff"><label>Impact (1-3)</label><input type="number" id="bi-impact" min="1" max="3" placeholder="2"/></div>
+          <div class="ff"><label>Reach (users/qtr)</label><input type="number" id="bi-reach" min="0" max="10000" placeholder="e.g. 500"/></div>
+          <div class="ff"><label>Impact (1-3)</label><input type="number" id="bi-impact" min="1" max="3" step="0.5" placeholder="2"/></div>
           <div class="ff"><label>Confidence %</label><input type="number" id="bi-conf" min="1" max="100" placeholder="80"/></div>
-          <div class="ff"><label>Effort (days)</label><input type="number" id="bi-effort" min="1" placeholder="5"/></div>
+          <div class="ff"><label>Effort (person-months)</label><input type="number" id="bi-effort" min="0.1" step="0.1" placeholder="0.5"/></div>
         </div>
         <div class="form-row">
+          <div class="ff"><label>Story Points (Fibonacci)</label><select id="bi-sp"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>5</option><option>8</option><option>13</option><option>21</option></select></div>
           <div class="ff"><label>Status</label><select id="bi-status"><option value="backlog">Backlog</option><option value="sprint">In Sprint</option><option value="done">Done</option></select></div>
-          <div class="ff"><label>Type</label><select id="bi-type"><option>Feature</option><option>Bug</option><option>Tech Debt</option><option>Research</option><option>Improvement</option></select></div>
+          <div class="ff"><label>Type</label><select id="bi-type"><option>Feature</option><option>Bug</option><option>Tech Debt</option><option>Research</option><option>Improvement</option><option>Spike</option></select></div>
           <div class="ff"><label>Priority</label><select id="bi-priority"><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option><option value="low">Low</option></select></div>
-          <div class="ff"><label>&nbsp;</label><div style="display:flex;gap:6px;margin-top:2px"><button class="btn" onclick="addBacklogItem()">Add</button><button class="gbtn" onclick="toggleAddForm()">Cancel</button></div></div>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="btn" onclick="addBacklogItem()">Add Item</button>
+          <button class="gbtn" onclick="toggleAddForm()">Cancel</button>
         </div>
       </div>
     </div>
-    <div class="bl-hdr"><div class="blh">Item</div><div class="blh">Reach</div><div class="blh">Impact</div><div class="blh">Conf%</div><div class="blh">Effort</div><div class="blh">RICE</div><div class="blh">Status</div><div class="blh">Actions</div></div>
+    <div class="bl-hdr"><div class="blh">Item</div><div class="blh">Reach</div><div class="blh">Impact</div><div class="blh">Conf%</div><div class="blh">SP</div><div class="blh">RICE</div><div class="blh">Status</div><div class="blh">Actions</div></div>
     <div class="bl-items" id="bl-items"><div class="empty-state"><span>📭</span><p>No backlog items yet.<br>Click <b>+ Add Item</b> to get started.</p></div></div>
   </div>
 </div>
@@ -1055,7 +1094,9 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
         <div class="form-row">
           <div class="ff"><label>Initiative</label><input type="text" id="rm-title" placeholder="e.g. Search Redesign"/></div>
           <div class="ff"><label>Month</label><select id="rm-month"><option value="0">Month 1</option><option value="1">Month 2</option><option value="2">Month 3</option><option value="3">Month 4</option><option value="4">Month 5</option><option value="5">Month 6</option></select></div>
-          <div class="ff"><label>Theme</label><select id="rm-theme"><option value="growth">🚀 Growth</option><option value="retention">❤️ Retention</option><option value="infra">⚙️ Infrastructure</option><option value="ux">🎨 UX</option><option value="data">📊 Data</option><option value="other">📌 Other</option></select></div>
+          <div class="ff"><label>Theme</label><select id="rm-theme"><option value="growth">Growth</option><option value="retention">Retention</option><option value="infra">Infrastructure</option><option value="ux">UX</option><option value="data">Data</option><option value="other">Other</option></select></div>
+          <div class="ff"><label>Owner</label><input type="text" id="rm-owner" placeholder="e.g. PO / CTO"/></div>
+          <div class="ff"><label>Size</label><select id="rm-size"><option value="S">S — 1 sprint</option><option value="M" selected>M — 2-3 sprints</option><option value="L">L — 1 quarter</option><option value="XL">XL — multi-quarter</option></select></div>
           <div class="ff"><label>&nbsp;</label><div style="display:flex;gap:6px;margin-top:2px"><button class="btn" onclick="addRoadmapItem()">Add</button><button class="gbtn" onclick="toggleRmForm()">Cancel</button></div></div>
         </div>
       </div>
@@ -1081,19 +1122,26 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
           <div class="ff"><label>KPI Name</label><input type="text" id="kpi-name" placeholder="e.g. Monthly Active Users"/></div>
           <div class="ff"><label>Current Value</label><input type="text" id="kpi-current" placeholder="e.g. 4,200"/></div>
           <div class="ff"><label>Target</label><input type="text" id="kpi-target-val" placeholder="e.g. 6,000"/></div>
-          <div class="ff"><label>Trend</label><select id="kpi-trend"><option value="up">↑ Up</option><option value="down">↓ Down</option><option value="neutral">→ Flat</option></select></div>
+          <div class="ff"><label>Unit</label><input type="text" id="kpi-unit" placeholder="e.g. users, %, AED, mins"/></div>
         </div>
-        <div style="display:flex;align-items:center;gap:12px;margin-top:8px">
-          <span style="font-size:10px;color:var(--muted2);font-weight:600">Colour:</span>
-          <div class="color-swatches">
-            <div class="swatch selected" style="background:#6C47FF" data-color="#6C47FF" onclick="selectSwatch(this)"></div>
-            <div class="swatch" style="background:#00D4AA" data-color="#00D4AA" onclick="selectSwatch(this)"></div>
-            <div class="swatch" style="background:#E91E8C" data-color="#E91E8C" onclick="selectSwatch(this)"></div>
-            <div class="swatch" style="background:#F5A623" data-color="#F5A623" onclick="selectSwatch(this)"></div>
-            <div class="swatch" style="background:#29B6F6" data-color="#29B6F6" onclick="selectSwatch(this)"></div>
+        <div class="form-row">
+          <div class="ff"><label>Trend</label><select id="kpi-trend"><option value="up">↑ Up</option><option value="down">↓ Down</option><option value="neutral">→ Flat</option></select></div>
+          <div class="ff"><label>Owner</label><input type="text" id="kpi-owner" placeholder="e.g. Abhinav (PO)"/></div>
+          <div class="ff"><label>Category</label><select id="kpi-category"><option value="growth">Growth</option><option value="retention">Retention</option><option value="engagement">Engagement</option><option value="revenue">Revenue</option><option value="quality">Quality</option><option value="efficiency">Efficiency</option></select></div>
+          <div class="ff" style="display:flex;align-items:flex-end;gap:6px;padding-bottom:2px">
+            <div>
+              <span style="font-size:10px;color:var(--muted2);font-weight:600;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em">Colour</span>
+              <div class="color-swatches" style="display:flex;gap:5px">
+                <div class="swatch selected" style="background:#6C47FF" data-color="#6C47FF" onclick="selectSwatch(this)"></div>
+                <div class="swatch" style="background:#00D4AA" data-color="#00D4AA" onclick="selectSwatch(this)"></div>
+                <div class="swatch" style="background:#E91E8C" data-color="#E91E8C" onclick="selectSwatch(this)"></div>
+                <div class="swatch" style="background:#F5A623" data-color="#F5A623" onclick="selectSwatch(this)"></div>
+                <div class="swatch" style="background:#29B6F6" data-color="#29B6F6" onclick="selectSwatch(this)"></div>
+              </div>
+            </div>
+            <button class="btn" onclick="addKpi()">Add KPI</button>
+            <button class="gbtn" onclick="toggleKpiForm()">Cancel</button>
           </div>
-          <button class="btn" onclick="addKpi()">Add KPI</button>
-          <button class="gbtn" onclick="toggleKpiForm()">Cancel</button>
         </div>
       </div>
     </div>
@@ -1111,13 +1159,17 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--text);min-
     <div class="tb"><h2>📄 Document Generator</h2><span style="font-size:11px;color:var(--muted2)">AI-powered instant document creation</span></div>
     <div class="doc-types">
       <div class="doc-card" onclick="openDocGenerator('prd')"><span class="doc-card-icon">📋</span><div class="doc-card-name">PRD</div><div class="doc-card-desc">Full product requirements doc</div></div>
-      <div class="doc-card" onclick="openDocGenerator('user-story')"><span class="doc-card-icon">✍️</span><div class="doc-card-name">User Story + AC</div><div class="doc-card-desc">Story with BDD criteria</div></div>
+      <div class="doc-card" onclick="openDocGenerator('user-story')"><span class="doc-card-icon">✍️</span><div class="doc-card-name">User Story + AC</div><div class="doc-card-desc">Story with BDD criteria & SP</div></div>
       <div class="doc-card" onclick="openDocGenerator('okr')"><span class="doc-card-icon">🎯</span><div class="doc-card-name">OKR Document</div><div class="doc-card-desc">Objectives & key results</div></div>
+      <div class="doc-card" onclick="openDocGenerator('hypothesis')"><span class="doc-card-icon">🔬</span><div class="doc-card-name">Hypothesis Doc</div><div class="doc-card-desc">Experiment design & plan</div></div>
+      <div class="doc-card" onclick="openDocGenerator('business-case')"><span class="doc-card-icon">💰</span><div class="doc-card-name">Business Case</div><div class="doc-card-desc">ROI model & investment ask</div></div>
+      <div class="doc-card" onclick="openDocGenerator('gtm')"><span class="doc-card-icon">🚀</span><div class="doc-card-name">GTM Launch Plan</div><div class="doc-card-desc">Go-to-market strategy</div></div>
+      <div class="doc-card" onclick="openDocGenerator('post-launch')"><span class="doc-card-icon">📊</span><div class="doc-card-name">Post-Launch Review</div><div class="doc-card-desc">4-week outcome assessment</div></div>
+      <div class="doc-card" onclick="openDocGenerator('decision-log')"><span class="doc-card-icon">📋</span><div class="doc-card-name">Decision Log</div><div class="doc-card-desc">Capture decisions with rationale</div></div>
       <div class="doc-card" onclick="openDocGenerator('release-notes')"><span class="doc-card-icon">📣</span><div class="doc-card-name">Release Notes</div><div class="doc-card-desc">User-facing announcement</div></div>
       <div class="doc-card" onclick="openDocGenerator('exec-brief')"><span class="doc-card-icon">💼</span><div class="doc-card-name">Exec Brief</div><div class="doc-card-desc">One-page leadership summary</div></div>
       <div class="doc-card" onclick="openDocGenerator('risk-register')"><span class="doc-card-icon">⚠️</span><div class="doc-card-name">Risk Register</div><div class="doc-card-desc">Risks with mitigations</div></div>
-      <div class="doc-card" onclick="openDocGenerator('sprint-goal')"><span class="doc-card-icon">🚀</span><div class="doc-card-name">Sprint Goal</div><div class="doc-card-desc">Sprint goal & success criteria</div></div>
-      <div class="doc-card" onclick="openDocGenerator('hypothesis')"><span class="doc-card-icon">🔬</span><div class="doc-card-name">Hypothesis Doc</div><div class="doc-card-desc">Experiment design & plan</div></div>
+      <div class="doc-card" onclick="openDocGenerator('sprint-goal')"><span class="doc-card-icon">🏃</span><div class="doc-card-name">Sprint Goal</div><div class="doc-card-desc">Sprint goal & success criteria</div></div>
     </div>
     <div id="doc-generator-panel" style="display:none">
       <div class="doc-gen-panel">
@@ -1170,6 +1222,17 @@ let backlogItems=[],roadmapItems=[],kpiItems=[],kpiLog=[],knowledgeBase=[];
 let selectedBrains=['po'],activeDocType='',docOutput='',selectedSwatchColor='#6C47FF';
 let csvPending=null,pendingImageId=null,isDark=true;
 let activeBrain='po';
+
+// ── XSS protection — escape all user-supplied strings before innerHTML ──
+function escapeHtml(str){
+  if(!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#039;');
+}
 
 const THEME_COLORS={growth:'#6C47FF',retention:'#E91E8C',infra:'#F5A623',ux:'#00D4AA',data:'#29B6F6',other:'#888'};
 
@@ -2025,28 +2088,114 @@ const TEMPLATES=[
   {cat:'Scrum',color:'#66BB6A',name:'Velocity Trend Analysis',prompt:'Analyse sprint velocity. Last 5 sprints — [S1: X committed / Y delivered. S2-S5: same format]. Team changes: [ANY]. Give me: stability assessment, realistic planning velocity, commitment accuracy trend, root cause of any instability, and recommended capacity for next sprint.',desc:'Diagnose velocity patterns and set realistic capacity'},
   {cat:'Scrum',color:'#66BB6A',name:'Capacity Planning',desc:'Full capacity calculation with team structure',prompt:'Calculate sprint capacity. Sprint [X], [X] working days. Team: [X Dev, X QA, X other]. Leave/holidays this sprint: [DETAIL]. Ceremonies: planning [Xh], standup [X min/day], review [Xh], retro [Xh], refinement [Xh]. Historical velocity: [X SP]. Focus factor: [70%]. Show: person-days available, effective days after ceremonies, SP capacity, recommended commit at 80%, buffer, per-person load, QA sequencing plan.'},
   {cat:'Scrum',color:'#66BB6A',name:'Backlog Refinement Session',desc:'Story-by-story DoR check and sizing',prompt:'Facilitate a refinement session for: [LIST STORIES]. For each: write missing AC in BDD format, check INVEST criteria (flag violations), identify technical unknowns requiring a spike, suggest story points, mark Ready or Not Ready with specific reason. End with: which stories are ready for next sprint and which need further work before planning.'},
+
+  // ── DISCOVERY ──
+  {cat:'Discovery',color:'#0EA5E9',name:'Opportunity Assessment',desc:'Evaluate whether a problem is worth solving',prompt:'Write an opportunity assessment for: [PROBLEM / OPPORTUNITY].\n\nContext:\n- Product: [PRODUCT]\n- Users affected: [WHO]\n- How we discovered this: [SOURCE]\n\nProduce:\n## Problem statement\nOne crisp sentence — the problem, who has it, and what it costs them.\n\n## Evidence\nWhat data, research, or signals confirm this is real? What is the confidence level (high/medium/low)?\n\n## Market size signal\nHow many users / how much revenue is at stake if we solve this?\n\n## Strategic fit\nDoes this align with our current OKRs and product strategy? Score 1-5.\n\n## Build vs ignore decision\nShould we invest in this now, park it for later, or dismiss it? One clear recommendation with rationale.\n\n## Next step if we proceed\nThe one thing to do in the next 2 weeks to validate further.'},
+  {cat:'Discovery',color:'#0EA5E9',name:'Competitive Analysis',desc:'Map the competitive landscape and identify gaps',prompt:'Run a competitive analysis for [PRODUCT] in the [MARKET] space.\n\nCompetitors to analyse: [LIST 3-5 COMPETITORS]\nOur target users: [USERS]\nOur primary use case: [USE CASE]\n\nFor each competitor produce a row in this table:\n| Competitor | Strengths | Weaknesses | Pricing | Target segment | Key differentiator |\n\nThen:\n## Feature gap matrix\nFor our top 5 features: which competitors have it, at what quality, and what is our differentiation?\n\n## Market positioning map\n[Describe a 2x2 with axes most relevant to our market — e.g. Enterprise vs Consumer / Self-serve vs High-touch]\nWhere does each player sit? Where is the white space?\n\n## Our competitive moat\nWhat would be hardest for competitors to replicate about our product?\n\n## Biggest competitive risk\nThe one competitor move that would most threaten our position in the next 12 months.'},
+  {cat:'Discovery',color:'#0EA5E9',name:'Assumption Mapping',desc:'Surface and prioritise risky assumptions before building',prompt:'Build an assumption map for: [FEATURE / PRODUCT / STRATEGY].\n\nContext:\n- What we are planning to build: [DESCRIPTION]\n- Who it is for: [USER]\n- Why we think they want it: [HYPOTHESIS]\n\nProduce:\n## Assumption inventory\nList every assumption we are making. For each, tag it as:\n- User behaviour assumption (they will do X)\n- Market assumption (the opportunity is X size)\n- Technical assumption (we can build X in X time)\n- Business assumption (this will drive X metric)\n\n## Assumption priority matrix\n| Assumption | Certainty (H/M/L) | Consequence if wrong (H/M/L) | Priority to test |\n|---|---|---|---|\n\n## Critical assumptions (test before building)\nThe top 3 assumptions where wrong = wasted sprint or failed launch.\n\n## How to test each critical assumption\nFor each: the specific test, what you would observe if true, what you would observe if false, and the time/cost to run it.'},
+  {cat:'Discovery',color:'#0EA5E9',name:'User Research Synthesis',desc:'Synthesise findings from user interviews into actionable insights',prompt:'Synthesise these user research findings into product insights.\n\nResearch context:\n- Method: [INTERVIEWS / SURVEYS / USABILITY TESTS / MIX]\n- Sample: [X participants, WHO THEY ARE]\n- Question we were investigating: [RESEARCH QUESTION]\n\nRaw findings / quotes (paste them here):\n[PASTE YOUR NOTES, QUOTES, OR OBSERVATIONS]\n\nProduce:\n## Top 5 insights\nEach as: Insight statement → Evidence (quote or pattern) → Product implication\n\n## Jobs to be Done (functional + emotional)\nWhat are users actually trying to accomplish? What does success feel like for them?\n\n## Pain points ranked by frequency and severity\n| Pain point | How often mentioned | Severity | Current workaround |\n\n## What surprised us\nFindings that challenged our assumptions.\n\n## Recommended product actions\nTop 3 backlog items or decisions that should follow from this research — with the specific evidence that supports each.'},
+
+  // ── STRATEGY ──
+  {cat:'Strategy',color:'#6C47FF',name:'Business Case & ROI',desc:'Build the financial case for a product investment',prompt:'Write a business case for: [INITIATIVE / FEATURE / PRODUCT].\n\nContext:\n- Investment required: [COST — engineering time, design, infra]\n- Timeline to deliver: [X weeks/sprints]\n- Primary metric it moves: [METRIC]\n- Current baseline: [CURRENT VALUE]\n- Target: [TARGET VALUE]\n- Revenue model: [HOW WE MAKE MONEY]\n\nProduce:\n## Executive summary\n3 sentences: what we are building, why now, and what return we expect.\n\n## Financial model\n| Scenario | Revenue impact | Cost | Net benefit | Payback period |\n|---|---|---|---|---|\n(Show pessimistic / base / optimistic)\n\n## Non-financial benefits\nBrand, retention, competitive, technical debt reduction — assign rough value where possible.\n\n## Cost of inaction\nWhat happens if we do not build this? Quantify where possible.\n\n## Risk-adjusted recommendation\nGiven the uncertainty, is this investment justified? What confidence level do we have in the numbers?\n\n## Ask\nExact resource ask with timeline and decision needed by date.'},
+  {cat:'Strategy',color:'#6C47FF',name:'Product Strategy Narrative',desc:'One-page product strategy for leadership alignment',prompt:'Write a one-page product strategy narrative for [PRODUCT / PRODUCT LINE].\n\nContext:\n- Company mission: [MISSION]\n- Our users: [USERS]\n- Current product stage: [STAGE]\n- Top 3 things working: [STRENGTHS]\n- Top 3 things not working: [GAPS]\n- 12-month OKR: [OKR]\n\nProduce in Situation-Complication-Resolution format:\n\n## Where we are (Situation)\nHonest assessment of current state — users, metrics, product maturity, competitive position.\n\n## What is at stake (Complication)\nThe specific threat or opportunity that makes this the moment to act. What changes if we do nothing?\n\n## Our strategic bet (Resolution)\nThe 1-2 focused bets we are making in the next 12 months. What we are choosing NOT to do is as important as what we are doing.\n\n## How we win\nOur theory of competitive advantage — why our approach will work when others have not.\n\n## Success looks like\n3 specific outcomes at 6 months and 12 months that would confirm the strategy is working.\n\n## What leadership needs to decide\nThe 1-2 decisions only leadership can make that will unlock or block this strategy.'},
+
+  // ── LAUNCH & GTM ──
+  {cat:'Launch',color:'#FF6B35',name:'GTM Launch Plan',desc:'Go-to-market plan from soft launch to full rollout',prompt:'Build a go-to-market plan for [FEATURE / PRODUCT LAUNCH].\n\nContext:\n- What we are launching: [DESCRIPTION]\n- Target users: [SEGMENT]\n- Launch date: [DATE]\n- Team involved: [MARKETING / SALES / CS / ENG]\n- Success metric: [PRIMARY KPI]\n\nProduce:\n## Launch objective\nOne sentence. Not "launch the feature" — the outcome we want users to experience.\n\n## Positioning statement\nFor [TARGET USER], [PRODUCT/FEATURE] is the [CATEGORY] that [BENEFIT], unlike [ALTERNATIVE] which [LIMITATION].\n\n## Launch tiers\n| Tier | Audience | Timing | Criteria to proceed |\n|---|---|---|---|\nAlpha → Beta → GA (define each for this launch)\n\n## Communication plan\n| Channel | Message | Owner | Date |\n(In-app, email, Slack/Teams, sales enablement, external)\n\n## Rollout & feature flag strategy\nHow we control rollout — percentage, segment, or flag-based?\n\n## Success metrics & measurement\nWhat we measure at Day 1, Week 1, Week 4. What triggers a rollback decision?\n\n## Risks and contingencies\nTop 3 launch risks with mitigation and rollback trigger.'},
+  {cat:'Launch',color:'#FF6B35',name:'Launch Checklist',desc:'Everything that must be done before, during, and after launch',prompt:'Create a launch readiness checklist for [FEATURE / PRODUCT].\n\nLaunch date: [DATE]\nTeam: [ROLES INVOLVED]\nAudience: [WHO WILL SEE THIS]\n\nOrganise into:\n\n## T-2 weeks (must be done before code freeze)\n[ ] AC signed off by PO\n[ ] QA regression complete\n[ ] Performance tested under [X] concurrent users\n[ ] Security review complete\n[ ] Feature flag configured and tested\n[ ] Rollback procedure documented and tested\n[ ] Data migration plan validated (if applicable)\n\n## T-1 week (must be done before launch day)\n[ ] Release notes drafted and reviewed\n[ ] Support team briefed\n[ ] Sales/CS enablement sent\n[ ] Analytics events verified in staging\n[ ] Monitoring and alerting configured\n[ ] Stakeholder preview completed\n\n## Launch day\n[ ] Feature flag turned on at [TIME]\n[ ] Monitoring dashboard open\n[ ] On-call engineer confirmed\n[ ] User comms sent\n[ ] Success metrics baselined\n\n## T+3 days (post-launch check)\n[ ] Key metrics reviewed vs baseline\n[ ] Support ticket volume checked\n[ ] Error rate normal\n[ ] Rollback decision: needed / not needed\n\n## Go / No-Go criteria\nWhat specific signal would cause us to delay or rollback? Who makes that call?'},
+  {cat:'Launch',color:'#FF6B35',name:'Stakeholder Comms Plan',desc:'Who needs to know what, when, and through which channel',prompt:'Build a stakeholder communication plan for [PROJECT / LAUNCH / CHANGE].\n\nContext:\n- What is happening: [DESCRIPTION]\n- Timeline: [KEY DATES]\n- Impact on stakeholders: [HOW IT AFFECTS THEM]\n- Decision maker: [WHO]\n- Communicator: [WHO IS SENDING COMMS]\n\nProduce:\n## Stakeholder power/interest map\n| Stakeholder | Role | Power (H/M/L) | Interest (H/M/L) | Quadrant | Strategy |\n\n## Communication matrix\n| Stakeholder | What they need to know | Format | Frequency | Owner | First comms by |\n\n## Key messages per audience\nFor each high-power or high-interest stakeholder: the 2-3 things they care about most, written in their language (not product language).\n\n## Escalation path\nIf a stakeholder is unhappy or raises a blocker — who escalates, to whom, and in what timeframe?\n\n## What NOT to communicate\nInformation that would create confusion or premature concern — and when it becomes appropriate to share it.'},
+
+  // ── MEASUREMENT ──
+  {cat:'Metrics',color:'#E91E8C',name:'Post-Launch Review',desc:'Structured review 4 weeks after launch',prompt:'Write a post-launch review for [FEATURE / PRODUCT LAUNCH].\n\nLaunch date: [DATE]\nReview date: [DATE — ideally 4 weeks post-launch]\nProduct: [PRODUCT]\n\nFill in and then analyse:\n\n## Launch objective (from GTM plan)\n[Copy the original objective here]\n\n## Metrics outcome\n| Metric | Target | Actual (Week 1) | Actual (Week 4) | Assessment |\n\n## What worked\nThe 3 things that went well — in evidence, not opinion.\n\n## What did not work\nThe 3 things that underperformed — with the honest reason why.\n\n## User feedback\nTop themes from support tickets, NPS responses, in-app feedback, or sales calls since launch.\n\n## Surprises\nWhat happened that we did not expect — good or bad?\n\n## Decision: continue, pivot, or stop\nBased on the evidence — should we invest more in this feature, change direction, or stop?\n\n## Next 4 weeks\nIf continuing: the one highest-leverage improvement to make.\nIf pivoting: what we are changing and why.\nIf stopping: what we will do with the existing users of this feature.'},
+  {cat:'Metrics',color:'#E91E8C',name:'HEART Metrics Framework',desc:'Google HEART model for UX quality measurement',prompt:'Define HEART metrics for [PRODUCT / FEATURE].\n\nProduct context:\n- Product: [PRODUCT]\n- Primary users: [USERS]\n- Current stage: [STAGE]\n- Top measurement gap: [WHAT WE CANNOT CURRENTLY SEE]\n\nFor each HEART dimension, produce:\n| Dimension | Goal | Signal | Metric | Current baseline | Target |\n\nDimensions:\n- Happiness (satisfaction, ease of use, NPS)\n- Engagement (depth and frequency of use)\n- Adoption (new users reaching activation)\n- Retention (users returning, churn)\n- Task Success (completion rate, error rate, time-on-task)\n\nThen:\n## Top 3 metrics to instrument now\nPick the 3 that give the highest signal-to-noise for our current product stage.\n\n## How to measure each\nSpecific events to instrument, query to write, or survey to send.\n\n## HEART anti-patterns to avoid\nThe vanity metrics that look good but do not tell us if users are succeeding.'},
+
+  // ── RISK & GOVERNANCE ──
+  {cat:'Risk',color:'#FF5252',name:'Decision Log',desc:'Document key product decisions with rationale and trade-offs',prompt:'Create a decision log entry for this product decision.\n\nDecision: [WHAT WAS DECIDED]\nDate: [DATE]\nDecision maker: [WHO]\nContext: [WHAT TRIGGERED THIS DECISION]\n\nProduce a structured decision record:\n\n## Decision statement\nOne clear sentence: what we decided and what we did not decide.\n\n## Context\nWhat situation made this decision necessary? What would have happened without a decision?\n\n## Options considered\n| Option | Pros | Cons | Effort | Risk |\n(List all serious options, not just the chosen one)\n\n## Decision rationale\nWhy this option over the others. What evidence or principles drove the choice?\n\n## Trade-offs accepted\nWhat are we giving up by making this decision? Who is most affected?\n\n## Assumptions this depends on\nIf these assumptions turn out to be wrong, the decision should be revisited.\n\n## Reversal difficulty\nHow hard is this to undo? (Easy / Moderate / Hard — one-way door)\n\n## Review trigger\nThe specific signal or date that should prompt us to revisit this decision.'},
+  {cat:'Risk',color:'#FF5252',name:'Incident & Hotfix Plan',desc:'Structured response to production incidents',prompt:'Write an incident response and hotfix plan for: [INCIDENT DESCRIPTION].\n\nContext:\n- Product / system affected: [SYSTEM]\n- Users impacted: [HOW MANY / WHO]\n- Severity: [P1 Critical / P2 High / P3 Medium]\n- Time detected: [TIME]\n- Current status: [ONGOING / RESOLVED]\n\nProduce:\n## Incident summary\nWhat happened, when, and what is the user impact in plain language.\n\n## Immediate actions (next 60 minutes)\n1. Who is the incident commander?\n2. Who is investigating the root cause?\n3. Who is communicating to users/stakeholders?\n4. Is a rollback or feature flag disable the fastest mitigation?\n\n## Root cause analysis (5 Whys)\nWhy → Why → Why → Why → Why\n\n## Hotfix plan\n- Fix: what change resolves the immediate user impact\n- Risk of the hotfix: what could the fix break?\n- Test: minimum test to validate before deploying\n- Deploy: who, when, and how\n\n## Stakeholder comms\n| Audience | Message | Channel | By when |\n\n## Prevention\nThe process change, monitoring, or test that would have caught this before it reached production.\n\n## Post-mortem scheduled\nDate: ___  Owner: ___  Format: blameless review'},
+
+  // ── STORY & IMPACT MAPPING ──
+  {cat:'Story Craft',color:'#00D4AA',name:'Story Mapping',desc:'User journey → epics → stories in a visual map',prompt:'Build a story map for [FEATURE / PRODUCT AREA].\n\nUsers: [WHO USES THIS]\nUser goal: [WHAT THEY ARE TRYING TO ACCOMPLISH]\n\nProduce:\n\n## User journey (backbone)\nThe sequence of activities in the order the user performs them:\nActivity 1 → Activity 2 → Activity 3 → Activity 4 → ...\n\n## Story map table\n| User Activity | Epic | User Story (MVP) | User Story (v2) | User Story (v3) |\n|---|---|---|---|---|\n\nFor each activity: list the epic it belongs to, then the user stories underneath in priority slices.\n\n## Release slices\nMVP slice: which stories must be in the first release to deliver a walking skeleton?\nv2 slice: what makes it genuinely useful to most users?\nv3 slice: what delights power users?\n\n## The walking skeleton\nThe thinnest possible end-to-end version — one story per activity that proves the journey works.'},
+  {cat:'Story Craft',color:'#00D4AA',name:'Impact Mapping',desc:'WHY → WHO → HOW → WHAT structured map',prompt:'Build an impact map for: [GOAL / INITIATIVE].\n\nBusiness goal: [SPECIFIC MEASURABLE GOAL]\nDeadline: [DATE]\nContext: [PRODUCT / MARKET SITUATION]\n\nProduce a structured impact map:\n\n## WHY\nThe one specific, measurable business goal. Not "improve UX" — "increase checkout completion from 42% to 60% by Q3".\n\n## WHO (Actors)\nList all actors who can help or hinder achieving the goal:\n- Primary actors: [users / customers who directly create value]\n- Secondary actors: [stakeholders, partners, internal teams]\n- Negative actors: [who might resist or block progress]\n\n## HOW (Impacts)\nFor each actor: what behaviour change do we need from them?\nFormat: [Actor] needs to [BEHAVIOUR CHANGE] so that [OUTCOME]\n\n## WHAT (Deliverables)\nFor each impact: the minimum deliverable that would cause that behaviour change.\n\n## Prioritised assumption list\nWhich impact → deliverable links have the most uncertainty? Test these first before building.'},
+
+  // ── STRATEGIC FRAMEWORKS ──
+  {cat:'Strategy',color:'#6C47FF',name:'Lean Canvas',desc:'One-page business model for a new product or feature',prompt:'Complete a Lean Canvas for: [PRODUCT / FEATURE / BUSINESS MODEL].\n\nFill in each block:\n\n## Problem\nTop 3 problems you are solving. For each: existing alternative users use today.\n\n## Customer Segments\nTarget customers. Early adopters: who specifically will use this first and why?\n\n## Unique Value Proposition\nSingle clear message: why you are different and worth attention.\n"[Verb] [customer segment] [outcome] without [pain]"\n\n## Solution\nTop 3 features — the minimum needed to address the top 3 problems.\n\n## Channels\nHow you reach customers. Free vs paid. Inbound vs outbound.\n\n## Revenue Streams\nHow you make money. Price point and why. Revenue model (transactional / subscription / usage).\n\n## Cost Structure\nTop 3 cost drivers. Customer acquisition cost. Running costs.\n\n## Key Metrics\nThe one number that tells you the business is working. Leading and lagging indicators.\n\n## Unfair Advantage\nWhat cannot be easily copied or bought. If you cannot name one, that is your biggest risk.'},
+  {cat:'Strategy',color:'#6C47FF',name:'Value Proposition Canvas',desc:'Customer jobs, pains, gains vs product fit',prompt:'Build a Value Proposition Canvas for [PRODUCT / FEATURE] targeting [CUSTOMER SEGMENT].\n\n## Customer Profile\n\n### Jobs to be Done\n- Functional jobs: tasks they are trying to complete\n- Social jobs: how they want to be perceived\n- Emotional jobs: how they want to feel\nRank by importance: which job matters most?\n\n### Pains\n- Obstacles: what prevents them from getting the job done?\n- Risks: what could go wrong?\n- Undesired outcomes: negative results they experience today\nRank by severity: which pain is most extreme?\n\n### Gains\n- Required gains: minimum expectations\n- Expected gains: what they assume will be there\n- Desired gains: what would surprise and delight them\nRank by relevance: which gain matters most?\n\n## Value Map\n\n### Pain Relievers\nHow does our product eliminate or reduce pains? Map each reliever to a specific pain.\n\n### Gain Creators\nHow does our product create gains? Map each creator to a specific gain.\n\n### Products and Services\nThe specific features that deliver the pain relief and gains.\n\n## Fit Assessment\nWhich pains are we NOT relieving? Which gains are we NOT creating?\nWhat is the biggest gap between customer needs and our current product?'},
+  {cat:'Discovery',color:'#0EA5E9',name:'Opportunity Solution Tree',desc:'OST connecting outcomes to opportunities to solutions',prompt:'Build an Opportunity Solution Tree for: [DESIRED OUTCOME].\n\nProduct: [PRODUCT]\nDesired outcome: [SPECIFIC MEASURABLE OUTCOME — e.g. increase checkout completion by 15%]\nUser segment: [WHO]\n\nProduce:\n\n## Desired Outcome (root)\n[Restate as a specific, measurable product outcome that balances user value and business value]\n\n## Opportunities (layer 2)\nUnmet needs, pain points, and desires that stand between the user and the outcome.\nFor each opportunity:\n- Evidence: what data, research, or signal tells us this is real?\n- Frequency: how often does this affect users?\n- Severity: how much does it prevent them from achieving their goal?\n\n## Solutions (layer 3)\nFor each opportunity: 3 potential solutions (not all of them yours to build — include non-product solutions).\n\n## Experiment (layer 4)\nFor each solution: the fastest, cheapest experiment to test the assumption.\n| Solution | Assumption | Experiment | Cost | Timeline |\n\n## Which branch to pursue first\nThe opportunity with the most evidence, highest frequency, and most testable solutions.'},
+  {cat:'Discovery',color:'#0EA5E9',name:'Double Diamond',desc:'Discover → Define → Develop → Deliver process',prompt:'Run a Double Diamond process for: [PROBLEM AREA / OPPORTUNITY].\n\nContext:\n- Product: [PRODUCT]\n- Trigger: [WHAT CAUSED US TO EXPLORE THIS]\n- Constraint: [TIME / BUDGET / TEAM AVAILABLE]\n\n## Diamond 1: Discover (Diverge)\nWhat research should we do to understand the problem space broadly?\n- User research methods: [which methods, how many participants, what questions]\n- Data sources to analyse: [analytics, support tickets, NPS, sales calls]\n- Competitor landscape: [who to look at and what to look for]\nOutput: raw insights before any filtering\n\n## Diamond 1: Define (Converge)\nNarrow from research to a specific problem statement.\n- Top 3 insights from discovery\n- Point of view statement: "[User] needs [NEED] because [INSIGHT]"\n- How Might We questions: 5 HMW questions that open up the right solution space\n- Problem statement we are committing to solve\n\n## Diamond 2: Develop (Diverge)\nGenerate multiple solution concepts — do not evaluate yet.\n- Concept 1: [WILD IDEA]\n- Concept 2: [INCREMENTAL IMPROVEMENT]\n- Concept 3: [OUTSIDE YOUR INDUSTRY ANALOGY]\n- Concept 4: [TECHNOLOGY-LED]\n- Concept 5: [USER-LED]\n\n## Diamond 2: Deliver (Converge)\nSelect and refine one concept into a testable prototype.\n- Selected concept and why\n- Prototype plan: what to build, at what fidelity, to test what assumption\n- Test plan: who, how, success criteria'},
+
+  // ── REQUIREMENTS ──
+  {cat:'Story Craft',color:'#00D4AA',name:'Non-Functional Requirements',desc:'Performance, security, scalability, accessibility requirements',prompt:'Write non-functional requirements for [SYSTEM / FEATURE].\n\nContext:\n- Product: [PRODUCT]\n- Users: [USERS + SCALE — e.g. 10,000 concurrent users at peak]\n- Regulatory environment: [UAE PDPL / GDPR / PCI / WCAG / none]\n- Architecture: [CLOUD / ON-PREM / HYBRID]\n\nProduce requirements in each category. Every requirement must be measurable (pass/fail):\n\n## Performance\n- Response time: [API endpoint] must respond in < [X]ms at [Y] concurrent users (P95)\n- Throughput: system must handle [X] transactions per second\n- Page load: first contentful paint < [X]s on [DEVICE] at [CONNECTION]\n\n## Availability & Reliability\n- Uptime SLA: [X]% per month (calculate maximum allowed downtime)\n- RTO (Recovery Time Objective): [X] hours\n- RPO (Recovery Point Objective): [X] hours of data loss maximum\n\n## Security\n- Authentication: [MFA / SSO / password policy]\n- Authorisation: [RBAC levels required]\n- Data encryption: at rest and in transit\n- Audit logging: which events must be logged and for how long\n\n## Scalability\n- Horizontal scaling: system must scale to [X]x current load without architecture changes\n- Data growth: must support [X] years of data at [X]% growth per year\n\n## Accessibility\n- Standard: WCAG [2.1 / 2.2] Level [A / AA / AAA]\n- Specific: [keyboard navigation / screen reader / colour contrast]\n\n## Compliance\n- [Regulatory requirement]: [what must be implemented and by when]'},
+  {cat:'Story Craft',color:'#00D4AA',name:'Feature Flag Strategy',desc:'Plan and manage feature flag lifecycle',prompt:'Write a feature flag strategy for [FEATURE].\n\nContext:\n- Feature: [WHAT WE ARE FLAGGING]\n- Release approach: [DARK LAUNCH / BETA / % ROLLOUT / FULL GA]\n- Risk level: [HIGH — touches payments/data / MEDIUM / LOW]\n- Target audience for early access: [SEGMENT]\n\nProduce:\n\n## Flag definition\n- Flag name: [naming convention: product.area.feature]\n- Flag type: [release / experiment / ops / permission]\n- Default state: [off everywhere / on for internal / on for beta]\n\n## Rollout plan\n| Phase | Audience | % Traffic | Duration | Go criteria | Rollback trigger |\n|---|---|---|---|---|---|\nPhase 1 → Phase 2 → Phase 3 → GA\n\n## Monitoring during rollout\n- Key metrics to watch during each phase\n- Error rate threshold that triggers automatic rollback\n- Who is on-call during each phase transition\n\n## Kill switch criteria\nThe specific signal that causes immediate flag disable. Who has the authority to trigger it.\n\n## Flag retirement plan\nWhen does this flag get removed from the codebase? What is the cleanup ticket? Who owns it?\nFlags that live forever become permanent technical debt — set a removal date at creation.\n\n## Dependency mapping\nWhich other features, APIs, or services does this flag interact with? What breaks if the flag is off while dependencies are on?'},
 ];
 
 const DOC_CONFIGS={
   'prd':{title:'📋 PRD Generator',fields:[{id:'prd-feature',label:'Feature / Product Name',placeholder:'e.g. Smart Search'},{id:'prd-problem',label:'Problem to solve',placeholder:"e.g. Users can't find results"},{id:'prd-users',label:'Target users',placeholder:'e.g. Power users, 500 accounts'},{id:'prd-goal',label:'Success metric',placeholder:'e.g. Search success rate > 80%'}]},
-  'user-story':{title:'✍️ User Story + AC Generator',fields:[{id:'us-feature',label:'Feature',placeholder:'e.g. Password reset flow'},{id:'us-user',label:'User persona',placeholder:'e.g. Registered user'},{id:'us-goal',label:'User goal',placeholder:'e.g. Regain access'},{id:'us-edge',label:'Edge cases',placeholder:'e.g. Expired token'}]},
+  'user-story':{title:'✍️ User Story + AC Generator',fields:[{id:'us-feature',label:'Feature name',placeholder:'e.g. Password reset flow'},{id:'us-user',label:'User persona',placeholder:'e.g. Registered property buyer'},{id:'us-goal',label:'User goal',placeholder:'e.g. Regain access to their account'},{id:'us-edge',label:'Edge cases / constraints',placeholder:'e.g. Expired token, locked account, SSO user'},{id:'us-complexity',label:'Complexity signals (optional)',placeholder:'e.g. Touches auth service, 3 APIs, needs email + SMS'}]},
   'okr':{title:'🎯 OKR Document Generator',fields:[{id:'okr-quarter',label:'Quarter',placeholder:'e.g. Q2 2025'},{id:'okr-focus',label:'Focus area',placeholder:'e.g. User activation'},{id:'okr-company',label:'Company goal',placeholder:'e.g. Reach 10k MAU'},{id:'okr-constraints',label:'Constraints',placeholder:'e.g. 4 engineers, 3 sprints'}]},
   'release-notes':{title:'📣 Release Notes Generator',fields:[{id:'rn-version',label:'Version / Release name',placeholder:'e.g. v2.3'},{id:'rn-features',label:'New features',placeholder:'e.g. Search filters, CSV export'},{id:'rn-fixes',label:'Bugs fixed',placeholder:'e.g. Login timeout'},{id:'rn-audience',label:'Audience',placeholder:'e.g. B2B SaaS customers'}]},
   'exec-brief':{title:'💼 Exec Brief Generator',fields:[{id:'eb-topic',label:'Topic',placeholder:'e.g. Q2 Roadmap Investment'},{id:'eb-ask',label:'What you need',placeholder:'e.g. Approval for 2 engineers'},{id:'eb-impact',label:'Business impact',placeholder:'e.g. 15% churn reduction'},{id:'eb-risks',label:'Risks if not approved',placeholder:'e.g. Competitor parity lost'}]},
   'risk-register':{title:'⚠️ Risk Register Generator',fields:[{id:'rr-project',label:'Project / Launch',placeholder:'e.g. Mobile app v3'},{id:'rr-timeline',label:'Timeline',placeholder:'e.g. 6 weeks'},{id:'rr-context',label:'Key context',placeholder:'e.g. New payment provider'},{id:'rr-team',label:'Team',placeholder:'e.g. 3 engineers, 1 designer'}]},
   'sprint-goal':{title:'🚀 Sprint Goal Generator',fields:[{id:'sg-number',label:'Sprint number',placeholder:'e.g. Sprint 14'},{id:'sg-items',label:'Sprint items',placeholder:'e.g. Search redesign, API limits'},{id:'sg-theme',label:'Theme',placeholder:'e.g. Search quality'},{id:'sg-metric',label:'Success indicator',placeholder:'e.g. Search rate up 10%'}]},
-  'hypothesis':{title:'🔬 Hypothesis Doc Generator',fields:[{id:'hyp-problem',label:'Problem',placeholder:'e.g. Drop-off at step 3'},{id:'hyp-solution',label:'Solution',placeholder:'e.g. Add progress indicator'},{id:'hyp-metric',label:'Primary metric',placeholder:'e.g. Completion rate'},{id:'hyp-baseline',label:'Baseline',placeholder:'e.g. 42% completion'}]}
+  'hypothesis':{title:'🔬 Hypothesis Doc Generator',fields:[{id:'hyp-problem',label:'Problem',placeholder:'e.g. Drop-off at step 3'},{id:'hyp-solution',label:'Solution',placeholder:'e.g. Add progress indicator'},{id:'hyp-metric',label:'Primary metric',placeholder:'e.g. Completion rate'},{id:'hyp-baseline',label:'Baseline',placeholder:'e.g. 42% completion'}]},
+  'gtm':{title:'🚀 GTM Launch Plan',fields:[{id:'gtm-feature',label:'What are you launching?',placeholder:'e.g. In-app payment flow v2'},{id:'gtm-users',label:'Target users',placeholder:'e.g. Property buyers, UAE'},{id:'gtm-date',label:'Launch date',placeholder:'e.g. 15 Apr 2026'},{id:'gtm-metric',label:'Primary success metric',placeholder:'e.g. Checkout completion rate > 60%'},{id:'gtm-team',label:'Teams involved',placeholder:'e.g. Product, Marketing, CS, Engineering'}]},
+  'business-case':{title:'💰 Business Case & ROI',fields:[{id:'bc-initiative',label:'Initiative name',placeholder:'e.g. AI-powered property search'},{id:'bc-cost',label:'Investment required',placeholder:'e.g. 3 engineers × 6 sprints, $120k'},{id:'bc-metric',label:'Primary metric it moves',placeholder:'e.g. Search-to-enquiry conversion'},{id:'bc-baseline',label:'Current baseline',placeholder:'e.g. 2.3% conversion'},{id:'bc-target',label:'Target',placeholder:'e.g. 4% conversion = AED 8M incremental revenue'}]},
+  'post-launch':{title:'📊 Post-Launch Review',fields:[{id:'pl-launch',label:'What was launched',placeholder:'e.g. New property listing flow'},{id:'pl-date',label:'Launch date',placeholder:'e.g. 1 Mar 2026'},{id:'pl-metric1',label:'Primary metric: target vs actual',placeholder:'e.g. Checkout rate: 60% target → 54% actual'},{id:'pl-metric2',label:'Secondary metric: target vs actual',placeholder:'e.g. Support tickets: <10/day → 18/day actual'},{id:'pl-feedback',label:'Key user feedback themes',placeholder:'e.g. Slow on mobile, confused by pricing display'}]},
+  'decision-log':{title:'📋 Decision Log Entry',fields:[{id:'dl-decision',label:'What was decided',placeholder:'e.g. Use third-party payment gateway instead of building in-house'},{id:'dl-context',label:'Why a decision was needed',placeholder:'e.g. Payment deadline in 3 weeks, internal build = 12 weeks'},{id:'dl-options',label:'Options considered',placeholder:'e.g. Build in-house, Stripe, PayFort, Telr'},{id:'dl-rationale',label:'Why this option',placeholder:'e.g. PayFort: fastest UAE compliance, team has prior integration'}]}
 };
 
 const DOC_PROMPTS={
   'prd':(f)=>`Write a comprehensive PRD for: "${f['prd-feature']}". Problem: ${f['prd-problem']}. Users: ${f['prd-users']}. Success metric: ${f['prd-goal']}. Include: Executive Summary, Problem Statement, Goals & Success Metrics, 3 User Stories, Functional Requirements, Non-functional Requirements, Out of Scope, Open Questions, Timeline estimate.${getCtx()}`,
-  'user-story':(f)=>`Write a complete user story with full acceptance criteria. Feature: "${f['us-feature']}". User: ${f['us-user']}. Goal: ${f['us-goal']}. Edge cases: ${f['us-edge']}. Include: story statement, INVEST check, 5+ BDD Given/When/Then criteria, edge case scenarios, definition of done.${getCtx()}`,
+  'user-story':(f)=>`Write a production-ready user story with full acceptance criteria and story point estimate.
+
+Feature: "${f['us-feature']}"
+User persona: ${f['us-user']}
+User goal: ${f['us-goal']}
+Known edge cases: ${f['us-edge']}
+Complexity signals: ${f['us-complexity']||'not specified'}
+
+Produce in this exact format:
+
+## User Story
+As a [persona], I want to [action], so that [benefit].
+
+## INVEST Check
+- Independent: [pass/fail — reason]
+- Negotiable: [pass/fail — reason]
+- Valuable: [pass/fail — reason]
+- Estimable: [pass/fail — reason]
+- Small: [pass/fail — reason]
+- Testable: [pass/fail — reason]
+
+## Acceptance Criteria (BDD format — minimum 5)
+**Scenario 1: Happy path**
+Given [context]
+When [action]
+Then [expected outcome]
+
+[Repeat for each scenario — include at minimum: happy path, validation error, edge case, permission/auth check, system failure]
+
+## Story Point Estimate
+Use Fibonacci only: 1, 2, 3, 5, 8, 13
+Estimate: [X SP]
+Rationale: [Why this size — what makes it uncertain, what the complexity driver is]
+Split if >5 SP: [Yes/No — if yes, how to split]
+
+## Definition of Done
+- [ ] All AC scenarios pass
+- [ ] Unit tests written and passing
+- [ ] QA sign-off obtained
+- [ ] Edge cases tested
+- [ ] No new accessibility violations
+- [ ] PO acceptance confirmed${getCtx()}`,
   'okr':(f)=>`Write a complete OKR document for ${f['okr-quarter']}. Focus: ${f['okr-focus']}. Company goal: ${f['okr-company']}. Constraints: ${f['okr-constraints']}. Include: 1 Objective, 3-4 Key Results each with baseline/target/measurement, 3-5 initiatives per KR, owners, check-in cadence.${getCtx()}`,
   'release-notes':(f)=>`Write user-friendly release notes for ${f['rn-version']}. New features: ${f['rn-features']}. Fixes: ${f['rn-fixes']}. Audience: ${f['rn-audience']}. Include: headline benefit, What's New (benefit-led), What's Improved, What's Fixed, CTA. Plain language only.${getCtx()}`,
   'exec-brief':(f)=>`Write a one-page executive brief. Topic: ${f['eb-topic']}. Ask: ${f['eb-ask']}. Impact: ${f['eb-impact']}. Risks: ${f['eb-risks']}. Include: Situation summary, Recommendation, Business case, Risks of inaction, Resource ask, Next steps.${getCtx()}`,
   'risk-register':(f)=>`Build a risk register for: ${f['rr-project']}. Timeline: ${f['rr-timeline']}. Context: ${f['rr-context']}. Team: ${f['rr-team']}. Identify 8-10 risks each with: Risk ID, Category, Description, Likelihood (H/M/L), Impact (H/M/L), Risk Score, Owner, Mitigation, Contingency.${getCtx()}`,
   'sprint-goal':(f)=>`Write a sprint goal document for ${f['sg-number']}. Items: ${f['sg-items']}. Theme: ${f['sg-theme']}. Success: ${f['sg-metric']}. Include: Sprint Goal (inspiring 1-2 sentences), Why it matters, Scope, What success looks like, Risks, Team kick-off checklist.${getCtx()}`,
-  'hypothesis':(f)=>`Write a hypothesis and experiment document. Problem: ${f['hyp-problem']}. Solution: ${f['hyp-solution']}. Metric: ${f['hyp-metric']}. Baseline: ${f['hyp-baseline']}. Include: Hypothesis (If/Then/Because), Assumptions, Experiment design, Success criteria, MDE, Duration, How to interpret results.${getCtx()}`
+  'hypothesis':(f)=>`Write a hypothesis and experiment document. Problem: ${f['hyp-problem']}. Solution: ${f['hyp-solution']}. Metric: ${f['hyp-metric']}. Baseline: ${f['hyp-baseline']}. Include: Hypothesis (If/Then/Because), Assumptions, Experiment design, Success criteria, MDE, Duration, How to interpret results.${getCtx()}`,
+  'gtm':(f)=>`Write a complete go-to-market launch plan. What we are launching: "${f['gtm-feature']}". Target users: ${f['gtm-users']}. Launch date: ${f['gtm-date']}. Primary success metric: ${f['gtm-metric']}. Teams: ${f['gtm-team']}. Include: Launch objective, Positioning statement (For [user], [product] is the [category] that [benefit], unlike [alternative]), Launch tiers (Alpha/Beta/GA with criteria), Communication plan (channel, message, owner, date), Rollout strategy, Success metrics at Day 1 / Week 1 / Week 4, Top 3 risks with mitigation, Rollback trigger.${getCtx()}`,
+  'business-case':(f)=>`Write a business case and ROI model. Initiative: "${f['bc-initiative']}". Investment: ${f['bc-cost']}. Primary metric: ${f['bc-metric']}. Current baseline: ${f['bc-baseline']}. Target: ${f['bc-target']}. Include: Executive summary (3 sentences), Financial model with pessimistic/base/optimistic scenarios showing revenue impact, cost, net benefit, and payback period, Non-financial benefits, Cost of inaction, Risk-adjusted recommendation with confidence level, and the exact resource ask.${getCtx()}`,
+  'post-launch':(f)=>`Write a structured post-launch review. Launch: "${f['pl-launch']}". Launch date: ${f['pl-date']}. Primary metric — ${f['pl-metric1']}. Secondary metric — ${f['pl-metric2']}. User feedback themes: ${f['pl-feedback']}. Include: Original launch objective (state it clearly), Metrics outcome table (target vs actual Week 1 vs Week 4), What worked (3 items with evidence), What did not work (3 items with honest reason), User feedback synthesis, Surprises, Decision (continue/pivot/stop) with rationale, and Next 4 weeks actions.${getCtx()}`,
+  'decision-log':(f)=>`Write a structured decision log entry. Decision: "${f['dl-decision']}". Context: ${f['dl-context']}. Options considered: ${f['dl-options']}. Chosen option rationale: ${f['dl-rationale']}. Include: Decision statement (one sentence), Context, Options table (each option with pros/cons/effort/risk), Decision rationale, Trade-offs accepted, Assumptions this depends on, Reversal difficulty (one-way/two-way door), and Review trigger (what signal or date would cause us to revisit this).${getCtx()}`
 };
 
 const QA_PROMPTS={
@@ -2054,10 +2203,191 @@ const QA_PROMPTS={
   'sprint-review': null, // handled by getSprintReviewPrompt()
   'retro': null, // handled by getRetroPrompt()
   'premortem':'Run a pre-mortem on our upcoming release. List the top 10 specific, realistic ways this could fail. For each failure mode: likelihood (H/M/L), business impact (H/M/L), and the single most effective mitigation action. End with a ranked list of the 3 risks that need immediate action this sprint.',
-  'grooming':'Facilitate a backlog grooming session. For each story I describe: 1) Flag any missing acceptance criteria and write them in BDD format. 2) Check INVEST criteria — flag which are violated. 3) Identify hidden technical risks or dependencies. 4) Re-estimate effort if the story is too large (split if >8 SP). 5) Mark as Ready or Not Ready with specific reasons.',
+  'grooming':`Facilitate a backlog grooming session. I will describe each story — work through them one by one.
+
+For each story, produce this exact structure:
+
+**Story: [STORY TITLE]**
+
+INVEST Check:
+- Independent: [pass/fail — one sentence reason]
+- Negotiable: [pass/fail — one sentence reason]
+- Valuable: [pass/fail — one sentence reason]
+- Estimable: [pass/fail — one sentence reason]
+- Small: [pass/fail — one sentence reason]
+- Testable: [pass/fail — one sentence reason]
+
+Missing AC (write in BDD format):
+Given / When / Then for each missing scenario.
+
+Technical risks / dependencies:
+[List unknowns that need a spike. If none, say "None identified".]
+
+Story point estimate (Fibonacci only — 1, 2, 3, 5, 8, 13):
+Estimate: [X SP]
+Sizing rationale: [What is the complexity driver]
+Split if >5 SP: [Yes — how to split / No]
+
+Readiness verdict: [READY FOR PLANNING / NOT READY]
+Reason: [One specific sentence]
+
+---
+
+After all stories:
+## Refinement Summary
+| Story | SP | Status | Blocker |
+|---|---|---|---|
+
+- Total SP if all selected: [X]
+- Ready for next sprint: [list]
+- Needs more work: [list with specific action and owner]
+- Spikes to timebox before planning: [list with suggested days]`,
   'release-notes':'Write a user-facing release note. Structure: 1) One-sentence headline — the single biggest benefit to the user. 2) What\'s New — each feature described in terms of the user benefit, not the technical change. 3) What\'s Improved — performance, reliability, or UX improvements. 4) What\'s Fixed — bugs resolved, named simply. 5) Call to action. Use plain language. No jargon. No passive voice.',
   'devil':'Challenge my current product strategy as a principal consultant would. Identify: 1) The assumptions I am making that have the least evidence. 2) The risks I am not talking about. 3) The user needs I might be ignoring. 4) The competitive moves that would invalidate this strategy. 5) The single most uncomfortable truth about this strategy. Be direct. Do not soften this.',
-  'score':'RICE score all items in my backlog. For each item: estimate Reach (users/quarter), Impact (1-3), Confidence (%), and Effort (days). Calculate RICE score. Sort by score. Flag any item where the confidence is below 60% — these need discovery before committing.',
+  'score':`RICE score all items in my backlog. 
+
+RICE formula: (Reach × Impact × Confidence) ÷ Effort
+
+Definitions:
+- Reach: users affected per quarter (number)
+- Impact: 3 = massive, 2 = high, 1 = medium, 0.5 = low, 0.25 = minimal
+- Confidence: % certainty in your estimates (100% = high data, 50% = guess)
+- Effort: person-MONTHS (not days) — e.g. 0.5 = 2 weeks of one person
+
+For each item in my backlog, produce:
+
+| Story | Reach | Impact | Conf% | Effort (PM) | RICE Score | Priority |
+|---|---|---|---|---|---|---|
+
+After the table:
+- Top 3 to commit next sprint and why
+- Items where Confidence < 60% — these need discovery first, not building
+- Items that are high Effort low RICE — cut or descope
+- The single item the team is probably over-estimating in Impact`,
+
+  'bug-triage':`Facilitate a structured bug triage session.
+
+I will describe the bugs — work through them one by one.
+
+For each bug, produce:
+
+**Bug: [TITLE]**
+- Severity: P1 Critical (system down / data loss) / P2 High (major feature broken) / P3 Medium (degraded experience) / P4 Low (cosmetic / minor)
+- User impact: how many users affected and what they cannot do
+- Reproducibility: always / intermittent / rare
+- Root cause hypothesis: most likely cause in one sentence
+- Fix complexity: hours / days / sprint
+- Decision: Fix now (this sprint) / Fix next sprint / Defer / Won't fix — reason
+- If deferring: workaround for affected users?
+
+After all bugs:
+## Triage Summary
+| Bug | Severity | Fix complexity | Decision | Owner |
+|---|---|---|---|---|
+
+- P1/P2 bugs must ship before or with next release — list them
+- Total sprint capacity consumed by fixes: [X SP]
+- If > 30% of sprint capacity is bug fixes: flag this as a quality debt signal`,
+
+  'launch-check':`Create a launch readiness assessment for our upcoming release.
+
+Fill in before sending:
+- What we are launching: [FEATURE / RELEASE]
+- Launch date: [DATE]
+- Primary success metric: [METRIC]
+
+Assess readiness across these gates:
+
+## Code & Quality
+[ ] All stories in sprint meet Definition of Done
+[ ] Regression suite passed
+[ ] Performance tested under expected load
+[ ] Security review completed
+[ ] Accessibility checked (WCAG 2.1 AA)
+
+## Feature & Config
+[ ] Feature flags configured and tested
+[ ] Rollback procedure documented and tested in staging
+[ ] Analytics events firing correctly
+[ ] Error monitoring and alerting configured
+
+## People & Comms
+[ ] Support team briefed on new behaviour
+[ ] Release notes drafted and approved
+[ ] Stakeholder preview completed
+[ ] On-call engineer confirmed for launch window
+
+## Go / No-Go
+For each gate: Green (ready) / Amber (risk accepted) / Red (blocking)
+
+Overall verdict: GO / NO-GO / CONDITIONAL GO
+
+If conditional: the specific condition that must be met before we proceed.`,
+
+  'rollback':`Build a rollback plan for: [FEATURE / RELEASE].
+
+Context:
+- What was shipped: [DESCRIPTION]
+- Rollback trigger: what signal would make us rollback?
+- Feature flag available: YES / NO
+- Data migration involved: YES (describe) / NO
+
+Produce:
+
+## Rollback decision criteria
+Specific, measurable signals that trigger an immediate rollback decision:
+1. Error rate > [X]%
+2. [KEY METRIC] drops below [X]
+3. P1 bug affecting [X]% of users
+Who makes the rollback call, and what is the response time target?
+
+## Rollback steps (in order)
+1. [Disable feature flag / revert deploy / restore DB snapshot]
+2. Verify rollback successful: how do we confirm it worked?
+3. User communication: what do we tell affected users and when?
+4. Stakeholder notification: who, what channel, within how long?
+
+## Data considerations
+If a migration ran: what is the data state after rollback? Are there orphaned records? Is rollback safe for data integrity?
+
+## Post-rollback actions
+- Incident severity: P1 / P2 / P3
+- Post-mortem: scheduled within [24h / 48h]
+- What must be fixed before we re-launch?`,
+
+  'assumption-map':`Build an assumption map for what we are about to build.
+
+Fill in before sending:
+- Feature / initiative: [WHAT WE ARE PLANNING]
+- User: [WHO IT IS FOR]
+- Core hypothesis: [WHY WE THINK THEY WANT THIS]
+- Sprint / timeline: [WHEN WE ARE BUILDING IT]
+
+Produce:
+
+## Assumption inventory
+List every assumption we are making. Tag each as:
+- 🧑 User behaviour (they will do X)
+- 📈 Market (opportunity is X size)
+- ⚙️ Technical (we can build X in X time)
+- 💰 Business (this will drive X metric)
+
+## Assumption priority matrix
+| Assumption | Type | Certainty (H/M/L) | Consequence if wrong (H/M/L) | Test priority |
+|---|---|---|---|---|
+
+Sort by: low certainty + high consequence = test first
+
+## Top 3 critical assumptions
+The ones where "wrong = wasted sprint or failed launch."
+
+## How to test each (cheapest method first)
+For each critical assumption:
+- Test: the specific activity (user interview / prototype / data pull / spike)
+- Cost: hours or days
+- What "true" looks like
+- What "false" looks like
+- Decision if false: kill / pivot / proceed with caution`,
 };
 
 function getStandupPrompt(){
@@ -2196,51 +2526,105 @@ function updateCapacity(){
   const velocity    = parseInt(document.getElementById('ctx-velocity')?.value||0);
   const focusPct    = parseInt(document.getElementById('ctx-focus')?.value||70) / 100;
 
-  const roleIds = ['ctx-dev','ctx-qa','ctx-arch','ctx-design','ctx-ba','ctx-sm','ctx-devops','ctx-po'];
-  const totalPeople = roleIds.reduce((s,id)=>s+(parseInt(document.getElementById(id)?.textContent||0)),0);
+  // Delivery roles (generate SP) vs support roles
+  const devCount    = parseInt(document.getElementById('ctx-dev')?.textContent||0);
+  const qaCount     = parseInt(document.getElementById('ctx-qa')?.textContent||0);
+  const archCount   = parseInt(document.getElementById('ctx-arch')?.textContent||0);
+  const designCount = parseInt(document.getElementById('ctx-design')?.textContent||0);
+  const baCount     = parseInt(document.getElementById('ctx-ba')?.textContent||0);
+  const smCount     = parseInt(document.getElementById('ctx-sm')?.textContent||0);
+  const devopsCount = parseInt(document.getElementById('ctx-devops')?.textContent||0);
+  const poCount     = parseInt(document.getElementById('ctx-po')?.textContent||0);
+
+  // Delivery team = those who move stories through to Done
+  const deliveryTeam   = devCount + qaCount + archCount + designCount;
+  const supportTeam    = baCount + smCount + devopsCount + poCount;
+  const totalPeople    = deliveryTeam + supportTeam;
 
   const workingDays = Math.max(0, sprintDays - daysLost);
 
-  // Correct formula: scale historical velocity by ratio of effective days this sprint
-  // effectiveRatio = (workingDays × focus) / (sprintDays × 1.0 baseline)
-  // rawSP = velocity × effectiveRatio
+  // Scale historical velocity by effective working days ratio × focus
   const rawSP    = velocity > 0 ? Math.round(velocity * (workingDays / sprintDays) * focusPct) : 0;
   const commitSP = Math.round(rawSP * 0.8);
   const bufferSP = rawSP - commitSP;
 
-  // Update display — show team and days immediately even without velocity
+  // Show delivery team size (not total headcount) as the meaningful capacity number
   const t = document.getElementById('cap-team');
   const d = document.getElementById('cap-days');
   const c = document.getElementById('cap-commit');
   const b = document.getElementById('cap-buffer');
-  if(t) t.textContent = totalPeople || '—';
+  if(t) t.textContent = deliveryTeam > 0 ? deliveryTeam : (totalPeople || '—');
   if(d) d.textContent = workingDays > 0 ? workingDays : '—';
-  if(c) c.textContent = velocity > 0 && totalPeople > 0 ? commitSP + ' SP' : '—';
-  if(b) b.textContent = velocity > 0 && totalPeople > 0 ? bufferSP + ' SP' : '—';
+  if(c) c.textContent = velocity > 0 && deliveryTeam > 0 ? commitSP + ' SP' : '—';
+  if(b) b.textContent = velocity > 0 && deliveryTeam > 0 ? bufferSP + ' SP' : '—';
 
-  // Sprint health indicator
+  // ── Sprint health indicator ──
   const health = document.getElementById('cap-health');
-  if(health && velocity > 0 && totalPeople > 0 && rawSP > 0){
-    const utilizationPct = Math.round((commitSP / velocity) * 100);
-    let msg='', bg='', color='';
-    if(daysLost === 0 && focusPct >= 0.8){
-      msg = `🟢 Healthy sprint — committing ${utilizationPct}% of historic velocity. Good headroom for quality.`;
-      bg='rgba(0,200,150,0.1)'; color='var(--green)';
-    } else if(utilizationPct > 85){
-      msg = `🔴 Over-committed — ${utilizationPct}% of velocity with ${daysLost} day${daysLost!==1?'s':''} lost. Risk of not meeting sprint goal.`;
-      bg='rgba(255,71,87,0.1)'; color='var(--red)';
-    } else if(daysLost >= 3){
-      msg = `🟡 Disrupted sprint — ${daysLost} days lost. Protect the sprint goal and defer stretch stories now.`;
-      bg='rgba(245,166,35,0.1)'; color='var(--yellow)';
+  if(health && velocity > 0 && deliveryTeam > 0 && rawSP > 0){
+    const lines = [];
+    let worstColor = 'green';
+
+    // 1. Capacity vs velocity check — compare rawSP to velocity (not commitSP)
+    const capacityRatio = Math.round((rawSP / velocity) * 100);
+    if(capacityRatio < 60){
+      lines.push(`🔴 Capacity at ${capacityRatio}% of velocity — significant disruption this sprint.`);
+      worstColor = 'red';
+    } else if(capacityRatio < 80){
+      lines.push(`🟡 Capacity at ${capacityRatio}% of velocity — reduce scope proactively, don't wait.`);
+      if(worstColor!=='red') worstColor='yellow';
     } else {
-      msg = `🟢 Normal sprint — committing ${utilizationPct}% of velocity. Buffer of ${bufferSP} SP for unplanned work.`;
-      bg='rgba(0,200,150,0.1)'; color='var(--green)';
+      lines.push(`🟢 Capacity at ${capacityRatio}% of velocity — sprint is well-set.`);
     }
+
+    // 2. Dev-to-QA ratio — most common bottleneck
+    if(devCount > 0 && qaCount > 0){
+      const ratio = (devCount / qaCount).toFixed(1);
+      if(devCount / qaCount > 4){
+        lines.push(`🔴 Dev:QA ratio ${ratio}:1 — QA is a bottleneck. Stagger dev completion or pair QA earlier.`);
+        worstColor='red';
+      } else if(devCount / qaCount > 2.5){
+        lines.push(`🟡 Dev:QA ratio ${ratio}:1 — watch for QA queue in second half of sprint.`);
+        if(worstColor!=='red') worstColor='yellow';
+      } else {
+        lines.push(`🟢 Dev:QA ratio ${ratio}:1 — balanced.`);
+      }
+    } else if(devCount > 0 && qaCount === 0){
+      lines.push(`🔴 No QA in team — who is verifying acceptance criteria?`);
+      worstColor='red';
+    }
+
+    // 3. Days lost impact
+    if(daysLost >= Math.ceil(sprintDays * 0.3)){
+      lines.push(`🔴 ${daysLost} days lost (${Math.round(daysLost/sprintDays*100)}% of sprint) — sprint goal is at high risk.`);
+      worstColor='red';
+    } else if(daysLost > 0){
+      lines.push(`🟡 ${daysLost} day${daysLost>1?'s':''} lost — adjust commitments accordingly.`);
+      if(worstColor!=='red') worstColor='yellow';
+    }
+
+    // 4. QA deadline — devs should be done by 65% of sprint (not 60%)
+    const qaDeadlineDay = Math.ceil(workingDays * 0.65);
+    const qaBuffer = workingDays - qaDeadlineDay;
+    lines.push(`📋 Dev-complete deadline: day ${qaDeadlineDay} of ${workingDays} — leaving ${qaBuffer} days for QA, regression & buffer.`);
+
+    const colorMap = {
+      red:'rgba(255,71,87,0.12)',
+      yellow:'rgba(245,166,35,0.1)',
+      green:'rgba(0,200,150,0.08)'
+    };
+    const borderMap = {
+      red:'rgba(255,71,87,0.4)',
+      yellow:'rgba(245,166,35,0.35)',
+      green:'rgba(0,200,150,0.3)'
+    };
+    const textMap = { red:'var(--red)', yellow:'var(--yellow)', green:'var(--green)' };
+
     health.style.display='block';
-    health.style.background=bg;
-    health.style.color=color;
-    health.style.border=`0.5px solid ${color}`;
-    health.textContent=msg;
+    health.style.background=colorMap[worstColor];
+    health.style.color=textMap[worstColor];
+    health.style.border=`0.5px solid ${borderMap[worstColor]}`;
+    health.style.lineHeight='1.7';
+    health.innerHTML = lines.join('<br/>');
   } else if(health){
     health.style.display='none';
   }
@@ -2295,12 +2679,12 @@ SPRINT PARAMETERS:
 As a Principal Agile Coach, give me:
 1. Full capacity calculation — show every step of the arithmetic
 2. Recommended sprint commitment in SP (apply 80% rule)
-3. Buffer allocation and what it should be used for
-4. Role-by-role breakdown — Dev throughput vs QA throughput and whether they are balanced
-5. QA sequencing plan — which stories must be dev-complete by day ${Math.ceil(parseInt(sprintDays)*0.6)} so QA has enough time
-6. Sprint health assessment — is this sprint set up to succeed or is something already wrong
-7. The one thing most likely to cause this sprint to miss its goal
-8. My opening statement for the sprint planning meeting (word for word, 90 seconds)`;
+3. Buffer allocation and what it should be used for (not stretch stories — unplanned work and quality)
+4. Role-by-role breakdown — Dev throughput vs QA throughput and whether they are in balance
+5. QA sequencing plan — dev-complete deadline is day ${Math.ceil((parseInt(sprintDays)-parseInt(daysLost)) * 0.65)} of ${Math.max(0,parseInt(sprintDays)-parseInt(daysLost))} effective days, leaving 35% for QA, regression and buffer
+6. Dev:QA ratio assessment — is this team likely to hit a QA bottleneck mid-sprint?
+7. Sprint health verdict — is this sprint set up to succeed, and what is the single most likely failure mode?
+8. My opening statement for sprint planning (word for word, 90 seconds, outcome-focused not task-focused)`;
 
   const input = document.getElementById('chat-input');
   if(input){ input.value = prompt; autoResize(input); }
@@ -2487,41 +2871,61 @@ function getSprintGoalPrompt(){
   const ctx = productContext;
   const sprintNum  = ctx.sprintNum  || '[sprint number]';
   const sprintDays = ctx.sprintDays || '10';
+  const daysLost   = ctx.daysLost   || '0';
   const velocity   = ctx.velocity   || '[not set]';
+  const focus      = ctx.focus      || '70';
   const product    = ctx.product    || '[product not set]';
   const goal       = ctx.goal       || '[quarterly OKR not set]';
-  const teamSize   = Object.values(ctx.team||{}).reduce((a,b)=>a+b,0);
+  const t          = ctx.team || {};
+  const devCount   = t.dev||0; const qaCount = t.qa||0;
+  const deliveryTeam = (t.dev||0)+(t.qa||0)+(t.arch||0)+(t.design||0);
+  const totalTeam    = Object.values(t).reduce((a,b)=>a+b,0);
+
+  // Calculate live capacity for injection
+  const workingDays = Math.max(0, parseInt(sprintDays) - parseInt(daysLost));
+  const rawSP    = velocity && velocity!=='[not set]' ? Math.round(parseInt(velocity) * (workingDays/parseInt(sprintDays)) * (parseInt(focus)/100)) : 0;
+  const commitSP = Math.round(rawSP * 0.8);
+  const bufferSP = rawSP - commitSP;
+  const qaDeadline = Math.ceil(workingDays * 0.65);
+
   return `Write a sprint goal for ${sprintNum}.
 
 PRODUCT: ${product}
 QUARTERLY OKR: ${goal}
-SPRINT LENGTH: ${sprintDays} days
-TEAM SIZE: ${teamSize > 0 ? teamSize + ' people' : '[set in Product Context]'}
+SPRINT LENGTH: ${sprintDays} days (${workingDays} effective working days${parseInt(daysLost)>0?' — '+daysLost+' days lost':''})
+DELIVERY TEAM: ${deliveryTeam > 0 ? deliveryTeam + ' people ('+devCount+' Dev · '+qaCount+' QA)' : '[set in Product Context]'}
 VELOCITY: ${velocity} SP
+${rawSP > 0 ? `AVAILABLE CAPACITY: ~${rawSP} SP raw · Commit: ${commitSP} SP · Buffer: ${bufferSP} SP` : ''}
+${qaDeadline > 0 ? `QA DEADLINE: stories must be dev-complete by day ${qaDeadline} of ${workingDays}` : ''}
 
-Stories we are planning to commit (fill these in):
-1. [STORY TITLE] — [X] SP
+Story point sizing rule: Fibonacci only — 1, 2, 3, 5, 8, 13. Split any story >5 SP.
+
+Stories we are planning to commit (fill these in before sending):
+1. [STORY TITLE] — [X] SP (Fibonacci)
 2. [STORY TITLE] — [X] SP
 3. [STORY TITLE] — [X] SP
-(add all committed stories)
+(add all committed stories — total should be close to ${commitSP > 0 ? commitSP + ' SP' : 'your commit number'})
 
 A sprint goal must: describe an outcome the user or business experiences (NOT a task list), be specific enough to guide daily decisions, be achievable with the committed stories, and feel meaningful to miss.
 
 Produce:
+
 ## 3 candidate sprint goals
 Different framings — user benefit / business metric / capability unlocked.
+One sentence each. No tasks. No "we will build".
 
 ## Recommended goal
-Which one and why it is stronger than the others.
+Which one and why it is stronger. What makes a sprint goal fail — and does this one avoid those failure modes?
 
 ## Success metric
-The specific, measurable signal at the sprint review that confirms we achieved it.
+The specific, measurable signal at the sprint review that confirms we achieved it. Not a story completion metric — an outcome metric.
 
-## Out of scope
-What is NOT in this sprint that stakeholders might assume is included.
+## Out of scope (explicitly)
+What is NOT in this sprint that stakeholders might assume is included. Write this as a list you can share in the planning meeting.
 
 ## Achievability check
-Do the committed stories support this goal? If not, what needs to change.`;
+Do the committed stories deliver this goal? If there is a gap, name the missing piece.
+Does the capacity (${commitSP > 0 ? commitSP+' SP commit' : 'commit number'}) support the ambition of the goal?`;
 }
 
 // ══ MULTI-BRAIN ══
@@ -2686,8 +3090,8 @@ function formatMsg(text){
   let html = text.replace(/```(\w+)?[ \t]?\n?([\s\S]*?)```/g, (_, lang, code) => {
     const idx = codeBlocks.length;
     const escaped = code.replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const langLabel = lang ? `<span style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono',monospace;display:block;margin-bottom:4px">${lang}</span>` : '';
-    codeBlocks.push(`<pre style="background:var(--bg4);border:0.5px solid var(--border2);border-radius:8px;padding:10px 14px;margin:8px 0;overflow-x:auto;font-family:'JetBrains Mono',monospace;font-size:11px;line-height:1.6;color:var(--text)">${langLabel}${escaped}</pre>`);
+    const langLabel = lang ? `<span style="font-size:9px;color:var(--muted);font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace;display:block;margin-bottom:4px">${lang}</span>` : '';
+    codeBlocks.push(`<pre style="background:var(--bg4);border:0.5px solid var(--border2);border-radius:8px;padding:10px 14px;margin:8px 0;overflow-x:auto;font-family:'JetBrains Mono','Cascadia Code','Fira Code','SF Mono',Consolas,monospace;font-size:11px;line-height:1.6;color:var(--text)">${langLabel}${escaped}</pre>`);
     return `\x00CB${idx}\x00`;
   });
 
@@ -3293,9 +3697,27 @@ function calcRice(r,i,c,e){if(!r||!i||!c||!e)return 0;return Math.round((r*i*(c/
 
 function addBacklogItem(){
   const title=document.getElementById('bi-title').value.trim();if(!title){toast('Please enter a title');return;}
-  const r=parseFloat(document.getElementById('bi-reach').value)||0;const i=parseFloat(document.getElementById('bi-impact').value)||0;const c=parseFloat(document.getElementById('bi-conf').value)||0;const e=parseFloat(document.getElementById('bi-effort').value)||1;
-  backlogItems.push({id:Date.now(),title,desc:document.getElementById('bi-desc').value,reach:r,impact:i,confidence:c,effort:e,rice:calcRice(r,i,c,e),status:document.getElementById('bi-status').value,type:document.getElementById('bi-type').value,priority:document.getElementById('bi-priority').value});
-  renderBacklog();['bi-title','bi-desc','bi-reach','bi-impact','bi-conf','bi-effort'].forEach(id=>document.getElementById(id).value='');
+  const r=parseFloat(document.getElementById('bi-reach').value)||0;
+  const i=parseFloat(document.getElementById('bi-impact').value)||0;
+  const c=parseFloat(document.getElementById('bi-conf').value)||0;
+  const e=parseFloat(document.getElementById('bi-effort').value)||0.5;
+  const sp=document.getElementById('bi-sp').value;
+  backlogItems.push({
+    id:Date.now(),title,
+    desc:document.getElementById('bi-desc').value,
+    reach:r,impact:i,confidence:c,effort:e,
+    sp:sp||'',
+    rice:calcRice(r,i,c,e),
+    status:document.getElementById('bi-status').value,
+    type:document.getElementById('bi-type').value,
+    priority:document.getElementById('bi-priority').value
+  });
+  renderBacklog();
+  ['bi-title','bi-desc','bi-reach','bi-impact','bi-conf','bi-effort'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('bi-sp').value='';
+  document.getElementById('bi-status').value='backlog';
+  document.getElementById('bi-type').value='Feature';
+  document.getElementById('bi-priority').value='medium';
   toggleAddForm();updateStats();toast(`Added: ${title}`);
 }
 function deleteBacklogItem(id){backlogItems=backlogItems.filter(i=>i.id!==id);renderBacklog();updateStats();}
@@ -3303,16 +3725,19 @@ function sortByRice(){backlogItems.sort((a,b)=>b.rice-a.rice);renderBacklog();to
 
 async function scoreAllWithAI(){
   if(!apiKey){openModal();return;}if(backlogItems.length===0){toast('Add items first');return;}
-  toast('🤖 AI scoring...');
+  toast('AI scoring...');
   const titles=backlogItems.map((b,i)=>`${i+1}. ${b.title}: ${b.desc||'no description'}`).join('\n');
-  const prompt=`RICE score these backlog items (Reach 1-100, Impact 1-3, Confidence 1-100%, Effort 1-30 days). Reply ONLY with JSON: [{"title":"...","reach":N,"impact":N,"confidence":N,"effort":N}]\n\n${titles}${getCtx()}`;
-  try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:'Reply only with valid JSON array, no markdown.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'[]';const scores=JSON.parse(text.replace(/```json|```/g,'').trim());scores.forEach(s=>{const item=backlogItems.find(b=>b.title.toLowerCase().includes(s.title.toLowerCase().substring(0,15)));if(item){item.reach=s.reach;item.impact=s.impact;item.confidence=s.confidence;item.effort=s.effort;item.rice=calcRice(s.reach,s.impact,s.confidence,s.effort);}});sortByRice();toast('✅ AI scoring done!');}catch(e){toast('Scoring error');}
+  const prompt=`RICE score these backlog items (Reach = users/quarter 0-10000, Impact 1-3, Confidence 0-100%, Effort in person-months 0.1-6). Reply ONLY with JSON: [{"title":"...","reach":N,"impact":N,"confidence":N,"effort":N}]\n\n${titles}${getCtx()}`;
+  try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:'Reply only with valid JSON array, no markdown.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'[]';const scores=JSON.parse(text.replace(/```json|```/g,'').trim());scores.forEach(s=>{const item=backlogItems.find(b=>b.title.toLowerCase().includes(s.title.toLowerCase().substring(0,15)));if(item){item.reach=s.reach;item.impact=s.impact;item.confidence=s.confidence;item.effort=s.effort;item.rice=calcRice(s.reach,s.impact,s.confidence,s.effort);}});sortByRice();toast('AI scoring done!');}catch(e){toast('Scoring error');}
 }
 
 function renderBacklog(){
   const c=document.getElementById('bl-items');
   if(backlogItems.length===0){c.innerHTML='<div class="empty-state"><span>📭</span><p>No items yet. Click <b>+ Add Item</b>.</p></div>';}
-  else{c.innerHTML=backlogItems.map(item=>`<div class="bl-item"><div class="bl-cell"><div class="bl-item-title">${item.title}</div><div class="bl-item-desc">${item.type}${item.desc?' · '+item.desc.substring(0,45)+'…':''}</div></div><div class="bl-cell">${item.reach||'-'}</div><div class="bl-cell">${item.impact||'-'}</div><div class="bl-cell">${item.confidence||'-'}%</div><div class="bl-cell">${item.effort||'-'}d</div><div class="bl-cell"><span class="rice-score">${item.rice||'—'}</span></div><div class="bl-cell"><span class="status-badge s-${item.status}">${item.status}</span></div><div class="bl-cell"><div style="display:flex;gap:3px"><button class="icon-btn" onclick="askAboutItem(${item.id})">💬</button><button class="icon-btn del" onclick="deleteBacklogItem(${item.id})">✕</button></div></div></div>`).join('');}
+  else{c.innerHTML=backlogItems.map(item=>{
+    const spBadge = item.sp ? `<span style="background:var(--accent-l);color:var(--accent);border:0.5px solid var(--accent-m);border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700">${escapeHtml(item.sp)}SP</span>` : '<span style="color:var(--muted);font-size:9px">—</span>';
+    return `<div class="bl-item"><div class="bl-cell"><div class="bl-item-title">${escapeHtml(item.title)}</div><div class="bl-item-desc">${escapeHtml(item.type)}${item.priority==='critical'?' · CRITICAL':''}${item.desc?' · '+escapeHtml(item.desc.substring(0,40))+'…':''}</div></div><div class="bl-cell">${item.reach||'-'}</div><div class="bl-cell">${item.impact||'-'}</div><div class="bl-cell">${item.confidence||'-'}%</div><div class="bl-cell">${spBadge}</div><div class="bl-cell"><span class="rice-score">${item.rice||'—'}</span></div><div class="bl-cell"><span class="status-badge s-${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></div><div class="bl-cell"><div style="display:flex;gap:3px"><button class="icon-btn" onclick="askAboutItem(${item.id})">💬</button><button class="icon-btn del" onclick="deleteBacklogItem(${item.id})">✕</button></div></div></div>`;
+  }).join('');}
   document.getElementById('bl-total').textContent=backlogItems.length;
   document.getElementById('bl-sprint').textContent=backlogItems.filter(b=>b.status==='sprint').length;
   document.getElementById('bl-done').textContent=backlogItems.filter(b=>b.status==='done').length;
@@ -3321,7 +3746,21 @@ function renderBacklog(){
 function askAboutItem(id){
   const item=backlogItems.find(i=>i.id===id);if(!item)return;
   switchTab('chat',null);
-  document.getElementById('chat-input').value=`Help me with backlog item: "${item.title}". ${item.desc?'Description: '+item.desc:''} What acceptance criteria, edge cases, and sizing should I consider?`;
+  document.getElementById('chat-input').value=`Help me refine this backlog item and give it a story point estimate.
+
+Story: "${item.title}"
+${item.desc ? 'Description: '+item.desc : ''}
+${item.sp ? 'Current estimate: '+item.sp+' SP' : ''}
+
+Give me:
+1. INVEST check — flag any criteria violated with a specific reason
+2. Missing acceptance criteria — write them in Given/When/Then BDD format
+3. Hidden risks or dependencies I may not have considered
+4. Story point estimate using Fibonacci only (1, 2, 3, 5, 8, 13)
+   - State the estimate clearly
+   - Name the single biggest uncertainty driving the size
+   - If >5 SP, suggest how to split it into smaller stories
+5. Readiness verdict: READY FOR PLANNING or NOT READY (with specific reason)`;
   autoResize(document.getElementById('chat-input'));
 }
 
@@ -3332,19 +3771,79 @@ function buildRoadmapGrid(){
   renderRoadmap();
 }
 function toggleRmForm(){const f=document.getElementById('rm-add-form');f.style.display=f.style.display==='none'?'block':'none';}
-function addRoadmapItem(){const title=document.getElementById('rm-title').value.trim();if(!title){toast('Please enter a title');return;}const month=parseInt(document.getElementById('rm-month').value);const theme=document.getElementById('rm-theme').value;roadmapItems.push({id:Date.now(),title,month,theme});renderRoadmap();document.getElementById('rm-title').value='';toggleRmForm();updateStats();toast(`Added to Month ${month+1}`);}
+function addRoadmapItem(){
+  const title=document.getElementById('rm-title').value.trim();if(!title){toast('Please enter a title');return;}
+  const month=parseInt(document.getElementById('rm-month').value);
+  const theme=document.getElementById('rm-theme').value;
+  const owner=document.getElementById('rm-owner')?.value||'';
+  const size =document.getElementById('rm-size')?.value||'M';
+  roadmapItems.push({id:Date.now(),title,month,theme,owner,size});
+  renderRoadmap();
+  document.getElementById('rm-title').value='';
+  if(document.getElementById('rm-owner')) document.getElementById('rm-owner').value='';
+  toggleRmForm();updateStats();toast(`Added to Month ${month+1}`);
+}
 function deleteRoadmapItem(id){roadmapItems=roadmapItems.filter(i=>i.id!==id);renderRoadmap();updateStats();}
 function clearRoadmap(){if(!confirm('Clear all roadmap items?'))return;roadmapItems=[];renderRoadmap();updateStats();}
-function renderRoadmap(){for(let i=0;i<6;i++){const col=document.getElementById(`rm-col-${i}`);if(!col)continue;const items=roadmapItems.filter(r=>r.month===i);col.innerHTML=items.length===0?`<div style="font-size:10px;color:var(--muted);text-align:center;padding:10px">Empty</div>`:items.map(item=>{const color=THEME_COLORS[item.theme]||'#888';return `<div class="rm-item" style="background:${color}20;border-color:${color}40;border:0.5px solid"><div class="rm-item-title">${item.title}</div><div class="rm-item-meta" style="color:${color}">${item.theme}</div><button class="rm-item-del" onclick="deleteRoadmapItem(${item.id})">✕</button></div>`;}).join('');}}
+function renderRoadmap(){for(let i=0;i<6;i++){const col=document.getElementById(`rm-col-${i}`);if(!col)continue;const items=roadmapItems.filter(r=>r.month===i);col.innerHTML=items.length===0?`<div style="font-size:10px;color:var(--muted);text-align:center;padding:10px">Empty</div>`:items.map(item=>{const color=THEME_COLORS[item.theme]||'#888';const sizeColor={'S':'var(--green)','M':'var(--accent)','L':'var(--orange)','XL':'var(--red)'}[item.size]||'var(--muted)';return `<div class="rm-item" style="background:${color}18;border:0.5px solid ${color}40"><div class="rm-item-title">${escapeHtml(item.title)}</div><div class="rm-item-meta" style="color:${color};display:flex;gap:6px;align-items:center"><span>${escapeHtml(item.theme)}</span><span style="color:${sizeColor};font-weight:700">${escapeHtml(item.size||'M')}</span>${item.owner?`<span style="color:var(--muted)">${escapeHtml(item.owner)}</span>`:''}</div><button class="rm-item-del" onclick="deleteRoadmapItem(${item.id})">✕</button></div>`;}).join('');}}
 
 // ══ METRICS ══
 function selectSwatch(el){document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('selected'));el.classList.add('selected');selectedSwatchColor=el.dataset.color;}
 function toggleKpiForm(){const f=document.getElementById('kpi-add-form');f.style.display=f.style.display==='none'?'block':'none';}
-function addKpi(){const name=document.getElementById('kpi-name').value.trim();if(!name){toast('Enter a KPI name');return;}const kpi={id:Date.now(),name,current:document.getElementById('kpi-current').value||'—',target:document.getElementById('kpi-target-val').value||'—',trend:document.getElementById('kpi-trend').value,color:selectedSwatchColor};kpiItems.push(kpi);kpiLog.unshift({name:kpi.name,value:kpi.current,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});renderKpis();['kpi-name','kpi-current','kpi-target-val'].forEach(id=>document.getElementById(id).value='');toggleKpiForm();updateStats();toast(`KPI added: ${name}`);}
+function addKpi(){
+  const name=document.getElementById('kpi-name').value.trim();
+  if(!name){toast('Enter a KPI name');return;}
+  const kpi={
+    id:Date.now(), name,
+    current: document.getElementById('kpi-current').value||'—',
+    target:  document.getElementById('kpi-target-val').value||'—',
+    unit:    document.getElementById('kpi-unit')?.value||'',
+    owner:   document.getElementById('kpi-owner')?.value||'',
+    category:document.getElementById('kpi-category')?.value||'growth',
+    trend:   document.getElementById('kpi-trend').value,
+    color:   selectedSwatchColor
+  };
+  kpiItems.push(kpi);
+  kpiLog.unshift({name:kpi.name,value:kpi.current,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
+  renderKpis();
+  ['kpi-name','kpi-current','kpi-target-val','kpi-unit','kpi-owner'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const trendEl=document.getElementById('kpi-trend'); if(trendEl) trendEl.value='up';
+  toggleKpiForm();updateStats();toast(`KPI added: ${name}`);
+}
 function deleteKpi(id){kpiItems=kpiItems.filter(k=>k.id!==id);renderKpis();updateStats();}
 function updateKpiValue(id){const kpi=kpiItems.find(k=>k.id===id);if(!kpi)return;const val=prompt(`Update "${kpi.name}":`,kpi.current);if(val!==null){kpi.current=val;kpiLog.unshift({name:kpi.name,value:val,time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});renderKpis();toast(`Updated: ${kpi.name} → ${val}`);}}
 async function aiAnalyseMetrics(){if(!apiKey){openModal();return;}if(kpiItems.length===0){toast('Add KPIs first');return;}const summary=kpiItems.map(k=>`${k.name}: current=${k.current}, target=${k.target}, trend=${k.trend}`).join('\n');switchTab('chat',null);document.getElementById('chat-input').value=`Analyse these metrics:\n${summary}\n\n1) What's going well? 2) What needs attention? 3) Top 3 actions this week?${getCtx()}`;autoResize(document.getElementById('chat-input'));sendMsg();}
-function renderKpis(){const grid=document.getElementById('kpi-grid');if(kpiItems.length===0){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><span>📊</span><p>No KPIs yet. Click <b>+ Add KPI</b>.</p></div>';}else{grid.innerHTML=kpiItems.map(kpi=>{const ti=kpi.trend==='up'?'↑':kpi.trend==='down'?'↓':'→';const tl=kpi.trend==='up'?'Trending up':kpi.trend==='down'?'Trending down':'Flat';return `<div class="kpi-card" style="--kpi-color:${kpi.color}"><div class="kpi-actions"><button class="icon-btn" onclick="updateKpiValue(${kpi.id})">✏️</button><button class="icon-btn del" onclick="deleteKpi(${kpi.id})">✕</button></div><div class="kpi-label">${kpi.name}</div><div class="kpi-value" style="color:${kpi.color}">${kpi.current}</div><div class="kpi-target">Target: ${kpi.target}</div><div class="kpi-trend ${kpi.trend}">${ti} ${tl}</div></div>`;}).join('');}const logEl=document.getElementById('kpi-log');logEl.innerHTML=kpiLog.length===0?'<div style="font-size:11px;color:var(--muted);text-align:center;padding:10px">No updates yet</div>':kpiLog.slice(0,10).map(l=>`<div class="kpi-log-item"><span class="kpi-log-name">${l.name}</span><span class="kpi-log-val">→ ${l.value}</span><span class="kpi-log-time">${l.time}</span></div>`).join('');}
+function renderKpis(){
+  const grid=document.getElementById('kpi-grid');
+  if(kpiItems.length===0){
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><span>📊</span><p>No KPIs yet. Click <b>+ Add KPI</b>.</p></div>';
+  } else {
+    grid.innerHTML=kpiItems.map(kpi=>{
+      const ti=kpi.trend==='up'?'↑':kpi.trend==='down'?'↓':'→';
+      const tl=kpi.trend==='up'?'Trending up':kpi.trend==='down'?'Trending down':'Flat';
+      const unit = kpi.unit ? `<span style="font-size:10px;color:var(--muted2);margin-left:3px">${escapeHtml(kpi.unit)}</span>` : '';
+      const owner = kpi.owner ? `<div style="font-size:9px;color:var(--muted);margin-top:3px">Owner: ${escapeHtml(kpi.owner)}</div>` : '';
+      const catColor = {'growth':'#6C47FF','retention':'#E91E8C','engagement':'#00D4AA','revenue':'#F5A623','quality':'#29B6F6','efficiency':'#FF6B35'}[kpi.category]||'var(--muted)';
+      const catBadge = kpi.category ? `<span style="font-size:8px;background:${catColor}18;color:${catColor};border:0.5px solid ${catColor}40;border-radius:4px;padding:1px 5px;font-weight:600;text-transform:uppercase;letter-spacing:.05em">${escapeHtml(kpi.category)}</span>` : '';
+      return `<div class="kpi-card" style="--kpi-color:${kpi.color}">
+        <div class="kpi-actions">
+          ${catBadge}
+          <button class="icon-btn" onclick="updateKpiValue(${kpi.id})">✏️</button>
+          <button class="icon-btn del" onclick="deleteKpi(${kpi.id})">✕</button>
+        </div>
+        <div class="kpi-label">${escapeHtml(kpi.name)}</div>
+        <div class="kpi-value" style="color:${kpi.color}">${escapeHtml(kpi.current)}${unit}</div>
+        <div class="kpi-target">Target: ${escapeHtml(kpi.target)}${kpi.unit?' '+escapeHtml(kpi.unit):''}</div>
+        <div class="kpi-trend ${kpi.trend}">${ti} ${tl}</div>
+        ${owner}
+      </div>`;
+    }).join('');
+  }
+  const logEl=document.getElementById('kpi-log');
+  logEl.innerHTML=kpiLog.length===0
+    ?'<div style="font-size:11px;color:var(--muted);text-align:center;padding:10px">No updates yet</div>'
+    :kpiLog.slice(0,10).map(l=>`<div class="kpi-log-item"><span class="kpi-log-name">${l.name}</span><span class="kpi-log-val">→ ${l.value}</span><span class="kpi-log-time">${l.time}</span></div>`).join('');
+}
 
 // ══ DOCS ══
 function openDocGenerator(type){activeDocType=type;const config=DOC_CONFIGS[type];if(!config)return;document.getElementById('doc-gen-title').textContent=config.title;document.getElementById('doc-gen-fields').innerHTML=config.fields.map(f=>`<div class="dff"><label>${f.label}</label><input type="text" id="${f.id}" placeholder="${f.placeholder}"/></div>`).join('');document.getElementById('doc-output').style.display='none';document.getElementById('doc-generator-panel').style.display='block';document.getElementById('doc-generator-panel').scrollIntoView({behavior:'smooth'});}
@@ -3558,6 +4057,7 @@ const PROMPT_REPO = [
   // ── MARKETING BRAIN — 2 prompts ──
   {brain:'marketing',icon:'📣',color:'#FF6B35',name:'GTM Launch Plan',prompt:'Build a go-to-market plan for a product or feature launch.\n\nContext:\n- What we are launching: [PRODUCT / FEATURE / UPDATE]\n- ICP (Ideal Customer Profile): [WHO THIS IS FOR — be specific: role, company type, size, geography]\n- Core value proposition: [THE SPECIFIC PROBLEM SOLVED AND THE MEASURABLE OUTCOME]\n- Primary differentiator: [WHY THIS AND NOT THE ALTERNATIVE]\n- Launch date: [DATE]\n- Budget available: [AMOUNT or UNKNOWN]\n- Channels available: [LIST WHAT YOU HAVE ACCESS TO]\n- One customer story or proof point: [CASE STUDY / RESULT / QUOTE]\n- Key risk: [WHAT COULD MAKE THIS LAUNCH FAIL]\n\nProduce:\n## Positioning statement\nFor [ICP], [Product] is the [category] that [primary benefit] unlike [alternative] because [proof point].\n\n## Launch messaging framework\n| Audience | Core message | Supporting proof | CTA |\n\n## Channel plan\n| Channel | Tactic | Message | Budget allocation | Owner | Launch date | KPI |\n\n## Week-by-week launch calendar (4 weeks)\n| Week | Activity | Owner | Output |\n\n## Success metrics\n| Metric | Baseline | Week 2 target | Week 4 target | How measured |\n\n## Contingency\nIf week 2 metrics are below target: the specific pivot to make, not "review and adjust."'},
 
+  {brain:'marketing',icon:'📣',color:'#FF6B35',name:'ICP Definition & Positioning',prompt:'Define our Ideal Customer Profile and build our positioning.\n\nProduct: [PRODUCT]\nWhat it does: [ONE SENTENCE]\nTop 3 problems it solves: [LIST]\nCompetitors: [LIST 2-3]\n\nProduce:\n\n## ICP Definition\n| Dimension | Our ICP |\n|---|---|\n| Industry / vertical | |\n| Company size | |\n| Geography | |\n| Buyer role (economic buyer) | |\n| User role (end user) | |\n| Trigger event (what makes them buy now) | |\n| Red flag (who NOT to sell to) | |\n\n## What they say vs what they mean\nThe exact language they use when describing the problem — not our language.\n\n## Positioning statement\nFor [ICP], [Product] is the [market category] that [primary benefit] because [proof point].\n\n## Competitive differentiation\n| Capability | Us | Competitor 1 | Competitor 2 |\n\n## Messaging hierarchy\n1. Headline (10 words max)\n2. Subheadline (one sentence benefit)\n3. Three proof points (specific and measurable)\n4. CTA\n\n## The message that loses deals\nWhat do prospects say when they choose a competitor? Address this in every channel.'},
   {brain:'marketing',icon:'📣',color:'#FF6B35',name:'Content Strategy',prompt:'Build a 90-day content marketing strategy.\n\nContext:\n- Product / brand: [NAME]\n- ICP: [SPECIFIC TARGET AUDIENCE — role, industry, company size]\n- Business goal this content strategy must support: [GOAL e.g. generate 50 qualified leads / increase trial signups by 30%]\n- Current content situation: [WHAT EXISTS / WHAT IS WORKING / WHAT IS NOT]\n- SEO focus: [KEY TOPICS OR KEYWORDS]\n- Distribution channels available: [WEBSITE / LINKEDIN / EMAIL / OTHER]\n- Content resources: [X writers / budget / internal SMEs available]\n- One proof point or story we can use: [CASE STUDY / DATA / CUSTOMER STORY]\n\nProduce:\n## Content pillars (3-4 only)\nFor each pillar: the topic, why it matters to the ICP, and the content types it supports.\n\n## 90-day content calendar (12 pieces — one per week)\n| Week | Title | Format | Pillar | Target keyword | Distribution | CTA | Success metric |\n\n## Distribution plan\nFor each channel: how content is amplified, by whom, and at what cadence.\n\n## Measurement framework\n| Metric | Baseline | Month 1 target | Month 2 target | Month 3 target | How measured |\n\n## The content piece to produce first\nNot week 1 in the calendar — the single most impactful piece to create immediately and why.\n\n## What we should stop producing\nContent currently being created that is not contributing to the business goal.'},
 
   // ── CFO BRAIN — 3 prompts ──
