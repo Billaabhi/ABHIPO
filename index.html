@@ -881,6 +881,11 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
               <span class="qa-label">Assumption Map</span>
               <span class="qa-sub">Discovery · 🧠 PO</span>
             </div>
+            <div class="qa-btn qa-strategy" onclick="switchTab('docs',null);setTimeout(()=>openMomPanel(),200)" title="Paste transcript → AI generates structured MOM instantly">
+              <span class="qa-icon">📝</span>
+              <span class="qa-label">Generate MOM</span>
+              <span class="qa-sub">Transcript → MOM · 🧠 PO</span>
+            </div>
           </div>
 
         </div>
@@ -1158,6 +1163,7 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
   <div class="tab-page">
     <div class="tb"><h2>📄 Document Generator</h2><span style="font-size:11px;color:var(--muted2)">AI-powered instant document creation</span></div>
     <div class="doc-types">
+      <div class="doc-card" style="border-color:var(--accent);background:var(--accent-l)" onclick="openMomPanel()"><span class="doc-card-icon">📝</span><div class="doc-card-name" style="color:var(--accent)">MOM Generator</div><div class="doc-card-desc">Transcript → structured minutes</div></div>
       <div class="doc-card" onclick="openDocGenerator('prd')"><span class="doc-card-icon">📋</span><div class="doc-card-name">PRD</div><div class="doc-card-desc">Full product requirements doc</div></div>
       <div class="doc-card" onclick="openDocGenerator('user-story')"><span class="doc-card-icon">✍️</span><div class="doc-card-name">User Story + AC</div><div class="doc-card-desc">Story with BDD criteria & SP</div></div>
       <div class="doc-card" onclick="openDocGenerator('okr')"><span class="doc-card-icon">🎯</span><div class="doc-card-name">OKR Document</div><div class="doc-card-desc">Objectives & key results</div></div>
@@ -1171,6 +1177,49 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
       <div class="doc-card" onclick="openDocGenerator('risk-register')"><span class="doc-card-icon">⚠️</span><div class="doc-card-name">Risk Register</div><div class="doc-card-desc">Risks with mitigations</div></div>
       <div class="doc-card" onclick="openDocGenerator('sprint-goal')"><span class="doc-card-icon">🏃</span><div class="doc-card-name">Sprint Goal</div><div class="doc-card-desc">Sprint goal & success criteria</div></div>
     </div>
+
+    <!-- ── MOM PANEL ── -->
+    <div id="mom-panel" style="display:none">
+      <div class="doc-gen-panel">
+        <h3 style="margin-bottom:14px">📝 Minutes of Meeting Generator</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+          <div class="ff"><label>Meeting title</label><input type="text" id="mom-title" placeholder="e.g. Sprint 14 Planning / Stakeholder Review / G2 Gate"/></div>
+          <div class="ff"><label>Meeting date</label><input type="text" id="mom-date" placeholder="e.g. 25 Mar 2026"/></div>
+          <div class="ff"><label>Attendees</label><input type="text" id="mom-attendees" placeholder="e.g. Abhinav (PO), Sanjay (CTO), Sara (Design)"/></div>
+          <div class="ff"><label>Meeting type</label>
+            <select id="mom-type">
+              <option value="sprint-planning">Sprint Planning</option>
+              <option value="sprint-review">Sprint Review</option>
+              <option value="retrospective">Retrospective</option>
+              <option value="stakeholder">Stakeholder Review</option>
+              <option value="discovery">Discovery / Research</option>
+              <option value="strategy">Strategy / Roadmap</option>
+              <option value="gate-review">Gate Review (G0-G3)</option>
+              <option value="1on1">1-on-1</option>
+              <option value="general" selected>General</option>
+            </select>
+          </div>
+        </div>
+        <div class="ff" style="margin-bottom:10px">
+          <label>Paste transcript or meeting notes <span style="color:var(--muted);font-weight:400">(raw notes, bullet points, or full transcript — AI will structure it)</span></label>
+          <textarea id="mom-transcript" placeholder="Paste your meeting transcript, raw notes, or bullet points here...&#10;&#10;Can be messy — AI will extract what matters and structure it into proper MOM format.&#10;&#10;Example:&#10;- John said we should delay the launch by 2 weeks&#10;- Sara: design needs more time for mobile screens&#10;- Decision: launch pushed to April 15&#10;- Action: Abhinav to update stakeholder comms by EOD Friday" style="height:180px;resize:vertical" oninput="autoResize(this)"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="btn" onclick="generateMom()" id="mom-gen-btn">⚡ Generate MOM with AI</button>
+          <button class="gbtn" onclick="closeMomPanel()">Cancel</button>
+          <span style="font-size:10px;color:var(--muted);margin-left:4px">Uses your active brain · Outputs structured MOM ready to share</span>
+        </div>
+        <div id="mom-output" style="display:none;margin-top:14px">
+          <div class="doc-output" id="mom-output-content"></div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <button class="gbtn" onclick="copyMom()">📋 Copy MOM</button>
+            <button class="gbtn" onclick="sendMomToChat()">💬 Refine in Chat</button>
+            <button class="gbtn" onclick="document.getElementById('mom-output').style.display='none'">Close Output</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div id="doc-generator-panel" style="display:none">
       <div class="doc-gen-panel">
         <h3 id="doc-gen-title">📋 PRD Generator</h3>
@@ -2083,6 +2132,7 @@ const TEMPLATES=[
   {cat:'Execution',color:'#8BC34A',name:'Sprint Goal Template',desc:'Write a compelling sprint goal',prompt:'Write a sprint goal for Sprint [NUMBER]. Items committed: [ITEMS WITH POINTS]. Team: [X Dev, X QA]. Sprint length: [X days]. Product goal this quarter: [GOAL]. Write 3 candidate sprint goals — different framings — then recommend one with reasoning. Include success metric, what is out of scope, and the team opening statement.'},
   {cat:'Execution',color:'#8BC34A',name:'Retrospective Facilitator',desc:'Full retro with psychological safety',prompt:'Facilitate a sprint retrospective. Sprint [X], goal was: [GOAL], achieved: [YES/PARTIALLY/NO]. Team: [X people]. Use [FORMAT]. Generate: safety framing opener, data gathering prompts, insight grouping method, action commitment format with named owners, closing check-in. Include: 3 ways this retro will fail and how to prevent each.'},
   {cat:'Execution',color:'#8BC34A',name:'Release Checklist',desc:'Go-live readiness checklist',prompt:'Create a release readiness checklist for [RELEASE]. Cover: code complete and reviewed, all AC met, regression testing passed, performance tested under expected load, security scan complete, rollback plan documented and tested, monitoring and alerts configured, stakeholder comms drafted, release notes ready, on-call rota confirmed. For each: who signs off and what evidence is required.'},
+  {cat:'Execution',color:'#8BC34A',name:'Minutes of Meeting (MOM)',desc:'Transcript or notes → structured MOM with actions',prompt:'Convert the following meeting notes or transcript into structured Minutes of Meeting.\n\nMeeting: [TITLE]\nDate: [DATE]\nAttendees: [NAMES AND ROLES]\nMeeting type: [SPRINT PLANNING / STAKEHOLDER / STRATEGY / GATE REVIEW / GENERAL]\n\nRaw notes / transcript:\n[PASTE HERE]\n\nProduce:\n\n## Meeting Summary\n2-3 sentence executive summary — what was discussed, what was decided, what happens next.\n\n## Attendees\n| Name | Role | Present |\n\n## Agenda Items Covered\nFor each topic: what was discussed, what was decided, what is still open.\n\n## Decisions Made\n| # | Decision | Owner | Date |\nEvery firm commitment or direction agreed. If it was not explicitly decided, do not include it.\n\n## Action Items\n| # | Action | Owner | Due Date | Priority (H/M/L) |\nEvery task or follow-up. Each action must have a specific named owner — not "the team."\n\n## Parking Lot\nTopics raised but deferred to a future meeting.\n\n## Next Meeting\nDate, time, proposed agenda.\n\n## Distribution List\nWho should receive these minutes.'},
   {cat:'Scrum',color:'#66BB6A',name:'Definition of Ready',desc:'Stories must pass this before sprint planning',prompt:'Write a Definition of Ready for [TEAM/PRODUCT]. Sprint length: [X days]. Team: [ROLES]. Write 8-10 binary DoR criteria covering: AC written in BDD, story sized, dependencies resolved, design available, technical unknowns identified. Include who enforces it and the 3 most common ways teams bypass it.'},
   {cat:'Scrum',color:'#66BB6A',name:'Definition of Done',desc:'Non-negotiable quality gate for every story',prompt:'Write a Definition of Done for [TEAM/PRODUCT] using [TECH STACK]. Include binary criteria for: code reviewed and merged, unit tests written and passing, integration tests passing, QA sign-off, accessibility checked, performance within SLO, deployed to [ENV], product owner accepted. Who is responsible for each criterion?'},
   {cat:'Scrum',color:'#66BB6A',name:'Velocity Trend Analysis',prompt:'Analyse sprint velocity. Last 5 sprints — [S1: X committed / Y delivered. S2-S5: same format]. Team changes: [ANY]. Give me: stability assessment, realistic planning velocity, commitment accuracy trend, root cause of any instability, and recommended capacity for next sprint.',desc:'Diagnose velocity patterns and set realistic capacity'},
@@ -3849,8 +3899,51 @@ function renderKpis(){
 function openDocGenerator(type){activeDocType=type;const config=DOC_CONFIGS[type];if(!config)return;document.getElementById('doc-gen-title').textContent=config.title;document.getElementById('doc-gen-fields').innerHTML=config.fields.map(f=>`<div class="dff"><label>${f.label}</label><input type="text" id="${f.id}" placeholder="${f.placeholder}"/></div>`).join('');document.getElementById('doc-output').style.display='none';document.getElementById('doc-generator-panel').style.display='block';document.getElementById('doc-generator-panel').scrollIntoView({behavior:'smooth'});}
 function closeDocGenerator(){document.getElementById('doc-generator-panel').style.display='none';activeDocType='';}
 async function generateDoc(){if(!apiKey){openModal();return;}if(!activeDocType)return;const config=DOC_CONFIGS[activeDocType];const fieldValues={};config.fields.forEach(f=>{fieldValues[f.id]=document.getElementById(f.id)?.value||'';});const prompt=DOC_PROMPTS[activeDocType](fieldValues);const btn=document.getElementById('doc-gen-btn');btn.textContent='⏳ Generating...';btn.disabled=true;try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:'You are a senior Product Owner. Generate professional, ready-to-use product documents. Use clear headings with ## markers, bullet points, and be specific and actionable.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'Error generating.';docOutput=text;document.getElementById('doc-output-content').innerHTML=formatMsg(text);document.getElementById('doc-output').style.display='block';toast('✅ Document generated!');}catch(e){toast(`Error: ${e.message}`);}btn.textContent='⚡ Generate with AI';btn.disabled=false;}
-function copyDoc(){navigator.clipboard.writeText(docOutput).catch(()=>{});toast('📋 Copied!');}
+function copyDoc(){navigator.clipboard.writeText(docOutput).catch(()=>{});toast('Copied!');}
 function sendDocToChat(){if(!docOutput)return;switchTab('chat',null);document.getElementById('chat-input').value=`Review this document and suggest improvements:\n\n${docOutput.substring(0,600)}...`;autoResize(document.getElementById('chat-input'));closeDocGenerator();}
+
+// ══ MOM GENERATOR ══
+let momOutput='';
+
+function openMomPanel(){
+  document.getElementById('mom-panel').style.display='block';
+  document.getElementById('doc-generator-panel').style.display='none';
+  document.getElementById('mom-panel').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function closeMomPanel(){
+  document.getElementById('mom-panel').style.display='none';
+  momOutput='';
+}
+
+async function generateMom(){
+  if(!apiKey){openModal();return;}
+  const title      = document.getElementById('mom-title').value.trim();
+  const date       = document.getElementById('mom-date').value.trim();
+  const attendees  = document.getElementById('mom-attendees').value.trim();
+  const type       = document.getElementById('mom-type').value;
+  const transcript = document.getElementById('mom-transcript').value.trim();
+  if(!transcript){toast('Paste your transcript or notes first');return;}
+  const typeLabels={'sprint-planning':'Sprint Planning','sprint-review':'Sprint Review','retrospective':'Retrospective','stakeholder':'Stakeholder Review','discovery':'Discovery / Research','strategy':'Strategy / Roadmap','gate-review':'Gate Review','1on1':'1-on-1','general':'General'};
+  const prompt=`Convert the following meeting notes or transcript into professional, structured Minutes of Meeting. Only include what was actually discussed or decided — never invent content.\n\nMeeting: ${title||'Not specified'}\nDate: ${date||'Not specified'}\nAttendees: ${attendees||'Not specified'}\nType: ${typeLabels[type]||type}\n\nRaw transcript / notes:\n---\n${transcript}\n---\n\nProduce this exact structure:\n\n## Minutes of Meeting\n**${title||'Meeting'}** | ${date||'Date TBC'} | ${typeLabels[type]||type}\n\n---\n\n## Executive Summary\n2-3 sentences: what was discussed, what was decided, what happens next.\n\n## Attendees\n| Name | Role | Status |\n|---|---|---|\n\n## Agenda Items Discussed\nFor each topic: what was discussed, what conclusion was reached, what remains open.\n\n## Decisions Made\n| # | Decision | Decision Maker | Effective From |\n|---|---|---|---|\nOnly firm decisions — not discussions or proposals.\n\n## Action Items\n| # | Action | Owner | Due Date | Priority (H/M/L) |\n|---|---|---|---|---|\nEvery action must have a specific named owner — not "the team".\n\n## Parking Lot\nTopics raised but deferred to a future meeting.\n\n## Risks / Concerns Flagged\nAny blockers or concerns raised.\n\n## Next Steps\nWhat happens after this meeting and when is the next touchpoint.\n\n## Distribution\nWho should receive these minutes.\n\n---\n*MOM prepared by ProductOS | ${date||new Date().toLocaleDateString()}*${getCtx()}`;
+
+  const btn=document.getElementById('mom-gen-btn');
+  btn.textContent='Generating...';btn.disabled=true;
+  try{
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:'You are a senior Product Owner creating precise, professional Minutes of Meeting from raw transcripts. You only include what was actually said or decided. Every action item has a specific named owner and a due date. Your output is ready to send immediately.',messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    momOutput=data.content?.map(b=>b.text||'').join('')||'';
+    if(!momOutput){toast('No response — check API key');return;}
+    document.getElementById('mom-output-content').innerHTML=formatMsg(momOutput);
+    document.getElementById('mom-output').style.display='block';
+    document.getElementById('mom-output').scrollIntoView({behavior:'smooth',block:'start'});
+    toast('MOM generated — ready to copy!');
+  }catch(err){toast('Error generating MOM');}
+  btn.textContent='⚡ Generate MOM with AI';btn.disabled=false;
+}
+
+function copyMom(){navigator.clipboard.writeText(momOutput).catch(()=>{});toast('MOM copied!');}
+function sendMomToChat(){if(!momOutput)return;switchTab('chat',null);document.getElementById('chat-input').value=`Review this MOM and:\n1. Check for missing action items\n2. Improve owner/due date specificity\n3. Flag any decisions needing more clarity\n\n${momOutput.substring(0,800)}...`;autoResize(document.getElementById('chat-input'));toast('MOM sent to chat for refinement');}
 
 // ══ TEMPLATES ══
 function buildTemplates(){
