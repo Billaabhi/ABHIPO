@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
+<script>
+// Set theme before first paint to prevent flash
+(function(){
+  var t=localStorage.getItem('pos_theme');
+  if(t==='light') document.documentElement.setAttribute('data-theme','light');
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Product OS — AI-Powered Product Workspace</title>
@@ -725,7 +732,7 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
     <span id="active-brain-label">🧠 PO Brain</span>
   </div>
   <div class="tr">
-    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">🌙 Dark</button>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀️ Light</button>
     <button class="api-btn" id="api-btn" onclick="openModal()"><div class="dot"></div><span id="api-btn-text">Add API Key</span></button>
   </div>
 </div>
@@ -1998,7 +2005,7 @@ let apiKey='',isLoading=false,chatHistory=[],productContext={},activeFramework='
 let backlogItems=[],roadmapItems=[],kpiItems=[],kpiLog=[],knowledgeBase=[];
 let sprintHistory=[],gateProjects=[],stakeholderItems=[],debtItems=[],feedbackItems=[];
 let selectedBrains=['po'],activeDocType='',docOutput='',selectedSwatchColor='#6C47FF';
-let csvPending=null,pendingImageId=null,isDark=true;
+let csvPending=null,pendingImageId=null,isDark=localStorage.getItem('pos_theme')!=='light';
 let activeBrain='po';
 
 // ── XSS protection — escape all user-supplied strings before innerHTML ──
@@ -4740,7 +4747,8 @@ Make this ready to facilitate tomorrow morning.`;
 function toggleTheme(){
   isDark=!isDark;
   document.documentElement.setAttribute('data-theme',isDark?'dark':'light');
-  document.getElementById('theme-toggle').textContent=isDark?'🌙 Dark':'☀️ Light';
+  document.getElementById('theme-toggle').textContent=isDark?'☀️ Light':'🌙 Dark';
+  try{ localStorage.setItem('pos_theme', isDark?'dark':'light'); }catch(e){}
 }
 
 // ══ TAB SWITCHING ══
@@ -7850,7 +7858,18 @@ function onBrainSwitch(brainId){
 function openModal(){document.getElementById('api-modal').classList.remove('hidden');setTimeout(()=>document.getElementById('api-key-input').focus(),100);}
 function closeModal(){document.getElementById('api-modal').classList.add('hidden');}
 function toggleKey(){const input=document.getElementById('api-key-input');input.type=input.type==='password'?'text':'password';document.getElementById('eye-btn').textContent=input.type==='password'?'👁':'🙈';}
-function saveApiKey(){const val=document.getElementById('api-key-input').value.trim();if(!val||!val.startsWith('sk-ant-')){toast('Key must start with sk-ant-…');return;}apiKey=val;closeModal();const btn=document.getElementById('api-btn');btn.classList.add('connected');document.getElementById('api-btn-text').textContent='API Connected';toast('🔑 Connected! Product OS ready.');}
+function saveApiKey(){
+  const val=document.getElementById('api-key-input').value.trim();
+  if(!val||!val.startsWith('sk-ant-')){toast('Key must start with sk-ant-…');return;}
+  apiKey=val;
+  try{ localStorage.setItem('pos_api_key', val); }catch(e){}
+  closeModal();
+  const btn=document.getElementById('api-btn');
+  if(btn) btn.classList.add('connected');
+  const txt=document.getElementById('api-btn-text');
+  if(txt) txt.textContent='API Connected';
+  toast('✅ API key saved — active for this session');
+}
 
 // ══ STATS ══
 function updateStats(){
@@ -11998,8 +12017,11 @@ function usePromptByIdx(idx, bid){
 
 // ══ INIT ══
 window.addEventListener('DOMContentLoaded',()=>{
-  buildBrainBar();
-  buildRoadmapGrid();
+  // Sync theme button text with actual isDark state on load
+  const _themeBtn = document.getElementById('theme-toggle');
+  if(_themeBtn) _themeBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
+
+  buildBrainBard();
   buildTemplates();
   buildPromptRepo();
   updateTeamSummary();
@@ -12016,7 +12038,18 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderFeedbackList();
   checkKpiAlerts();
   refreshDashHealth();
-  openModal();
+  // Restore API key from localStorage if previously saved
+  const savedKey = localStorage.getItem('pos_api_key');
+  if(savedKey && savedKey.startsWith('sk-ant-')){
+    apiKey = savedKey;
+    const btn = document.getElementById('api-btn');
+    if(btn){ btn.classList.add('connected'); }
+    const txt = document.getElementById('api-btn-text');
+    if(txt) txt.textContent = 'API Connected';
+  } else {
+    // Only show modal on first visit / no saved key
+    setTimeout(openModal, 400);
+  }
 });
 
 
