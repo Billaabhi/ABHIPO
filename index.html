@@ -11778,7 +11778,7 @@ For each OWASP Top 10:
 
 **A02: Cryptographic Failures** — sensitive data in plaintext? Passwords hashed (bcrypt/argon2)? Secrets in code?
 
-**A03: Injection** — SQL/NoSQL/command injection in all inputs. Test: ' OR 1=1 --, ; DROP TABLE, <script>alert(1)</script>
+**A03: Injection** — SQL/NoSQL/command injection in all input fields and query parameters. Test with known payloads in a safe environment.
 
 **A04: Insecure Design** — rate limits? Account lockout? Business logic bypass?
 
@@ -12021,7 +12021,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   const _themeBtn = document.getElementById('theme-toggle');
   if(_themeBtn) _themeBtn.textContent = isDark ? '☀️ Light' : '🌙 Dark';
 
-  buildBrainBard();
+  buildBrainBar();
   buildTemplates();
   buildPromptRepo();
   updateTeamSummary();
