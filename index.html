@@ -8538,7 +8538,12 @@ function openDocGenerator(type){
   document.addEventListener('click', document._sugCloseHandler);
 }
 function closeDocGenerator(){document.getElementById('doc-generator-panel').style.display='none';activeDocType='';}
-async function generateDoc(){if(!apiKey){openModal();return;}if(!activeDocType)return;const config=DOC_CONFIGS[activeDocType];const fieldValues={};config.fields.forEach(f=>{fieldValues[f.id]=document.getElementById(f.id)?.value||'';});const prompt=DOC_PROMPTS[activeDocType](fieldValues);const btn=document.getElementById('doc-gen-btn');btn.textContent='⏳ Generating...';btn.disabled=true;try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,system:'You are a senior Product Owner with 15+ years experience. Generate professional, production-ready product documents. Use clear ## headings, tables where specified, bullet points for lists. Be specific, actionable, and honest — not generic.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'Error generating.';docOutput=text;addAuditEntry('doc',`Document generated: ${activeDocType} — ${DOC_CONFIGS[activeDocType]?.title||activeDocType}`);document.getElementById('doc-output-content').innerHTML=formatOutput(text,activeDocType);document.getElementById('doc-output').style.display='block';toast('Document generated!');}catch(e){toast(`Error: ${e.message}`);}btn.textContent='⚡ Generate with AI';btn.disabled=false;}
+async function generateDoc(){if(!apiKey){openModal();return;}if(!activeDocType)return;const config=DOC_CONFIGS[activeDocType];const fieldValues={};config.fields.forEach(f=>{fieldValues[f.id]=document.getElementById(f.id)?.value||'';});const prompt=DOC_PROMPTS[activeDocType](fieldValues);const btn=document.getElementById('doc-gen-btn');btn.textContent='⏳ Generating...';btn.disabled=true;try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,system:'You are a senior Product Owner with 15+ years experience. Generate professional, production-ready product documents. Use clear ## headings, tables where specified, bullet points for lists. Be specific, actionable, and honest — not generic.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'Error generating.';docOutput=text;addAuditEntry('doc',`Document generated: ${activeDocType} — ${DOC_CONFIGS[activeDocType]?.title||activeDocType}`);document.getElementById('doc-output-content').innerHTML=formatOutput(text,activeDocType);document.getElementById('doc-output').style.display='block';toast('Document generated!');}catch(e){
+    const msg = e.message.includes('fetch') || e.message.includes('Failed')
+      ? 'API not reachable — check you are on the Vercel deployment and your API key is set'
+      : `Error: ${e.message}`;
+    toast(msg);
+  }btn.textContent='⚡ Generate with AI';btn.disabled=false;}
 function copyDoc(){navigator.clipboard.writeText(docOutput).catch(()=>{});toast('Copied!');}
 function regenerateDoc(){if(activeDocType) generateDoc();}
 function sendDocToChat(){if(!docOutput)return;switchTab('chat',null);document.getElementById('chat-input').value=`Review this document and suggest improvements:\n\n${docOutput.substring(0,600)}...`;autoResize(document.getElementById('chat-input'));closeDocGenerator();}
@@ -14292,17 +14297,20 @@ function renderPromptRepo(bid){
   const grid = document.getElementById('prompt-repo-grid');
   if(!grid) return;
   const items = bid==='all' ? PROMPT_REPO : PROMPT_REPO.filter(p=>p.brain===bid);
+  // Store filtered list globally — usePromptByIdx reads from this
+  window._filteredPrompts = items;
   if(!items.length){
     grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">No prompts found for this brain</div>';
     return;
   }
+  // Use index into filtered array (correct — _filteredPrompts matches)
   grid.innerHTML = items.map((p,i)=>`
-    <div class="pc" style="--pc:${p.color}" data-pidx="${i}" onclick="usePromptByIdx(this.dataset.pidx,'${bid}')">
+    <div class="pc" style="--pc:${p.color}" data-pidx="${i}" onclick="usePromptByIdx(${i})">
       <div class="pc-brain">${p.icon} ${p.brain.toUpperCase()} BRAIN</div>
       <div class="pc-name">${p.name}</div>
       <div class="pc-prompt">${p.prompt.replace(/</g,'&lt;').replace(/>/g,'&gt;').substring(0,160)}…</div>
       <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px">
-        <span class="pc-use">Load in AI Chat →</span>
+        <span class="pc-use">Use this prompt →</span>
         <span style="font-size:9px;color:var(--muted)">${(p.prompt.match(/\[[A-Z][A-Z\s\/&\-\.]{2,35}\]/g)||[]).length} fields to fill</span>
       </div>
     </div>`).join('');
@@ -16613,7 +16621,11 @@ Return ONLY the JSON object. Nothing else.`;
     renderSuite(_suiteData);
     addAuditEntry('doc', `User Story Suite generated: ${_suiteData.product}`);
   } catch(e) {
-    toast(`Error: ${e.message} — try again or simplify the description`);
+    const msg = e.message.includes('fetch') || e.message.includes('Failed')
+      ? 'API not reachable — make sure you are on the Vercel deployment (not a local HTML file) and your API key is set'
+      : `Error: ${e.message}`;
+    toast(msg, 'error');
+    document.getElementById('suite-status') && (document.getElementById('suite-status').textContent = msg);
   }
   btn.textContent = '⚡ Generate Suite'; btn.disabled = false;
 }
