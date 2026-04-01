@@ -2294,6 +2294,7 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
 .cc-list-desc{font-size:10.5px;color:var(--muted2);flex:2;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cc-list-brain{font-size:8.5px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);white-space:nowrap;flex-shrink:0}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 
@@ -8076,10 +8077,23 @@ async function processChatFile(file){
     const text = await toText(file);
     chatAttachments.push({id,name:file.name,type:'csv',ext,sizeKb,content:text.substring(0,6000)});
   } else if(['xlsx','xls'].includes(ext)){
-    const buf = await toArrayBuffer(file);
-    const raw = new TextDecoder('utf-8',{fatal:false}).decode(new Uint8Array(buf));
-    const txt = (raw.match(/[\x20-\x7E]{4,}/g)||[]).slice(0,300).join(' | ');
-    chatAttachments.push({id,name:file.name,type:'xlsx',ext,sizeKb,content:txt.substring(0,5000)});
+    try{
+      const buf = await toArrayBuffer(file);
+      const wb = XLSX.read(new Uint8Array(buf), {type:'array'});
+      let txt = `[Spreadsheet: ${file.name}]\n`;
+      wb.SheetNames.forEach(sheetName => {
+        const ws = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        txt += `\n--- Sheet: ${sheetName} ---\n`;
+        rows.forEach(row => {
+          const cells = row.map(v => (v===null||v===undefined)?'':String(v).trim()).filter(v=>v!=='');
+          if(cells.length) txt += cells.join(' | ') + '\n';
+        });
+      });
+      chatAttachments.push({id,name:file.name,type:'xlsx',ext,sizeKb,content:txt.substring(0,10000)});
+    } catch(e){
+      chatAttachments.push({id,name:file.name,type:'xlsx',ext,sizeKb,content:`[Excel: ${file.name}] — parse error: ${e.message}`});
+    }
   } else if(ext==='pdf'){
     const buf = await toArrayBuffer(file);
     const raw = new TextDecoder('latin1').decode(new Uint8Array(buf));
@@ -8287,11 +8301,24 @@ async function processOneFile(file){
     setTimeout(()=>offerCsvImport(file.name,text),800);return;
   }
   if(['xlsx','xls'].includes(ext)){
-    const ab=await readAsArrayBuffer(file);
-    const bytes=new Uint8Array(ab);const decoder=new TextDecoder('utf-8',{fatal:false});
-    const raw=decoder.decode(bytes);const strings=raw.match(/[\x20-\x7E]{4,}/g)||[];
-    const text=`[Spreadsheet: ${file.name}]\n${strings.slice(0,200).join(' | ')}`;
-    knowledgeBase.push({id:Date.now()+Math.random(),name:file.name,type:'xlsx',ext,size:sizeKb,content:text});return;
+    try{
+      const ab = await readAsArrayBuffer(file);
+      const wb = XLSX.read(new Uint8Array(ab), {type:'array'});
+      let text = `[Spreadsheet: ${file.name}]\n`;
+      wb.SheetNames.forEach(sheetName => {
+        const ws = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1, defval:''});
+        text += `\n--- Sheet: ${sheetName} ---\n`;
+        rows.forEach(row => {
+          const cells = row.map(v => (v===null||v===undefined)?'':String(v).trim()).filter(v=>v!=='');
+          if(cells.length) text += cells.join(' | ') + '\n';
+        });
+      });
+      knowledgeBase.push({id:Date.now()+Math.random(),name:file.name,type:'xlsx',ext,size:sizeKb,content:text.substring(0,12000)});
+    } catch(e){
+      knowledgeBase.push({id:Date.now()+Math.random(),name:file.name,type:'xlsx',ext,size:sizeKb,content:`[Excel: ${file.name}] — could not parse: ${e.message}`});
+    }
+    return;
   }
   if(ext==='pdf'){
     const ab=await readAsArrayBuffer(file);const bytes=new Uint8Array(ab);
