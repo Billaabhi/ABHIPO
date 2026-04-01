@@ -2830,22 +2830,15 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
                 <option value="0">— (Kanban / no fixed sprint)</option>
               </select>
             </div>
-            <input type="hidden" id="ctx-days-lost" value="0"/>
-          </div>
-
-          <!-- ── PER-ROLE LEAVE PLANNER ── -->
-          <div style="margin-top:8px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:10px 12px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-              <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">📅 Leave planner — days off per role this sprint</span>
-              <span id="leave-total-badge" style="font-size:9px;font-weight:700;padding:2px 9px;border-radius:8px;background:var(--bg4);color:var(--muted)">0 days lost</span>
+            <div class="cf">
+              <label title="Public holidays that fall within this sprint — bank holidays, Eid, national days etc.">🗓️ Public holidays (days)</label>
+              <input type="number" id="ctx-days-lost" min="0" max="20" value="0" placeholder="e.g. 2"
+                oninput="updateDaysLostMax();buildLeaveRows();updateCapacity()"
+                title="Enter working days lost to public holidays this sprint (not personal leave — use the leave planner below for that)"/>
             </div>
-            <div id="leave-rows" style="display:flex;flex-direction:column;gap:5px"></div>
-            <div style="font-size:9px;color:var(--muted);margin-top:7px;line-height:1.5">
-              💡 Enter total days off per role — e.g. 1 of 4 devs off 3 days → enter 3 for Developers
+            <div class="cf"><label>Historical velocity (SP)</label>
+              <input type="number" id="ctx-velocity" min="0" max="999" placeholder="e.g. 45" oninput="updateCapacity()"/>
             </div>
-          </div>
-          <div style="display:none"><!-- leave spacer -->
-            <div class="cf"><label>Historical velocity (SP)</label><input type="number" id="ctx-velocity" min="0" max="999" placeholder="e.g. 45" oninput="updateCapacity()"/></div>
             <div class="cf"><label>Focus factor %</label>
               <select id="ctx-focus" onchange="updateCapacity()">
                 <option value="50">50% — Kanban / heavy ops</option>
@@ -2859,15 +2852,22 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
             </div>
           </div>
 
-          <!-- EXTENDED CAPACITY FIELDS -->
+          <!-- ── PER-ROLE LEAVE PLANNER ── -->
+          <div style="margin-top:8px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:10px 12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">📅 Leave planner — personal days off per role</span>
+              <span id="leave-total-badge" style="font-size:9px;font-weight:700;padding:2px 9px;border-radius:8px;background:var(--bg4);color:var(--muted)">0 days lost</span>
+            </div>
+            <div id="leave-rows" style="display:flex;flex-direction:column;gap:5px"></div>
+            <div style="font-size:9px;color:var(--muted);margin-top:7px;line-height:1.5">
+              💡 Personal leave only — public holidays go in the field above. E.g. 1 of 4 devs off 3 days → enter 3 for Developers
+            </div>
+          </div>
+
+                    <!-- EXTENDED CAPACITY FIELDS -->
           <div class="ctx-section-lbl" style="margin-top:2px;font-size:8.5px;color:var(--muted)">Advanced Capacity Inputs</div>
           <div class="ctx-grid">
-            <div class="cf">
-              <label title="Total person-days on leave across the whole team this sprint">Leave days (team total)</label>
-              <input type="number" id="ctx-leave-days" min="0" max="50" value="0" placeholder="e.g. 3"
-                oninput="updateCapacity()"
-                title="Sum of all individual leave days — e.g. 2 people × 1 day = 2"/>
-            </div>
+
             <div class="cf">
               <label title="Total hours per sprint consumed by ceremonies: standups, planning, retro, reviews, refinement">Ceremony hours/sprint</label>
               <input type="number" id="ctx-ceremony-hrs" min="0" max="40" value="8" placeholder="e.g. 8"
@@ -7029,9 +7029,16 @@ function updateLeaveTotals(){
       el.style.color = pct>=50?'var(--red,#FF4757)':pct>=25?'var(--yellow,#F5A623)':'var(--green,#00C896)';
     }
   });
-  // Feed total into the hidden ctx-days-lost so existing updateCapacity() still works
-  const hidden = document.getElementById('ctx-days-lost');
-  if(hidden) hidden.value = total;
+  // Store leave total in its OWN separate field — NOT ctx-days-lost
+  // ctx-days-lost = public holidays only (user-entered separately)
+  let leaveField = document.getElementById('ctx-leave-total');
+  if(!leaveField){
+    leaveField = document.createElement('input');
+    leaveField.type = 'hidden';
+    leaveField.id = 'ctx-leave-total';
+    document.body.appendChild(leaveField);
+  }
+  leaveField.value = total;
   // Update badge
   const badge = document.getElementById('leave-total-badge');
   if(badge){
@@ -7074,7 +7081,8 @@ function updateCapacity(){
   const focusPct     = parseInt(document.getElementById('ctx-focus')?.value||70) / 100;
 
   // New advanced inputs
-  const leaveDays    = parseInt(document.getElementById('ctx-leave-days')?.value||0);
+  // Per-role leave total from the leave planner (personal leave only)
+  const leaveDays    = typeof getTotalLeaveDays === 'function' ? getTotalLeaveDays() : 0;
   const ceremonyHrs  = parseInt(document.getElementById('ctx-ceremony-hrs')?.value||8);
   const debtPct      = parseInt(document.getElementById('ctx-debt-pct')?.value||15) / 100;
   const depBuffer    = parseInt(document.getElementById('ctx-dep-buffer')?.value||0);
@@ -7300,7 +7308,7 @@ function loadCapacityToChat(){
   const velocity    = document.getElementById('ctx-velocity')?.value || '';
   const focus       = document.getElementById('ctx-focus')?.value || '70';
   const sprintNum   = document.getElementById('ctx-sprint-num')?.value || '[X]';
-  const leaveDays   = document.getElementById('ctx-leave-days')?.value || '0';
+  const leaveDays   = (typeof getTotalLeaveDays==='function'?getTotalLeaveDays():0).toString();
   const ceremonyHrs = document.getElementById('ctx-ceremony-hrs')?.value || '8';
   const debtPct     = document.getElementById('ctx-debt-pct')?.value || '15';
   const depBuffer   = document.getElementById('ctx-dep-buffer')?.value || '0';
@@ -7350,7 +7358,8 @@ Support roles (${totalPeople - deliveryTeam} people):
 
 ━━━ SPRINT PARAMETERS ━━━
 Sprint length: ${sprintDays} working days
-Days lost (holidays/leave from schedule): ${daysLost}
+Public holidays this sprint: ${daysLost} day${daysLost!==1?'s':''}
+Effective sprint days: ${Math.max(0, sprintDays - daysLost)} working days
 Team leave days (person-days total): ${leaveDays}
 Leave by role:${(()=>{try{return getRoleLeaveBreakdown().map(r=>'\n  '+r.icon+' '+r.label+': '+r.leave+'d off → '+r.pct+'% cap remaining').join('');}catch(e){return ''}})()}
 Ceremony overhead: ${ceremonyHrs} hours this sprint
@@ -7448,7 +7457,7 @@ function saveCtx(){
     daysLost:     document.getElementById('ctx-days-lost')?.value     || '0',
     velocity:     document.getElementById('ctx-velocity')?.value      || '',
     focus:        document.getElementById('ctx-focus')?.value         || '70',
-    leaveDays:    document.getElementById('ctx-leave-days')?.value    || '0',
+    leaveDays:    (typeof getTotalLeaveDays==='function'?getTotalLeaveDays():0).toString(),
     ceremonyHrs:  document.getElementById('ctx-ceremony-hrs')?.value  || '8',
     debtPct:      document.getElementById('ctx-debt-pct')?.value      || '15',
     depBuffer:    document.getElementById('ctx-dep-buffer')?.value    || '0',
