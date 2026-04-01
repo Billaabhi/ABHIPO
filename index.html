@@ -2245,6 +2245,54 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
   height: 0.5px; background: var(--border); margin: 4px 0 14px;
 }
 
+
+/* ── Slash Recommendation Panel ── */
+#slash-rec::-webkit-scrollbar{width:3px}
+#slash-rec::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.slash-rec-item{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:8px 14px;cursor:pointer;transition:background .1s;
+}
+.slash-rec-item:hover,.slash-rec-item.selected{background:var(--accent-l)}
+.slash-rec-cmd{
+  font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;
+  color:var(--accent);white-space:nowrap;min-width:110px;
+}
+.slash-rec-desc{font-size:11px;color:var(--muted2);line-height:1.4}
+.slash-rec-tag{
+  font-size:8px;font-weight:700;padding:1px 6px;border-radius:8px;
+  background:var(--bg3);color:var(--muted);border:0.5px solid var(--border2);
+  white-space:nowrap;margin-left:auto;align-self:flex-start;flex-shrink:0;
+}
+
+/* ── Commands Repo ── */
+.cc{
+  background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;
+  padding:14px 16px;cursor:pointer;transition:all .18s;position:relative;overflow:hidden;
+}
+.cc::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2.5px;
+  background:var(--cc);
+}
+.cc:hover{border-color:var(--cc);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.15)}
+.cc-brain{font-size:8.5px;font-weight:700;color:var(--cc);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;opacity:.85}
+.cc-cmd{font-size:13px;font-weight:800;color:var(--text);font-family:'JetBrains Mono',monospace;margin-bottom:4px;letter-spacing:-.01em}
+.cc-label{font-size:11px;font-weight:600;color:var(--text);margin-bottom:4px}
+.cc-desc{font-size:10.5px;color:var(--muted2);line-height:1.5;margin-bottom:8px}
+.cc-use{font-size:9.5px;font-weight:700;color:var(--cc);opacity:.8;transition:opacity .15s}
+.cc:hover .cc-use{opacity:1}
+
+/* List view */
+.cc-list-item{
+  display:flex;align-items:center;gap:12px;padding:9px 14px;
+  background:var(--bg2);border:0.5px solid var(--border2);border-radius:9px;
+  cursor:pointer;transition:all .15s;
+}
+.cc-list-item:hover{border-color:var(--cc);background:var(--bg3)}
+.cc-list-cmd{font-size:12px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--cc);min-width:130px;flex-shrink:0}
+.cc-list-label{font-size:12px;font-weight:600;color:var(--text);flex:1;min-width:0}
+.cc-list-desc{font-size:10.5px;color:var(--muted2);flex:2;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cc-list-brain{font-size:8.5px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);white-space:nowrap;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -2491,6 +2539,7 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
   <div class="nav-tab" onclick="switchTab('docs',this)">📄 Docs</div>
   <div class="nav-tab" onclick="switchTab('templates',this)">📚 Templates</div>
   <div class="nav-tab" onclick="switchTab('prompts',this)">💡 Prompts</div>
+  <div class="nav-tab" onclick="switchTab('commands',this)">⚡ Commands</div>
 </div>
 
 <!-- BRAIN SELECTOR BAR -->
@@ -2772,7 +2821,7 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
           <div class="ctx-section-lbl" style="margin-top:10px">Sprint Capacity</div>
           <div class="ctx-grid">
             <div class="cf"><label>Sprint length (days)</label>
-              <select id="ctx-sprint-days" onchange="updateDaysLostMax();updateCapacity()">
+              <select id="ctx-sprint-days" onchange="updateDaysLostMax();buildLeaveRows();updateCapacity()">
                 <option value="5">5 days — 1 week</option>
                 <option value="10" selected>10 days — 2 weeks</option>
                 <option value="15">15 days — 3 weeks</option>
@@ -2781,7 +2830,21 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
                 <option value="0">— (Kanban / no fixed sprint)</option>
               </select>
             </div>
-            <div class="cf"><label>Days lost this sprint</label><input type="number" id="ctx-days-lost" min="0" max="10" value="0" placeholder="0" oninput="updateCapacity()"/></div>
+            <input type="hidden" id="ctx-days-lost" value="0"/>
+          </div>
+
+          <!-- ── PER-ROLE LEAVE PLANNER ── -->
+          <div style="margin-top:8px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:10px 12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+              <span style="font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em">📅 Leave planner — days off per role this sprint</span>
+              <span id="leave-total-badge" style="font-size:9px;font-weight:700;padding:2px 9px;border-radius:8px;background:var(--bg4);color:var(--muted)">0 days lost</span>
+            </div>
+            <div id="leave-rows" style="display:flex;flex-direction:column;gap:5px"></div>
+            <div style="font-size:9px;color:var(--muted);margin-top:7px;line-height:1.5">
+              💡 Enter total days off per role — e.g. 1 of 4 devs off 3 days → enter 3 for Developers
+            </div>
+          </div>
+          <div style="display:none"><!-- leave spacer -->
             <div class="cf"><label>Historical velocity (SP)</label><input type="number" id="ctx-velocity" min="0" max="999" placeholder="e.g. 45" oninput="updateCapacity()"/></div>
             <div class="cf"><label>Focus factor %</label>
               <select id="ctx-focus" onchange="updateCapacity()">
@@ -3366,7 +3429,18 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
     </div>
 
     <!-- INPUT AREA -->
-    <div class="chat-input-wrap">
+    <div class="chat-input-wrap" style="position:relative">
+<!-- ── SLASH RECOMMENDATIONS ── -->
+<div id="slash-rec" style="display:none;position:absolute;bottom:100%;left:0;right:0;z-index:300;
+  background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px 12px 0 0;
+  box-shadow:0 -4px 24px rgba(0,0,0,.25);max-height:280px;overflow-y:auto;padding:6px 0;">
+  <div style="padding:5px 12px 4px;font-size:9px;font-weight:700;color:var(--muted);
+    text-transform:uppercase;letter-spacing:.08em;border-bottom:0.5px solid var(--border)">
+    ⚡ Slash commands — <span id="slash-rec-count">0</span> matching
+  </div>
+  <div id="slash-rec-list"></div>
+</div>
+
 
       <!-- FRAMEWORK CHIPS -->
       <div id="ctx-active-bar" style="display:none;align-items:center;gap:6px;padding:4px 14px 0;font-size:9.5px;color:var(--accent);font-weight:600">
@@ -3426,10 +3500,10 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
         <!-- TEXT + SEND ROW -->
         <div class="cin-row">
           <textarea class="chat-ta" id="chat-input"
-            placeholder="Ask anything… or paste an image with Ctrl+V"
+            placeholder="Ask anything… type / for 183 commands"
             rows="1"
             onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"
-            oninput="autoResize(this)"
+            oninput="autoResize(this);showSlashRec(this.value);"
             onpaste="handleChatPaste(event)"></textarea>
           <button class="send-btn" id="send-btn" onclick="sendMsg()">↑</button>
         </div>
@@ -4058,6 +4132,39 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
     </div>
     <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px" id="prompt-brain-filter"></div>
     <div id="prompt-repo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+  </div>
+</div>
+
+
+<!-- ═══════════════ COMMANDS PAGE ═══════════════ -->
+<div class="page" id="page-commands">
+  <div class="tab-page">
+
+    <!-- Header -->
+    <div class="tb">
+      <h2>⚡ Commands Reference</h2>
+      <span style="font-size:11px;color:var(--muted2)" id="cmd-count-lbl">183 slash commands — click any to load in AI Chat</span>
+    </div>
+
+    <!-- Brain filter -->
+    <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px" id="cmd-brain-filter"></div>
+
+    <!-- Search + stats row -->
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <input type="text" id="cmd-search"
+        placeholder="Search commands…"
+        style="font-size:11px;padding:6px 12px;border:0.5px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit;outline:none;width:220px"
+        oninput="filterCmdRepo(this.value)"/>
+      <span id="cmd-results-lbl" style="font-size:10px;color:var(--muted)"></span>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="gbtn" onclick="setCmdView('grid')" id="cmd-view-grid" style="font-size:10px;background:var(--accent);color:#fff;border-color:var(--accent)">⊞ Grid</button>
+        <button class="gbtn" onclick="setCmdView('list')" id="cmd-view-list" style="font-size:10px">☰ List</button>
+      </div>
+    </div>
+
+    <!-- Commands grid/list -->
+    <div id="cmd-repo-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
+
   </div>
 </div>
 
@@ -6817,11 +6924,14 @@ function switchTab(tab,el){
   if(page) page.classList.add('active');
   if(el) el.classList.add('active');
   else {
-    const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7};
+    const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7,commands:8};
     const idx=tabs[tab];
     const navTabs = document.querySelectorAll('.nav-tab');
     if(idx!==undefined && navTabs[idx]) navTabs[idx].classList.add('active');
   }
+  if(tab==='prompts')  buildPromptRepo();
+  if(tab==='templates') buildTemplates && buildTemplates();
+  if(tab==='commands') buildCmdRepo();
   window.scrollTo(0,0);
 }
 
@@ -6862,6 +6972,99 @@ function updateDaysLostMax(){
   if(el) el.max = sprintDays - 1;
   updateCapacity();
 }
+
+
+// ══ PER-ROLE LEAVE PLANNER ════════════════════════════════════
+const LEAVE_ROLES = [
+  {id:'ctx-dev',    key:'dev',    label:'Developers',        icon:'💻'},
+  {id:'ctx-qa',     key:'qa',     label:'QA Engineers',      icon:'🧪'},
+  {id:'ctx-arch',   key:'arch',   label:'Architects',        icon:'🏛️'},
+  {id:'ctx-design', key:'design', label:'Designers',         icon:'🎨'},
+  {id:'ctx-ba',     key:'ba',     label:'Business Analysts', icon:'🔎'},
+  {id:'ctx-sm',     key:'sm',     label:'Scrum Masters',     icon:'🏃'},
+  {id:'ctx-devops', key:'devops', label:'DevOps / Infra',    icon:'⚙️'},
+  {id:'ctx-po',     key:'po',     label:'POs / PMs',         icon:'🧠'},
+];
+
+function buildLeaveRows(){
+  const container = document.getElementById('leave-rows');
+  if(!container) return;
+  const sd = parseInt(document.getElementById('ctx-sprint-days')?.value||10);
+  container.innerHTML = '';
+  LEAVE_ROLES.forEach(role => {
+    const count = parseInt(document.getElementById(role.id)?.textContent||0);
+    if(!count) return;
+    const prev = parseInt(document.getElementById('leave-'+role.key)?.value||0);
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:7px';
+    row.innerHTML = `
+      <span style="font-size:15px;flex-shrink:0">${role.icon}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:11.5px;font-weight:700;color:var(--text)">${role.label}</div>
+        <div style="font-size:9px;color:var(--muted2)">${count} person${count>1?'s':''} · ${count*sd} person-days available this sprint</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+        <label style="font-size:9px;color:var(--muted2);white-space:nowrap">Days off:</label>
+        <input type="number" id="leave-${role.key}" min="0" max="${count*sd}" value="${prev}"
+          style="width:54px;padding:4px 6px;border:0.5px solid var(--border2);border-radius:6px;background:var(--bg3);color:var(--text);font-size:12px;text-align:center;outline:none"
+          oninput="updateLeaveTotals();updateCapacity()"/>
+        <span id="leave-pct-${role.key}" style="font-size:9px;min-width:80px;text-align:right;font-weight:600"></span>
+      </div>`;
+    container.appendChild(row);
+  });
+  updateLeaveTotals();
+}
+
+function updateLeaveTotals(){
+  let total = 0;
+  const sd = parseInt(document.getElementById('ctx-sprint-days')?.value||10);
+  LEAVE_ROLES.forEach(role => {
+    const val = parseInt(document.getElementById('leave-'+role.key)?.value||0);
+    const n   = parseInt(document.getElementById(role.id)?.textContent||0);
+    total += val;
+    const el = document.getElementById('leave-pct-'+role.key);
+    if(el && n > 0 && sd > 0){
+      const pct = Math.round(val/(n*sd)*100);
+      el.textContent = val > 0 ? `(-${pct}% cap)` : '';
+      el.style.color = pct>=50?'var(--red,#FF4757)':pct>=25?'var(--yellow,#F5A623)':'var(--green,#00C896)';
+    }
+  });
+  // Feed total into the hidden ctx-days-lost so existing updateCapacity() still works
+  const hidden = document.getElementById('ctx-days-lost');
+  if(hidden) hidden.value = total;
+  // Update badge
+  const badge = document.getElementById('leave-total-badge');
+  if(badge){
+    badge.textContent = total > 0 ? total+' person-day'+(total>1?'s':'')+' lost' : '0 days lost';
+    badge.style.background = total>0?'rgba(255,71,87,0.12)':'var(--bg4)';
+    badge.style.color      = total>0?'var(--red,#FF4757)':'var(--muted)';
+    badge.style.border     = total>0?'0.5px solid rgba(255,71,87,0.3)':'none';
+  }
+}
+
+function getTotalLeaveDays(){
+  return LEAVE_ROLES.reduce((s,r)=>s+parseInt(document.getElementById('leave-'+r.key)?.value||0),0);
+}
+
+function getRoleLeaveBreakdown(){
+  const sd = parseInt(document.getElementById('ctx-sprint-days')?.value||10);
+  return LEAVE_ROLES
+    .filter(r => parseInt(document.getElementById(r.id)?.textContent||0)>0)
+    .map(r => {
+      const n=parseInt(document.getElementById(r.id)?.textContent||0);
+      const l=parseInt(document.getElementById('leave-'+r.key)?.value||0);
+      return {label:r.label, icon:r.icon, count:n, leave:l, avail:n*sd-l,
+              pct: Math.round((n*sd-l)/(n*sd)*100)};
+    });
+}
+
+// Patch adjustRole so leave rows rebuild when team headcount changes
+(function _patchAdjustRole(){
+  const _orig = window.adjustRole;
+  if(typeof _orig === 'function'){
+    window.adjustRole = function(id, delta){ _orig(id,delta); setTimeout(buildLeaveRows,60); };
+  }
+})();
 
 function updateCapacity(){
   // ── Read all inputs ──────────────────────────────────────────
@@ -7149,6 +7352,7 @@ Support roles (${totalPeople - deliveryTeam} people):
 Sprint length: ${sprintDays} working days
 Days lost (holidays/leave from schedule): ${daysLost}
 Team leave days (person-days total): ${leaveDays}
+Leave by role:${(()=>{try{return getRoleLeaveBreakdown().map(r=>'\n  '+r.icon+' '+r.label+': '+r.leave+'d off → '+r.pct+'% cap remaining').join('');}catch(e){return ''}})()}
 Ceremony overhead: ${ceremonyHrs} hours this sprint
 Effective working days: ${workingDays}
 Historical velocity: ${velocity ? velocity+' SP' : 'not set — estimate from dev rate'}
@@ -17978,6 +18182,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ── 8. Render all widgets ──────────────────────────────────
   updateTeamSummary();
+  buildLeaveRows();
   updateDaysLostMax();
   updateCapacity();
   updateMbCount();
@@ -18016,6 +18221,269 @@ document.addEventListener('DOMContentLoaded', function() {
 
 });
 
+
+// ══ SLASH RECOMMENDATIONS IN CHAT ═══════════════════════════
+let _slashRecIdx = -1;
+
+function showSlashRec(val){
+  const panel = document.getElementById('slash-rec');
+  const list  = document.getElementById('slash-rec-list');
+  const count = document.getElementById('slash-rec-count');
+  if(!panel || !list) return;
+
+  const trimmed = val.trimStart();
+
+  // Only show when user starts with /
+  if(!trimmed.startsWith('/')){
+    panel.style.display = 'none';
+    _slashRecIdx = -1;
+    return;
+  }
+
+  const query = trimmed.slice(1).toLowerCase();
+  const brain = typeof activeBrain !== 'undefined' ? activeBrain : 'po';
+
+  // Filter commands — prioritise active brain, then all others
+  const matches = (typeof SLASH_COMMANDS !== 'undefined' ? SLASH_COMMANDS : [])
+    .filter(sc => {
+      if(!query) return true;
+      return sc.cmd.includes(query) || sc.label?.toLowerCase().includes(query) || sc.desc?.toLowerCase().includes(query);
+    })
+    .sort((a,b) => {
+      // Active brain first
+      const aMatch = a.brain === brain ? 0 : 1;
+      const bMatch = b.brain === brain ? 0 : 1;
+      return aMatch - bMatch;
+    })
+    .slice(0, 20);
+
+  if(!matches.length){
+    panel.style.display = 'none';
+    _slashRecIdx = -1;
+    return;
+  }
+
+  if(count) count.textContent = matches.length;
+  _slashRecIdx = -1;
+
+  list.innerHTML = matches.map((sc, i) => `
+    <div class="slash-rec-item" id="srec-${i}"
+      onclick="applySlashRec('${sc.cmd.replace(/'/g,"&#39;")}')"
+      onmouseover="highlightSlashRec(${i})">
+      <div style="flex-shrink:0;font-size:16px;margin-top:1px">${sc.icon||'⚡'}</div>
+      <div style="flex:1;min-width:0">
+        <div class="slash-rec-cmd">${sc.cmd}</div>
+        <div class="slash-rec-desc">${sc.label||sc.desc||''}</div>
+      </div>
+      <div class="slash-rec-tag">${(sc.brain||'').toUpperCase()}</div>
+    </div>`).join('');
+
+  panel.style.display = 'block';
+}
+
+function highlightSlashRec(idx){
+  document.querySelectorAll('.slash-rec-item').forEach((el,i) => {
+    el.classList.toggle('selected', i === idx);
+  });
+  _slashRecIdx = idx;
+}
+
+function applySlashRec(cmd){
+  const inp = document.getElementById('chat-input');
+  if(!inp) return;
+  // Find full prompt for this command
+  const sc = (typeof SLASH_COMMANDS !== 'undefined' ? SLASH_COMMANDS : []).find(s => s.cmd === cmd);
+  if(sc && sc.prompt){
+    inp.value = sc.prompt;
+  } else {
+    inp.value = cmd + ' ';
+  }
+  inp.focus();
+  autoResize(inp);
+  closeSlashRec();
+}
+
+function closeSlashRec(){
+  const panel = document.getElementById('slash-rec');
+  if(panel) panel.style.display = 'none';
+  _slashRecIdx = -1;
+}
+
+// Keyboard nav in slash rec
+document.addEventListener('keydown', function(e){
+  const panel = document.getElementById('slash-rec');
+  if(!panel || panel.style.display === 'none') return;
+  const items = document.querySelectorAll('.slash-rec-item');
+  if(!items.length) return;
+
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    _slashRecIdx = Math.min(_slashRecIdx+1, items.length-1);
+    highlightSlashRec(_slashRecIdx);
+    items[_slashRecIdx]?.scrollIntoView({block:'nearest'});
+  } else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    _slashRecIdx = Math.max(_slashRecIdx-1, 0);
+    highlightSlashRec(_slashRecIdx);
+    items[_slashRecIdx]?.scrollIntoView({block:'nearest'});
+  } else if(e.key === 'Tab' || e.key === 'Enter'){
+    if(_slashRecIdx >= 0 && items[_slashRecIdx]){
+      e.preventDefault();
+      items[_slashRecIdx].click();
+    }
+  } else if(e.key === 'Escape'){
+    closeSlashRec();
+  }
+});
+
+// Close when clicking outside
+document.addEventListener('click', function(e){
+  if(!document.getElementById('slash-rec')?.contains(e.target) &&
+     e.target.id !== 'chat-input'){
+    closeSlashRec();
+  }
+});
+
+// ══ COMMANDS REPO ════════════════════════════════════════════
+let _cmdView = 'grid';
+let _cmdActiveBrain = 'all';
+let _cmdFilteredItems = [];
+
+const CMD_BRAINS = [
+  {id:'all',       icon:'⚡', label:'All',        color:'#6C47FF'},
+  {id:'po',        icon:'🧠', label:'PO',          color:'#6C47FF'},
+  {id:'ba',        icon:'🔎', label:'BA',           color:'#26C6DA'},
+  {id:'cto',       icon:'🧑‍💻',label:'CTO',         color:'#00BCD4'},
+  {id:'cfo',       icon:'💰', label:'CFO',          color:'#00D4AA'},
+  {id:'ux',        icon:'🎨', label:'UX',           color:'#E91E8C'},
+  {id:'marketing', icon:'📣', label:'Marketing',    color:'#FF6B35'},
+  {id:'ceo',       icon:'🏢', label:'CEO',          color:'#F5A623'},
+  {id:'sales',     icon:'🎯', label:'Sales',        color:'#8BC34A'},
+  {id:'scrum',     icon:'🏃', label:'Scrum',        color:'#66BB6A'},
+  {id:'techlead',  icon:'🏗️', label:'Tech Lead',   color:'#FFA726'},
+  {id:'developer', icon:'💻', label:'Developer',    color:'#AB47BC'},
+  {id:'pm',        icon:'📋', label:'PM',           color:'#EF5350'},
+  {id:'qa',        icon:'🧪', label:'QA',           color:'#29B6F6'},
+];
+
+function buildCmdRepo(){
+  const filterEl = document.getElementById('cmd-brain-filter');
+  if(!filterEl) return;
+
+  // Build brain filter buttons
+  filterEl.innerHTML = CMD_BRAINS.map(b => {
+    const count = b.id==='all' ? SLASH_COMMANDS.length
+                               : SLASH_COMMANDS.filter(s=>s.brain===b.id).length;
+    return `<button class="pr-filter-btn${b.id==='all'?' on':''}" data-bid="${b.id}"
+      style="${b.id==='all'?`background:rgba(108,71,255,0.13);color:#6C47FF;border-color:rgba(108,71,255,0.28)`:''}"
+      onclick="filterCmdBrain('${b.id}',this)">
+      ${b.icon} ${b.label} <span style="font-size:9px;opacity:.65">(${count})</span>
+    </button>`;
+  }).join('');
+
+  renderCmdRepo();
+}
+
+function filterCmdBrain(bid, el){
+  document.querySelectorAll('#cmd-brain-filter .pr-filter-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  el.style.background = bid==='all' ? 'rgba(108,71,255,0.13)' : '';
+  el.style.color      = bid==='all' ? '#6C47FF' : '';
+  _cmdActiveBrain = bid;
+  document.getElementById('cmd-search').value = '';
+  renderCmdRepo();
+}
+
+function filterCmdRepo(q){
+  renderCmdRepo(q);
+}
+
+function setCmdView(v){
+  _cmdView = v;
+  const grid = document.getElementById('cmd-view-grid');
+  const list = document.getElementById('cmd-view-list');
+  const container = document.getElementById('cmd-repo-grid');
+  if(v === 'grid'){
+    container.style.gridTemplateColumns = 'repeat(3,1fr)';
+    if(grid){ grid.style.background='var(--accent)'; grid.style.color='#fff'; grid.style.borderColor='var(--accent)'; }
+    if(list){ list.style.background=''; list.style.color=''; list.style.borderColor=''; }
+  } else {
+    container.style.gridTemplateColumns = '1fr';
+    if(list){ list.style.background='var(--accent)'; list.style.color='#fff'; list.style.borderColor='var(--accent)'; }
+    if(grid){ grid.style.background=''; grid.style.color=''; grid.style.borderColor=''; }
+  }
+  renderCmdRepo(document.getElementById('cmd-search')?.value||'');
+}
+
+function renderCmdRepo(q=''){
+  const grid = document.getElementById('cmd-repo-grid');
+  const lbl  = document.getElementById('cmd-results-lbl');
+  if(!grid) return;
+
+  let items = _cmdActiveBrain==='all' ? SLASH_COMMANDS
+            : SLASH_COMMANDS.filter(s=>s.brain===_cmdActiveBrain);
+
+  if(q){
+    const ql = q.toLowerCase();
+    items = items.filter(s =>
+      s.cmd.includes(ql) ||
+      (s.label||'').toLowerCase().includes(ql) ||
+      (s.desc||'').toLowerCase().includes(ql)
+    );
+  }
+
+  _cmdFilteredItems = items;
+  if(lbl) lbl.textContent = `Showing ${items.length} of ${SLASH_COMMANDS.length} commands`;
+
+  if(!items.length){
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">No commands match. Try a different search.</div>';
+    return;
+  }
+
+  if(_cmdView === 'list'){
+    grid.innerHTML = items.map((sc,i) => {
+      const brain = CMD_BRAINS.find(b=>b.id===sc.brain)||{color:'#6C47FF'};
+      return `<div class="cc-list-item" style="--cc:${brain.color}" onclick="useCmdByIdx(${i})">
+        <span class="cc-list-cmd">${sc.icon||'⚡'} ${sc.cmd}</span>
+        <span class="cc-list-label">${sc.label||''}</span>
+        <span class="cc-list-desc">${sc.desc||''}</span>
+        <span class="cc-list-brain">${(sc.brain||'').toUpperCase()}</span>
+      </div>`;
+    }).join('');
+  } else {
+    grid.innerHTML = items.map((sc,i) => {
+      const brain = CMD_BRAINS.find(b=>b.id===sc.brain)||{color:'#6C47FF'};
+      const fieldCount = (sc.prompt?.match(/\[[A-Z][A-Z\s\/&\-\.]{2,35}\]/g)||[]).length;
+      return `<div class="cc" style="--cc:${brain.color}" onclick="useCmdByIdx(${i})">
+        <div class="cc-brain">${sc.icon||'⚡'} ${(sc.brain||'').toUpperCase()} BRAIN</div>
+        <div class="cc-cmd">${sc.cmd}</div>
+        <div class="cc-label">${sc.label||''}</div>
+        <div class="cc-desc">${(sc.desc||'').substring(0,120)}${(sc.desc||'').length>120?'…':''}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px">
+          <span class="cc-use">Use this command →</span>
+          ${fieldCount?`<span style="font-size:9px;color:var(--muted)">${fieldCount} field${fieldCount>1?'s':''} to fill</span>`:''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+}
+
+function useCmdByIdx(idx){
+  const sc = _cmdFilteredItems[idx];
+  if(!sc) return;
+  const prompt = sc.prompt || sc.cmd + ' ';
+  switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+  setTimeout(()=>{
+    const inp = document.getElementById('chat-input');
+    if(inp){
+      inp.value = prompt;
+      autoResize(inp);
+      inp.focus();
+      inp.scrollTop = 0;
+    }
+    toast('⚡ Command loaded in AI Chat');
+  }, 120);
+}
 </script>
 
 <!-- ══ PROMPT FIELD EDITOR ══════════════════════════════════════ -->
