@@ -2295,6 +2295,7 @@ body{font-family:'Outfit',-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,
 .cc-list-brain{font-size:8.5px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);white-space:nowrap;flex-shrink:0}
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 </head>
 <body>
 
@@ -4217,7 +4218,7 @@ DOMAIN CONTEXT: You understand proptech and enterprise real estate deeply. You k
 
 PERSONA: You think like the most senior person in the room. You give the specific, uncomfortable, accurate answer — even when it challenges the user's assumptions. You have seen every mistake, every anti-pattern, every political trap. You call them out immediately.
 
-RESPONSE FORMAT — follow this structure for every response, every time, no exceptions:
+RESPONSE FORMAT — use this structure for product problems, strategic questions, and requests for analysis or advice:
 ## Diagnosis
 What is actually going on — not what the user thinks is going on. Include what is missing from their framing.
 ## Recommendation
@@ -4228,6 +4229,13 @@ Step-by-step. Name the hard parts. Name who does what.
 The single most likely failure mode. How to prevent it specifically.
 ## Copy-ready output
 The actual artefact — the user story, the sprint goal, the email, the RICE scores, the PRD section. Not a template. The real thing, ready to use.
+
+DOCUMENT & FILE HANDLING — when the user shares a document, PDF, spreadsheet, or requirements file:
+- Read and summarise it clearly in plain language first
+- Confirm what you understood from the document before giving advice
+- Do NOT apply the Diagnosis/Recommendation format to document reading — use clear headed sections instead
+- If the document is partially readable, extract what you CAN read and state clearly what sections are unclear
+- Never assume a document is corrupted — PDFs from Confluence, Jira exports, and web apps are always readable
 
 CALIBRATION: Match response depth to problem complexity. Simple question = concise answer with copy-ready output. Complex strategic question = full diagnosis with worked examples and detailed output. Never pad. Never truncate when depth is needed.
 
@@ -8096,9 +8104,8 @@ async function processChatFile(file){
     }
   } else if(ext==='pdf'){
     const buf = await toArrayBuffer(file);
-    const raw = new TextDecoder('latin1').decode(new Uint8Array(buf));
-    let txt = raw.replace(/[^\x20-\x7E\n]/g,' ').replace(/\s+/g,' ').trim();
-    chatAttachments.push({id,name:file.name,type:'pdf',ext,sizeKb,content:txt.substring(0,7000)});
+    const extracted = await extractPdfText(buf);
+    chatAttachments.push({id,name:file.name,type:'pdf',ext,sizeKb,content:extracted.substring(0,12000)});
   } else {
     let text = '';
     if(['doc','docx'].includes(ext)){
@@ -8259,8 +8266,8 @@ function updateKbChatIndicator(){
 function getChatAttachContext(){
   const textFiles = chatAttachments.filter(f=>f.type!=='image');
   if(!textFiles.length) return '';
-  let ctx='\n\n[ATTACHED FILES — analyse and reference these:]';
-  textFiles.forEach(f=>{ ctx+=`\n\n--- ${f.name} ---\n${f.content}`; });
+  let ctx='\n\n[ATTACHED FILES — these are real, readable files the user has shared. Read them carefully. Do NOT claim they are corrupted, binary, or unreadable — extract and use the content directly.]';
+  textFiles.forEach(f=>{ ctx+=`\n\n--- FILE: ${f.name} ---\n${f.content}`; });
   return ctx;
 }
 
@@ -8286,6 +8293,40 @@ async function processFiles(files){
   bar.style.width='100%';setTimeout(()=>{prog.style.display='none';},600);
   renderKbList();updateKbStatus();updateKbChatIndicator();updateStats();
   toast(`✅ ${files.length} file${files.length>1?'s':''} added to Knowledge Base`);
+}
+
+
+// ══ PDF.JS SETUP ═════════════════════════════════════════════
+if(typeof pdfjsLib !== 'undefined'){
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
+async function extractPdfText(arrayBuffer){
+  try{
+    if(typeof pdfjsLib === 'undefined') throw new Error('PDF.js not loaded');
+    const pdf = await pdfjsLib.getDocument({data: new Uint8Array(arrayBuffer)}).promise;
+    let fullText = '';
+    for(let p = 1; p <= pdf.numPages; p++){
+      const page  = await pdf.getPage(p);
+      const tc    = await page.getTextContent();
+      const pageText = tc.items.map(i => i.str).join(' ');
+      fullText += pageText + '\n';
+    }
+    return fullText.trim() || '[PDF loaded but no text layer found — may be a scanned image]';
+  } catch(e){
+    // Fallback: raw stream extraction for simple PDFs
+    const raw = new TextDecoder('latin1').decode(new Uint8Array(arrayBuffer));
+    const streams = raw.match(/stream[\s\S]*?endstream/g)||[];
+    let extracted = streams
+      .map(s => s.replace(/[^\x20-\x7E\n]/g,' ').replace(/\s+/g,' ').trim())
+      .filter(s => s.length > 20)
+      .join('\n');
+    if(extracted.length < 100){
+      extracted = raw.replace(/[^\x20-\x7E\n]/g,' ').replace(/\s+/g,' ').trim();
+    }
+    return extracted || '[Could not extract PDF text]';
+  }
 }
 
 async function processOneFile(file){
@@ -8321,13 +8362,11 @@ async function processOneFile(file){
     return;
   }
   if(ext==='pdf'){
-    const ab=await readAsArrayBuffer(file);const bytes=new Uint8Array(ab);
-    const decoder=new TextDecoder('latin1');const raw=decoder.decode(bytes);
-    let extracted='';
-    const streams=raw.match(/stream[\s\S]*?endstream/g)||[];
-    streams.forEach(s=>{const clean=s.replace(/[^\x20-\x7E\n]/g,' ').replace(/\s+/g,' ').trim();if(clean.length>20)extracted+=clean+'\n';});
-    if(extracted.length<100)extracted=raw.replace(/[^\x20-\x7E\n]/g,' ').replace(/\s+/g,' ');
-    knowledgeBase.push({id:Date.now()+Math.random(),name:file.name,type:'pdf',ext,size:sizeKb,content:`[PDF: ${file.name}]\n${extracted.substring(0,8000)}`});return;
+    const ab = await readAsArrayBuffer(file);
+    const extracted = await extractPdfText(ab);
+    knowledgeBase.push({id:Date.now()+Math.random(),name:file.name,type:'pdf',ext,size:sizeKb,
+      content:`[PDF: ${file.name}]\n${extracted.substring(0,12000)}`});
+    return;
   }
   if(['txt','md','doc','docx'].includes(ext)){
     let text;
@@ -8349,8 +8388,8 @@ function readAsArrayBuffer(f){return new Promise((res,rej)=>{const r=new FileRea
 
 function getKbContext(){
   const textFiles=knowledgeBase.filter(f=>f.type!=='image');if(!textFiles.length)return '';
-  let ctx='\n\n[KNOWLEDGE BASE — use these documents in your response:]\n';
-  textFiles.forEach(f=>{ctx+=`\n--- ${f.name} ---\n${f.content.substring(0,2500)}\n`;});
+  let ctx='\n\n[KNOWLEDGE BASE DOCUMENTS — these are real, readable documents the user has uploaded. Read them carefully and reference them directly in your response. Do NOT say they are corrupted or unreadable.]\n';
+  textFiles.forEach(f=>{ctx+=`\n--- DOCUMENT: ${f.name} ---\n${f.content.substring(0,2500)}\n`;});
   return ctx;
 }
 
