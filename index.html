@@ -3158,6 +3158,400 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   min-height:40px;
 }
 
+
+/* ══ SPLIT PANEL CHAT LAYOUT ═══════════════════════════════════ */
+
+/* Outer split container — fills the page */
+.chat-split {
+  display: flex;
+  height: calc(100vh - 140px);
+  overflow: hidden;
+}
+
+/* LEFT — chat takes 60% */
+.chat-left {
+  flex: 0 0 62%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 0.5px solid var(--border2);
+  min-width: 0;
+}
+
+/* RIGHT — context panel takes 38% */
+.chat-right {
+  flex: 0 0 38%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg2);
+  min-width: 0;
+}
+
+/* ── Right panel tabs ── */
+.rp-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 0.5px solid var(--border2);
+  background: var(--bg2);
+  padding: 0 12px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.rp-tabs::-webkit-scrollbar { display: none }
+.rp-tab {
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted2);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.rp-tab:hover { color: var(--text); }
+.rp-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 700;
+}
+
+/* ── Right panel body ── */
+.rp-panel {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+.rp-panel.active { display: flex; }
+.rp-panel::-webkit-scrollbar { width: 4px }
+.rp-panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px }
+
+.rp-section-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 8px;
+}
+
+/* Doc grid — 3 cols */
+.rp-doc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.rp-doc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  transition: all .15s;
+  line-height: 1.3;
+}
+.rp-doc-card span:first-child { font-size: 18px; }
+.rp-doc-card:hover {
+  border-color: var(--accent-m);
+  background: var(--accent-l);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.rp-doc-card:active { transform: scale(.97); }
+
+/* Strategy grid — 2 cols */
+.rp-strategy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.rp-strat-card {
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.rp-strat-card:hover {
+  border-color: var(--accent-m);
+  background: var(--accent-l);
+  transform: translateY(-1px);
+}
+.rp-strat-icon { font-size: 20px; margin-bottom: 5px; }
+.rp-strat-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.rp-strat-desc { font-size: 10px; color: var(--muted2); line-height: 1.4; }
+
+/* Prompts / templates list */
+.rp-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 10px;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 5px;
+}
+.rp-item:hover { border-color: var(--accent-m); background: var(--accent-l); }
+.rp-item-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.rp-item-text { font-size: 11.5px; font-weight: 600; color: var(--text); flex: 1; line-height: 1.4; }
+.rp-item-arrow { font-size: 11px; color: var(--muted2); flex-shrink: 0; margin-top: 1px; }
+
+/* KB upload button */
+.rp-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  background: var(--accent-l);
+  border: 0.5px solid var(--accent-m);
+  border-radius: 9px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: inherit;
+}
+.rp-upload-btn:hover { background: var(--accent); color: #fff; }
+
+/* Output panel at bottom of right */
+.rp-output {
+  flex-shrink: 0;
+  border-top: 0.5px solid var(--border2);
+  background: var(--bg2);
+  max-height: 45%;
+  overflow-y: auto;
+  padding: 10px 14px;
+}
+.rp-output-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 700px) {
+  .chat-split { flex-direction: column; }
+  .chat-left { flex: 0 0 65%; border-right: none; border-bottom: 0.5px solid var(--border2); }
+  .chat-right { flex: 0 0 35%; }
+}
+
+
+/* ══ SPLIT PANEL CHAT LAYOUT ═══════════════════════════════════ */
+
+/* Outer split container — fills the page */
+.chat-split {
+  display: flex;
+  height: calc(100vh - 140px);
+  overflow: hidden;
+}
+
+/* LEFT — chat takes 60% */
+.chat-left {
+  flex: 0 0 62%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 0.5px solid var(--border2);
+  min-width: 0;
+}
+
+/* RIGHT — context panel takes 38% */
+.chat-right {
+  flex: 0 0 38%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--bg2);
+  min-width: 0;
+}
+
+/* ── Right panel tabs ── */
+.rp-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 0.5px solid var(--border2);
+  background: var(--bg2);
+  padding: 0 12px;
+  overflow-x: auto;
+  flex-shrink: 0;
+}
+.rp-tabs::-webkit-scrollbar { display: none }
+.rp-tab {
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted2);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.rp-tab:hover { color: var(--text); }
+.rp-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+  font-weight: 700;
+}
+
+/* ── Right panel body ── */
+.rp-panel {
+  display: none;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 14px;
+}
+.rp-panel.active { display: flex; }
+.rp-panel::-webkit-scrollbar { width: 4px }
+.rp-panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px }
+
+.rp-section-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin-bottom: 8px;
+}
+
+/* Doc grid — 3 cols */
+.rp-doc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+.rp-doc-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text);
+  text-align: center;
+  transition: all .15s;
+  line-height: 1.3;
+}
+.rp-doc-card span:first-child { font-size: 18px; }
+.rp-doc-card:hover {
+  border-color: var(--accent-m);
+  background: var(--accent-l);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+.rp-doc-card:active { transform: scale(.97); }
+
+/* Strategy grid — 2 cols */
+.rp-strategy-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.rp-strat-card {
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 10px;
+  padding: 12px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.rp-strat-card:hover {
+  border-color: var(--accent-m);
+  background: var(--accent-l);
+  transform: translateY(-1px);
+}
+.rp-strat-icon { font-size: 20px; margin-bottom: 5px; }
+.rp-strat-title { font-size: 12px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.rp-strat-desc { font-size: 10px; color: var(--muted2); line-height: 1.4; }
+
+/* Prompts / templates list */
+.rp-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 9px 10px;
+  background: var(--bg3);
+  border: 0.5px solid var(--border2);
+  border-radius: 9px;
+  cursor: pointer;
+  transition: all .15s;
+  margin-bottom: 5px;
+}
+.rp-item:hover { border-color: var(--accent-m); background: var(--accent-l); }
+.rp-item-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.rp-item-text { font-size: 11.5px; font-weight: 600; color: var(--text); flex: 1; line-height: 1.4; }
+.rp-item-arrow { font-size: 11px; color: var(--muted2); flex-shrink: 0; margin-top: 1px; }
+
+/* KB upload button */
+.rp-upload-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 14px;
+  background: var(--accent-l);
+  border: 0.5px solid var(--accent-m);
+  border-radius: 9px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: inherit;
+}
+.rp-upload-btn:hover { background: var(--accent); color: #fff; }
+
+/* Output panel at bottom of right */
+.rp-output {
+  flex-shrink: 0;
+  border-top: 0.5px solid var(--border2);
+  background: var(--bg2);
+  max-height: 45%;
+  overflow-y: auto;
+  padding: 10px 14px;
+}
+.rp-output-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 700px) {
+  .chat-split { flex-direction: column; }
+  .chat-left { flex: 0 0 65%; border-right: none; border-bottom: 0.5px solid var(--border2); }
+  .chat-right { flex: 0 0 35%; }
+}
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -4348,108 +4742,82 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 
 <!-- ═══════════════ CHAT PAGE ═══════════════ -->
 <div class="page active" id="page-chat">
+<div class="chat-split">
 
-  <!-- ── Chat header bar ── -->
-  <div class="chat-header-bar" id="chat-header-bar">
-    <div class="chat-active-brain" id="chat-brain-pill">
-      <span class="brain-dot"></span>
-      <span id="chat-brain-label">🧠 PO Brain</span>
+  <!-- ═══════════════ LEFT: CHAT ═══════════════ -->
+  <div class="chat-left">
+
+    <!-- Header -->
+    <div class="chat-header-bar" id="chat-header-bar">
+      <div class="chat-active-brain" id="chat-brain-pill">
+        <span class="brain-dot"></span>
+        <span id="chat-brain-label">🧠 PO Brain</span>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
+        <span class="chat-msg-count" id="chat-msg-count"></span>
+        <button class="chat-hbtn accent" onclick="exportFullChat()" title="Export chat">⬇</button>
+        <button class="chat-hbtn accent" onclick="copyFullChat()" title="Copy chat">📋</button>
+        <button class="chat-hbtn danger" onclick="startFreshChat()" title="New chat">✕</button>
+      </div>
     </div>
-    <div style="margin-left:auto;display:flex;gap:6px;align-items:center">
-      <span class="chat-msg-count" id="chat-msg-count"></span>
-      <button class="chat-hbtn accent" onclick="exportFullChat()" title="Export full conversation as styled document">⬇ Export chat</button>
-      <button class="chat-hbtn accent" onclick="copyFullChat()" title="Copy full conversation to clipboard">📋 Copy chat</button>
-      <button class="chat-hbtn danger" onclick="startFreshChat()" title="Clear conversation and start fresh">✕ New chat</button>
-    </div>
-  </div>
 
-  <!-- ── Chat layout: messages + input stacked ── -->
-  <div class="chat-layout">
-
-    <!-- ── Messages area (takes all remaining space) ── -->
+    <!-- Messages -->
     <div class="chat-msgs" id="chat-msgs">
       <div id="chat-loading-bar"></div>
 
-      <!-- Welcome screen — shown until first message -->
+      <!-- Welcome -->
       <div class="welcome" id="welcome-msg">
         <div class="wlc-inner">
-          <div class="wlc-avatar-wrap">
-            <div class="wlc-av" id="wlc-avatar" style="background:rgba(108,71,255,.15)">
-              <div class="wlc-av-glow" id="wlc-avatar-glow" style="background:rgba(108,71,255,.3)"></div>
-              <span id="welcome-icon" style="font-size:28px">🧠</span>
-            </div>
+          <div class="wlc-av" id="wlc-avatar" style="background:rgba(108,71,255,.15)">
+            <div class="wlc-av-glow" id="wlc-avatar-glow" style="background:rgba(108,71,255,.3)"></div>
+            <span id="welcome-icon" style="font-size:26px">🧠</span>
           </div>
           <div class="wlc-name" id="welcome-title">PO Brain</div>
-          <div class="wlc-tagline" id="welcome-sub">Senior product consultant · 15+ years shipping products at scale</div>
+          <div class="wlc-tagline" id="welcome-sub">Senior product consultant · 15+ years shipping at scale</div>
           <div class="wlc-chips" id="wlc-chips">
             <button class="wlc-chip" onclick="fillAndSend('RICE score my Sprint backlog and give me a ranked prioritisation')">⚡ RICE my backlog</button>
-            <button class="wlc-chip" onclick="fillAndSend('Write a user story with full acceptance criteria in BDD format')">📝 Write a user story</button>
+            <button class="wlc-chip" onclick="fillAndSend('Write a user story with full acceptance criteria in BDD format')">📝 User story</button>
             <button class="wlc-chip" onclick="fillAndSend('Run a pre-mortem for our upcoming launch and identify top risks')">🧨 Pre-mortem</button>
             <button class="wlc-chip" onclick="fillAndSend('Help me say no to a stakeholder scope request professionally')">🛑 Pushback script</button>
           </div>
-          <div class="wlc-slash-hint">Type <kbd class="wlc-kbd">/</kbd> for 183 commands &nbsp;·&nbsp; <kbd class="wlc-kbd">↵</kbd> send &nbsp;·&nbsp; <kbd class="wlc-kbd">⇧↵</kbd> new line</div>
+          <div class="wlc-slash-hint">Type <kbd class="wlc-kbd">/</kbd> for 183 commands &nbsp;·&nbsp; <kbd class="wlc-kbd">↵</kbd> send</div>
         </div>
       </div>
-    </div><!-- /chat-msgs -->
+    </div>
 
-    <!-- ── Input area (fixed at bottom) ── -->
+    <!-- Input area -->
     <div class="chat-input-wrap">
-
-      <!-- Slash command panel (floats above input) -->
-      <div id="slash-rec" style="display:none;position:absolute;bottom:100%;left:0;right:0;z-index:300;background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px 12px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.25);max-height:260px;overflow-y:auto;padding:4px 0">
-        <div style="padding:6px 12px 5px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)">
+      <div id="slash-rec" style="display:none;position:absolute;bottom:100%;left:0;right:0;z-index:300;background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px 12px 0 0;box-shadow:0 -4px 24px rgba(0,0,0,.25);max-height:240px;overflow-y:auto;padding:4px 0">
+        <div style="padding:5px 12px 4px;display:flex;align-items:center;justify-content:space-between;border-bottom:0.5px solid var(--border)">
           <span style="font-size:9px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.08em">⚡ <span id="slash-rec-count">0</span> commands</span>
-          <span style="font-size:9px;color:var(--muted);display:flex;gap:5px;align-items:center">
-            <kbd style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:3px;padding:1px 5px;font-size:8.5px;font-family:'JetBrains Mono',monospace">↑↓</kbd> navigate
-            <kbd style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:3px;padding:1px 5px;font-size:8.5px;font-family:'JetBrains Mono',monospace">↵</kbd> select
-            <kbd style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:3px;padding:1px 5px;font-size:8.5px;font-family:'JetBrains Mono',monospace">Esc</kbd> close
-          </span>
+          <span style="font-size:9px;color:var(--muted);display:flex;gap:4px;align-items:center"><kbd style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:3px;padding:1px 4px;font-size:8px;font-family:monospace">↑↓</kbd> nav <kbd style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:3px;padding:1px 4px;font-size:8px;font-family:monospace">↵</kbd> select</span>
         </div>
         <div id="slash-rec-list"></div>
       </div>
 
-      <!-- Active addon strip -->
       <div class="active-addon-strip" id="addon-strip">
         <div class="strip-dot"></div>
         <span id="addon-strip-text">Add-on active</span>
         <span style="margin-left:auto;font-size:9px;color:currentColor;opacity:.7;cursor:pointer" onclick="clearAllAddons()">✕ Clear all</span>
       </div>
 
-      <!-- Main input box -->
       <div class="cin-box" id="cin-box">
-
-        <!-- File attachment preview -->
         <div class="attach-strip" id="attach-strip"></div>
-
-        <!-- Image paste hint -->
         <div class="paste-hint" id="paste-hint" style="display:none;font-size:11px;color:var(--accent);padding:4px 0">📋 Image pasted — ready to send</div>
-
-        <!-- Textarea + send -->
         <textarea class="chat-ta" id="chat-input"
           placeholder="Message ProdMind…"
           rows="1"
           onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();} handleSlashKey(event);"
           oninput="autoResize(this);showSlashRec(this.value);"
           onpaste="handleChatPaste(event)"></textarea>
-
         <button class="send-btn" id="send-btn" onclick="sendMsg()" title="Send (Enter)">↑</button>
       </div>
 
-      <!-- Tool buttons row -->
       <div class="chat-tool-row">
         <div style="display:flex;align-items:center;gap:4px">
-          <!-- File upload -->
-          <label class="ct-btn" title="Attach file — PDF, DOCX, CSV, XLSX, image" style="cursor:pointer">
-            📎
-            <input type="file" id="chat-file-input" multiple
-              accept=".pdf,.txt,.md,.doc,.docx,.csv,.xlsx,.xls,.png,.jpg,.jpeg,.gif,.webp"
-              onchange="handleChatFileSelect(event)" style="display:none"/>
-          </label>
-          <!-- Screenshot paste -->
-          <button class="ct-btn" title="Paste image from clipboard (Ctrl+V)" onclick="triggerPasteFromClipboard()">🖼️</button>
-          <!-- Clear attachments -->
-          <button class="ct-btn" id="clear-attach-btn" onclick="clearChatAttachments()" style="display:none;color:var(--red)" title="Clear attachments">✕</button>
-          <!-- KB indicator -->
+          <label class="ct-btn" title="Attach file" style="cursor:pointer">📎<input type="file" id="chat-file-input" multiple accept=".pdf,.txt,.md,.doc,.docx,.csv,.xlsx,.xls,.png,.jpg,.jpeg,.gif,.webp" onchange="handleChatFileSelect(event)" style="display:none"/></label>
+          <button class="ct-btn" title="Paste image (Ctrl+V)" onclick="triggerPasteFromClipboard()">🖼️</button>
+          <button class="ct-btn" id="clear-attach-btn" onclick="clearChatAttachments()" style="display:none;color:var(--red)">✕</button>
           <div id="kb-chat-indicator" style="display:none;align-items:center;gap:4px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:20px;padding:2px 8px;font-size:8.5px;font-weight:600;color:var(--accent)">
             <div style="width:4px;height:4px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite"></div>
             <span id="kb-chat-count">0 KB files</span>
@@ -4462,10 +4830,9 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
         </div>
       </div>
 
-      <!-- Addon bar -->
       <div class="addon-bar" id="addon-bar">
         <span class="addon-bar-label">⚡</span>
-        <button class="addon-toggle" data-addon="god" id="addon-god" title="God Mode" onclick="toggleAddon('god')"><span class="addon-dot"></span><span class="addon-icon">👁️</span><span class="addon-label">God Mode</span></button>
+        <button class="addon-toggle" data-addon="god" id="addon-god" title="God Mode — zero diplomatic padding" onclick="toggleAddon('god')"><span class="addon-dot"></span><span class="addon-icon">👁️</span><span class="addon-label">God Mode</span></button>
         <button class="addon-toggle" data-addon="ooda" id="addon-ooda" title="OODA Loop" onclick="toggleAddon('ooda')"><span class="addon-dot"></span><span class="addon-icon">🎯</span><span class="addon-label">OODA</span></button>
         <button class="addon-toggle" data-addon="l99" id="addon-l99" title="L99 — ruthless stack ranking" onclick="toggleAddon('l99')"><span class="addon-dot"></span><span class="addon-icon">🚀</span><span class="addon-label">L99</span></button>
         <button class="addon-toggle" data-addon="steelman" id="addon-steelman" title="Steel Man" onclick="toggleAddon('steelman')" style="--ao-color:#AB47BC"><span class="addon-dot"></span><span class="addon-icon">⚔️</span><span class="addon-label">Steel Man</span></button>
@@ -4473,12 +4840,108 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
         <button class="addon-toggle" data-addon="socratic" id="addon-socratic" title="Socratic Mode" onclick="toggleAddon('socratic')" style="--ao-color:#29B6F6"><span class="addon-dot"></span><span class="addon-icon">🏛️</span><span class="addon-label">Socratic</span></button>
         <button class="addon-toggle" data-addon="firstprinciples" id="addon-firstprinciples" title="First Principles" onclick="toggleAddon('firstprinciples')" style="--ao-color:#8BC34A"><span class="addon-dot"></span><span class="addon-icon">🧱</span><span class="addon-label">1st Principles</span></button>
       </div>
-
     </div><!-- /chat-input-wrap -->
 
-  </div><!-- /chat-layout -->
+  </div><!-- /chat-left -->
 
-</div><!-- /page-chat -->
+  <!-- ═══════════════ RIGHT: CONTEXT PANEL ═══════════════ -->
+  <div class="chat-right" id="chat-right">
+
+    <!-- Panel tabs -->
+    <div class="rp-tabs">
+      <button class="rp-tab active" onclick="switchRightPanel('docs',this)">📄 Docs</button>
+      <button class="rp-tab" onclick="switchRightPanel('prompts',this)">💡 Prompts</button>
+      <button class="rp-tab" onclick="switchRightPanel('templates',this)">🧩 Templates</button>
+      <button class="rp-tab" onclick="switchRightPanel('strategy',this)">♟️ Strategy</button>
+      <button class="rp-tab" onclick="switchRightPanel('kb',this)">📁 KB</button>
+    </div>
+
+    <!-- ── DOCS panel ── -->
+    <div class="rp-panel active" id="rp-docs">
+      <div class="rp-section-label">Generate AI document</div>
+      <div class="rp-doc-grid">
+        <div class="rp-doc-card" onclick="rpGenerateDoc('prd')"><span>📄</span><span>PRD</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('user-story')"><span>✍️</span><span>User Story</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('okr')"><span>🎯</span><span>OKR</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('sprint-goal')"><span>🏃</span><span>Sprint Goal</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('risk-register')"><span>⚠️</span><span>Risk Register</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('business-case')"><span>💰</span><span>Business Case</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('gtm')"><span>📣</span><span>GTM Plan</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('exec-brief')"><span>📋</span><span>Exec Brief</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('release-notes')"><span>🚀</span><span>Release Notes</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('uat-plan')"><span>✅</span><span>UAT Plan</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('adr')"><span>🏗️</span><span>ADR</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('status-report')"><span>📊</span><span>Status Report</span></div>
+      </div>
+      <div class="rp-section-label" style="margin-top:12px">Analyse a document</div>
+      <div class="rp-doc-grid">
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('summary')"><span>📋</span><span>Summary</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('gaps')"><span>🔍</span><span>Gap Analysis</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('stories')"><span>✍️</span><span>User Stories</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('risks')"><span>⚠️</span><span>Risks</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('questions')"><span>❓</span><span>Open Qs</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('acceptance')"><span>✅</span><span>Acceptance Criteria</span></div>
+      </div>
+    </div>
+
+    <!-- ── PROMPTS panel ── -->
+    <div class="rp-panel" id="rp-prompts">
+      <div class="rp-section-label">Quick-fire prompts — click to send</div>
+      <div id="rp-prompts-list"></div>
+    </div>
+
+    <!-- ── TEMPLATES panel ── -->
+    <div class="rp-panel" id="rp-templates">
+      <div class="rp-section-label">Templates — click to load in chat</div>
+      <div id="rp-templates-list"></div>
+    </div>
+
+    <!-- ── STRATEGY panel ── -->
+    <div class="rp-panel" id="rp-strategy">
+      <div class="rp-section-label">Strategy tools — AI-filled from your context</div>
+      <div class="rp-strategy-grid">
+        <div class="rp-strat-card" onclick="rpRunStrategy('wsjf')"><div class="rp-strat-icon">🧮</div><div class="rp-strat-title">WSJF</div><div class="rp-strat-desc">Weighted Shortest Job First</div></div>
+        <div class="rp-strat-card" onclick="rpRunStrategy('kano')"><div class="rp-strat-icon">📊</div><div class="rp-strat-title">Kano</div><div class="rp-strat-desc">Feature satisfaction model</div></div>
+        <div class="rp-strat-card" onclick="rpRunStrategy('swot')"><div class="rp-strat-icon">🎯</div><div class="rp-strat-title">SWOT</div><div class="rp-strat-desc">Strengths, weaknesses, opps</div></div>
+        <div class="rp-strat-card" onclick="rpRunStrategy('bmc')"><div class="rp-strat-icon">🏗️</div><div class="rp-strat-title">BMC</div><div class="rp-strat-desc">Business Model Canvas</div></div>
+        <div class="rp-strat-card" onclick="rpRunStrategy('vpc')"><div class="rp-strat-icon">💎</div><div class="rp-strat-title">VPC</div><div class="rp-strat-desc">Value Proposition Canvas</div></div>
+        <div class="rp-strat-card" onclick="rpRunStrategy('5whys')"><div class="rp-strat-icon">🔍</div><div class="rp-strat-title">5 Whys</div><div class="rp-strat-desc">Root cause analysis</div></div>
+      </div>
+    </div>
+
+    <!-- ── KB panel ── -->
+    <div class="rp-panel" id="rp-kb">
+      <div class="rp-section-label">Knowledge Base</div>
+      <div id="rp-kb-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px"></div>
+      <label class="rp-upload-btn">
+        📎 Upload file to KB
+        <input type="file" multiple accept=".pdf,.txt,.md,.doc,.docx,.csv,.xlsx" onchange="handleKbUpload(event)" style="display:none"/>
+      </label>
+      <div class="rp-section-label" style="margin-top:12px">Active in chat</div>
+      <div id="kb-chat-indicator-rp" style="font-size:11px;color:var(--muted2)">No KB files loaded</div>
+    </div>
+
+    <!-- Output area (shared) — shows result of right panel actions -->
+    <div class="rp-output" id="rp-output" style="display:none">
+      <div class="rp-output-header">
+        <span id="rp-output-title" style="font-size:11px;font-weight:700;color:var(--accent)"></span>
+        <div style="display:flex;gap:6px;margin-left:auto">
+          <button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="rpCopyOutput()">📋 Copy</button>
+          <button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="rpSendToChat()">💬 Send to chat</button>
+          <button class="gbtn" style="font-size:9.5px;padding:3px 9px;color:var(--red)" onclick="document.getElementById('rp-output').style.display='none'">✕</button>
+        </div>
+      </div>
+      <div id="rp-output-loading" style="display:none;text-align:center;padding:20px;color:var(--muted2)">
+        <div style="font-size:20px;margin-bottom:6px" id="rp-loading-icon">⏳</div>
+        <div style="font-size:11px">Generating…</div>
+      </div>
+      <div id="rp-output-content" style="font-size:12.5px;line-height:1.75;color:var(--text)"></div>
+    </div>
+
+  </div><!-- /chat-right -->
+
+</div><!-- /chat-split -->
+</div><!-- /page-chat --><!-- /page-chat -->
 
 <!-- ═══════════════ BACKLOG PAGE ═══════════════ -->
 <div class="page" id="page-backlog">
@@ -21860,6 +22323,205 @@ function fillAndSend(text){
   inp.value = text;
   autoResize(inp);
   sendMsg();
+}
+
+// ══ RIGHT PANEL LOGIC ══════════════════════════════════════════
+
+function switchRightPanel(id, el) {
+  document.querySelectorAll('.rp-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.rp-panel').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const panel = document.getElementById('rp-' + id);
+  if (panel) panel.classList.add('active');
+
+  // Lazy-build lists
+  if (id === 'prompts') buildRPPrompts();
+  if (id === 'templates') buildRPTemplates();
+  if (id === 'kb') buildRPKB();
+}
+
+// ── Docs: generate doc into right panel output ─────────────────
+async function rpGenerateDoc(type) {
+  if (!apiKey) { openModal(); return; }
+  showRPOutput('📄 Generating ' + type.toUpperCase() + '…', type.toUpperCase());
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 1200,
+        system: `You are a senior product consultant. Generate a ${type} document based on the product context. Be specific, not generic.`,
+        messages: [{role:'user',content:`Generate a ${type} for my product.\n\n${getCtx()}\n\nMake it production-ready and specific to my context.`}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b=>b.text||'').join('') || '';
+    showRPResult(text, type.toUpperCase());
+  } catch(e) { hideRPOutput(); toast('AI error','error'); }
+}
+
+// ── Docs: analyse doc ──────────────────────────────────────────
+async function rpAnalyseDoc(mode) {
+  if (!apiKey) { openModal(); return; }
+  // Check if KB has files
+  const kbCtx = getKbContext();
+  if (!kbCtx) {
+    toast('Upload a document to KB first (📁 KB tab)', 'warning');
+    switchRightPanel('kb', document.querySelectorAll('.rp-tab')[4]);
+    return;
+  }
+  showRPOutput('🔬 Analysing…', mode);
+  const modeLabels = {summary:'Executive Summary',gaps:'Gap Analysis',stories:'User Stories',risks:'Risk Register',questions:'Open Questions',acceptance:'Acceptance Criteria'};
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 1200,
+        system: 'You are a senior product consultant. Analyse the document and produce exactly what is requested.',
+        messages: [{role:'user',content:`Perform a ${modeLabels[mode]||mode} on the documents in my knowledge base.\n\n${kbCtx}`}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b=>b.text||'').join('') || '';
+    showRPResult(text, modeLabels[mode]||mode);
+  } catch(e) { hideRPOutput(); toast('AI error','error'); }
+}
+
+// ── Strategy: run tool ─────────────────────────────────────────
+async function rpRunStrategy(tool) {
+  if (!apiKey) { openModal(); return; }
+  const meta = typeof STRATEGY_TOOLS !== 'undefined' ? STRATEGY_TOOLS[tool] : null;
+  showRPOutput('♟️ Running ' + (meta?.title || tool) + '…', meta?.title || tool);
+  try {
+    const prompt = meta?.prompt ? meta.prompt() : `Run a ${tool} analysis for my product.\n\n${getCtx()}`;
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514', max_tokens: 1400,
+        system: 'You are a senior product strategist. Be specific to the product context, never generic.',
+        messages: [{role:'user',content:prompt}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b=>b.text||'').join('') || '';
+    showRPResult(text, meta?.title || tool);
+  } catch(e) { hideRPOutput(); toast('AI error','error'); }
+}
+
+// ── Prompts list ───────────────────────────────────────────────
+function buildRPPrompts() {
+  const list = document.getElementById('rp-prompts-list');
+  if (!list || list.innerHTML) return;
+  const items = [
+    ['⚡','RICE score my entire backlog','Prioritise my backlog items using RICE scoring and give me a ranked commit list'],
+    ['📝','Write user story with AC','Write a user story with full BDD acceptance criteria for my next feature'],
+    ['🧨','Run a pre-mortem','Facilitate a pre-mortem for our upcoming launch — what could go wrong?'],
+    ['🛑','Help me say no','Write a professional pushback response to a stakeholder scope request'],
+    ['🎯','Define my OKRs','Define my product OKRs for next quarter with baselines and measurement methods'],
+    ['📊','Define KPIs','Define success metrics and KPIs for my most important current feature'],
+    ['🗺️','Build 6-month roadmap','Build a 6-month product roadmap with Now/Next/Later structure and OKRs'],
+    ['🤝','Stakeholder alignment plan','Help me build an alignment plan for my key stakeholders before a gate review'],
+    ['🔍','JTBD analysis','Apply Jobs-to-be-Done to understand the real outcome users are hiring my product for'],
+    ['💡','Feature impact predictor','Predict the impact of my top 3 backlog features and rank them by expected outcome'],
+    ['🩺','Sprint retro facilitator','Facilitate a sprint retrospective — what went well, what to improve, actions'],
+    ['⚠️','Risk register','Build a risk register with likelihood, impact, and mitigation for my current sprint'],
+  ];
+  list.innerHTML = items.map(([icon,label,prompt]) =>
+    `<div class="rp-item" onclick="fillAndSend('${prompt.replace(/'/g,"\\'")}');"><span class="rp-item-icon">${icon}</span><span class="rp-item-text">${label}</span><span class="rp-item-arrow">↗</span></div>`
+  ).join('');
+}
+
+// ── Templates list ─────────────────────────────────────────────
+function buildRPTemplates() {
+  const list = document.getElementById('rp-templates-list');
+  if (!list || list.innerHTML) return;
+  const items = [
+    ['📋','Sprint Planning Brief','Generate a complete sprint planning brief with capacity, goal, and commit list for my team'],
+    ['📨','Stakeholder Update Email','Write a stakeholder update email for my current sprint progress — professional and concise'],
+    ['🏗️','Architecture Decision Record','Write an ADR for a technical decision I need to make — include options and rationale'],
+    ['📣','GTM Launch Plan','Create a go-to-market launch plan for my next product release'],
+    ['🧪','Usability Test Plan','Write a usability test plan for my next feature — tasks, metrics, and success criteria'],
+    ['💰','Business Case Template','Build a business case for my next major initiative — problem, solution, ROI, risks'],
+    ['🔄','Retro Action Plan','Generate a retrospective action plan with specific owners and deadlines'],
+    ['📋','Meeting Agenda','Create a structured meeting agenda for my upcoming stakeholder review'],
+  ];
+  list.innerHTML = items.map(([icon,label,prompt]) =>
+    `<div class="rp-item" onclick="fillAndSend('${prompt.replace(/'/g,"\\'")}');"><span class="rp-item-icon">${icon}</span><span class="rp-item-text">${label}</span><span class="rp-item-arrow">↗</span></div>`
+  ).join('');
+}
+
+// ── KB panel ───────────────────────────────────────────────────
+function buildRPKB() {
+  const list = document.getElementById('rp-kb-list');
+  const indicator = document.getElementById('kb-chat-indicator-rp');
+  if (!list) return;
+  // Re-use existing KB data
+  if (typeof knowledgeBase !== 'undefined' && knowledgeBase.length) {
+    list.innerHTML = knowledgeBase.map((f,i) =>
+      `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px">
+        <span>${f.type==='pdf'?'📄':f.type==='image'?'🖼️':'📊'}</span>
+        <div style="flex:1;min-width:0"><div style="font-size:11.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${f.name}</div><div style="font-size:9.5px;color:var(--muted2)">${f.size||''}</div></div>
+        <button class="gbtn" style="font-size:9px;padding:2px 7px;color:var(--red)" onclick="removeKbFile(${i})">✕</button>
+      </div>`
+    ).join('');
+    if(indicator) indicator.textContent = knowledgeBase.length + ' file' + (knowledgeBase.length>1?'s':'') + ' active in chat';
+  } else {
+    list.innerHTML = '<div style="font-size:11.5px;color:var(--muted2)">No files in knowledge base yet</div>';
+    if(indicator) indicator.textContent = 'No KB files loaded';
+  }
+}
+
+// ── Output helpers ─────────────────────────────────────────────
+function showRPOutput(loadingText, title) {
+  const out = document.getElementById('rp-output');
+  const loading = document.getElementById('rp-output-loading');
+  const content = document.getElementById('rp-output-content');
+  const titleEl = document.getElementById('rp-output-title');
+  if (!out) return;
+  out.style.display = 'block';
+  if (loading) loading.style.display = 'block';
+  if (content) content.innerHTML = '';
+  if (titleEl) titleEl.textContent = title || '';
+  out.scrollIntoView({behavior:'smooth', block:'end'});
+}
+
+function showRPResult(text, title) {
+  const loading = document.getElementById('rp-output-loading');
+  const content = document.getElementById('rp-output-content');
+  const titleEl = document.getElementById('rp-output-title');
+  if (loading) loading.style.display = 'none';
+  if (titleEl) titleEl.textContent = '✅ ' + title;
+  if (content) content.innerHTML = text
+    .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+    .replace(/^## (.+)$/gm,'<h2 style="font-size:13px;font-weight:800;margin:12px 0 6px;padding-bottom:4px;border-bottom:0.5px solid var(--border2);color:var(--text)">$1</h2>')
+    .replace(/^### (.+)$/gm,'<h3 style="font-size:12px;font-weight:700;color:var(--accent);margin:9px 0 4px">$1</h3>')
+    .replace(/^- (.+)$/gm,'<div style="display:flex;gap:6px;margin-bottom:4px"><span style="color:var(--accent);font-weight:800">•</span><span>$1</span></div>')
+    .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+}
+
+function hideRPOutput() {
+  const out = document.getElementById('rp-output');
+  if (out) out.style.display = 'none';
+}
+
+function rpCopyOutput() {
+  const content = document.getElementById('rp-output-content');
+  if (!content) return;
+  navigator.clipboard.writeText(content.innerText || content.textContent || '');
+  toast('📋 Copied!','success');
+}
+
+function rpSendToChat() {
+  const content = document.getElementById('rp-output-content');
+  if (!content) return;
+  const text = content.innerText || content.textContent || '';
+  if (!text) return;
+  const inp = document.getElementById('chat-input');
+  if (inp) { inp.value = 'Refine this: ' + text.slice(0,200) + '…'; autoResize(inp); }
+  hideRPOutput();
+  toast('💬 Loaded in chat — add your refinement','success');
 }
 </script>
 
