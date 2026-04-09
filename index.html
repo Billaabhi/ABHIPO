@@ -3752,6 +3752,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .ob-input::placeholder { color: rgba(255,255,255,.25); }
 .ob-role-row {
   display: flex; flex-wrap: wrap; gap: 7px;
+  justify-content: center;
 }
 .ob-role-btn {
   padding: 7px 14px;
@@ -3965,10 +3966,18 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
         <label class="ob-label">Primary role</label>
         <div class="ob-role-row" id="ob-roles">
           <div class="ob-role-btn" data-role="Product Owner" onclick="selectObRole(this)">🧠 Product Owner</div>
-          <div class="ob-role-btn" data-role="Product Manager" onclick="selectObRole(this)">📋 Product Manager</div>
+          <div class="ob-role-btn" data-role="Product Manager" onclick="selectObRole(this)">📌 Product Manager</div>
           <div class="ob-role-btn" data-role="Business Analyst" onclick="selectObRole(this)">🔎 Business Analyst</div>
+          <div class="ob-role-btn" data-role="CTO / Architect" onclick="selectObRole(this)">🧑‍💻 CTO / Architect</div>
+          <div class="ob-role-btn" data-role="CFO / Finance" onclick="selectObRole(this)">💰 CFO / Finance</div>
+          <div class="ob-role-btn" data-role="UX Designer" onclick="selectObRole(this)">🎨 UX Designer</div>
+          <div class="ob-role-btn" data-role="Marketing" onclick="selectObRole(this)">📣 Marketing</div>
+          <div class="ob-role-btn" data-role="CEO / Founder" onclick="selectObRole(this)">🏢 CEO / Founder</div>
+          <div class="ob-role-btn" data-role="Sales" onclick="selectObRole(this)">🎯 Sales</div>
           <div class="ob-role-btn" data-role="Scrum Master" onclick="selectObRole(this)">🏃 Scrum Master</div>
-          <div class="ob-role-btn" data-role="Tech Lead" onclick="selectObRole(this)">🧑‍💻 Tech Lead</div>
+          <div class="ob-role-btn" data-role="Tech Lead" onclick="selectObRole(this)">🧑‍🔧 Tech Lead</div>
+          <div class="ob-role-btn" data-role="Developer" onclick="selectObRole(this)">💻 Developer</div>
+          <div class="ob-role-btn" data-role="QA / Test Lead" onclick="selectObRole(this)">🧪 QA / Test Lead</div>
           <div class="ob-role-btn" data-role="Other" onclick="selectObRole(this)">✦ Other</div>
         </div>
       </div>
