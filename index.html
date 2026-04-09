@@ -3899,6 +3899,52 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   .htu-section-header { flex-direction: column; gap: 8px; }
 }
 
+
+/* ── Streaming cursor ── */
+.stream-cursor {
+  display: inline-block;
+  width: 2px; height: 14px;
+  background: var(--accent);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  animation: blink .7s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+/* ── Message action bar ── */
+.msg-actions {
+  display: flex; align-items: center; gap: 5px;
+  flex-wrap: wrap; padding-top: 2px;
+  transition: opacity .3s;
+}
+.msg-act-btn {
+  background: var(--bg3); border: 0.5px solid var(--border2);
+  border-radius: 6px; padding: 3px 9px;
+  font-size: 10.5px; font-weight: 600;
+  color: var(--muted2); cursor: pointer;
+  font-family: inherit; transition: all .15s;
+}
+.msg-act-btn:hover { background: var(--accent-l); color: var(--accent); border-color: var(--accent-m); }
+
+/* ── Streaming message glow ── */
+.msg.a.streaming .bb {
+  border-left: 2px solid var(--accent);
+  padding-left: 8px;
+  animation: stream-pulse 2s ease infinite;
+}
+@keyframes stream-pulse { 0%,100%{border-color:var(--accent)} 50%{border-color:transparent} }
+
+
+.sc-row { display:flex; align-items:center; gap:8px; padding:6px 0; }
+.sc-key {
+  background:var(--bg3); border:0.5px solid var(--border2);
+  border-radius:5px; padding:3px 8px;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px;
+  color:var(--text); white-space:nowrap; flex-shrink:0;
+}
+.sc-desc { font-size:12px; color:var(--muted2); }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -4215,6 +4261,14 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   </div>
   <div class="tr">
     <span id="user-name-badge" style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:20px;background:rgba(108,71,255,.12);cursor:pointer;transition:all .15s" onclick="resetOnboarding()" title="Click to update your profile">🧠 User</span>
+    <div id="sprint-countdown-badge" style="display:none;align-items:center;gap:5px;background:rgba(0,212,170,.1);border:0.5px solid rgba(0,212,170,.3);border-radius:20px;padding:4px 11px;cursor:default" title="Sprint countdown">
+      <span style="font-size:10px">⏱</span>
+      <span style="display:flex;flex-direction:column;line-height:1.2">
+        <span class="cd-num" style="font-size:10px;font-weight:700;color:#00D4AA">--</span>
+        <span class="cd-lbl" style="font-size:8.5px;color:rgba(0,212,170,.7)">to sprint end</span>
+      </span>
+    </div>
+    <button onclick="document.getElementById('shortcut-palette').style.display='flex'" title="Keyboard shortcuts (?)" style="background:rgba(255,255,255,.06);border:0.5px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 10px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit;font-weight:700">?</button>
     <button onclick="openHowToUse()" title="How to use ProdMind effectively" style="background:rgba(108,71,255,0.12);border:0.5px solid rgba(108,71,255,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='rgba(108,71,255,0.12)';this.style.color='var(--accent)'">✦ How to use me</button>
         <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀️ Light</button>
     <button class="api-btn" id="api-btn" onclick="openModal()"><div class="dot"></div><span id="api-btn-text">Add API Key</span></button>
@@ -6146,6 +6200,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
       <h2>💚 Sprint Health</h2>
       <span style="font-size:11px;color:var(--muted2)">AI sprint health scorer — flags risks before they become misses</span>
       <div style="margin-left:auto">
+        <div id="sh-stale-badge" style="display:none;align-items:center;gap:6px;background:rgba(245,166,35,.15);border:0.5px solid rgba(245,166,35,.4);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;color:#F5A623">⚠️ Inputs changed — rescore to update</div>
         <button class="btn" onclick="runSprintHealthScore()">🤖 Score This Sprint</button>
       </div>
     </div>
@@ -10223,10 +10278,21 @@ async function sendMsg(){
   const addonInj = getAddonInjection();
   const sys = addonInj ? brainSys + '\n\n' + addonInj : brainSys;
   try{
-    const res=await fetch('/api/chat',{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:sys,messages})
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':apiKey,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1500,
+        stream:true,
+        system:sys,
+        messages
+      })
     });
     removeTyping();
     if(res.status===401){
@@ -10234,27 +10300,80 @@ async function sendMsg(){
       const apiBtn=document.getElementById('api-btn');
       if(apiBtn){apiBtn.classList.remove('connected');document.getElementById('api-btn-text').textContent='Add API Key';}
       addMsg('assistant','**API key invalid or expired.** Click "Add API Key" in the top bar and enter a valid key from console.anthropic.com.');
-      isLoading=false; if(sendBtn){sendBtn.disabled=false;sendBtn.textContent='↑';} return;
+      isLoading=false; if(sendBtn){sendBtn.disabled=false;sendBtn.innerHTML='↑';sendBtn.style.animation='';} return;
     }
     if(res.status===429){
-      addMsg('assistant','**Rate limit reached.** Wait 30–60 seconds and try again. If this persists, check your usage at console.anthropic.com → Usage.');
-      isLoading=false; if(sendBtn){sendBtn.disabled=false;sendBtn.textContent='↑';} return;
+      addMsg('assistant','**Rate limit reached.** Wait 30–60 seconds and try again.');
+      isLoading=false; if(sendBtn){sendBtn.disabled=false;sendBtn.innerHTML='↑';sendBtn.style.animation='';} return;
     }
     if(!res.ok){
       const err=await res.json().catch(()=>({}));
       throw new Error(err?.error?.message||`API error (HTTP ${res.status})`);
     }
-    const data=await res.json();
-    const reply=data.content?.map(c=>c.text||'').join('')||'';
-    if(!reply){
-      addMsg('assistant','**Empty response from API.** This can happen with very long prompts. Try a shorter question or clear context.');
-    } else {
-      chatHistory.push({role:'assistant',content:reply});
-      addMsg('assistant',reply);
+
+    // ── STREAMING: create bubble, stream tokens in ──────────
+    const brain = ALL_BRAINS.find(b=>b.id===activeBrain)||{icon:'🧠',color:'#6C47FF',label:'AI Brain'};
+    const ts = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    const msgId = 'msg-'+Date.now();
+    const msgs = document.getElementById('chat-msgs');
+    const d = document.createElement('div');
+    d.className = 'msg a streaming';
+    const av = `<div class="av" style="background:color-mix(in srgb,${brain.color} 15%,var(--bg3));border:0.5px solid color-mix(in srgb,${brain.color} 35%,transparent)">${brain.icon}</div>`;
+    d.innerHTML = `${av}
+      <div style="display:flex;flex-direction:column;gap:4px;max-width:100%;--bb-accent:${brain.color}">
+        <div style="font-size:9px;font-weight:700;color:${brain.color};letter-spacing:.04em;padding:0 2px;text-transform:uppercase;opacity:.8">${brain.icon} ${brain.label}</div>
+        <div class="bb" id="${msgId}"><span class="stream-cursor"></span></div>
+        <div class="msg-actions" id="acts-${msgId}" style="opacity:0;pointer-events:none">
+          <button class="msg-act-btn" onclick="copyMsgById('${msgId}','')">📋 Copy</button>
+          <button class="msg-act-btn" onclick="_exportDoc('${msgId}')">⬇ Export</button>
+          <span style="font-size:8.5px;color:var(--muted);margin-left:2px">${brain.icon} ${brain.label} · ${ts}</span>
+        </div>
+      </div>`;
+    msgs.appendChild(d);
+    msgs.scrollTop = msgs.scrollHeight;
+
+    const bb = document.getElementById(msgId);
+    let fullText = '';
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while(true){
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream:true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: ')) continue;
+        const data = line.slice(6).trim();
+        if(data === '[DONE]') continue;
+        try{
+          const ev = JSON.parse(data);
+          if(ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta'){
+            fullText += ev.delta.text;
+            bb.innerHTML = formatMsg(fullText) + '<span class="stream-cursor"></span>';
+            msgs.scrollTop = msgs.scrollHeight;
+          }
+          if(ev.type === 'message_stop'){
+            bb.innerHTML = formatMsg(fullText);
+            const acts = document.getElementById('acts-'+msgId);
+            if(acts){ acts.style.opacity='1'; acts.style.pointerEvents='auto'; }
+            d.classList.remove('streaming');
+          }
+        }catch(_){}
+      }
     }
+
+    if(fullText){
+      chatHistory.push({role:'assistant', content:fullText});
+    } else {
+      bb.innerHTML = formatMsg('**Empty response.** Try a shorter prompt or check your API key.');
+    }
+
   }catch(e){
     removeTyping();
-    addMsg('assistant',`**Connection error:** ${e.message}\n\nCheck: 1) API key is valid, 2) Vercel deployment is live, 3) No network issues.`);
+    addMsg('assistant',`**Connection error:** ${e.message}\n\nCheck your API key and network connection.`);
   }
   isLoading=false;
   if(sendBtn){
@@ -21642,56 +21761,96 @@ async function runSprintHealthScore() {
   const btn = document.querySelector('[onclick="runSprintHealthScore()"]');
   if (btn) { btn.textContent='⏳ Scoring…'; btn.disabled=true; }
 
-  const committed = parseInt(document.getElementById('sh-committed')?.value||0);
-  const completed = parseInt(document.getElementById('sh-completed')?.value||0);
-  const day = parseInt(document.getElementById('sh-day')?.value||1);
-  const length = parseInt(document.getElementById('sh-length')?.value||10);
-  const blockers = parseInt(document.getElementById('sh-blockers')?.value||0);
-  const scope = parseInt(document.getElementById('sh-scope')?.value||0);
-  const sentiment = parseInt(document.getElementById('sh-sentiment')?.value||3);
-  const unplanned = parseInt(document.getElementById('sh-unplanned')?.value||0);
+  const committed  = parseInt(document.getElementById('sh-committed')?.value||0);
+  const completed  = parseInt(document.getElementById('sh-completed')?.value||0);
+  const day        = parseInt(document.getElementById('sh-day')?.value||1);
+  const length     = parseInt(document.getElementById('sh-length')?.value||10);
+  const blockers   = parseInt(document.getElementById('sh-blockers')?.value||0);
+  const scope      = parseInt(document.getElementById('sh-scope')?.value||0);
+  const sentiment  = parseInt(document.getElementById('sh-sentiment')?.value||3);
+  const unplanned  = parseInt(document.getElementById('sh-unplanned')?.value||0);
 
-  // Calculate sub-scores
-  const paceExpected = Math.round((day/length)*committed);
-  const deliveryRatio = paceExpected > 0 ? Math.min(completed/paceExpected, 1.2) : 1;
-  const deliveryScore = Math.round(Math.max(0, Math.min(100, deliveryRatio*70 + (scope===0?15:0) + (blockers===0?15:0))));
+  // ── DELIVERY SCORE ────────────────────────────────────────
+  // Pace: how many stories expected to be done by now
+  const paceExpected = Math.max(1, Math.round((day / length) * committed));
+  const deliveryRatio = paceExpected > 0 ? Math.min(completed / paceExpected, 1.2) : 0;
 
-  const teamScore = Math.round(Math.max(0, Math.min(100, (sentiment/5)*70 + (unplanned<10?20:unplanned<25?10:0) + 10)));
+  // End-of-sprint penalty: if day >= length, score purely on final completion rate
+  const sprintComplete = day >= length;
+  let deliveryBase;
+  if (sprintComplete) {
+    // Sprint is over — score = completion rate × 100, no bonuses for failure
+    const completionRate = committed > 0 ? completed / committed : 0;
+    deliveryBase = completionRate * 100;
+  } else {
+    deliveryBase = deliveryRatio * 70
+      + (scope === 0 ? 15 : 0)      // clean scope = good signal
+      + (blockers === 0 ? 15 : 0);  // no blockers = good signal
+  }
+  // Apply blocker drag — each active blocker on last day = stories won't get done
+  const blockerDrag = sprintComplete ? Math.min(blockers * 8, 30) : 0;
+  const deliveryScore = Math.round(Math.max(0, Math.min(100, deliveryBase - blockerDrag)));
 
-  const processScore = Math.round(Math.max(0, Math.min(100,
-    100 - (blockers*15) - (scope*10) - (unplanned>30?20:unplanned>15?10:0)
+  // ── TEAM SCORE ─────────────────────────────────────────────
+  // Sentiment (1-5 scale) + unplanned work penalty/bonus
+  const unplannedBonus = unplanned < 10 ? 20 : unplanned < 20 ? 10 : 0;
+  const teamScore = Math.round(Math.max(0, Math.min(100,
+    (sentiment / 5) * 70 + unplannedBonus + 10
   )));
 
-  const overall = Math.round((deliveryScore*0.45) + (teamScore*0.3) + (processScore*0.25));
+  // ── PROCESS SCORE ──────────────────────────────────────────
+  // Penalise blockers, scope changes, unplanned work
+  const unplannedPenalty = unplanned > 30 ? 25 : unplanned > 20 ? 15 : unplanned > 10 ? 5 : 0;
+  // Sprint-over penalty: if sprint ended with < 50% completion, process was broken
+  const sprintFailPenalty = sprintComplete && committed > 0 && (completed / committed) < 0.5 ? 20 : 0;
+  const processScore = Math.round(Math.max(0, Math.min(100,
+    100
+    - (blockers * 12)
+    - (scope * 10)
+    - unplannedPenalty
+    - sprintFailPenalty
+  )));
 
-  // Update UI
+  // ── OVERALL ────────────────────────────────────────────────
+  const overall = Math.round(
+    (deliveryScore * 0.45) + (teamScore * 0.30) + (processScore * 0.25)
+  );
+
+  // ── UPDATE UI ──────────────────────────────────────────────
   const scoreEl = document.getElementById('sh-score-val');
   const labelEl = document.getElementById('sh-score-label');
-  const subEl = document.getElementById('sh-score-sub');
+  const subEl   = document.getElementById('sh-score-sub');
 
-  const scoreClass = overall>=80?'sh-excellent':overall>=65?'sh-good':overall>=45?'sh-fair':'sh-poor';
-  const scoreLabel = overall>=80?'Excellent 🟢':overall>=65?'Good 🔵':overall>=45?'Fair 🟡':'At Risk 🔴';
+  const getClass = v => v>=80?'sh-excellent':v>=65?'sh-good':v>=45?'sh-fair':'sh-poor';
+  const getLabel = v => v>=80?'Excellent 🟢':v>=65?'Good 🔵':v>=45?'Fair 🟡':'At Risk 🔴';
 
-  if (scoreEl) { scoreEl.textContent=overall; scoreEl.className=scoreClass; }
-  if (labelEl) { labelEl.textContent=scoreLabel; labelEl.className=scoreClass; }
-  if (subEl) subEl.textContent = `Delivery ${deliveryScore} · Team ${teamScore} · Process ${processScore}`;
+  if (scoreEl) { scoreEl.textContent=overall; scoreEl.className=getClass(overall); }
+  if (labelEl) { labelEl.textContent=getLabel(overall); labelEl.className=getClass(overall); }
+  if (subEl)   subEl.textContent = `Delivery ${deliveryScore} · Team ${teamScore} · Process ${processScore}`;
 
-  ['delivery','team','process'].forEach((type,i) => {
+  ['delivery','team','process'].forEach((type, i) => {
     const val = [deliveryScore, teamScore, processScore][i];
-    const el = document.getElementById(`sh-${type}-score`);
-    if (el) { el.textContent=val; el.className=val>=80?'sh-excellent':val>=65?'sh-good':val>=45?'sh-fair':'sh-poor'; }
+    const el  = document.getElementById(`sh-${type}-score`);
+    if (el) { el.textContent=val; el.className=getClass(val); }
     const note = document.getElementById(`sh-${type}-note`);
     if (note) {
-      const notes = {
-        delivery: delivered => delivered>=80?'On track':'Behind expected pace',
-        team: t => t>=80?'Team energised':'Watch for burnout signals',
-        process: p => p>=80?'Clean sprint':'Blockers or scope creep present'
+      const msgs = {
+        delivery: v => v>=80?'On track':sprintComplete&&v<40?`Sprint ended: ${completed}/${committed} stories done`:'Behind expected pace',
+        team:     v => v>=80?'Team energised':v>=65?'Watch for burnout signals':'Team under stress',
+        process:  v => v>=80?'Clean sprint':v>=60?'Minor friction present':'Blockers or scope creep present'
       };
-      if (note) note.textContent = Object.values(notes)[i](val);
+      note.textContent = msgs[type](val);
     }
   });
 
+  // Remove stale indicator
+  const staleEl = document.getElementById('sh-stale-badge');
+  if (staleEl) staleEl.style.display = 'none';
+  // Mark as scored — track current input signature
+  window._shLastInputSig = _getShInputSig();
+
   if (btn) { btn.textContent='🤖 Score This Sprint'; btn.disabled=false; }
+
 
   // AI analysis
   if (apiKey) {
@@ -23181,7 +23340,144 @@ function finishOnboarding() {
     setTimeout(() => { ob.style.display = 'none'; }, 400);
   }
 }
+
+// ── Keyboard shortcut palette + global hotkeys ──────────────
+document.addEventListener('keydown', function(e) {
+  const active = document.activeElement;
+  const typing = active && (active.tagName==='INPUT'||active.tagName==='TEXTAREA');
+
+  // ? opens shortcut palette (only when not typing)
+  if (e.key === '?' && !typing) {
+    e.preventDefault();
+    const p = document.getElementById('shortcut-palette');
+    if (p) p.style.display = p.style.display==='none' ? 'flex' : 'none';
+  }
+
+  // Ctrl+K — focus chat input
+  if (e.ctrlKey && e.key === 'k') {
+    e.preventDefault();
+    const inp = document.getElementById('chat-input');
+    if (inp) { inp.focus(); switchTab('chat', document.querySelectorAll('.nav-tab')[1]); }
+  }
+
+  // Ctrl+N — new chat
+  if (e.ctrlKey && e.key === 'n') {
+    e.preventDefault();
+    if (typeof startFreshChat === 'function') startFreshChat();
+  }
+
+  // Ctrl+E — export chat
+  if (e.ctrlKey && e.key === 'e') {
+    e.preventDefault();
+    if (typeof exportFullChat === 'function') exportFullChat();
+  }
+
+  // Ctrl+1-9 — switch brain by index
+  if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+    e.preventDefault();
+    const idx = parseInt(e.key) - 1;
+    if (ALL_BRAINS[idx]) switchActiveBrain(ALL_BRAINS[idx].id);
+  }
+
+  // Alt+G — God Mode
+  if (e.altKey && e.key.toLowerCase() === 'g') { e.preventDefault(); toggleAddon('god'); }
+  // Alt+O — OODA
+  if (e.altKey && e.key.toLowerCase() === 'o') { e.preventDefault(); toggleAddon('ooda'); }
+  // Alt+L — L99
+  if (e.altKey && e.key.toLowerCase() === 'l') { e.preventDefault(); toggleAddon('l99'); }
+  // Alt+S — Steel Man
+  if (e.altKey && e.key.toLowerCase() === 's') { e.preventDefault(); toggleAddon('steelman'); }
+
+  // Escape — close shortcut palette
+  if (e.key === 'Escape') {
+    const p = document.getElementById('shortcut-palette');
+    if (p && p.style.display !== 'none') p.style.display = 'none';
+  }
+});
+
+// ── Sprint Countdown ─────────────────────────────────────────
+function initSprintCountdown() {
+  // Read sprint end from localStorage (set from product context)
+  const el = document.getElementById('sprint-countdown-badge');
+  if (!el) return;
+
+  function update() {
+    const sprintEnd = localStorage.getItem('pos_sprint_end');
+    if (!sprintEnd) { el.style.display = 'none'; return; }
+    const end = new Date(sprintEnd);
+    const now = new Date();
+    const diff = end - now;
+    if (diff <= 0) { el.style.display = 'none'; return; }
+    const days = Math.floor(diff / (1000*60*60*24));
+    const hrs  = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+    const urgent = days <= 2;
+    el.style.display = 'flex';
+    el.style.background = urgent ? 'rgba(239,83,80,.15)' : 'rgba(0,212,170,.1)';
+    el.style.borderColor = urgent ? 'rgba(239,83,80,.4)' : 'rgba(0,212,170,.3)';
+    el.style.color = urgent ? '#EF5350' : '#00D4AA';
+    el.querySelector('.cd-num').textContent = days + 'd ' + hrs + 'h';
+    el.querySelector('.cd-lbl').textContent = urgent ? 'sprint ending!' : 'to sprint end';
+  }
+
+  update();
+  setInterval(update, 60000);
+}
+
+// Call on load
+document.addEventListener('DOMContentLoaded', () => setTimeout(initSprintCountdown, 1000));
+
+// ── Sprint Health stale indicator ───────────────────────────
+function _getShInputSig() {
+  const ids = ['sh-committed','sh-completed','sh-day','sh-length','sh-blockers','sh-scope','sh-sentiment','sh-unplanned'];
+  return ids.map(id => document.getElementById(id)?.value||'').join('|');
+}
+
+function _shInputChanged() {
+  const stale = document.getElementById('sh-stale-badge');
+  if (!stale) return;
+  if (typeof window._shLastInputSig === 'undefined') return;
+  if (_getShInputSig() !== window._shLastInputSig) {
+    stale.style.display = 'flex';
+  }
+}
+
+// Wire up all sprint health inputs
+document.addEventListener('DOMContentLoaded', () => {
+  ['sh-committed','sh-completed','sh-day','sh-length','sh-blockers','sh-scope','sh-sentiment','sh-unplanned'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('change', _shInputChanged);
+    if (el) el.addEventListener('input', _shInputChanged);
+  });
+});
 </script>
+
+<!-- KEYBOARD SHORTCUT PALETTE -->
+<div id="shortcut-palette" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);z-index:3000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:18px;width:100%;max-width:540px;overflow:hidden;animation:slide-up .25s cubic-bezier(.22,1,.36,1)">
+    <div style="padding:16px 20px;border-bottom:0.5px solid var(--border2);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:14px;font-weight:800;color:var(--text)">⌨️ Keyboard Shortcuts</div>
+      <button onclick="document.getElementById('shortcut-palette').style.display='none'" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted2);cursor:pointer;font-family:inherit">✕ Close</button>
+    </div>
+    <div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr;gap:6px;max-height:420px;overflow-y:auto">
+      <div class="sc-row"><kbd class="sc-key">↵</kbd><span class="sc-desc">Send message</span></div>
+      <div class="sc-row"><kbd class="sc-key">⇧↵</kbd><span class="sc-desc">New line</span></div>
+      <div class="sc-row"><kbd class="sc-key">/</kbd><span class="sc-desc">Open command palette</span></div>
+      <div class="sc-row"><kbd class="sc-key">Esc</kbd><span class="sc-desc">Close command palette</span></div>
+      <div class="sc-row"><kbd class="sc-key">Ctrl+V</kbd><span class="sc-desc">Paste image into chat</span></div>
+      <div class="sc-row"><kbd class="sc-key">?</kbd><span class="sc-desc">Open shortcut palette</span></div>
+      <div class="sc-row"><kbd class="sc-key">Ctrl+K</kbd><span class="sc-desc">Focus chat input</span></div>
+      <div class="sc-row"><kbd class="sc-key">Ctrl+N</kbd><span class="sc-desc">New chat / clear</span></div>
+      <div class="sc-row"><kbd class="sc-key">Ctrl+E</kbd><span class="sc-desc">Export full chat</span></div>
+      <div class="sc-row"><kbd class="sc-key">Ctrl+1–9</kbd><span class="sc-desc">Switch to brain 1–9</span></div>
+      <div class="sc-row"><kbd class="sc-key">Alt+G</kbd><span class="sc-desc">Toggle God Mode</span></div>
+      <div class="sc-row"><kbd class="sc-key">Alt+O</kbd><span class="sc-desc">Toggle OODA Loop</span></div>
+      <div class="sc-row"><kbd class="sc-key">Alt+L</kbd><span class="sc-desc">Toggle L99</span></div>
+      <div class="sc-row"><kbd class="sc-key">Alt+S</kbd><span class="sc-desc">Toggle Steel Man</span></div>
+    </div>
+    <div style="padding:10px 20px;border-top:0.5px solid var(--border2);font-size:10.5px;color:var(--muted2);text-align:center">Press <kbd class="sc-key" style="font-size:9px;padding:1px 5px">?</kbd> anywhere to toggle this panel</div>
+  </div>
+</div>
+
 
 <!-- ══ PROMPT FIELD EDITOR ══════════════════════════════════════ -->
 <div id="prompt-editor-overlay">
