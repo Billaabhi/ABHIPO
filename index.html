@@ -4691,6 +4691,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               <div class="ctx-cap-item">
                 <div class="ctx-cap-lbl">Delivery team</div>
                 <div class="ctx-cap-val" id="cap-team">—</div>
+                <div id="cap-weighted" style="display:none;font-size:9.5px;color:var(--accent);font-weight:600;margin-top:2px"></div>
               </div>
               <div class="ctx-cap-item">
                 <div class="ctx-cap-lbl">Working days</div>
@@ -6217,12 +6218,26 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
       <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;padding:16px">
         <div style="font-size:11px;font-weight:700;margin-bottom:12px;color:var(--text)">Sprint Signals</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div class="cf"><label>Stories committed</label><input id="sh-committed" type="number" placeholder="e.g. 8" value="8"/></div>
+          <div class="cf">
+            <label>Stories committed <span style="font-size:9px;color:var(--muted2);font-weight:400">(delivery team only)</span></label>
+            <input id="sh-committed" type="number" placeholder="e.g. 8" value="8"/>
+            <div id="sh-commit-warning" style="display:none;font-size:9.5px;color:var(--yellow);margin-top:3px;line-height:1.4"></div>
+          </div>
           <div class="cf"><label>Stories completed</label><input id="sh-completed" type="number" placeholder="e.g. 5" value="5"/></div>
           <div class="cf"><label>Current day of sprint</label><input id="sh-day" type="number" placeholder="e.g. 6" value="6"/></div>
           <div class="cf"><label>Sprint length (days)</label><input id="sh-length" type="number" placeholder="e.g. 10" value="10"/></div>
           <div class="cf"><label>Active blockers</label><input id="sh-blockers" type="number" placeholder="e.g. 2" value="2"/></div>
           <div class="cf"><label>Scope changes</label><input id="sh-scope" type="number" placeholder="e.g. 1" value="0"/></div>
+          <div class="cf">
+            <label>Delivery team size <span style="font-size:9px;color:var(--muted2);font-weight:400">(devs + QA + tech lead only)</span></label>
+            <input id="sh-delivery-team" type="number" placeholder="e.g. 4" min="1" max="50"
+              oninput="_shAutoRescore(); _validateShCommit()"/>
+          </div>
+          <div class="cf">
+            <label>Enablement roles <span style="font-size:9px;color:var(--muted2);font-weight:400">(PO + BA + SM)</span></label>
+            <input id="sh-enablement-team" type="number" placeholder="e.g. 2" min="0" max="20" value="0"
+              oninput="_shAutoRescore()"/>
+          </div>
           <div class="cf"><label>Team sentiment</label><select id="sh-sentiment"><option value="5">😄 Energised</option><option value="4" selected>🙂 Good</option><option value="3">😐 Neutral</option><option value="2">😔 Stressed</option><option value="1">😰 Struggling</option></select></div>
           <div class="cf"><label>Unplanned work %</label><input id="sh-unplanned" type="number" placeholder="e.g. 15" value="15"/></div>
         </div>
@@ -9369,22 +9384,55 @@ function updateCapacity(){
   const devopsCount = parseInt(document.getElementById('ctx-devops')?.textContent||0);
   const poCount     = parseInt(document.getElementById('ctx-po')?.textContent||0);
 
-  const deliveryTeam = devCount + qaCount + archCount + designCount;
-  const totalPeople  = deliveryTeam + baCount + smCount + devopsCount + poCount;
+  // ── ROLE WEIGHTS — delivery effort per role ─────────────────
+  // Delivery roles carry sprint execution. Enablement roles enable it.
+  // Weights represent proportion of time spent on story delivery.
+  const ROLE_WEIGHTS = {
+    dev:     1.00,   // full delivery
+    qa:      0.85,   // high delivery — testing, regression
+    arch:    0.70,   // tech lead equivalent
+    design:  0.65,   // UX — delivery but also discovery
+    devops:  0.75,   // infra delivery
+    sm:      0.35,   // ceremonies, impediments — not story delivery
+    ba:      0.30,   // requirements, AC — pre/post sprint, not execution
+    po:      0.25,   // grooming, acceptance — not story delivery
+  };
 
-  // ── Effective working capacity ────────────────────────────────
-  // Each person loses: (leaveDays / totalPeople) + ceremonyHrs/8 days
-  const teamPersonDays   = Math.max(0, (sprintDays - daysLost) * totalPeople - leaveDays);
-  const ceremonyDaysLost = (ceremonyHrs / 8) * (deliveryTeam || totalPeople || 1);
-  const netDeliveryDays  = Math.max(0, teamPersonDays - ceremonyDaysLost);
-  const workingDays      = Math.max(0, sprintDays - daysLost);
+  // Weighted delivery capacity (FTE equivalents)
+  const weightedDelivery =
+    devCount    * ROLE_WEIGHTS.dev    +
+    qaCount     * ROLE_WEIGHTS.qa     +
+    archCount   * ROLE_WEIGHTS.arch   +
+    designCount * ROLE_WEIGHTS.design +
+    devopsCount * ROLE_WEIGHTS.devops +
+    smCount     * ROLE_WEIGHTS.sm     +
+    baCount     * ROLE_WEIGHTS.ba     +
+    poCount     * ROLE_WEIGHTS.po;
 
-  // ── SP calculation ────────────────────────────────────────────
+  const deliveryTeam = devCount + qaCount + archCount + designCount + devopsCount;
+  const totalPeople  = deliveryTeam + baCount + smCount + poCount;
+
+  // Ceremony overhead — PO/BA/SM drive ceremonies that eat delivery time
+  // Each enablement person adds ~0.5 hr/day overhead on delivery team
+  const enablementOverhead = (baCount * 0.5 + poCount * 0.5 + smCount * 0.3) / 8; // days per person per sprint
+  const workingDays = Math.max(0, sprintDays - daysLost);
+
+  const ceremonyFromEnablement = enablementOverhead * Math.max(workingDays, 0);
+
+  // Effective weighted person-days (delivery work only)
+  const leaveFraction     = totalPeople > 0 ? leaveDays / totalPeople : 0;
+  const weightedPersonDays = Math.max(0, weightedDelivery * (workingDays - leaveFraction));
+  const ceremonyDaysLost  = (ceremonyHrs / 8) + ceremonyFromEnablement;
+  const netDeliveryDays   = Math.max(0, weightedPersonDays - ceremonyDaysLost * weightedDelivery / Math.max(totalPeople,1));
+
+  // ── SP calculation (role-weighted) ───────────────────────────
   let rawSP = 0;
   if (velocity > 0) {
-    // Scale velocity by: working days ratio × focus × new joiner penalty × confidence
+    // Scale velocity by weighted capacity ratio, focus, joiners, confidence
+    // weightedDelivery / historical team size estimates the delivery ratio
+    const historicalDelivery = Math.max(weightedDelivery, deliveryTeam * 0.7);
     const joinerPenalty = totalPeople > 0
-      ? 1 - (newJoiners * 0.5 / totalPeople)
+      ? 1 - (newJoiners * 0.5 / Math.max(deliveryTeam, 1))
       : 1;
     rawSP = Math.round(
       velocity
@@ -9393,10 +9441,13 @@ function updateCapacity(){
       * joinerPenalty
       * confidence
     );
+    // Apply weighted capacity correction — if team composition shifts toward
+    // more enablement roles this sprint, reduce SP accordingly
+    const weightRatio = totalPeople > 0 ? weightedDelivery / (totalPeople * 0.75) : 1;
+    rawSP = Math.round(rawSP * Math.min(1, weightRatio));
   } else if (devRate > 0 && devCount > 0) {
-    // Fallback: estimate from dev rate if no historical velocity
-    const devPersonDays = Math.max(0, workingDays * devCount - leaveDays * (devCount / Math.max(totalPeople,1)));
-    rawSP = Math.round(devPersonDays * devRate * focusPct * confidence);
+    // Fallback: dev rate × weighted delivery days
+    rawSP = Math.round(netDeliveryDays * devRate * focusPct * confidence);
   }
 
   // ── Deductions ────────────────────────────────────────────────
@@ -9430,6 +9481,11 @@ function updateCapacity(){
   // ── Update result card ────────────────────────────────────────
   const _set = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val; };
   _set('cap-team',    deliveryTeam > 0 ? deliveryTeam : (totalPeople || '—'));
+  const wdEl = document.getElementById('cap-weighted');
+  if (wdEl && totalPeople > 0) {
+    wdEl.textContent = weightedDelivery.toFixed(1) + ' FTE delivery';
+    wdEl.style.display = 'block';
+  } else if (wdEl) { wdEl.style.display = 'none'; }
   _set('cap-days',    workingDays > 0 ? workingDays : '—');
   _set('cap-raw',     rawSP > 0 ? rawSP+' SP' : '—');
   _set('cap-commit',  rawSP > 0 ? commitSP+' SP' : '—');
@@ -9480,6 +9536,14 @@ function updateCapacity(){
   if (health && rawSP > 0) {
     const lines = [];
     let worstColor = 'green';
+
+    // Role composition insight — show when enablement outweighs delivery
+    const deliveryRatio = totalPeople > 0 ? weightedDelivery / totalPeople : 1;
+    if (deliveryRatio < 0.6 && totalPeople >= 3) {
+      const deliveryPct = Math.round(deliveryRatio * 100);
+      lines.push(`⚠️ Role mix: weighted delivery capacity is ${deliveryPct}% of headcount — ${poCount + baCount + smCount} enablement role(s) reduce committable SP. PO/BA/SM drive value but don't deliver story points.`);
+      if (worstColor !== 'red') worstColor = 'yellow';
+    }
 
     // Capacity ratio
     if (velocity > 0) {
@@ -21772,6 +21836,13 @@ async function runSprintHealthScore() {
 
   // ── DELIVERY SCORE ────────────────────────────────────────
   // Pace: how many stories expected to be done by now
+  const deliveryTeamSize = parseInt(document.getElementById('sh-delivery-team')?.value||0);
+  const enablementSize   = parseInt(document.getElementById('sh-enablement-team')?.value||0);
+  const totalTeam        = deliveryTeamSize + enablementSize;
+
+  // Role-weight validation — flag if committed SP seems too high for delivery team
+  _validateShCommit(committed, deliveryTeamSize, length);
+
   const paceExpected = Math.max(1, Math.round((day / length) * committed));
   const deliveryRatio = paceExpected > 0 ? Math.min(completed / paceExpected, 1.2) : 0;
 
@@ -23469,6 +23540,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el) el.addEventListener('input',  () => { _shInputChanged(); _shAutoRescore(); });
   });
 });
+
+// Validate committed SP against delivery team size
+function _validateShCommit(committed, deliveryTeam, sprintLength) {
+  committed     = committed     || parseInt(document.getElementById('sh-committed')?.value||0);
+  deliveryTeam  = deliveryTeam  || parseInt(document.getElementById('sh-delivery-team')?.value||0);
+  sprintLength  = sprintLength  || parseInt(document.getElementById('sh-length')?.value||10);
+  const warning = document.getElementById('sh-commit-warning');
+  if (!warning) return;
+
+  if (!deliveryTeam || !committed) { warning.style.display='none'; return; }
+
+  // Rough SP ceiling: delivery team × sprint days × ~1 SP/person/day × 70% focus
+  const ceiling = Math.round(deliveryTeam * sprintLength * 0.7);
+  const ratio   = committed / ceiling;
+
+  if (ratio > 1.3) {
+    warning.style.display = 'block';
+    warning.innerHTML = `⚠️ ${committed} SP committed but delivery team of ${deliveryTeam} can realistically deliver ~${ceiling} SP. Over-committed by ~${committed - ceiling} SP. PO/BA/SM don't deliver story points.`;
+  } else if (ratio > 1.1) {
+    warning.style.display = 'block';
+    warning.innerHTML = `💡 ${committed} SP is slightly above the ~${ceiling} SP ceiling for ${deliveryTeam} delivery team members. Consider a 10% buffer cut.`;
+  } else {
+    warning.style.display = 'none';
+  }
+}
 </script>
 
 <!-- KEYBOARD SHORTCUT PALETTE -->
