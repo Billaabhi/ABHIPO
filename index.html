@@ -3565,6 +3565,237 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .export-btn:hover{background:var(--accent);color:#fff}
 .export-btn svg{flex-shrink:0}
 
+
+/* ══ ONBOARDING — RICH 4-STEP WALKTHROUGH ═════════════════════ */
+
+#onboarding-screen {
+  position: fixed; inset: 0; z-index: 2500;
+  background: linear-gradient(135deg, #080810 0%, #0d0b1e 50%, #080810 100%);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px 20px;
+  overflow-y: auto;
+}
+#onboarding-screen::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(108,71,255,.15) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 80% 30%, rgba(0,212,170,.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Dots */
+.ob-dots {
+  display: flex; gap: 8px; margin-bottom: 28px;
+  position: relative; z-index: 2;
+}
+.ob-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,.2);
+  transition: all .3s cubic-bezier(.22,1,.36,1);
+}
+.ob-dot.active {
+  background: #6C47FF;
+  width: 22px; border-radius: 4px;
+  box-shadow: 0 0 10px rgba(108,71,255,.5);
+}
+
+/* Step panels */
+.ob-step-panel {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 560px;
+  width: 100%;
+  position: relative; z-index: 2;
+  animation: ob-in .4s cubic-bezier(.22,1,.36,1);
+}
+.ob-step-panel.active { display: flex; }
+@keyframes ob-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Step 0 — hero */
+.ob-logo-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.ob-logo-box {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, #6C47FF, #9C27B0);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 0 24px rgba(108,71,255,.5);
+}
+.ob-logo-name {
+  font-size: 22px; font-weight: 900; color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -.02em;
+}
+.ob-logo-name span { color: #6C47FF; }
+.ob-hero-title {
+  font-size: 32px; font-weight: 900; color: #fff;
+  letter-spacing: -.03em; line-height: 1.1; margin-bottom: 12px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.ob-hero-sub {
+  font-size: 14px; color: rgba(255,255,255,.5);
+  line-height: 1.65; margin-bottom: 22px; max-width: 440px;
+}
+.ob-feature-row {
+  display: flex; flex-wrap: wrap; gap: 7px;
+  justify-content: center; margin-bottom: 24px;
+}
+.ob-feat-pill {
+  background: rgba(108,71,255,.12);
+  border: 0.5px solid rgba(108,71,255,.3);
+  border-radius: 20px; padding: 5px 13px;
+  font-size: 12px; font-weight: 600;
+  color: rgba(167,139,250,.9);
+}
+
+/* Step content */
+.ob-step-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; color: #6C47FF; margin-bottom: 12px;
+}
+.ob-step-title {
+  font-size: 28px; font-weight: 900; color: #fff;
+  letter-spacing: -.025em; line-height: 1.15; margin-bottom: 12px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.ob-step-desc {
+  font-size: 13.5px; color: rgba(255,255,255,.5);
+  line-height: 1.7; margin-bottom: 20px; max-width: 480px;
+}
+.ob-kbd {
+  background: rgba(255,255,255,.1); border: 0.5px solid rgba(255,255,255,.2);
+  border-radius: 4px; padding: 1px 7px;
+  font-size: 12px; font-family: 'JetBrains Mono', monospace;
+  color: rgba(255,255,255,.8);
+}
+
+/* Brain grid */
+.ob-brain-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 8px; margin-bottom: 14px; width: 100%;
+}
+.ob-brain-card {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 5px; padding: 12px 8px;
+  background: rgba(255,255,255,.04);
+  border: 0.5px solid rgba(255,255,255,.08);
+  border-radius: 10px; cursor: default;
+  transition: all .2s;
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,.7);
+}
+.ob-brain-card:hover {
+  border-color: var(--bc, #6C47FF);
+  background: color-mix(in srgb, var(--bc, #6C47FF) 10%, transparent);
+  color: #fff;
+}
+.ob-brain-card span { font-size: 10.5px; }
+
+/* Tip bar */
+.ob-tip {
+  background: rgba(108,71,255,.08);
+  border: 0.5px solid rgba(108,71,255,.2);
+  border-radius: 8px; padding: 10px 14px;
+  font-size: 11.5px; color: rgba(167,139,250,.8);
+  line-height: 1.55; text-align: left;
+}
+
+/* Command examples */
+.ob-command-examples {
+  display: flex; flex-direction: column; gap: 7px;
+  width: 100%; margin-bottom: 6px;
+}
+.ob-cmd {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 14px;
+  background: rgba(255,255,255,.035);
+  border: 0.5px solid rgba(255,255,255,.07);
+  border-radius: 9px; text-align: left;
+}
+.ob-cmd-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: #a78bfa; min-width: 110px; flex-shrink: 0;
+}
+.ob-cmd-desc {
+  font-size: 11.5px; color: rgba(255,255,255,.45);
+}
+
+/* Form */
+.ob-form { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+.ob-field { display: flex; flex-direction: column; gap: 6px; text-align: left; }
+.ob-label {
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,.5);
+  text-transform: uppercase; letter-spacing: .08em;
+}
+.ob-input {
+  width: 100%;
+  background: rgba(255,255,255,.07);
+  border: 0.5px solid rgba(255,255,255,.15);
+  border-radius: 10px; padding: 11px 14px;
+  font-size: 14px; color: #fff;
+  font-family: 'Space Grotesk', sans-serif;
+  outline: none; transition: all .2s;
+}
+.ob-input:focus {
+  border-color: rgba(108,71,255,.6);
+  box-shadow: 0 0 0 3px rgba(108,71,255,.15);
+}
+.ob-input::placeholder { color: rgba(255,255,255,.25); }
+.ob-role-row {
+  display: flex; flex-wrap: wrap; gap: 7px;
+}
+.ob-role-btn {
+  padding: 7px 14px;
+  background: rgba(255,255,255,.05);
+  border: 0.5px solid rgba(255,255,255,.1);
+  border-radius: 20px; cursor: pointer;
+  font-size: 12px; font-weight: 600;
+  color: rgba(255,255,255,.6);
+  transition: all .15s;
+}
+.ob-role-btn:hover { border-color: rgba(108,71,255,.4); color: #fff; }
+.ob-role-btn.selected {
+  background: rgba(108,71,255,.2);
+  border-color: rgba(108,71,255,.5);
+  color: #a78bfa;
+}
+
+/* Buttons */
+.ob-next-btn {
+  background: #6C47FF; color: #fff; border: none;
+  border-radius: 12px; padding: 13px 32px;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  box-shadow: 0 4px 20px rgba(108,71,255,.4);
+  transition: all .15s;
+}
+.ob-next-btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
+.ob-next-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+.ob-back-btn {
+  background: rgba(255,255,255,.07);
+  border: 0.5px solid rgba(255,255,255,.12);
+  border-radius: 12px; padding: 13px 24px;
+  font-size: 14px; font-weight: 600;
+  color: rgba(255,255,255,.6); cursor: pointer;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: all .15s;
+}
+.ob-back-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
+.ob-skip-btn {
+  background: transparent; border: none;
+  color: rgba(255,255,255,.3); font-size: 12px;
+  cursor: pointer; font-family: 'Space Grotesk', sans-serif;
+  margin-top: 8px; padding: 4px;
+  transition: color .15s;
+}
+.ob-skip-btn:hover { color: rgba(255,255,255,.6); }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -3640,40 +3871,111 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 </div>
 
 <!-- ══ ONBOARDING SCREEN ══════════════════════════════════════════ -->
-<div id="onboarding-screen"><button onclick="document.getElementById('onboarding-screen').style.display='none'" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);border-radius:8px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">Skip →</button>
-  <div class="ob-wrap">
-    <div class="ob-logo">🧠</div>
-    <div class="ob-title">Prod<span>Mind</span></div>
-    <div class="ob-sub">Your AI thinking partner for every product decision.<br>30 seconds to set up — built for people who build products.</div>
+<div id="onboarding-screen" style="display:none">
 
-    <div class="ob-step" style="animation-delay:.1s">
-      <div class="ob-step-label">Step 1 — What should we call you?</div>
-      <input class="ob-input" id="ob-name" placeholder="Your first name" maxlength="40"
-        oninput="document.getElementById('ob-next').disabled=!this.value.trim()"/>
-    </div>
-
-    <div class="ob-step" style="animation-delay:.2s">
-      <div class="ob-step-label">Step 2 — What is your primary role?</div>
-      <div class="ob-roles" id="ob-roles" style="grid-template-columns:repeat(3,1fr)">
-        <div class="ob-role" data-role="po"        data-color="#6C47FF" onclick="selectRole(this)"><span class="ob-role-icon">🧠</span><div><div class="ob-role-name">PO Brain</div><div class="ob-role-desc">Product Owner</div></div></div>
-        <div class="ob-role" data-role="ba"        data-color="#26C6DA" onclick="selectRole(this)"><span class="ob-role-icon">🔎</span><div><div class="ob-role-name">BA Brain</div><div class="ob-role-desc">Business Analyst</div></div></div>
-        <div class="ob-role" data-role="cto"       data-color="#00BCD4" onclick="selectRole(this)"><span class="ob-role-icon">🧑‍💻</span><div><div class="ob-role-name">CTO Brain</div><div class="ob-role-desc">Chief Technology Officer</div></div></div>
-        <div class="ob-role" data-role="cfo"       data-color="#00D4AA" onclick="selectRole(this)"><span class="ob-role-icon">💰</span><div><div class="ob-role-name">CFO Brain</div><div class="ob-role-desc">Chief Financial Officer</div></div></div>
-        <div class="ob-role" data-role="ux"        data-color="#E91E8C" onclick="selectRole(this)"><span class="ob-role-icon">🎨</span><div><div class="ob-role-name">UX Brain</div><div class="ob-role-desc">UX / Design Lead</div></div></div>
-        <div class="ob-role" data-role="marketing" data-color="#FF6B35" onclick="selectRole(this)"><span class="ob-role-icon">📣</span><div><div class="ob-role-name">Marketing Brain</div><div class="ob-role-desc">Marketing / Growth</div></div></div>
-        <div class="ob-role" data-role="ceo"       data-color="#F5A623" onclick="selectRole(this)"><span class="ob-role-icon">🧑‍💼</span><div><div class="ob-role-name">CEO Brain</div><div class="ob-role-desc">Chief Executive Officer</div></div></div>
-        <div class="ob-role" data-role="sales"     data-color="#8BC34A" onclick="selectRole(this)"><span class="ob-role-icon">🛒</span><div><div class="ob-role-name">Sales Brain</div><div class="ob-role-desc">Sales Leader</div></div></div>
-        <div class="ob-role" data-role="scrum"     data-color="#66BB6A" onclick="selectRole(this)"><span class="ob-role-icon">🏃</span><div><div class="ob-role-name">Scrum Master</div><div class="ob-role-desc">Agile Coach</div></div></div>
-        <div class="ob-role" data-role="techlead"  data-color="#FFA726" onclick="selectRole(this)"><span class="ob-role-icon">🧑‍🔧</span><div><div class="ob-role-name">Tech Lead Brain</div><div class="ob-role-desc">Technical Lead</div></div></div>
-        <div class="ob-role" data-role="developer" data-color="#AB47BC" onclick="selectRole(this)"><span class="ob-role-icon">💻</span><div><div class="ob-role-name">Developer Brain</div><div class="ob-role-desc">Senior Developer</div></div></div>
-        <div class="ob-role" data-role="pm"        data-color="#EF5350" onclick="selectRole(this)"><span class="ob-role-icon">📌</span><div><div class="ob-role-name">PM Brain</div><div class="ob-role-desc">Project Manager</div></div></div>
-        <div class="ob-role" data-role="qa"        data-color="#29B6F6" onclick="selectRole(this)"><span class="ob-role-icon">🧪</span><div><div class="ob-role-name">QA Brain</div><div class="ob-role-desc">QA / Test Lead</div></div></div>
-      </div></div>
-
-    <button class="ob-btn" id="ob-next" disabled onclick="finishOnboarding()">
-      Let's go →
-    </button>
+  <!-- Step dots -->
+  <div class="ob-dots">
+    <div class="ob-dot active" id="dot-0"></div>
+    <div class="ob-dot" id="dot-1"></div>
+    <div class="ob-dot" id="dot-2"></div>
+    <div class="ob-dot" id="dot-3"></div>
   </div>
+
+  <!-- STEP 0 — Welcome -->
+  <div class="ob-step-panel active" id="ob-panel-0">
+    <div class="ob-logo-wrap">
+      <div class="ob-logo-box">🧠</div>
+      <div class="ob-logo-name">Prod<span>Mind</span></div>
+    </div>
+    <div class="ob-hero-title">The AI product operating<br>system you were missing</div>
+    <div class="ob-hero-sub">Not another PM app. Not a generic chatbot.<br>13 specialist AI brains. 183 commands. Full product context on every response.</div>
+    <div class="ob-feature-row">
+      <div class="ob-feat-pill">🧠 13 AI Brains</div>
+      <div class="ob-feat-pill">⚡ 183 Commands</div>
+      <div class="ob-feat-pill">📄 27 Doc Types</div>
+      <div class="ob-feat-pill">♟️ 6 Strategy Tools</div>
+      <div class="ob-feat-pill">🔮 7 Thinking Modes</div>
+      <div class="ob-feat-pill">📅 20 Tool Pages</div>
+    </div>
+    <button class="ob-next-btn" onclick="obGoTo(1)">See how it works →</button>
+    <button class="ob-skip-btn" onclick="finishOnboarding()">Skip intro — take me in</button>
+  </div>
+
+  <!-- STEP 1 — The Brains -->
+  <div class="ob-step-panel" id="ob-panel-1">
+    <div class="ob-step-tag">Step 1 of 3</div>
+    <div class="ob-step-title">Switch brains.<br>Change how the AI thinks.</div>
+    <div class="ob-step-desc">Every brain is a different expert. PO Brain thinks like a senior product leader. CTO Brain thinks in architecture and tech debt. CFO Brain thinks in unit economics. Switch in one click — the expertise is pre-loaded.</div>
+    <div class="ob-brain-grid">
+      <div class="ob-brain-card" style="--bc:#6C47FF">🧠<span>PO Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#26C6DA">🔎<span>BA Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#00BCD4">🧑‍💻<span>CTO Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#00D4AA">💰<span>CFO Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#E91E8C">🎨<span>UX Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#FF6B35">📣<span>Marketing</span></div>
+      <div class="ob-brain-card" style="--bc:#66BB6A">🏃<span>Scrum</span></div>
+      <div class="ob-brain-card" style="--bc:#29B6F6">🧪<span>QA Brain</span></div>
+    </div>
+    <div class="ob-tip">💡 Stack thinking modes on top — God Mode, OODA Loop, L99, Steel Man, Second-Order, Socratic, First Principles</div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+      <button class="ob-back-btn" onclick="obGoTo(0)">← Back</button>
+      <button class="ob-next-btn" onclick="obGoTo(2)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 — Commands + Split screen -->
+  <div class="ob-step-panel" id="ob-panel-2">
+    <div class="ob-step-tag">Step 2 of 3</div>
+    <div class="ob-step-title">One command.<br>Production-ready output.</div>
+    <div class="ob-step-desc">Type <kbd class="ob-kbd">/</kbd> in the chat to see 183 slash commands. Each produces a complete, copy-ready artefact — not a prompt, not a draft. The right panel gives you docs, templates, strategy tools, and your knowledge base — all one click away.</div>
+    <div class="ob-command-examples">
+      <div class="ob-cmd"><span class="ob-cmd-name">/rice</span><span class="ob-cmd-desc">Full RICE backlog scoring with business rationale</span></div>
+      <div class="ob-cmd"><span class="ob-cmd-name">/premortem</span><span class="ob-cmd-desc">Launch risk workshop — inversion thinking</span></div>
+      <div class="ob-cmd"><span class="ob-cmd-name">/story</span><span class="ob-cmd-desc">BDD user story with full acceptance criteria</span></div>
+      <div class="ob-cmd"><span class="ob-cmd-name">/okr</span><span class="ob-cmd-desc">Quarterly OKRs with KRs, baselines, grading</span></div>
+      <div class="ob-cmd"><span class="ob-cmd-name">/pushback</span><span class="ob-cmd-desc">Professional stakeholder pushback script</span></div>
+      <div class="ob-cmd"><span class="ob-cmd-name">/northstar</span><span class="ob-cmd-desc">North Star metric + input metric tree</span></div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+      <button class="ob-back-btn" onclick="obGoTo(1)">← Back</button>
+      <button class="ob-next-btn" onclick="obGoTo(3)">Next →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 — Setup -->
+  <div class="ob-step-panel" id="ob-panel-3">
+    <div class="ob-step-tag">Step 3 of 3 — Setup</div>
+    <div class="ob-step-title">30 seconds to<br>your first output.</div>
+    <div class="ob-step-desc">Tell us your name and role so ProdMind can personalise every response to you. Then add your Anthropic API key — free to get, takes 60 seconds.</div>
+    <div class="ob-form">
+      <div class="ob-field">
+        <label class="ob-label">Your first name</label>
+        <input class="ob-input" id="ob-name" placeholder="e.g. Abhinav" maxlength="40"
+          oninput="checkObReady()"/>
+      </div>
+      <div class="ob-field">
+        <label class="ob-label">Primary role</label>
+        <div class="ob-role-row" id="ob-roles">
+          <div class="ob-role-btn" data-role="Product Owner" onclick="selectObRole(this)">🧠 Product Owner</div>
+          <div class="ob-role-btn" data-role="Product Manager" onclick="selectObRole(this)">📋 Product Manager</div>
+          <div class="ob-role-btn" data-role="Business Analyst" onclick="selectObRole(this)">🔎 Business Analyst</div>
+          <div class="ob-role-btn" data-role="Scrum Master" onclick="selectObRole(this)">🏃 Scrum Master</div>
+          <div class="ob-role-btn" data-role="Tech Lead" onclick="selectObRole(this)">🧑‍💻 Tech Lead</div>
+          <div class="ob-role-btn" data-role="Other" onclick="selectObRole(this)">✦ Other</div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
+      <button class="ob-back-btn" onclick="obGoTo(2)">← Back</button>
+      <button class="ob-next-btn" id="ob-finish-btn" disabled onclick="finishOnboarding()" style="opacity:.5">
+        Let me in →
+      </button>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <span style="font-size:11px;color:rgba(255,255,255,.3)">You can add your API key from the topbar after entering</span>
+    </div>
+  </div>
+
 </div>
 
 <!-- ══ PERSONALISED WELCOME OVERLAY ══════════════════════════════ -->
@@ -4409,8 +4711,9 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
           <div id="doc-analysis-output" style="display:none">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
               <div id="doc-analysis-output-title" style="font-size:11px;font-weight:700;color:var(--accent)"></div>
-              <div style="display:flex;gap:6px">
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
                 <button class="gbtn" style="font-size:10px" onclick="copyDocAnalysis()">📋 Copy</button>
+                <button class="export-btn" style="font-size:10px" onclick="exportDocAnalysis()">⬇ Export</button>
                 <button class="gbtn" style="font-size:10px" onclick="sendDocAnalysisToChat()">💬 Refine in Chat</button>
                 <button class="gbtn" style="font-size:10px" onclick="document.getElementById('doc-analysis-output').style.display='none'">✕</button>
               </div>
@@ -5522,9 +5825,10 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
           <button class="gbtn" onclick="closeGateChecklist()">Close</button>
         </div>
         <div id="gate-checklist-content"></div>
-        <div style="display:flex;gap:8px;margin-top:12px">
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
           <button class="btn" onclick="aiGateReview()">🤖 AI Gate Review</button>
-          <button class="gbtn" onclick="copyGateChecklist()">📋 Copy Checklist</button>
+          <button class="gbtn" onclick="copyGateChecklist()">📋 Copy</button>
+          <button class="export-btn" onclick="exportDoc('gate-checklist-content','Gate Review Checklist')">⬇ Export</button>
         </div>
         <div id="gate-ai-output" style="display:none;margin-top:12px">
           <div class="doc-output" id="gate-ai-content"></div>
@@ -6796,6 +7100,8 @@ function switchActiveBrain(id){
   // Update templates if in brain mode
   onBrainSwitch(id);
   buildWelcomeCaps(id);
+  renderRPPrompts();
+  renderRPTemplates();
   updateHomeBrainPanel(id);
 }
 
@@ -12239,6 +12545,10 @@ function onBrainSwitch(brainId){
     buildBrainFilterRow();
     renderTemplatesByBrain(brainId);
   }
+
+  // Refresh right panel prompts/templates when brain changes
+  renderRPPrompts();
+  renderRPTemplates();
 }
 
 // ══ API KEY ══
@@ -14170,7 +14480,7 @@ Daily / weekly / monthly — which metrics at which frequency.
 ## Business connection
 How each HEART metric links to a business KPI.`},
 
-  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'Heuristic Evaluation',prompt:`Conduct a rigorous heuristic evaluation using Nielsen's 10 principles — with specific, actionable findings.
+  {brain:'ux',icon:'🎨',color:'#E91E8C',name:'Heuristic Evaluation',prompt:`Conduct a rigorous heuristic evaluation using Nielsen 10 principles — with specific, actionable findings.
 
 Context:
 - Flow / screen: [WHAT WE ARE REVIEWING]
@@ -16752,7 +17062,7 @@ const SLASH_COMMANDS = [
    prompt:'Define a HEART metrics framework.\n\nProduct / feature: [WHAT WE ARE MEASURING]\nPrimary user: [WHO]\nBusiness goal: [WHAT THE PRODUCT MUST ACHIEVE]\nCurrent UX pain: [WHAT WE KNOW IS BROKEN]\nData infrastructure: [ANALYTICS AVAILABLE]\n\nProduce:\n## HEART dimensions with metrics, signal, goal, baseline, target, data source:\n- Happiness: user satisfaction\n- Engagement: frequency / depth\n- Adoption: new user reach\n- Retention: repeat behaviour\n- Task Success: completion rate, error rate\n## Anti-metrics — for each: the metric that looks good but misleads\n## Instrumentation plan\n## Dashboard design — 5 most important metrics with alert thresholds\n## HEART review cadence — daily/weekly/monthly which metrics\n## Business connection — UX health → revenue / retention'},
 
   {cmd:'/heuristic',  brain:'ux',  icon:'🎨', label:'Heuristic Evaluation',       desc:'Nielsen\'s 10 heuristics — specific actionable findings not vague observations',
-   prompt:'Conduct a heuristic evaluation using Nielsen\'s 10 principles.\n\nFlow / screen: [WHAT WE ARE EVALUATING]\nUser type: [WHO USES THIS]\nTask: [WHAT THEY ARE TRYING TO DO]\nDevice: [MOBILE / DESKTOP / BOTH]\n\nFor each heuristic: evaluate and find specific issues:\n1. Visibility of system status\n2. Match between system and real world\n3. User control and freedom\n4. Consistency and standards\n5. Error prevention\n6. Recognition rather than recall\n7. Flexibility and efficiency of use\n8. Aesthetic and minimalist design\n9. Error recovery\n10. Help and documentation\n\n## Severity ratings and findings table — heuristic, finding, severity (1-4), recommendation\n## Top 5 issues to fix first — with specific solutions'},
+   prompt:'Conduct a heuristic evaluation using Nielsen 10 principles.\n\nFlow / screen: [WHAT WE ARE EVALUATING]\nUser type: [WHO USES THIS]\nTask: [WHAT THEY ARE TRYING TO DO]\nDevice: [MOBILE / DESKTOP / BOTH]\n\nFor each heuristic: evaluate and find specific issues:\n1. Visibility of system status\n2. Match between system and real world\n3. User control and freedom\n4. Consistency and standards\n5. Error prevention\n6. Recognition rather than recall\n7. Flexibility and efficiency of use\n8. Aesthetic and minimalist design\n9. Error recovery\n10. Help and documentation\n\n## Severity ratings and findings table — heuristic, finding, severity (1-4), recommendation\n## Top 5 issues to fix first — with specific solutions'},
 
   {cmd:'/journeymap',  brain:'ux', icon:'🎨', label:'Customer Journey Map',       desc:'Journey map that drives design decisions — reveals where to invest disproportionately',
    prompt:'Create a customer journey map.\n\nPersona: [NAME AND DESCRIPTION — specific]\nJob to be done: [WHAT THEY ARE TRYING TO ACCOMPLISH]\nJourney stages: [YOUR PROPOSED STAGES]\nTouchpoints: [CHANNELS / PRODUCTS / PEOPLE]\nExisting research: [WHAT YOU KNOW]\n\nProduce:\n## Persona snapshot — behavioural profile for this journey\n## Journey stage breakdown — for each stage: doing, thinking, feeling, touchpoints, pain intensity, opportunity\n## Emotion curve — narrative of the emotional arc\n## Moments of truth — 2-3 moments where user makes keep-or-leave decision\n## JTBD lens — at each stage: functional, emotional, social dimensions of success\n## Design opportunities ranked by impact\n## Single biggest improvement — highest impact on satisfaction and retention'},
@@ -19121,34 +19431,8 @@ const ROLE_CONFIG = {
   },
 };
 
-let _obSelectedRole = null;
 
-function selectRole(el) {
-  document.querySelectorAll('.ob-role').forEach(r => r.classList.remove('selected'));
-  el.classList.add('selected');
-  el.style.setProperty('--role-color', el.dataset.color);
-  _obSelectedRole = el.dataset.role;
-  // Enable button if name also filled
-  const nameEl = document.getElementById('ob-name');
-  document.getElementById('ob-next').disabled = !nameEl?.value.trim();
-}
-
-function finishOnboarding() {
-  const name = document.getElementById('ob-name').value.trim();
-  if (!name || !_obSelectedRole) return;
-
-  // Save to localStorage
-  localStorage.setItem('pos_user_name', name);
-  localStorage.setItem('pos_user_role', _obSelectedRole);
-
-  // Animate out onboarding screen
-  const screen = document.getElementById('onboarding-screen');
-  screen.classList.add('fade-out');
-  setTimeout(() => {
-    screen.style.display = 'none';
-    showWelcomeOverlay(name, _obSelectedRole);
-  }, 600);
-}
+// function selectRole( replaced
 
 function showWelcomeOverlay(name, roleId) {
   const cfg = ROLE_CONFIG[roleId] || ROLE_CONFIG.po;
@@ -19588,7 +19872,7 @@ function updateHomeBrainPanel(brainId) {
 
 function initSplash() {
   // Stagger the proof points in
-  const proofDelays = [1.4, 1.8, 2.2];
+  const proofDelays = [0.8, 1.4, 2.0];
   ['sp-1','sp-2','sp-3'].forEach((id, i) => {
     setTimeout(() => {
       const el = document.getElementById(id);
@@ -19638,7 +19922,7 @@ function checkSplashAndOnboarding() {
   if(ob) ob.style.display = 'none';
   initSplash();
   // Auto-dismiss splash after 3.5s regardless of user action
-  setTimeout(() => { splashToContinue(); }, 3500);
+  setTimeout(() => { splashToContinue(); }, 6000);
   return false;
 }
 
@@ -22434,45 +22718,57 @@ async function rpRunStrategy(tool) {
 
 // ── Prompts list ───────────────────────────────────────────────
 function buildRPPrompts() {
-  const list = document.getElementById('rp-prompts-list');
-  if (!list || list.innerHTML) return;
-  const items = [
-    ['⚡','RICE score my entire backlog','Prioritise my backlog items using RICE scoring and give me a ranked commit list'],
-    ['📝','Write user story with AC','Write a user story with full BDD acceptance criteria for my next feature'],
-    ['🧨','Run a pre-mortem','Facilitate a pre-mortem for our upcoming launch — what could go wrong?'],
-    ['🛑','Help me say no','Write a professional pushback response to a stakeholder scope request'],
-    ['🎯','Define my OKRs','Define my product OKRs for next quarter with baselines and measurement methods'],
-    ['📊','Define KPIs','Define success metrics and KPIs for my most important current feature'],
-    ['🗺️','Build 6-month roadmap','Build a 6-month product roadmap with Now/Next/Later structure and OKRs'],
-    ['🤝','Stakeholder alignment plan','Help me build an alignment plan for my key stakeholders before a gate review'],
-    ['🔍','JTBD analysis','Apply Jobs-to-be-Done to understand the real outcome users are hiring my product for'],
-    ['💡','Feature impact predictor','Predict the impact of my top 3 backlog features and rank them by expected outcome'],
-    ['🩺','Sprint retro facilitator','Facilitate a sprint retrospective — what went well, what to improve, actions'],
-    ['⚠️','Risk register','Build a risk register with likelihood, impact, and mitigation for my current sprint'],
-  ];
-  list.innerHTML = items.map(([icon,label,prompt]) =>
-    `<div class="rp-item" onclick="fillAndSend('${prompt.replace(/'/g,"\\'")}');"><span class="rp-item-icon">${icon}</span><span class="rp-item-text">${label}</span><span class="rp-item-arrow">↗</span></div>`
-  ).join('');
+  renderRPPrompts();
 }
 
-// ── Templates list ─────────────────────────────────────────────
-function buildRPTemplates() {
-  const list = document.getElementById('rp-templates-list');
-  if (!list || list.innerHTML) return;
-  const items = [
-    ['📋','Sprint Planning Brief','Generate a complete sprint planning brief with capacity, goal, and commit list for my team'],
-    ['📨','Stakeholder Update Email','Write a stakeholder update email for my current sprint progress — professional and concise'],
-    ['🏗️','Architecture Decision Record','Write an ADR for a technical decision I need to make — include options and rationale'],
-    ['📣','GTM Launch Plan','Create a go-to-market launch plan for my next product release'],
-    ['🧪','Usability Test Plan','Write a usability test plan for my next feature — tasks, metrics, and success criteria'],
-    ['💰','Business Case Template','Build a business case for my next major initiative — problem, solution, ROI, risks'],
-    ['🔄','Retro Action Plan','Generate a retrospective action plan with specific owners and deadlines'],
-    ['📋','Meeting Agenda','Create a structured meeting agenda for my upcoming stakeholder review'],
-  ];
-  list.innerHTML = items.map(([icon,label,prompt]) =>
-    `<div class="rp-item" onclick="fillAndSend('${prompt.replace(/'/g,"\\'")}');"><span class="rp-item-icon">${icon}</span><span class="rp-item-text">${label}</span><span class="rp-item-arrow">↗</span></div>`
+function renderRPPrompts() {
+  const list = document.getElementById('rp-prompts-list');
+  if (!list) return;
+  const brain = activeBrain || 'po';
+  const brainMeta = ALL_BRAINS.find(b => b.id === brain) || {label:'PO Brain',color:'#6C47FF',icon:'🧠'};
+  const chips = (typeof BRAIN_WELCOME_CHIPS !== 'undefined' && BRAIN_WELCOME_CHIPS[brain])
+    ? BRAIN_WELCOME_CHIPS[brain] : BRAIN_WELCOME_CHIPS['po'];
+  const header = `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${brainMeta.color}12;border:0.5px solid ${brainMeta.color}30;border-radius:10px;margin-bottom:10px"><span style="font-size:16px">${brainMeta.icon}</span><div><div style="font-size:11px;font-weight:700;color:${brainMeta.color}">${brainMeta.label} Prompts</div><div style="font-size:9.5px;color:var(--muted2)">${chips.length} prompts — click to send instantly</div></div></div>`;
+  const items = chips.map(([label,prompt]) =>
+    `<div class="rp-item" onclick="fillAndSend(${JSON.stringify(prompt)})"><span class="rp-item-text" style="font-weight:600">${label}</span><span class="rp-item-arrow" style="color:${brainMeta.color}">↗</span></div>`
   ).join('');
+  list.innerHTML = header + items;
 }
+
+
+function buildRPTemplates() {
+  renderRPTemplates();
+}
+
+const RP_BRAIN_TEMPLATES = {
+  po: [['📋','Sprint Planning Brief','Generate a complete sprint planning brief with capacity, goal, and commit list for my team'],['📨','Stakeholder Update','Write a concise stakeholder update for my current sprint — progress, risks, next steps'],['🗺️','Product Roadmap Doc','Create a Now/Next/Later roadmap document with OKRs and milestones for my product'],['⚠️','Risk Register','Build a risk register for my current sprint with likelihood, impact, and mitigation'],['🎯','OKR Document','Write my quarterly OKRs with key results, baselines, and grading scale'],['🩺','Retro Action Plan','Generate a sprint retrospective with specific action items, owners, and deadlines'],['💌','CDO/CEO Brief','Write an executive brief for my CDO/CEO covering product status, risks, and asks'],['📝','PRD One-pager','Write a one-page PRD for my next feature with goals, user stories, and success metrics']],
+  ba: [['📄','Business Requirements Doc','Write a BRD for [FEATURE] with functional and non-functional requirements'],['🔍','Gap Analysis Report','Conduct a current-state vs future-state gap analysis for [PROCESS]'],['✅','UAT Test Cases','Write 15 UAT test cases for [FEATURE] covering happy path, edge cases, and error scenarios'],['🗺️','Process Map','Document the AS-IS process for [WORKFLOW] with RACI, decision points, and error paths'],['❓','Interview Script','Write a stakeholder interview script for eliciting requirements for [SYSTEM]'],['📊','Data Dictionary','Create a data dictionary for [ENTITY] with fields, types, validation rules, and examples'],['🔄','Change Impact Assessment','Assess the business and technical impact of changing [PROCESS/FEATURE]'],['📋','Workshop Agenda','Generate a requirements workshop agenda with facilitation guide and output templates']],
+  cto: [['🏗️','Architecture Decision Record','Write an ADR for [TECHNICAL DECISION] with options, trade-offs, and rationale'],['🔒','Security Review Brief','Run an OWASP security review for [FEATURE] — vulnerabilities, mitigations, sign-off criteria'],['⚡','Tech Debt Strategy','Build a tech debt reduction strategy that leadership will fund and developers will execute'],['📋','Technical Specification','Write a technical spec for [FEATURE] with API design, data model, and error handling'],['🔄','Migration Plan','Create a migration plan for [SYSTEM/DATA] with rollback strategy and risk mitigation'],['👥','Engineering Charter','Write an engineering team charter with working agreements and definition of done'],['📊','Tech Radar','Create a technology radar for our stack — adopt, trial, assess, hold'],['☁️','Cloud Architecture','Design a cloud architecture for [SYSTEM] with scalability, resilience, and cost analysis']],
+  ux: [['🧪','Usability Test Plan','Write a usability test plan for [FEATURE] — tasks, metrics, success criteria, and screener'],['🎭','User Research Plan','Create a user research plan for [TOPIC] with methodology, screener, and discussion guide'],['🗺️','Customer Journey Map','Map the end-to-end customer journey for [PERSONA] — stages, emotions, touchpoints, pain points'],['🃏','Design Brief','Write a design brief for [FEATURE] with user goals, constraints, and success metrics'],['📊','Heuristic Evaluation','Run a heuristic evaluation on [SCREEN/FLOW] using Nielsens 10 principles'],['✅','Accessibility Checklist','Create a WCAG 2.1 AA accessibility review checklist for [FEATURE]'],['💡','Design Critique Guide','Facilitate a design critique session for [DESIGN] — structured feedback framework'],['📝','UX Research Report','Write a UX research findings report with themes, insights, and recommendations']],
+  scrum: [['🏁','Sprint Goal Statement','Write a compelling sprint goal statement for our current sprint with commit list'],['📋','Sprint Planning Agenda','Create a sprint planning agenda with timebox, activities, and facilitation guide'],['🔄','Retrospective Plan','Design a retrospective session — format, exercises, action item template'],['📊','Velocity Report','Write a sprint velocity report with trends, forecast, and recommendations'],['✅','Definition of Done','Create a Definition of Done for [TEAM/PRODUCT] — code, test, documentation standards'],['📝','Sprint Review Agenda','Create a sprint review agenda with demo structure and stakeholder Q&A format'],['⚠️','Impediment Log','Create an impediment log template with severity, owner, SLA, and resolution tracking'],['🤝','Working Agreements','Facilitate a working agreements session — team norms, communication, conflict resolution']],
+  cfo: [['💰','Business Case Template','Write a CFO-ready business case for [INITIATIVE] — problem, solution, ROI, risks, recommendation'],['📊','Unit Economics Analysis','Analyse unit economics for [PRODUCT/FEATURE] — CAC, LTV, payback period, contribution margin'],['💸','Budget Justification','Write a budget justification for [SPEND] that would survive CFO scrutiny'],['📈','Financial Forecast','Create a 12-month financial forecast model for [PRODUCT] with assumptions and scenarios'],['🔍','Cost-Benefit Analysis','Conduct a cost-benefit analysis for [INITIATIVE] with NPV, IRR, and sensitivity analysis'],['⚠️','Financial Risk Assessment','Identify and quantify financial risks for [PROJECT] with probability-weighted impact'],['📋','Investment Memo','Write an investment memo for [INITIATIVE] — opportunity, market, financials, risks'],['💡','Pricing Strategy Brief','Develop a pricing strategy brief for [PRODUCT] with competitive benchmarking']],
+  marketing: [['📣','GTM Launch Plan','Create a go-to-market launch plan for [PRODUCT/FEATURE] — channels, messaging, timeline'],['✉️','Email Launch Sequence','Write a 4-email launch sequence for [FEATURE] — each email earning the next open'],['🎯','Positioning Statement','Write a product positioning statement for [AUDIENCE] vs [COMPETITOR]'],['📊','Campaign Brief','Write a campaign brief for [OBJECTIVE] — target, message, channels, KPIs, budget'],['💬','Messaging Framework','Develop a messaging framework for [PRODUCT] — value prop, proof points, objection handling'],['📝','Press Release','Write a press release for [ANNOUNCEMENT] — headline, body, quotes, boilerplate'],['🔍','Competitive Analysis','Conduct a competitive analysis for [COMPETITOR] — positioning, strengths, gaps, threats'],['📱','Social Content Calendar','Create a 2-week social content calendar for [PRODUCT] launch']],
+  qa: [['🧪','Test Strategy','Write a test strategy for [FEATURE] — scope, approach, entry/exit criteria, risks'],['📋','Test Plan','Create a test plan for [RELEASE] — test cases, environment, schedule, resources'],['🔍','Bug Report Template','Write a detailed bug report for [ISSUE] — steps to reproduce, expected vs actual, severity'],['✅','Regression Test Scope','Define regression test scope for [CHANGE] — risk-based selection, time estimate'],['⚡','Smoke Test Checklist','Create a smoke test checklist for [FEATURE] — critical path verification in 15 minutes'],['🔒','Security Test Cases','Write security test cases for [FEATURE] — authentication, authorisation, input validation'],['📊','Test Coverage Report','Write a test coverage report for [SPRINT] — coverage %, gaps, risk areas, sign-off status'],['🔄','Defect Triage Guide','Create a defect triage guide — severity matrix, SLAs, escalation path, resolution criteria']],
+  ceo: [['📊','Board Deck Narrative','Write a board presentation narrative for [QUARTER] — performance, strategy, asks'],['💼','Investor Update','Write a monthly investor update — progress, metrics, challenges, next milestones'],['🔮','Strategic Plan','Create a 12-month strategic plan for [COMPANY/DIVISION] — goals, initiatives, resources'],['👥','All-Hands Agenda','Write an all-hands meeting agenda that energises and aligns the team'],['⚠️','Crisis Communication','Write a crisis communication plan for [SCENARIO] — stakeholders, messages, timeline'],['🤝','Partnership Brief','Create a partnership brief for [POTENTIAL PARTNER] — opportunity, terms, risks, recommendation'],['📈','Growth Strategy','Develop a growth strategy for [PRODUCT/MARKET] — levers, experiments, success metrics'],['🎯','Company OKR Template','Define company-level OKRs for [PERIOD] with cascading team objectives']],
+  sales: [['🎯','Sales Battle Card','Create a sales battle card for [COMPETITOR] — strengths, our differentiators, objection handling'],['📋','Discovery Call Script','Write a MEDDIC discovery call script for [PRODUCT/PERSONA]'],['💼','Proposal Template','Write a proposal for [PROSPECT] — problem statement, solution, ROI, pricing, next steps'],['🤝','Stakeholder Mapping','Map the buying committee for [ACCOUNT] — roles, pain points, influence, engagement strategy'],['📊','Win/Loss Analysis','Conduct a win/loss analysis for [DEAL/PERIOD] — patterns, root causes, recommendations'],['✉️','Follow-up Email','Write a follow-up email after [MEETING TYPE] with [PROSPECT] — recap, value, clear CTA'],['🔄','Objection Handling Guide','Create an objection handling guide for [TOP 5 OBJECTIONS] with responses and proof points'],['📈','Account Plan','Write a 90-day account plan for [ACCOUNT] — goals, relationship map, actions, metrics']],
+  developer: [['🏗️','Technical Spec','Write a technical specification for [FEATURE] with API design, data model, edge cases'],['🔍','Code Review Checklist','Create a code review checklist for [LANGUAGE/FRAMEWORK] — security, performance, maintainability'],['📋','PR Description','Write a PR description for [CHANGE] — what, why, how, testing, screenshots'],['⚡','Performance Analysis','Analyse performance bottlenecks in [SYSTEM] and recommend optimisations'],['🔒','Security Checklist','Create a security checklist for [FEATURE] — OWASP top 10, input validation, auth'],['📊','API Documentation','Write API documentation for [ENDPOINT] — request, response, errors, examples'],['🔄','Incident Post-Mortem','Write a post-mortem for [INCIDENT] — timeline, root cause, impact, action items'],['🧪','Unit Test Cases','Write unit test cases for [FUNCTION/MODULE] — happy path, edge cases, error handling']],
+  techlead: [['🏗️','Architecture Review','Conduct an architecture review for [SYSTEM] — patterns, scalability, debt, recommendations'],['👥','Technical Onboarding','Create a technical onboarding guide for a new engineer joining [TEAM]'],['📋','Engineering Roadmap','Build a technical roadmap for [TEAM] — initiatives, dependencies, milestones'],['⚡','Tech Debt Backlog','Create a prioritised tech debt backlog for [SYSTEM] with effort and business impact'],['🤝','1:1 Template','Write a 1:1 agenda template for engineering leads — career, work, blockers, feedback'],['📊','Engineering Metrics','Define engineering metrics for [TEAM] — DORA, quality, velocity, health indicators'],['🔄','On-call Runbook','Create an on-call runbook for [SERVICE] — alerts, triage steps, escalation, contacts'],['💬','Technical RFC','Write an RFC for [TECHNICAL PROPOSAL] — context, proposal, alternatives, decision']],
+  pm: [['📋','Product Brief','Write a product brief for [INITIATIVE] — problem, solution, target users, success metrics'],['🎯','Opportunity Assessment','Conduct an opportunity assessment for [IDEA] — market size, feasibility, strategic fit'],['📊','Metrics Dashboard','Define a product metrics dashboard — north star, input metrics, leading indicators'],['🗺️','Feature Roadmap','Create a feature roadmap for [PRODUCT AREA] with themes, outcomes, and milestones'],['🔍','User Research Synthesis','Synthesise user research for [TOPIC] — themes, insights, opportunity areas, recommendations'],['💡','Hypothesis Statement','Write a hypothesis statement for [EXPERIMENT] — we believe, for, will achieve, measured by'],['📝','Release Plan','Create a release plan for [VERSION] — scope, timeline, dependencies, go/no-go criteria'],['⚠️','Risk Assessment','Conduct a risk assessment for [INITIATIVE] — technical, market, execution, mitigation']],
+};
+
+function renderRPTemplates() {
+  const list = document.getElementById('rp-templates-list');
+  if (!list) return;
+  const brain = activeBrain || 'po';
+  const brainMeta = ALL_BRAINS.find(b => b.id === brain) || {label:'PO Brain',color:'#6C47FF',icon:'🧠'};
+  const templates = RP_BRAIN_TEMPLATES[brain] || RP_BRAIN_TEMPLATES['po'];
+  const header = `<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:${brainMeta.color}12;border:0.5px solid ${brainMeta.color}30;border-radius:10px;margin-bottom:10px"><span style="font-size:16px">${brainMeta.icon}</span><div><div style="font-size:11px;font-weight:700;color:${brainMeta.color}">${brainMeta.label} Templates</div><div style="font-size:9.5px;color:var(--muted2)">${templates.length} templates — click to load instantly</div></div></div>`;
+  const items = templates.map(([icon,label,prompt]) =>
+    `<div class="rp-item" onclick="fillAndSend(${JSON.stringify(prompt)})"><span class="rp-item-icon">${icon}</span><span class="rp-item-text">${label}</span><span class="rp-item-arrow" style="color:${brainMeta.color}">↗</span></div>`
+  ).join('');
+  list.innerHTML = header + items;
+}
+
 
 // ── KB panel ───────────────────────────────────────────────────
 function buildRPKB() {
@@ -22687,6 +22983,88 @@ function copyDocText(sourceId) {
     .then(() => toast('📋 Copied to clipboard!', 'success'))
     .catch(() => toast('Copy failed', 'error'));
 }
+
+// Export doc analysis result
+function exportDocAnalysis() {
+  // Try the main result area, then flashcard view
+  const resultEl   = document.getElementById('doc-analysis-result');
+  const fcEl       = document.getElementById('doc-flashcard-view');
+  const titleEl    = document.getElementById('doc-analysis-title');
+  const modeEl     = document.getElementById('doc-analysis-mode-label');
+
+  // Pick whichever is visible and has content
+  let sourceEl = null;
+  if (fcEl && fcEl.style.display !== 'none' && fcEl.innerHTML.trim()) {
+    sourceEl = fcEl;
+  } else if (resultEl && resultEl.innerHTML.trim()) {
+    sourceEl = resultEl;
+  }
+
+  if (!sourceEl || !sourceEl.innerHTML.trim()) {
+    toast('Run an analysis first, then export', 'warning');
+    return;
+  }
+
+  // Get title from the analysis header
+  const title = (titleEl?.textContent || modeEl?.textContent || 'Document Analysis').trim();
+  exportDoc(sourceEl.id, title);
+}
+
+// ══ ONBOARDING NAVIGATION ══════════════════════════════════════
+let _obSelectedRole = '';
+let _obCurrentStep = 0;
+
+function obGoTo(step) {
+  // Hide all panels
+  document.querySelectorAll('.ob-step-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ob-dot').forEach(d => d.classList.remove('active'));
+
+  // Show target panel and dot
+  const panel = document.getElementById('ob-panel-' + step);
+  const dot   = document.getElementById('dot-' + step);
+  if (panel) panel.classList.add('active');
+  if (dot)   dot.classList.add('active');
+  _obCurrentStep = step;
+
+  // Scroll to top of onboarding
+  const ob = document.getElementById('onboarding-screen');
+  if (ob) ob.scrollTop = 0;
+}
+
+function selectObRole(el) {
+  document.querySelectorAll('.ob-role-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  _obSelectedRole = el.getAttribute('data-role') || el.textContent.trim().replace(/^[^\s]+\s/, '');
+  checkObReady();
+}
+
+function checkObReady() {
+  const name = document.getElementById('ob-name')?.value.trim();
+  const btn  = document.getElementById('ob-finish-btn');
+  if (btn) {
+    const ready = !!(name && _obSelectedRole);
+    btn.disabled = !ready;
+    btn.style.opacity = ready ? '1' : '0.5';
+  }
+}
+
+function finishOnboarding() {
+  const name = document.getElementById('ob-name')?.value.trim() || '';
+  const role = _obSelectedRole || 'Product Owner';
+
+  if (name) {
+    localStorage.setItem('pos_user_name', name);
+    localStorage.setItem('pos_user_role', role);
+    if (typeof updateUserBadge === 'function') updateUserBadge(name, role);
+  }
+
+  const ob = document.getElementById('onboarding-screen');
+  if (ob) {
+    ob.style.opacity = '0';
+    ob.style.transition = 'opacity .4s ease';
+    setTimeout(() => { ob.style.display = 'none'; }, 400);
+  }
+}
 </script>
 
 <!-- ══ PROMPT FIELD EDITOR ══════════════════════════════════════ -->
@@ -22739,7 +23117,10 @@ function copyDocText(sourceId) {
     <div id="jtbd-canvas" style="display:none;background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;padding:20px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
         <div style="font-size:13px;font-weight:800" id="jtbd-title">Jobs-to-be-Done Canvas</div>
-        <button class="gbtn" style="font-size:10px" onclick="document.getElementById('jtbd-canvas').style.display='none'">✕ Close</button>
+        <div style="display:flex;gap:6px">
+          <button class="export-btn" onclick="exportDoc('jtbd-canvas','JTBD Canvas — '+document.getElementById('jtbd-title').textContent)">⬇ Export</button>
+          <button class="gbtn" style="font-size:10px" onclick="document.getElementById('jtbd-canvas').style.display='none'">✕ Close</button>
+        </div>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
         <div style="background:var(--bg3);border:0.5px solid rgba(108,71,255,.2);border-radius:10px;padding:14px">
