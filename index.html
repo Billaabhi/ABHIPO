@@ -3677,17 +3677,18 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 
 /* Brain grid */
 .ob-brain-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 8px; margin-bottom: 14px; width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px; margin-bottom: 12px; width: 100%;
 }
 .ob-brain-card {
   display: flex; flex-direction: column; align-items: center;
-  gap: 5px; padding: 12px 8px;
+  gap: 4px; padding: 10px 6px;
   background: rgba(255,255,255,.04);
   border: 0.5px solid rgba(255,255,255,.08);
   border-radius: 10px; cursor: default;
   transition: all .2s;
-  font-size: 11px; font-weight: 600; color: rgba(255,255,255,.7);
+  font-size: 10.5px; font-weight: 600; color: rgba(255,255,255,.7);
 }
 .ob-brain-card:hover {
   border-color: var(--bc, #6C47FF);
@@ -3695,6 +3696,8 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   color: #fff;
 }
 .ob-brain-card span { font-size: 10.5px; }
+.ob-brain-icon { font-size: 18px !important; }
+.ob-brain-lbl { font-size: 10px !important; line-height: 1.2; text-align: center; }
 
 /* Tip bar */
 .ob-tip {
@@ -3907,14 +3910,19 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
     <div class="ob-step-title">Switch brains.<br>Change how the AI thinks.</div>
     <div class="ob-step-desc">Every brain is a different expert. PO Brain thinks like a senior product leader. CTO Brain thinks in architecture and tech debt. CFO Brain thinks in unit economics. Switch in one click — the expertise is pre-loaded.</div>
     <div class="ob-brain-grid">
-      <div class="ob-brain-card" style="--bc:#6C47FF">🧠<span>PO Brain</span></div>
-      <div class="ob-brain-card" style="--bc:#26C6DA">🔎<span>BA Brain</span></div>
-      <div class="ob-brain-card" style="--bc:#00BCD4">🧑‍💻<span>CTO Brain</span></div>
-      <div class="ob-brain-card" style="--bc:#00D4AA">💰<span>CFO Brain</span></div>
-      <div class="ob-brain-card" style="--bc:#E91E8C">🎨<span>UX Brain</span></div>
-      <div class="ob-brain-card" style="--bc:#FF6B35">📣<span>Marketing</span></div>
-      <div class="ob-brain-card" style="--bc:#66BB6A">🏃<span>Scrum</span></div>
-      <div class="ob-brain-card" style="--bc:#29B6F6">🧪<span>QA Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#6C47FF"><span class="ob-brain-icon">🧠</span><span class="ob-brain-lbl">PO Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#26C6DA"><span class="ob-brain-icon">🔎</span><span class="ob-brain-lbl">BA Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#00BCD4"><span class="ob-brain-icon">🧑‍💻</span><span class="ob-brain-lbl">CTO Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#00D4AA"><span class="ob-brain-icon">💰</span><span class="ob-brain-lbl">CFO Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#E91E8C"><span class="ob-brain-icon">🎨</span><span class="ob-brain-lbl">UX Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#FF6B35"><span class="ob-brain-icon">📣</span><span class="ob-brain-lbl">Marketing</span></div>
+      <div class="ob-brain-card" style="--bc:#F5A623"><span class="ob-brain-icon">🏢</span><span class="ob-brain-lbl">CEO Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#8BC34A"><span class="ob-brain-icon">🎯</span><span class="ob-brain-lbl">Sales Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#66BB6A"><span class="ob-brain-icon">🏃</span><span class="ob-brain-lbl">Scrum</span></div>
+      <div class="ob-brain-card" style="--bc:#FFA726"><span class="ob-brain-icon">🧑‍🔧</span><span class="ob-brain-lbl">Tech Lead</span></div>
+      <div class="ob-brain-card" style="--bc:#AB47BC"><span class="ob-brain-icon">💻</span><span class="ob-brain-lbl">Developer</span></div>
+      <div class="ob-brain-card" style="--bc:#EF5350"><span class="ob-brain-icon">📌</span><span class="ob-brain-lbl">PM Brain</span></div>
+      <div class="ob-brain-card" style="--bc:#29B6F6"><span class="ob-brain-icon">🧪</span><span class="ob-brain-lbl">QA Brain</span></div>
     </div>
     <div class="ob-tip">💡 Stack thinking modes on top — God Mode, OODA Loop, L99, Steel Man, Second-Order, Socratic, First Principles</div>
     <div style="display:flex;gap:10px;justify-content:center;margin-top:20px">
