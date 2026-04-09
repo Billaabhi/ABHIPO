@@ -10120,7 +10120,7 @@ async function askOneBrain(id,icon,name,sys,userMsg){
   t.innerHTML=`<div class="av">${icon}</div><div class="tdots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
   msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
   try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:sys,messages:[{role:'user',content:userMsg}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,system:sys,messages:[{role:'user',content:userMsg}]})});
     t.remove();
     if(!res.ok){
       const err=await res.json().catch(()=>({}));
@@ -10356,12 +10356,12 @@ async function sendMsg(){
       headers:{
         'Content-Type':'application/json',
         'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
+        'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true',
         'anthropic-dangerous-direct-browser-access':'true'
       },
       body:JSON.stringify({
         model:'claude-sonnet-4-20250514',
-        max_tokens:1500,
+        max_tokens:4000,
         stream:true,
         system:sys,
         messages
@@ -10410,17 +10410,17 @@ async function sendMsg(){
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let streamDone = false;
 
-    while(true){
-      const {done, value} = await reader.read();
-      if(done) break;
-      buffer += decoder.decode(value, {stream:true});
+    const processLines = (chunk) => {
+      buffer += chunk;
       const lines = buffer.split('\n');
-      buffer = lines.pop();
+      buffer = lines.pop(); // keep incomplete last line
       for(const line of lines){
         if(!line.startsWith('data: ')) continue;
         const data = line.slice(6).trim();
-        if(data === '[DONE]') continue;
+        if(data === '[DONE]'){ streamDone = true; continue; }
+        if(!data) continue;
         try{
           const ev = JSON.parse(data);
           if(ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta'){
@@ -10429,16 +10429,35 @@ async function sendMsg(){
             msgs.scrollTop = msgs.scrollHeight;
           }
           if(ev.type === 'message_stop'){
-            bb.innerHTML = formatMsg(fullText);
-            const acts = document.getElementById('acts-'+msgId);
-            if(acts){ acts.style.opacity='1'; acts.style.pointerEvents='auto'; }
-            d.classList.remove('streaming');
+            streamDone = true;
+          }
+          // Also catch error events from API
+          if(ev.type === 'error'){
+            console.warn('Anthropic stream error:', ev.error);
           }
         }catch(_){}
       }
+    };
+
+    while(true){
+      const {done, value} = await reader.read();
+      if(done){
+        // Flush remaining buffer on stream close
+        if(buffer.trim()){
+          processLines(decoder.decode(new Uint8Array(), {stream:false}));
+          processLines(buffer + '\n');
+        }
+        break;
+      }
+      processLines(decoder.decode(value, {stream:true}));
     }
 
+    // Finalise UI regardless of whether message_stop fired
     if(fullText){
+      bb.innerHTML = formatMsg(fullText);
+      const acts = document.getElementById('acts-'+msgId);
+      if(acts){ acts.style.opacity='1'; acts.style.pointerEvents='auto'; }
+      d.classList.remove('streaming');
       chatHistory.push({role:'assistant', content:fullText});
     } else {
       bb.innerHTML = formatMsg('**Empty response.** Try a shorter prompt or check your API key.');
@@ -11041,7 +11060,7 @@ async function scoreAllWithAI(){
   toast('AI scoring...');
   const titles=backlogItems.map((b,i)=>`${i+1}. ${b.title}: ${b.desc||'no description'}`).join('\n');
   const prompt=`RICE score these backlog items (Reach = users/quarter 0-10000, Impact 1-3, Confidence 0-100%, Effort in person-months 0.1-6). Reply ONLY with JSON: [{"title":"...","reach":N,"impact":N,"confidence":N,"effort":N}]\n\n${titles}${getCtx()}`;
-  try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:'Reply only with valid JSON array, no markdown.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'[]';const scores=JSON.parse(text.replace(/```json|```/g,'').trim());scores.forEach(s=>{const item=backlogItems.find(b=>b.title.toLowerCase().includes(s.title.toLowerCase().substring(0,15)));if(item){item.reach=s.reach;item.impact=s.impact;item.confidence=s.confidence;item.effort=s.effort;item.rice=calcRice(s.reach,s.impact,s.confidence,s.effort);}});sortByRice();toast('AI scoring done!');}catch(e){toast('Scoring error');}
+  try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:'Reply only with valid JSON array, no markdown.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'[]';const scores=JSON.parse(text.replace(/```json|```/g,'').trim());scores.forEach(s=>{const item=backlogItems.find(b=>b.title.toLowerCase().includes(s.title.toLowerCase().substring(0,15)));if(item){item.reach=s.reach;item.impact=s.impact;item.confidence=s.confidence;item.effort=s.effort;item.rice=calcRice(s.reach,s.impact,s.confidence,s.effort);}});sortByRice();toast('AI scoring done!');}catch(e){toast('Scoring error');}
 }
 
 function renderBacklog(){ renderBacklogItems(backlogItems); }
@@ -11234,7 +11253,7 @@ function openDocGenerator(type){
   document.addEventListener('click', document._sugCloseHandler);
 }
 function closeDocGenerator(){document.getElementById('doc-generator-panel').style.display='none';activeDocType='';}
-async function generateDoc(){if(!apiKey){openModal();return;}if(!activeDocType)return;const config=DOC_CONFIGS[activeDocType];const fieldValues={};config.fields.forEach(f=>{fieldValues[f.id]=document.getElementById(f.id)?.value||'';});const prompt=DOC_PROMPTS[activeDocType](fieldValues);const btn=document.getElementById('doc-gen-btn');btn.textContent='⏳ Generating...';btn.disabled=true;try{const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,system:'You are a senior Product Owner with 15+ years experience. Generate professional, production-ready product documents. Use clear ## headings, tables where specified, bullet points for lists. Be specific, actionable, and honest — not generic.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'Error generating.';docOutput=text;addAuditEntry('doc',`Document generated: ${activeDocType} — ${DOC_CONFIGS[activeDocType]?.title||activeDocType}`);document.getElementById('doc-output-content').innerHTML=formatOutput(text,activeDocType);document.getElementById('doc-output').style.display='block';toast('Document generated!');}catch(e){
+async function generateDoc(){if(!apiKey){openModal();return;}if(!activeDocType)return;const config=DOC_CONFIGS[activeDocType];const fieldValues={};config.fields.forEach(f=>{fieldValues[f.id]=document.getElementById(f.id)?.value||'';});const prompt=DOC_PROMPTS[activeDocType](fieldValues);const btn=document.getElementById('doc-gen-btn');btn.textContent='⏳ Generating...';btn.disabled=true;try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,system:'You are a senior Product Owner with 15+ years experience. Generate professional, production-ready product documents. Use clear ## headings, tables where specified, bullet points for lists. Be specific, actionable, and honest — not generic.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'Error generating.';docOutput=text;addAuditEntry('doc',`Document generated: ${activeDocType} — ${DOC_CONFIGS[activeDocType]?.title||activeDocType}`);document.getElementById('doc-output-content').innerHTML=formatOutput(text,activeDocType);document.getElementById('doc-output').style.display='block';toast('Document generated!');}catch(e){
     const msg = e.message.includes('fetch') || e.message.includes('Failed')
       ? 'API not reachable — check you are on the Vercel deployment and your API key is set'
       : `Error: ${e.message}`;
@@ -11272,7 +11291,7 @@ async function generateMom(){
   const btn=document.getElementById('mom-gen-btn');
   btn.textContent='Generating...';btn.disabled=true;
   try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:'You are a senior Product Owner creating precise, professional Minutes of Meeting from raw transcripts. You only include what was actually said or decided. Every action item has a specific named owner and a due date. Your output is ready to send immediately.',messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:'You are a senior Product Owner creating precise, professional Minutes of Meeting from raw transcripts. You only include what was actually said or decided. Every action item has a specific named owner and a due date. Your output is ready to send immediately.',messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
     momOutput=data.content?.map(b=>b.text||'').join('')||'';
     if(!momOutput){toast('No response — check API key');return;}
@@ -12319,7 +12338,7 @@ The most important questions the gate panel should ask the project team.${getCtx
   outWrap.style.display='block';
 
   try{
-    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:'You are a senior PDLC consultant. Be direct and specific. Gate reviews must be honest — if a project is not ready, say so clearly with specific reasons.',messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:'You are a senior PDLC consultant. Be direct and specific. Gate reviews must be honest — if a project is not ready, say so clearly with specific reasons.',messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
     const text=data.content?.map(b=>b.text||'').join('')||'';
     outEl.innerHTML=formatOutput(text,'gate');
@@ -18678,9 +18697,9 @@ Give me exactly ONE short, specific, realistic value for this field.
 Reply with ONLY the value — no explanation, no quotes, no prefix. Max 15 words.`;
 
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-haiku-4-5-20251001',
         max_tokens:60,
@@ -19317,9 +19336,9 @@ SP (story points) must be a number 1-8.
 Return ONLY the JSON object. Nothing else.`;
 
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 4000,
@@ -21281,9 +21300,9 @@ For each main entity, list the important fields:
 
   try{
     const fullPrompt = `${prompt}\n\n--- DOCUMENT: ${f.name} ---\n${f.content}`;
-    const res = await fetch('/api/chat',{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-sonnet-4-20250514',
         max_tokens:2000,
@@ -21641,9 +21660,9 @@ async function aiFilldecision() {
   toast('🤖 Generating rationale…');
   try {
     const ctx = getCtx();
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:600,
         system:'You are a senior product consultant. Write a concise decision rationale.',
@@ -21661,9 +21680,9 @@ async function aiGenerateDecision() {
   toast('🤖 Suggesting decisions from your context…');
   try {
     const ctx = getCtx();
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:800,
         system:'You are a senior PO. Identify decisions that need to be logged.',
@@ -21797,9 +21816,9 @@ async function aiAnalyseStakeholders() {
   if (brief) brief.innerHTML = '<div style="color:var(--muted2);font-size:12px">Analysing…</div>';
   try {
     const shList = stakeholders.map(s=>`${s.name} (${s.role}) — Power:${s.power}/5, Interest:${s.interest}/5`).join('\n');
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:700,
         system:'You are a senior product consultant specialising in stakeholder management.',
@@ -21820,9 +21839,9 @@ async function aiStakeholderStrategy() {
   if (!name) { toast('Enter a name first', 'warning'); return; }
   toast('🤖 Generating engagement strategy…');
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:400,
         system:'You are a senior product consultant.',
@@ -21945,9 +21964,9 @@ async function runSprintHealthScore() {
     if (output) output.style.display='block';
     if (text) text.innerHTML='<span style="color:var(--muted2)">Getting AI analysis…</span>';
     try {
-      const res = await fetch('/api/chat', {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
         method:'POST',
-        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+        headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
         body: JSON.stringify({
           model:'claude-sonnet-4-20250514', max_tokens:500,
           system:'You are a senior Scrum Master and product consultant. Give direct, actionable sprint health analysis.',
@@ -22161,9 +22180,9 @@ async function runStrategyTool() {
   const body = document.getElementById('strategy-tool-body');
   if (body) body.innerHTML = '<div style="color:var(--muted2);font-size:12px;padding:20px;text-align:center">🤖 Generating…</div>';
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:1500,
         system: 'You are a senior product strategist. Produce structured, specific frameworks based on actual product context provided. Never be generic.',
@@ -22301,9 +22320,9 @@ async function generateMOM() {
   if (actions) actions.style.display='none';
 
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model:'claude-sonnet-4-20250514', max_tokens:1500,
         system: `You are a senior product operations specialist. Convert raw meeting transcripts into precise, actionable Minutes of Meeting. Every action item must have an owner and deadline. Every decision must be explicit.`,
@@ -22592,9 +22611,9 @@ async function aiGeneratePersona(idx) {
   if (!apiKey) { openModal(); return; }
   toast('🤖 Generating persona from your product context…');
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514', max_tokens: 800,
         system: 'You are a senior UX researcher and product strategist. Generate realistic, detailed user personas.',
@@ -22636,9 +22655,9 @@ async function aiExpandPersona(idx) {
   if (!p) { toast('No persona to expand', 'warning'); return; }
   toast(`🤖 Expanding ${p.name} with JTBD analysis…`);
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514', max_tokens: 600,
         system: 'You are a senior UX researcher. Expand persona with JTBD analysis. Return ONLY valid JSON.',
@@ -22686,9 +22705,9 @@ async function generateWeekPlan() {
   if (empty) empty.style.display = 'none';
 
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514', max_tokens: 1000,
         system: 'You are a senior product coach. Design a weekly plan for a Product Owner that balances discovery (20%), delivery (50%), stakeholder (20%), and growth (10%). Be specific and practical.',
@@ -22842,9 +22861,9 @@ async function aiDefineNSM() {
   if (!apiKey) { openModal(); return; }
   toast('🤖 Defining North Star from your product context…');
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514', max_tokens: 600,
         system: 'You are a senior product strategist. Define a North Star Metric. Return ONLY valid JSON.',
@@ -23012,9 +23031,9 @@ async function rpGenerateDoc(type) {
   if (!apiKey) { openModal(); return; }
   showRPOutput('📄 Generating ' + type.toUpperCase() + '…', type.toUpperCase());
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514', max_tokens: 1200,
         system: `You are a senior product consultant. Generate a ${type} document based on the product context. Be specific, not generic.`,
@@ -23040,9 +23059,9 @@ async function rpAnalyseDoc(mode) {
   showRPOutput('🔬 Analysing…', mode);
   const modeLabels = {summary:'Executive Summary',gaps:'Gap Analysis',stories:'User Stories',risks:'Risk Register',questions:'Open Questions',acceptance:'Acceptance Criteria'};
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514', max_tokens: 1200,
         system: 'You are a senior product consultant. Analyse the document and produce exactly what is requested.',
@@ -23062,9 +23081,9 @@ async function rpRunStrategy(tool) {
   showRPOutput('♟️ Running ' + (meta?.title || tool) + '…', meta?.title || tool);
   try {
     const prompt = meta?.prompt ? meta.prompt() : `Run a ${tool} analysis for my product.\n\n${getCtx()}`;
-    const res = await fetch('/api/chat', {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01'},
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514', max_tokens: 1400,
         system: 'You are a senior product strategist. Be specific to the product context, never generic.',
