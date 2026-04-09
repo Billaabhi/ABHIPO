@@ -5105,8 +5105,8 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
             <div class="ff" style="grid-column:1/3"><label>Name</label><input type="text" id="sh-inline-name" placeholder="e.g. Ahmed Al Mansouri"/></div>
             <div class="ff"><label>Role / Title</label><input type="text" id="sh-inline-role" placeholder="e.g. Head of Development"/></div>
             <div class="ff"><label>Organisation</label><input type="text" id="sh-org" placeholder="e.g. Aldar Properties"/></div>
-            <div class="ff"><label>Power</label><select id="sh-power"><option value="H">High</option><option value="M" selected>Medium</option><option value="L">Low</option></select></div>
-            <div class="ff"><label>Interest</label><select id="sh-interest"><option value="H">High</option><option value="M" selected>Medium</option><option value="L">Low</option></select></div>
+            <div class="ff"><label>Power</label><select id="home-sh-power"><option value="H">High</option><option value="M" selected>Medium</option><option value="L">Low</option></select></div>
+            <div class="ff"><label>Interest</label><select id="home-sh-interest"><option value="H">High</option><option value="M" selected>Medium</option><option value="L">Low</option></select></div>
             <div class="ff"><label>Stance</label><select id="sh-stance"><option value="champion">Champion</option><option value="supporter">Supporter</option><option value="neutral">Neutral</option><option value="sceptic">Sceptic</option><option value="blocker">Blocker</option></select></div>
             <div class="ff" style="grid-column:1/-1"><label>Engagement notes</label><input type="text" id="sh-notes" placeholder="e.g. Needs weekly update — cares about cost and timeline"/></div>
             <div class="ff" style="grid-column:6/8;display:flex;align-items:flex-end;gap:6px">
@@ -5609,7 +5609,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
       <div id="sprint-hist-form" style="display:none;margin-bottom:10px">
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px;background:var(--bg2);border-radius:8px;border:0.5px solid var(--border)">
           <div class="ff"><label>Sprint #</label><input type="text" id="sh-sprint-num" placeholder="e.g. Sprint 14"/></div>
-          <div class="ff"><label>Committed SP</label><input type="number" id="sh-committed" placeholder="e.g. 40" min="0"/></div>
+          <div class="ff"><label>Committed SP</label><input type="number" id="metrics-sp-committed" placeholder="e.g. 40" min="0"/></div>
           <div class="ff"><label>Delivered SP</label><input type="number" id="sh-delivered" placeholder="e.g. 36" min="0"/></div>
           <div class="ff"><label>Goal achieved?</label><select id="sh-goal"><option value="yes">Yes</option><option value="partial">Partial</option><option value="no">No</option></select></div>
           <div class="ff" style="display:flex;align-items:flex-end;gap:6px">
@@ -12271,8 +12271,8 @@ function addStakeholder(){
     name,
     role:   document.getElementById('sh-inline-role') || document.getElementById('sh-role').value.trim(),
     org:    document.getElementById('sh-org').value.trim(),
-    power:  document.getElementById('sh-power').value,
-    interest:document.getElementById('sh-interest').value,
+    power:  document.getElementById('home-sh-power') || document.getElementById('sh-power').value,
+    interest:document.getElementById('home-sh-interest') || document.getElementById('sh-interest').value,
     stance: document.getElementById('sh-stance').value,
     notes:  document.getElementById('sh-notes').value.trim()
   });
@@ -12344,7 +12344,7 @@ function toggleSprintHistForm(){
 function logSprint(){
   const num      = document.getElementById('sh-sprint-num').value.trim();
   if(!num){toast('Enter sprint number');return;}
-  const committed= parseInt(document.getElementById('sh-committed').value)||0;
+  const committed= parseInt(document.getElementById('metrics-sp-committed').value)||0;
   const delivered= parseInt(document.getElementById('sh-delivered').value)||0;
   const goal     = document.getElementById('sh-goal').value;
 
@@ -21852,8 +21852,8 @@ async function runSprintHealthScore() {
   if (btn) { btn.textContent='🤖 Score This Sprint'; btn.disabled=false; }
 
 
-  // AI analysis
-  if (apiKey) {
+  // AI analysis — skip in silent auto-rescore mode
+  if (apiKey && !window._shSilentMode) {
     const output = document.getElementById('sh-ai-output');
     const text = document.getElementById('sh-ai-text');
     if (output) output.style.display='block';
@@ -23435,18 +23435,38 @@ function _getShInputSig() {
 function _shInputChanged() {
   const stale = document.getElementById('sh-stale-badge');
   if (!stale) return;
+  // Always show badge if score is currently displayed and inputs differ
+  const scoreEl = document.getElementById('sh-score-val');
+  const hasScore = scoreEl && scoreEl.textContent !== '—' && scoreEl.textContent !== '' && scoreEl.textContent !== '0';
+  if (!hasScore) return; // no score yet, no need for stale badge
   if (typeof window._shLastInputSig === 'undefined') return;
   if (_getShInputSig() !== window._shLastInputSig) {
     stale.style.display = 'flex';
   }
 }
 
+// Auto-rescore (math only, no AI) when inputs change — keeps score live
+let _shDebounce = null;
+function _shAutoRescore() {
+  clearTimeout(_shDebounce);
+  _shDebounce = setTimeout(() => {
+    const scoreEl = document.getElementById('sh-score-val');
+    const hasScore = scoreEl && scoreEl.textContent !== '—' && scoreEl.textContent !== '';
+    if (hasScore) {
+      // Silent rescore — math only, suppress AI call
+      window._shSilentMode = true;
+      runSprintHealthScore();
+      window._shSilentMode = false;
+    }
+  }, 600);
+}
+
 // Wire up all sprint health inputs
 document.addEventListener('DOMContentLoaded', () => {
   ['sh-committed','sh-completed','sh-day','sh-length','sh-blockers','sh-scope','sh-sentiment','sh-unplanned'].forEach(id => {
     const el = document.getElementById(id);
-    if (el) el.addEventListener('change', _shInputChanged);
-    if (el) el.addEventListener('input', _shInputChanged);
+    if (el) el.addEventListener('change', () => { _shInputChanged(); _shAutoRescore(); });
+    if (el) el.addEventListener('input',  () => { _shInputChanged(); _shAutoRescore(); });
   });
 });
 </script>
