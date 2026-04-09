@@ -3956,6 +3956,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
 </head>
 <body>
 
@@ -10764,6 +10765,112 @@ async function extractPdfText(arrayBuffer){
   }
 }
 
+
+// ── DOCX text extractor — pure JS, no external library ────────
+// docx files are ZIP archives containing word/document.xml
+async function extractDocxText(file) {
+  try {
+    const ab = await readAsArrayBuffer(file);
+    const bytes = new Uint8Array(ab);
+
+    // Use mammoth if loaded (best quality)
+    if (typeof mammoth !== 'undefined') {
+      try {
+        const result = await mammoth.extractRawText({ arrayBuffer: ab });
+        if (result.value && result.value.trim().length > 30) return result.value;
+      } catch(_) {}
+    }
+
+    // Pure JS ZIP parser — find word/document.xml inside the docx zip
+    const text = await _extractFromDocxZip(bytes);
+    if (text && text.trim().length > 30) return text;
+
+    return '[Could not extract text. Please save as .txt or .pdf and re-upload.]';
+  } catch(e) {
+    return '[Document read error: ' + e.message + '. Please save as .txt or .pdf and re-upload.]';
+  }
+}
+
+async function _extractFromDocxZip(bytes) {
+  try {
+    const PK = [0x50, 0x4B, 0x03, 0x04];
+    let texts = [];
+    let i = 0;
+
+    while (i < bytes.length - 30) {
+      if (bytes[i]!==0x50||bytes[i+1]!==0x4B||bytes[i+2]!==0x03||bytes[i+3]!==0x04) { i++; continue; }
+
+      const compression = bytes[i+8]  | (bytes[i+9]  << 8);
+      const compSize    = bytes[i+18] | (bytes[i+19]<<8) | (bytes[i+20]<<16) | (bytes[i+21]<<24);
+      const fnLen       = bytes[i+26] | (bytes[i+27]<<8);
+      const extraLen    = bytes[i+28] | (bytes[i+29]<<8);
+      const headerEnd   = i + 30 + fnLen + extraLen;
+      const dataEnd     = headerEnd + Math.max(0, compSize);
+
+      let fname = '';
+      for (let j = i+30; j < i+30+fnLen && j < bytes.length; j++) fname += String.fromCharCode(bytes[j]);
+
+      if (/^word\/document.*\.xml$/.test(fname)) {
+        const fileData = bytes.slice(headerEnd, dataEnd);
+        let xmlText = '';
+
+        if (compression === 0) {
+          xmlText = new TextDecoder('utf-8',{fatal:false}).decode(fileData);
+        } else if (compression === 8 && typeof DecompressionStream !== 'undefined') {
+          try {
+            const decompressed = await _deflateRaw(fileData);
+            xmlText = new TextDecoder('utf-8',{fatal:false}).decode(decompressed);
+          } catch(_) {
+            xmlText = new TextDecoder('utf-8',{fatal:false}).decode(fileData);
+          }
+        } else {
+          xmlText = new TextDecoder('utf-8',{fatal:false}).decode(fileData);
+        }
+
+        if (xmlText) {
+          const paras = xmlText.match(/<w:p[ >][\s\S]*?<\/w:p>/g) || [];
+          let out = '';
+          for (const p of paras) {
+            const wts = p.match(/<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>/g) || [];
+            const line = wts.map(m => m.replace(/<[^>]+>/g,'')).join('');
+            if (line.trim()) out += line.trim() + '\n';
+          }
+          if (!out) {
+            const matches = xmlText.match(/<w:t(?:\s[^>]*)?>([^<]*)<\/w:t>/g) || [];
+            out = matches.map(m=>m.replace(/<[^>]+>/g,'')).join(' ');
+          }
+          if (out.trim()) texts.push(out);
+        }
+      }
+
+      if (compSize <= 0 || dataEnd <= i) { i++; continue; }
+      i = dataEnd;
+    }
+
+    return texts.join('\n').trim();
+  } catch(e) {
+    return '';
+  }
+}
+
+async function _deflateRaw(data) {
+  const ds = new DecompressionStream('deflate-raw');
+  const writer = ds.writable.getWriter();
+  const reader = ds.readable.getReader();
+  writer.write(data);
+  writer.close();
+  const chunks = [];
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    if (value) chunks.push(value);
+  }
+  const total = new Uint8Array(chunks.reduce((a,b) => a+b.length, 0));
+  let offset = 0;
+  for (const ch of chunks) { total.set(ch, offset); offset += ch.length; }
+  return total;
+}
+
 async function processOneFile(file){
   const ext=file.name.split('.').pop().toLowerCase();
   const sizeKb=Math.round(file.size/1024);
@@ -10806,13 +10913,12 @@ async function processOneFile(file){
   if(['txt','md','doc','docx'].includes(ext)){
     let text;
     if(ext==='docx'||ext==='doc'){
-      const ab=await readAsArrayBuffer(file);const bytes=new Uint8Array(ab);
-      const decoder=new TextDecoder('utf-8',{fatal:false});const raw=decoder.decode(bytes);
-      const matches=raw.match(/<w:t[^>]*>([^<]+)<\/w:t>/g)||[];
-      text=matches.map(m=>m.replace(/<[^>]+>/g,'')).join(' ');
-      if(text.length<50)text=raw.replace(/[^\x20-\x7E\n]/g,' ').replace(/\s+/g,' ');
-      text=`[Document: ${file.name}]\n${text.substring(0,8000)}`;
-    }else{text=await readAsText(file);text=`[${ext.toUpperCase()}: ${file.name}]\n${text.substring(0,8000)}`;}
+      text = await extractDocxText(file);
+      text = `[Document: ${file.name}]\n${text.substring(0,12000)}`;
+    } else {
+      text = await readAsText(file);
+      text = `[${ext.toUpperCase()}: ${file.name}]\n${text.substring(0,8000)}`;
+    }
     knowledgeBase.push({id:Date.now()+Math.random(),name:file.name,type:'text',ext,size:sizeKb,content:text});
   }
 }
