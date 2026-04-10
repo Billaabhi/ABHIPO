@@ -3953,6 +3953,95 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 #lock-submit-btn.ready { opacity: 1 !important; pointer-events: auto !important; }
 #lock-submit-btn:hover.ready { filter: brightness(1.1); }
 
+
+/* ══ BRD BUILDER ══════════════════════════════════════════════ */
+.brd-section-card {
+  background: var(--bg2);
+  border: 0.5px solid var(--border2);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.brd-section-card.complete { border-color: rgba(0,212,170,.4); }
+.brd-section-card.active   { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(108,71,255,.1); }
+
+.brd-section-hdr {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 16px; cursor: pointer;
+  background: var(--bg3);
+  border-bottom: 0.5px solid var(--border2);
+  user-select: none;
+}
+.brd-section-hdr:hover { background: var(--bg4,var(--bg3)); }
+.brd-sec-num {
+  width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+  background: var(--bg2); border: 0.5px solid var(--border2); color: var(--muted2);
+}
+.brd-sec-num.done { background: rgba(0,212,170,.15); color: #00D4AA; border-color: rgba(0,212,170,.3); }
+.brd-sec-title { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.brd-sec-tag   { font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
+.brd-sec-arrow { font-size: 10px; color: var(--muted); transition: transform .2s; flex-shrink: 0; }
+.brd-section-card.open .brd-sec-arrow { transform: rotate(180deg); }
+
+.brd-section-body { display: none; padding: 16px; flex-direction: column; gap: 10px; }
+.brd-section-card.open .brd-section-body { display: flex; }
+
+.brd-field { display: flex; flex-direction: column; gap: 5px; }
+.brd-field label { font-size: 10.5px; font-weight: 600; color: var(--muted2); text-transform: uppercase; letter-spacing: .05em; }
+.brd-field input, .brd-field textarea, .brd-field select {
+  background: var(--bg3); border: 0.5px solid var(--border2);
+  border-radius: 8px; padding: 9px 12px;
+  font-size: 12.5px; color: var(--text); font-family: inherit;
+  outline: none; resize: vertical; transition: border .15s;
+}
+.brd-field input:focus, .brd-field textarea:focus { border-color: var(--accent); }
+.brd-field textarea { min-height: 80px; line-height: 1.6; }
+
+.brd-ai-btn {
+  background: var(--accent-l,rgba(108,71,255,.1));
+  border: 0.5px solid var(--accent-m,rgba(108,71,255,.3));
+  border-radius: 8px; padding: 7px 14px;
+  font-size: 11px; font-weight: 600; color: var(--accent);
+  cursor: pointer; font-family: inherit; transition: all .15s;
+  display: flex; align-items: center; gap: 6px; align-self: flex-start;
+}
+.brd-ai-btn:hover { background: var(--accent); color: #fff; }
+
+.brd-output {
+  background: var(--bg3); border: 0.5px solid var(--border2);
+  border-radius: 8px; padding: 12px; font-size: 12px;
+  color: var(--text); line-height: 1.7; display: none;
+  white-space: pre-wrap; word-break: break-word;
+}
+.brd-output.show { display: block; }
+.brd-output-hdr {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 8px; padding-bottom: 8px;
+  border-bottom: 0.5px solid var(--border2);
+}
+
+.brd-fr-row {
+  background: var(--bg3); border: 0.5px solid var(--border2);
+  border-radius: 8px; padding: 12px; display: grid;
+  grid-template-columns: 80px 1fr 1fr; gap: 8px;
+}
+.brd-fr-row .brd-field { margin: 0; }
+
+.brd-nav-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 7px; cursor: pointer;
+  font-size: 11.5px; color: var(--muted2); transition: all .15s;
+}
+.brd-nav-item:hover { background: var(--bg3); color: var(--text); }
+.brd-nav-item.active { background: var(--bg3); color: var(--accent); font-weight: 600; }
+.brd-nav-item .brd-nav-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--border2); flex-shrink: 0; transition: background .2s;
+}
+.brd-nav-item.done .brd-nav-dot { background: #00D4AA; }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -4307,6 +4396,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   <div class="nav-tab" onclick="switchTab('week-planner',this)">📅 My Week</div>
   <div class="nav-tab" onclick="switchTab('north-star',this)">⭐ North Star</div>
   <div class="nav-tab" onclick="switchTab('monte-carlo',this)">🎲 Forecast</div>
+  <div class="nav-tab" onclick="switchTab('brd',this)">📋 BRD Builder</div>
   <div class="nav-tab" style="color:var(--accent);opacity:.6;cursor:default;font-style:italic" title="Coming soon">🔗 Jira <span style="font-size:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:4px;padding:1px 5px;margin-left:3px">Soon</span></div>
   <div class="nav-tab" style="color:var(--accent);opacity:.6;cursor:default;font-style:italic" title="Coming soon">📓 Notion <span style="font-size:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:4px;padding:1px 5px;margin-left:3px">Soon</span></div>
 </div>
@@ -9216,9 +9306,10 @@ function switchTab(tab,el){
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   const page = document.getElementById('page-'+tab);
   if(page) page.classList.add('active');
+  if(tab === 'brd') setTimeout(initBrdPageOnce, 50);
   if(el) el.classList.add('active');
   else {
-    const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7,commands:8,'decision-log':9,stakeholders:10,'sprint-health':11,strategy:12,experiments:13,mom:14,persona:15,'week-planner':16,'north-star':17,'monte-carlo':18};
+    const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7,commands:8,'decision-log':9,stakeholders:10,'sprint-health':11,strategy:12,experiments:13,mom:14,persona:15,'week-planner':16,'north-star':17,'monte-carlo':18,brd:19};
     const idx=tabs[tab];
     const navTabs = document.querySelectorAll('.nav-tab');
     if(idx!==undefined && navTabs[idx]) navTabs[idx].classList.add('active');
@@ -23811,6 +23902,769 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
     showLock();
   };
 })();
+
+// ══ BRD BUILDER ════════════════════════════════════════════════
+
+const BRD_SECTIONS = [
+  {
+    id: 'exec', num: '01', icon: '📌', title: 'Executive Summary',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-problem',    label:'Business Problem',     type:'textarea', ph:'What specific problem exists? Be precise — not "improve efficiency" but "Gate G0 approval takes 14 days manually, causing 30% project delays"'},
+      {id:'brd-background', label:'Background / Context', type:'textarea', ph:'Why now? What triggered this initiative? What is the current situation?'},
+      {id:'brd-outcome',    label:'Expected Outcome',     type:'textarea', ph:'What does success look like? What changes for the business when this is built?'}
+    ]
+  },
+  {
+    id: 'objectives', num: '02', icon: '🎯', title: 'Business Objectives & KPIs',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-objectives', label:'Business Objectives (SMART: metric + baseline + target + owner)', type:'textarea', ph:'OBJ-01: Reduce gate approval cycle from 14 days to 5 days by Q3 2026. Owner: Harry CDO.\nOBJ-02: Increase feasibility model accuracy to ≥95% vs manual benchmark. Owner: Product Team.'},
+      {id:'brd-kpis',       label:'KPIs (measurable, trackable)', type:'textarea', ph:'KPI-01: Gate approval cycle time (target: ≤5 days)\nKPI-02: BRD quality score in ProdMind (target: ≥90/100)\nKPI-03: User adoption (target: 80% of POs using the tool within 30 days)'}
+    ]
+  },
+  {
+    id: 'stakeholders', num: '03', icon: '👥', title: 'Stakeholder Register',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-stakeholders', label:'Stakeholders (Name · Role · Interest · Influence H/M/L · Comms frequency)', type:'textarea', ph:'Harry | CDO | Strategic oversight & ROI | High | Weekly update\nNaresh | Lead Developer | Technical feasibility & sprint planning | Medium | Sprint ceremonies\nVibin | Developer | Feature implementation | Low | Daily standup\nBusiness Team | Feasibility reviewers | Correct data & faster approvals | High | Monthly review'}
+    ]
+  },
+  {
+    id: 'scope', num: '04', icon: '🔲', title: 'Scope',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-in-scope',  label:'In Scope (explicit, deliverable list)', type:'textarea', ph:'• G0 Gate creation and submission workflow\n• Feasibility model calculator (Unit Mix%, Land Cost/sqm, Construction Cost)\n• Role-based team assignment per gate\n• GIS plot selection (replacing drop-pin)\n• AI-assisted feasibility benchmarking via XKool'},
+      {id:'brd-out-scope', label:'Out of Scope (with rationale for each)', type:'textarea', ph:'• G1/G2/G3 gates — separate sprint, separate BRD\n• Mobile app — web-only for this release\n• ERP financial integration — dependency on Mulesoft roadmap Q4\n• Social Infrastructure project type — Phase 2'}
+    ]
+  },
+  {
+    id: 'personas', num: '05', icon: '🎭', title: 'Personas',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-personas', label:'Primary Users (role · goals · pain points)', type:'textarea', ph:'PERSONA-01: Product Owner (Abhinav)\nGoal: Manage sprint and gate process without switching between 5 tools\nPain: No single view of gate status, team capacity, and feasibility — context switching kills 2hrs/day\n\nPERSONA-02: CDO (Harry)\nGoal: Real-time visibility on project progress and gate approval status\nPain: Relies on manual status updates — no data-driven decision support'}
+    ]
+  },
+  {
+    id: 'as-is', num: '06', icon: '🔄', title: 'Current State — AS-IS',
+    tag: 'Context', tagColor: 'rgba(41,182,246,.8)',
+    fields: [
+      {id:'brd-asis-flow',   label:'Current Step-by-Step Flow', type:'textarea', ph:'1. PO receives project brief via email\n2. PO creates feasibility model manually in Excel\n3. PO schedules review meeting with CDO (avg 3 days to get slot)\n4. Review happens, comments via email thread\n5. PO revises Excel, sends revised version\n6. CDO approves via email — no audit trail\n7. Project team assembled manually — no access control'},
+      {id:'brd-asis-issues', label:'Key Issues & Inefficiencies', type:'textarea', ph:'• No audit trail on approval decisions\n• Feasibility formula errors in Excel — Unit Mix% formula broken\n• Drop-pin on map causes wrong plot selection\n• No version control on feasibility models\n• Team access not restricted post-approval'}
+    ]
+  },
+  {
+    id: 'to-be', num: '07', icon: '✨', title: 'Proposed State — TO-BE',
+    tag: 'Context', tagColor: 'rgba(41,182,246,.8)',
+    fields: [
+      {id:'brd-tobe-flow', label:'Improved Future Flow', type:'textarea', ph:'1. PO creates new G0 gate in Harbour Platform\n2. System auto-populates feasibility model template\n3. PO selects plot via GIS map integration (not drop-pin)\n4. AI benchmarking via XKool suggests feasibility targets\n5. PO assigns team with role-based access control\n6. CDO reviews via platform — inline comments\n7. Digital approval with timestamp and audit trail\n8. Access automatically adjusted on approval'},
+      {id:'brd-tobe-improvements', label:'Key System Behaviour & Improvements', type:'textarea', ph:'• Unit Mix% auto-validates to 100% before submission\n• Land Cost displayed as AED/sqm (not %)\n• Construction Cost bar = Cost÷GFA and Cost÷GSA\n• AD sync for team members on approval\n• Continue-with-AI timeline generation post-approval'}
+    ]
+  },
+  {
+    id: 'dependencies', num: '08', icon: '🔗', title: 'Dependencies',
+    tag: 'Critical', tagColor: 'rgba(245,166,35,.8)',
+    fields: [
+      {id:'brd-dependencies', label:'APIs, Systems, Teams, Tools (with owner + due date)', type:'textarea', ph:'DEP-01: XKool API — AI design benchmarking. Owner: Mahadevan. Due: Sprint 5\nDEP-02: Aleria RAG/LLM — document intelligence. Owner: Arun. Due: Sprint 6\nDEP-03: Contilio BIM/Digital Twin — 3D visualisation. Owner: TBD. Due: Q3\nDEP-04: Azure AD SSO — team member sync post-approval. Owner: Gurjit. Due: Sprint 4\nDEP-05: Mulesoft ERP/CRM integration — financial data. Owner: Tim. Due: Q4'}
+    ]
+  },
+  {
+    id: 'fr', num: '09', icon: '⚙️', title: 'Functional Requirements',
+    tag: 'Critical', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-fr', label:'FR-[N] · Priority (Must/Should/Could) · Source · Trigger · Behavior · Output · Acceptance Criterion', type:'textarea', ph:'FR-01 | Must | Harry CDO\nFeature: GIS Plot Selection\nTrigger: PO clicks "Select Plot" on G0 gate creation screen\nBehavior: GIS map opens, PO draws polygon boundary, system captures coordinates and links to gate record\nOutput: Plot displayed on gate overview with area in sqm\nAC: Given PO is on gate creation, when they select a plot via GIS, then plot boundary appears on map and area (sqm) is auto-calculated\n\nFR-02 | Must | Product Team\nFeature: Unit Mix% Validation\nTrigger: PO enters unit mix percentages in feasibility model\nBehavior: System sums all unit type percentages in real-time\nOutput: Green confirmation if = 100%, red warning if ≠ 100%, submission blocked if not 100%\nAC: Given unit mix fields are filled, when total ≠ 100%, then save is blocked and warning displays "Unit mix must equal 100%"'}
+    ]
+  },
+  {
+    id: 'nfr', num: '10', icon: '🛡️', title: 'Non-Functional Requirements',
+    tag: 'Critical', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-nfr', label:'Performance · Security · Compliance · Accessibility · Data Retention (specific targets)', type:'textarea', ph:'NFR-01 Performance: Gate overview page loads in <2s for 200 concurrent users\nNFR-02 Security: Azure AD SSO required. No direct login. MFA enforced.\nNFR-03 Data Residency: All data must remain within UAE Azure region\nNFR-04 Compliance: Audit trail retained for 7 years per UAE property law\nNFR-05 Accessibility: WCAG 2.1 AA on all user-facing screens\nNFR-06 Availability: 99.5% uptime SLA during business hours (8am-8pm GST)'}
+    ]
+  },
+  {
+    id: 'errors', num: '11', icon: '⚠️', title: 'Error Handling',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-errors', label:'Failure Scenario · System Response · User Experience', type:'textarea', ph:'ERR-01: Integration Failure (XKool API timeout)\nSystem response: Retry once after 3s, then show inline error message\nUser experience: "Benchmarking unavailable — you can proceed manually or retry"\n\nERR-02: Invalid Unit Mix (total ≠ 100%)\nSystem response: Block save, highlight offending fields in red\nUser experience: "Unit mix totals 97% — must equal 100% before saving"\n\nERR-03: Partial Data Save\nSystem response: Save available fields, flag incomplete sections\nUser experience: Orange banner "Draft saved — 3 required fields incomplete"'}
+    ]
+  },
+  {
+    id: 'systems', num: '12', icon: '🖥️', title: 'Impacted Systems',
+    tag: 'Technical', tagColor: 'rgba(41,182,246,.8)',
+    fields: [
+      {id:'brd-ui-changes',      label:'UI Changes', type:'textarea', ph:'• Replace drop-pin with GIS polygon selector on map screen\n• Land Cost field: change display from % to AED/sqm\n• Construction Cost bar: add Cost÷GSA alongside existing Cost÷GFA\n• Unit Mix% fields: add real-time total counter and colour-coded validation'},
+      {id:'brd-backend-changes', label:'Backend Systems', type:'textarea', ph:'• Gate data model: add GIS coordinates field (PostGIS geometry type)\n• Feasibility model: update Unit Mix% formula in Postgres calculation service\n• Audit log: capture approval events with timestamp and approver ID\n• AD sync: trigger team access update on gate status change to Approved'},
+      {id:'brd-integrations',    label:'Integrations', type:'textarea', ph:'• XKool API: benchmarking call on feasibility model save\n• Azure AD: SSO authentication + team member sync\n• Aleria: RAG document intelligence for gate document analysis\n• Akamai CDN/WAF: caching rules for GIS tile layers'}
+    ]
+  },
+  {
+    id: 'assumptions', num: '13', icon: '📝', title: 'Assumptions',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-assumptions', label:'A-[N]: Assumption · Impact if wrong', type:'textarea', ph:'A-01: XKool API is production-ready and supports UAE project types. Impact if wrong: Benchmarking feature blocked — manual fallback required, scope reduction.\n\nA-02: Azure AD user directory is up to date with current team structure. Impact if wrong: AD sync assigns wrong roles, security risk.\n\nA-03: Existing feasibility model Excel formulas are the source of truth for recalculation. Impact if wrong: Formula errors propagate into platform calculations.'}
+    ]
+  },
+  {
+    id: 'risks', num: '14', icon: '🚨', title: 'Risks',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-risks', label:'Risk · Likelihood (H/M/L) · Impact (H/M/L) · Mitigation', type:'textarea', ph:'RISK-01: XKool integration delayed beyond Sprint 5\nLikelihood: M | Impact: H\nMitigation: Build manual benchmark input as fallback. Decouple XKool from core gate submission.\n\nRisk-02: Unit Mix% formula disagreement between stakeholders\nLikelihood: H | Impact: M\nMitigation: Get written sign-off from business team on formula definition before FR-02 enters dev.\n\nRisk-03: GIS map performance on low-bandwidth connections\nLikelihood: L | Impact: H\nMitigation: Load GIS tiles via Akamai CDN. Add offline-tolerant save fallback.'}
+    ]
+  },
+  {
+    id: 'metrics', num: '15', icon: '📊', title: 'Success Metrics',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-success-metrics', label:'Post-launch measurable outcomes (separate from KPIs)', type:'textarea', ph:'SM-01: Gate approval cycle time ≤5 days (measured 30 days post-launch)\nSM-02: Zero Unit Mix% calculation errors in production (measured via error log)\nSM-03: 80% of POs use GIS plot selector over legacy method within 2 sprints\nSM-04: Audit trail coverage = 100% of approval events (verifiable in logs)\nSM-05: CDO stakeholder satisfaction ≥4/5 on monthly review quality (measured by survey)'}
+    ]
+  },
+  {
+    id: 'signoff', num: '16', icon: '✅', title: 'Sign-off Criteria',
+    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
+    fields: [
+      {id:'brd-approvers',     label:'Named Approvers', type:'input', ph:'e.g. Harry (CDO), Abhinav (PO), Tim (Tech Lead)'},
+      {id:'brd-signoff-date',  label:'Sign-off Deadline', type:'input', ph:'e.g. 2026-04-18 — before Sprint 5 planning'},
+      {id:'brd-approval-form', label:'Form of Approval', type:'input', ph:'e.g. Written email to po@aldar.com + Jira ticket status → "BRD Approved"'},
+      {id:'brd-blockers',      label:'Open Items That Must Be Resolved Before Approval', type:'textarea', ph:'1. XKool API access credentials — owner: Mahadevan — due: 2026-04-15\n2. Unit Mix% formula sign-off from business team — owner: Veena — due: 2026-04-16\n3. GIS map data source confirmed — owner: Siddik — due: 2026-04-15'}
+    ]
+  }
+];
+
+let brdData = {};
+
+function initBrdPage() {
+  const nav  = document.getElementById('brd-nav-list');
+  const cont = document.getElementById('brd-sections-container');
+  if (!nav || !cont) return;
+
+  nav.innerHTML = '';
+  cont.innerHTML = '';
+
+  BRD_SECTIONS.forEach((sec, idx) => {
+    // Nav item
+    const navItem = document.createElement('div');
+    navItem.className = 'brd-nav-item';
+    navItem.id = 'brd-nav-' + sec.id;
+    navItem.innerHTML = `<div class="brd-nav-dot"></div><span>${sec.num} ${sec.title}</span>`;
+    navItem.onclick = () => brdScrollTo(sec.id);
+    nav.appendChild(navItem);
+
+    // Section card
+    const card = document.createElement('div');
+    card.className = 'brd-section-card' + (idx === 0 ? ' open' : '');
+    card.id = 'brd-card-' + sec.id;
+
+    const fieldsHtml = sec.fields.map(f => `
+      <div class="brd-field">
+        <label>${f.label}</label>
+        ${f.type === 'textarea'
+          ? `<textarea id="${f.id}" placeholder="${f.ph}" rows="4" oninput="brdFieldChanged('${sec.id}','${f.id}')">${brdData[f.id]||''}</textarea>`
+          : `<input type="text" id="${f.id}" placeholder="${f.ph}" value="${brdData[f.id]||''}" oninput="brdFieldChanged('${sec.id}','${f.id}')">`
+        }
+      </div>`).join('');
+
+    card.innerHTML = `
+      <div class="brd-section-hdr" onclick="brdToggle('${sec.id}')">
+        <div class="brd-sec-num" id="brd-num-${sec.id}">${sec.num}</div>
+        <span style="font-size:16px">${sec.icon}</span>
+        <span class="brd-sec-title">${sec.title}</span>
+        <span class="brd-sec-tag" style="background:${sec.tagColor}22;color:${sec.tagColor};border:0.5px solid ${sec.tagColor}44">${sec.tag}</span>
+        <span class="brd-sec-arrow">▼</span>
+      </div>
+      <div class="brd-section-body">
+        ${fieldsHtml}
+        <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+          <button class="brd-ai-btn" onclick="brdAiSection('${sec.id}')">🤖 AI-fill this section</button>
+          <div id="brd-ai-status-${sec.id}" style="font-size:10.5px;color:var(--muted2)"></div>
+        </div>
+        <div class="brd-output" id="brd-output-${sec.id}">
+          <div class="brd-output-hdr">
+            <span style="font-size:10px;font-weight:700;color:var(--accent)">🤖 AI suggestion — review and edit above</span>
+            <button class="gbtn" style="font-size:9px;padding:2px 8px;margin-left:auto" onclick="brdApplyOutput('${sec.id}')">Apply to fields</button>
+          </div>
+          <div id="brd-output-text-${sec.id}"></div>
+        </div>
+      </div>`;
+
+    cont.appendChild(card);
+  });
+
+  brdUpdateProgress();
+}
+
+function brdToggle(id) {
+  const card = document.getElementById('brd-card-' + id);
+  if (!card) return;
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.brd-section-card').forEach(c => c.classList.remove('open', 'active'));
+  if (!isOpen) {
+    card.classList.add('open', 'active');
+    document.querySelectorAll('.brd-nav-item').forEach(n => n.classList.remove('active'));
+    const navItem = document.getElementById('brd-nav-' + id);
+    if (navItem) navItem.classList.add('active');
+  }
+}
+
+function brdScrollTo(id) {
+  const card = document.getElementById('brd-card-' + id);
+  if (card) {
+    if (!card.classList.contains('open')) brdToggle(id);
+    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }
+}
+
+function brdFieldChanged(secId, fieldId) {
+  const el = document.getElementById(fieldId);
+  if (el) brdData[fieldId] = el.value;
+  brdUpdateProgress();
+  brdSaveLocal();
+}
+
+function brdUpdateProgress() {
+  const total = BRD_SECTIONS.length;
+  let filled = 0;
+  BRD_SECTIONS.forEach(sec => {
+    const hasContent = sec.fields.some(f => (brdData[f.id] || '').trim().length > 10);
+    const numEl = document.getElementById('brd-num-' + sec.id);
+    const navItem = document.getElementById('brd-nav-' + sec.id);
+    const card = document.getElementById('brd-card-' + sec.id);
+    if (hasContent) {
+      filled++;
+      if (numEl) { numEl.classList.add('done'); numEl.textContent = '✓'; }
+      if (navItem) navItem.classList.add('done');
+      if (card) card.classList.add('complete');
+    } else {
+      if (numEl) { numEl.classList.remove('done'); numEl.textContent = sec.num; }
+      if (navItem) navItem.classList.remove('done');
+      if (card) card.classList.remove('complete');
+    }
+  });
+  const pct = Math.round((filled / total) * 100);
+  const bar = document.getElementById('brd-progress-bar');
+  if (bar) bar.style.width = pct + '%';
+  const score = document.getElementById('brd-score-display');
+  if (score) {
+    const col = pct >= 80 ? '#00D4AA' : pct >= 50 ? '#F5A623' : 'var(--muted2)';
+    score.style.color = col;
+    score.textContent = `${pct}% complete — ${filled}/${total} sections filled`;
+  }
+}
+
+function brdSaveLocal() {
+  try { localStorage.setItem('prodmind_brd_data', JSON.stringify(brdData)); } catch(_) {}
+}
+
+function brdLoadLocal() {
+  try {
+    const saved = localStorage.getItem('prodmind_brd_data');
+    if (saved) {
+      brdData = JSON.parse(saved);
+      BRD_SECTIONS.forEach(sec => {
+        sec.fields.forEach(f => {
+          const el = document.getElementById(f.id);
+          if (el && brdData[f.id]) el.value = brdData[f.id];
+        });
+      });
+    }
+  } catch(_) {}
+}
+
+async function brdAiSection(secId) {
+  if (!apiKey) { openModal(); return; }
+  const sec = BRD_SECTIONS.find(s => s.id === secId);
+  if (!sec) return;
+
+  const statusEl = document.getElementById('brd-ai-status-' + secId);
+  const outEl    = document.getElementById('brd-output-' + secId);
+  const outText  = document.getElementById('brd-output-text-' + secId);
+  if (statusEl) statusEl.textContent = '⏳ Generating...';
+  if (outEl) outEl.classList.remove('show');
+
+  // Build context from filled fields
+  const ctx = BRD_SECTIONS
+    .flatMap(s => s.fields.map(f => brdData[f.id] ? `${f.label}: ${brdData[f.id]}` : ''))
+    .filter(Boolean).slice(0, 20).join('\n');
+
+  const prompts = {
+    exec: `You are a senior BA. Write the Executive Summary section of a BRD.\nContext from other sections:\n${ctx}\nWrite:\n1. Business Problem (specific, quantified)\n2. Background / Context (why now)\n3. Expected Outcome (measurable)`,
+    objectives: `Write the Business Objectives & KPIs section. Each objective must have metric + baseline + target + timeline + owner. Context:\n${ctx}`,
+    stakeholders: `Write the Stakeholder Register. Format: Name | Role | Interest | Influence (H/M/L) | Comms frequency. Context:\n${ctx}`,
+    scope: `Write the Scope section. List explicit In Scope items. List Out of Scope items WITH rationale for each exclusion. Context:\n${ctx}`,
+    personas: `Write 2-3 User Personas. For each: role, goals (what they need to achieve), pain points (what frustrates them today). Context:\n${ctx}`,
+    'as-is': `Write the AS-IS Current State. Step-by-step current flow + key issues and inefficiencies. Context:\n${ctx}`,
+    'to-be': `Write the TO-BE Proposed State. Improved future flow + key system behaviour improvements. Context:\n${ctx}`,
+    dependencies: `List all dependencies. Format: DEP-[N]: system/team/API. Owner: [name]. Due: [date]. Context:\n${ctx}`,
+    fr: `Write Functional Requirements using this format for each:\nFR-[N] | Priority (Must/Should/Could) | Source (stakeholder)\nFeature: [name]\nTrigger: [what initiates]\nBehavior: [system logic]\nOutput: [what user sees]\nAC: Given/When/Then\n\nContext:\n${ctx}`,
+    nfr: `Write Non-Functional Requirements with specific targets for: Performance, Security, Data Residency, Compliance, Accessibility, Availability. Context:\n${ctx}`,
+    errors: `Write Error Handling scenarios. For each: Failure Scenario + System Response + User Experience. Cover: API failures, validation errors, partial data, network issues. Context:\n${ctx}`,
+    systems: `List Impacted Systems: UI Changes, Backend Systems, Integrations. Context:\n${ctx}`,
+    assumptions: `Write Assumptions. Format: A-[N]: [assumption]. Impact if wrong: [consequence]. Context:\n${ctx}`,
+    risks: `Write Risk Register. Format: RISK-[N]: [risk]. Likelihood: H/M/L. Impact: H/M/L. Mitigation: [specific action]. Context:\n${ctx}`,
+    metrics: `Write Success Metrics measured post-launch. Each metric: measurable, with target and measurement method. Context:\n${ctx}`,
+    signoff: `Write Sign-off Criteria: Named approvers, deadline, form of approval, open items that must be resolved before approval. Context:\n${ctx}`
+  };
+
+  const prompt = prompts[secId] || `Fill the ${sec.title} section of a BRD. Context:\n${ctx}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        system: 'You are a Principal Business Analyst with 20 years enterprise experience. Write BRD sections that are specific, testable, and unambiguous. Never write vague statements. Every requirement must be traceable to a business need.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('') || '';
+    if (outText) outText.textContent = text;
+    if (outEl)   outEl.classList.add('show');
+    if (statusEl) statusEl.textContent = '✅ Done — review above';
+  } catch(e) {
+    if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
+  }
+}
+
+function brdApplyOutput(secId) {
+  const sec = BRD_SECTIONS.find(s => s.id === secId);
+  const outText = document.getElementById('brd-output-text-' + secId);
+  if (!sec || !outText) return;
+  const text = outText.textContent;
+  // Apply to first textarea in the section
+  const firstTextarea = sec.fields.find(f => f.type === 'textarea');
+  if (firstTextarea) {
+    const el = document.getElementById(firstTextarea.id);
+    if (el) {
+      el.value = text;
+      brdData[firstTextarea.id] = text;
+      brdUpdateProgress();
+      brdSaveLocal();
+      toast('Applied to section ✅');
+    }
+  }
+}
+
+async function brdGenerateAll() {
+  if (!apiKey) { openModal(); return; }
+  toast('🤖 Generating all 16 sections — this takes ~60 seconds');
+  for (const sec of BRD_SECTIONS) {
+    await brdAiSection(sec.id);
+    await new Promise(r => setTimeout(r, 300));
+  }
+  toast('✅ Full BRD generated — review each section');
+}
+
+function brdClearAll() {
+  if (!confirm('Clear all BRD data?')) return;
+  brdData = {};
+  BRD_SECTIONS.forEach(sec => {
+    sec.fields.forEach(f => {
+      const el = document.getElementById(f.id);
+      if (el) el.value = '';
+      const outEl = document.getElementById('brd-output-' + sec.id);
+      if (outEl) outEl.classList.remove('show');
+    });
+  });
+  try { localStorage.removeItem('prodmind_brd_data'); } catch(_) {}
+  brdUpdateProgress();
+  toast('BRD cleared');
+}
+
+function brdExport() {
+  // Build the full BRD document
+  let doc = `# BUSINESS REQUIREMENTS DOCUMENT\nGenerated by ProdMind · ${new Date().toLocaleDateString()}\n\n`;
+  doc += `---\n\n`;
+
+  BRD_SECTIONS.forEach(sec => {
+    doc += `## ${sec.num}. ${sec.title}\n\n`;
+    sec.fields.forEach(f => {
+      const val = (brdData[f.id] || '').trim();
+      if (val) {
+        doc += `**${f.label}**\n${val}\n\n`;
+      } else {
+        doc += `**${f.label}**\n*[Not filled]*\n\n`;
+      }
+    });
+    doc += `---\n\n`;
+  });
+
+  exportDoc(null, 'Business Requirements Document', doc);
+}
+
+// Override exportDoc to accept optional content
+const _origExportDoc = exportDoc;
+function exportDoc(sourceId, title, rawContent) {
+  if (rawContent) {
+    // BRD export — open print window with formatted content
+    const formatted = rawContent
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^\*\*(.+)\*\*$/gm, '<h3>$1</h3>')
+      .replace(/---/g, '<hr>')
+      .replace(/\n/g, '<br>');
+    const win = window.open('','_blank','width=900,height=700');
+    if (!win) { toast('Allow popups to export'); return; }
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title||'BRD'}</title>
+      <style>body{font-family:Arial,sans-serif;font-size:13px;line-height:1.7;color:#1a1a2a;max-width:800px;margin:40px auto;padding:20px}
+      h1{font-size:22px;border-bottom:2px solid #6C47FF;padding-bottom:8px;color:#1a1a2a}
+      h2{font-size:16px;color:#6C47FF;margin-top:24px}h3{font-size:13px;color:#444;margin-top:14px}
+      hr{border:none;border-top:0.5px solid #ddd;margin:20px 0}
+      .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;padding-bottom:12px;border-bottom:2px solid #6C47FF}
+      .hdr h1{border:none;margin:0;font-size:20px}.hdr span{font-size:11px;color:#888}
+      @media print{button{display:none!important}}</style></head><body>
+      <div class="hdr"><h1>📋 ${title||'Business Requirements Document'}</h1>
+      <span>ProdMind AI · ${new Date().toLocaleDateString()}</span></div>
+      <div>${formatted}</div>
+      <br><button onclick="window.print()" style="background:#6C47FF;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer;margin-right:10px">🖨️ Print / Save PDF</button>
+      <button onclick="window.close()" style="background:#f0f0f0;border:none;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer">✕ Close</button>
+      </body></html>`);
+    win.document.close();
+  } else {
+    _origExportDoc(sourceId, title);
+  }
+}
+
+// BRD init handled by new system
+
+// ══ BRD BUILDER — AI-POWERED ═══════════════════════════════════
+
+let _brdResult = {};
+let _brdRawInput = '';
+let _brdInitDone = false;
+
+const BRD_SECTIONS_META = [('exec', '01', '📌', 'Executive Summary', 'Required'), ('objectives', '02', '🎯', 'Business Objectives & KPIs', 'Required'), ('stakeholders', '03', '👥', 'Stakeholder Register', 'Required'), ('scope', '04', '🔲', 'Scope', 'Required'), ('personas', '05', '🎭', 'Personas', 'Required'), ('asis', '06', '🔄', 'Current State — AS-IS', 'Context'), ('tobe', '07', '✨', 'Proposed State — TO-BE', 'Context'), ('dependencies', '08', '🔗', 'Dependencies', 'Critical'), ('fr', '09', '⚙️', 'Functional Requirements', 'Critical'), ('nfr', '10', '🛡️', 'Non-Functional Requirements', 'Critical'), ('errors', '11', '⚠️', 'Error Handling', 'Required'), ('systems', '12', '🖥️', 'Impacted Systems', 'Technical'), ('assumptions', '13', '📝', 'Assumptions', 'Required'), ('risks', '14', '🚨', 'Risks', 'Required'), ('metrics', '15', '📊', 'Success Metrics', 'Required'), ('signoff', '16', '✅', 'Sign-off Criteria', 'Required')];
+
+function initBrdPageOnce() {
+  if (_brdInitDone) return;
+  _brdInitDone = true;
+  // Load saved data
+  try {
+    const saved = localStorage.getItem('prodmind_brd_v2');
+    if (saved) {
+      const d = JSON.parse(saved);
+      if (d.input) document.getElementById('brd-raw-input').value = d.input;
+      if (d.product) document.getElementById('brd-ctx-product').value = d.product;
+      if (d.stakeholder) document.getElementById('brd-ctx-stakeholder').value = d.stakeholder;
+      if (d.tech) document.getElementById('brd-ctx-tech').value = d.tech;
+      if (d.result && Object.keys(d.result).length > 0) {
+        _brdResult = d.result;
+        _brdRawInput = d.input || '';
+        _renderBrdOutput();
+      }
+    }
+  } catch(_) {}
+}
+
+async function brdGenerate() {
+  if (!apiKey) { openModal(); return; }
+  const raw = (document.getElementById('brd-raw-input')?.value || '').trim();
+  if (!raw) { toast('Describe your requirement first'); return; }
+
+  const product     = document.getElementById('brd-ctx-product')?.value || '';
+  const stakeholder = document.getElementById('brd-ctx-stakeholder')?.value || '';
+  const tech        = document.getElementById('brd-ctx-tech')?.value || '';
+
+  // Save inputs
+  try { localStorage.setItem('prodmind_brd_v2', JSON.stringify({input:raw,product,stakeholder,tech,result:{}})); } catch(_) {}
+
+  _brdRawInput = raw;
+  _brdResult   = {};
+
+  // UI state
+  const genBtn = document.getElementById('brd-gen-btn');
+  const status = document.getElementById('brd-gen-status');
+  const progress = document.getElementById('brd-gen-progress');
+  const output   = document.getElementById('brd-output-card');
+  const progBar  = document.getElementById('brd-prog-bar');
+  const progSec  = document.getElementById('brd-prog-section');
+  const progSteps= document.getElementById('brd-prog-steps');
+
+  if (genBtn) { genBtn.disabled = true; genBtn.textContent = '⏳ Generating...'; }
+  if (progress) progress.style.display = 'block';
+  if (output) output.style.display = 'none';
+  if (progSteps) progSteps.innerHTML = '';
+
+  const ctx = `Product: ${product || 'not specified'}\nPrimary stakeholder: ${stakeholder || 'not specified'}\nTech stack: ${tech || 'not specified'}\n\nRequirement:\n${raw}`;
+
+  // Generate all 16 sections in one API call (more coherent, faster)
+  const prompt = `You are a Principal Business Analyst and Senior Product Owner with 20 years enterprise experience.
+
+Based on the requirement below, generate a complete, production-ready Business Requirements Document covering all 16 sections.
+
+${ctx}
+
+Generate EXACTLY this JSON structure (valid JSON only, no markdown fences, no extra text):
+{
+  "exec": { "problem": "...", "background": "...", "outcome": "..." },
+  "objectives": { "objectives": "...", "kpis": "..." },
+  "stakeholders": { "register": "..." },
+  "scope": { "in_scope": "...", "out_scope": "..." },
+  "personas": { "personas": "..." },
+  "asis": { "flow": "...", "issues": "..." },
+  "tobe": { "flow": "...", "improvements": "..." },
+  "dependencies": { "list": "..." },
+  "fr": { "requirements": "..." },
+  "nfr": { "requirements": "..." },
+  "errors": { "handling": "..." },
+  "systems": { "ui": "...", "backend": "...", "integrations": "..." },
+  "assumptions": { "list": "..." },
+  "risks": { "register": "..." },
+  "metrics": { "success": "..." },
+  "signoff": { "approvers": "...", "date": "...", "form": "...", "blockers": "..." },
+  "score": { "value": 92, "label": "High Quality", "reason": "..." }
+}
+
+Rules:
+- Be specific to the requirement provided — no generic filler
+- Every functional requirement: FR-[N] | Priority | Trigger | Behavior | Output | AC (Given/When/Then)
+- Every risk: RISK-[N] | Likelihood H/M/L | Impact H/M/L | Mitigation
+- Every assumption: A-[N] | Impact if wrong
+- Business objectives: SMART format with metric + baseline + target + timeline + owner
+- NFRs: specific numbers (not adjectives)
+- Score 0-100 based on completeness and specificity of the generated BRD`;
+
+  if (progSec) progSec.textContent = 'Generating 16 sections...';
+  if (progBar) progBar.style.width = '10%';
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
+        system: 'You are a Principal BA. Return ONLY valid JSON. No markdown. No explanation. No code fences.',
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (progBar) progBar.style.width = '80%';
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('') || '';
+
+    // Parse JSON
+    let parsed;
+    try {
+      parsed = JSON.parse(text.trim());
+    } catch(e) {
+      // Try extracting JSON from text
+      const m = text.match(/\{[\s\S]+\}/);
+      if (m) parsed = JSON.parse(m[0]);
+      else throw new Error('Could not parse BRD response');
+    }
+
+    _brdResult = parsed;
+    if (progBar) progBar.style.width = '100%';
+    if (progSec) progSec.textContent = '✅ Complete';
+
+    // Mark steps done
+    BRD_SECTIONS_META.forEach(([id,num,icon,title]) => {
+      if (progSteps) {
+        const chip = document.createElement('span');
+        chip.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(0,212,170,.12);color:#00D4AA;border:0.5px solid rgba(0,212,170,.25)';
+        chip.textContent = `${icon} ${title}`;
+        progSteps.appendChild(chip);
+      }
+    });
+
+    setTimeout(() => {
+      if (progress) progress.style.display = 'none';
+      _renderBrdOutput();
+      // Save result
+      try { localStorage.setItem('prodmind_brd_v2', JSON.stringify({
+        input:raw, product, stakeholder, tech, result:parsed
+      })); } catch(_) {}
+    }, 600);
+
+  } catch(e) {
+    if (status) status.textContent = '❌ Error: ' + e.message;
+    if (progress) progress.style.display = 'none';
+  }
+
+  if (genBtn) { genBtn.disabled = false; genBtn.textContent = '🤖 Generate Full BRD'; }
+}
+
+function _renderBrdOutput() {
+  const output = document.getElementById('brd-output-card');
+  const container = document.getElementById('brd-sections-output');
+  const exportBtn = document.getElementById('brd-export-btn');
+  if (!output || !container) return;
+
+  output.style.display = 'block';
+  if (exportBtn) exportBtn.style.display = 'inline-flex';
+
+  // Score banner
+  const score = _brdResult.score || {};
+  const scoreVal = document.getElementById('brd-score-val');
+  const scoreLabel = document.getElementById('brd-score-label');
+  const scoreReason = document.getElementById('brd-score-reason');
+  if (scoreVal) {
+    const v = score.value || 0;
+    scoreVal.textContent = v + '/100';
+    scoreVal.style.color = v >= 80 ? '#00D4AA' : v >= 60 ? '#F5A623' : '#FF6B6B';
+  }
+  if (scoreLabel) scoreLabel.textContent = score.label || '';
+  if (scoreReason) scoreReason.textContent = score.reason || '';
+
+  // Build sections
+  container.innerHTML = '';
+  const tagColors = {Required:'rgba(239,83,80,.7)',Critical:'rgba(239,83,80,.9)',Context:'rgba(41,182,246,.8)',Technical:'rgba(100,180,255,.8)'};
+
+  BRD_SECTIONS_META.forEach(([id, num, icon, title, tag]) => {
+    const data = _brdResult[id] || {};
+    const content = Object.values(data).filter(Boolean).join('\n\n');
+    if (!content) return;
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;overflow:hidden;transition:border-color .2s';
+    card.setAttribute('data-section', id);
+
+    const col = tagColors[tag] || 'rgba(108,71,255,.7)';
+    const isOpen = id === 'exec' || id === 'fr';
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border-bottom:0.5px solid var(--border2);cursor:pointer;user-select:none"
+           onclick="this.parentElement.querySelector('.brd-sec-body').style.display=this.parentElement.querySelector('.brd-sec-body').style.display==='none'?'block':'none';this.querySelector('.brd-arr').style.transform=this.parentElement.querySelector('.brd-sec-body').style.display==='none'?'rotate(0deg)':'rotate(180deg)'">
+        <div style="width:26px;height:26px;border-radius:7px;background:rgba(0,212,170,.1);border:0.5px solid rgba(0,212,170,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:monospace;color:#00D4AA;flex-shrink:0">${num}</div>
+        <span style="font-size:14px">${icon}</span>
+        <span style="font-size:13px;font-weight:600;color:var(--text);flex:1">${title}</span>
+        <span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;background:${col}22;color:${col};border:0.5px solid ${col}44">${tag}</span>
+        <span class="brd-arr" style="font-size:10px;color:var(--muted);transition:transform .2s;${isOpen?'transform:rotate(180deg)':''}"">▼</span>
+      </div>
+      <div class="brd-sec-body" style="padding:16px;display:${isOpen?'block':'none'}">
+        ${_formatBrdSection(id, data)}
+        <div style="display:flex;gap:6px;margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border2)">
+          <button onclick="brdCopySection('${id}')" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:10.5px;color:var(--muted2);cursor:pointer;font-family:inherit">📋 Copy</button>
+          <button onclick="brdRefineSection('${id}','${title}')" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:10.5px;color:var(--muted2);cursor:pointer;font-family:inherit">✏️ Refine</button>
+        </div>
+      </div>`;
+    container.appendChild(card);
+  });
+
+  // Scroll to output
+  output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function _formatBrdSection(id, data) {
+  let html = '';
+  const entries = Object.entries(data);
+  entries.forEach(([key, val]) => {
+    if (!val) return;
+    const label = key.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
+    html += `<div style="margin-bottom:12px">
+      <div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">${label}</div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.7;white-space:pre-wrap;background:var(--bg3);border-radius:8px;padding:10px 12px;border:0.5px solid var(--border2)">${escapeHtml(String(val))}</div>
+    </div>`;
+  });
+  return html;
+}
+
+function brdCopySection(id) {
+  const data = _brdResult[id] || {};
+  const text = Object.values(data).filter(Boolean).join('\n\n');
+  navigator.clipboard.writeText(text).then(() => toast('Section copied'));
+}
+
+function brdRefineSection(id, title) {
+  const data = _brdResult[id] || {};
+  const text = Object.values(data).filter(Boolean).join('\n\n');
+  switchTab('chat', null);
+  setTimeout(() => {
+    const inp = document.getElementById('chat-input');
+    if (inp) {
+      inp.value = `Refine the "${title}" section of my BRD:\n\n${text}\n\nImprove: make it more specific, add missing details, ensure every item is testable.`;
+      autoResize(inp);
+      inp.focus();
+    }
+  }, 300);
+}
+
+function brdRefine() {
+  const fullBrd = _buildBrdText();
+  switchTab('chat', null);
+  setTimeout(() => {
+    const inp = document.getElementById('chat-input');
+    if (inp) {
+      inp.value = `Review my full BRD and identify the top 5 improvements needed:\n\n${fullBrd.substring(0, 3000)}`;
+      autoResize(inp);
+      inp.focus();
+    }
+  }, 300);
+}
+
+function brdCopyAll() {
+  navigator.clipboard.writeText(_buildBrdText()).then(() => toast('Full BRD copied'));
+}
+
+function _buildBrdText() {
+  let doc = `BUSINESS REQUIREMENTS DOCUMENT\nGenerated by ProdMind AI · ${new Date().toLocaleDateString()}\n`;
+  doc += `Requirement: ${_brdRawInput}\n\n${'─'.repeat(60)}\n\n`;
+  BRD_SECTIONS_META.forEach(([id, num, icon, title]) => {
+    const data = _brdResult[id] || {};
+    const content = Object.entries(data).map(([k,v]) => `${k.toUpperCase().replace(/_/g,' ')}:\n${v}`).filter(s=>s.includes('\n')).join('\n\n');
+    if (content.trim()) doc += `## ${num}. ${title}\n\n${content}\n\n${'─'.repeat(40)}\n\n`;
+  });
+  if (_brdResult.score) doc += `BRD Quality Score: ${_brdResult.score.value}/100 — ${_brdResult.score.label}\n${_brdResult.score.reason}`;
+  return doc;
+}
+
+function brdExportDoc() {
+  const text = _buildBrdText();
+  const formatted = text
+    .replace(/^## (\d+\..+)$/gm, '<h2 style="color:#6C47FF;font-size:16px;margin:20px 0 8px">$1</h2>')
+    .replace(/^([\w\s\/]+):$/gm, '<h3 style="font-size:12px;color:#666;margin:12px 0 4px;text-transform:uppercase;letter-spacing:.05em">$1</h3>')
+    .replace(/^─+$/gm, '<hr style="border:none;border-top:0.5px solid #ddd;margin:16px 0">')
+    .replace(/\n/g, '<br>');
+
+  const win = window.open('','_blank','width=940,height=760');
+  if (!win) { toast('Allow popups to export'); return; }
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>BRD — ProdMind</title>
+    <style>
+      body{font-family:Arial,sans-serif;font-size:13px;line-height:1.75;color:#1a1a2a;max-width:820px;margin:40px auto;padding:24px}
+      .hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:2px solid #6C47FF;margin-bottom:28px}
+      .hdr h1{font-size:20px;color:#1a1a2a;margin:0}.hdr span{font-size:11px;color:#888}
+      h2{border-left:3px solid #6C47FF;padding-left:10px}
+      pre,code{background:#f5f5f5;padding:2px 6px;border-radius:4px;font-size:12px}
+      @media print{.no-print{display:none!important}}
+    </style></head><body>
+    <div class="hdr">
+      <div><h1>📋 Business Requirements Document</h1><div style="font-size:12px;color:#6C47FF;margin-top:3px">Generated by ProdMind AI</div></div>
+      <span>${new Date().toLocaleDateString()}</span>
+    </div>
+    <div>${formatted}</div><br>
+    <div class="no-print" style="display:flex;gap:10px;margin-top:20px">
+      <button onclick="window.print()" style="background:#6C47FF;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:13px;cursor:pointer;font-weight:600">🖨️ Print / Save PDF</button>
+      <button onclick="window.close()" style="background:#f0f0f0;border:none;border-radius:8px;padding:10px 18px;font-size:13px;cursor:pointer">✕ Close</button>
+    </div></body></html>`);
+  win.document.close();
+}
+
+function brdReset() {
+  if (!confirm('Clear this BRD?')) return;
+  _brdResult = {}; _brdRawInput = '';
+  ['brd-raw-input','brd-ctx-product','brd-ctx-stakeholder','brd-ctx-tech'].forEach(id => {
+    const el = document.getElementById(id); if(el) el.value='';
+  });
+  const output = document.getElementById('brd-output-card');
+  const progress = document.getElementById('brd-gen-progress');
+  if (output) output.style.display='none';
+  if (progress) progress.style.display='none';
+  try { localStorage.removeItem('prodmind_brd_v2'); } catch(_) {}
+  toast('BRD cleared');
+}
 </script>
 
 <!-- ══ API KEY LOCK GATE ══════════════════════════════════════ -->
@@ -24196,6 +25050,96 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
       </div>
     </div>
   </div>
+</div>
+
+<div class="page" id="page-brd">
+<div class="tab-page">
+
+  <div class="tb">
+    <h2>📋 BRD Builder</h2>
+    <span style="font-size:11px;color:var(--muted2)">Describe your requirement → AI generates complete 16-section enterprise BRD</span>
+    <div style="margin-left:auto;display:flex;gap:8px">
+      <button class="gbtn" onclick="brdReset()" style="font-size:10px;padding:4px 10px;background:var(--bg3);color:var(--muted2)">🗑 Reset</button>
+      <button class="gbtn" onclick="brdExportDoc()" id="brd-export-btn" style="font-size:10px;padding:4px 10px;display:none">⬇ Export BRD</button>
+    </div>
+  </div>
+
+  <!-- INPUT CARD -->
+  <div id="brd-input-card" style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;padding:24px;margin-bottom:16px">
+
+    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">What do you need to build?</div>
+    <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;line-height:1.5">Give me the raw requirement — one sentence or a paragraph. The more context the sharper the BRD. Product, feature, problem, users, constraints — whatever you have.</div>
+
+    <textarea id="brd-raw-input"
+      placeholder="e.g. We need to digitise the G0 Gate approval process for Harbour Platform. Currently POs manage feasibility modelling in Excel and approvals happen over email with no audit trail. The process takes 14 days and has formula errors. We need GIS plot selection, Unit Mix% validation, role-based team access, Azure AD SSO sync on approval, and AI benchmarking via XKool. CDO Harry needs to approve digitally with a full audit trail."
+      style="width:100%;min-height:120px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--text);font-family:inherit;outline:none;resize:vertical;line-height:1.65;transition:border .2s"
+      onfocus="this.style.borderColor='var(--accent)'"
+      onblur="this.style.borderColor='var(--border2)'"
+    ></textarea>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px">
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Product / Platform</label>
+        <input id="brd-ctx-product" type="text" placeholder="e.g. Harbour Platform" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 11px;font-size:12px;color:var(--text);font-family:inherit;outline:none"/>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Primary Stakeholder</label>
+        <input id="brd-ctx-stakeholder" type="text" placeholder="e.g. Harry CDO" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 11px;font-size:12px;color:var(--text);font-family:inherit;outline:none"/>
+      </div>
+      <div>
+        <label style="font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Tech Stack (optional)</label>
+        <input id="brd-ctx-tech" type="text" placeholder="e.g. Next.js, Azure, Postgres" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 11px;font-size:12px;color:var(--text);font-family:inherit;outline:none"/>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+      <button onclick="brdGenerate()" id="brd-gen-btn"
+        style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 28px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 3px 12px rgba(108,71,255,.35)"
+        onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
+        🤖 Generate Full BRD
+      </button>
+      <div id="brd-gen-status" style="font-size:12px;color:var(--muted2)"></div>
+    </div>
+  </div>
+
+  <!-- PROGRESS (shown during generation) -->
+  <div id="brd-gen-progress" style="display:none;background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;padding:16px 20px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:600;color:var(--text)">Generating your BRD</div>
+      <div id="brd-prog-section" style="font-size:11px;color:var(--muted2)"></div>
+    </div>
+    <div style="background:var(--bg3);border-radius:6px;height:6px;overflow:hidden">
+      <div id="brd-prog-bar" style="height:100%;background:linear-gradient(90deg,var(--accent),#00D4AA);width:0%;transition:width .5s;border-radius:6px"></div>
+    </div>
+    <div id="brd-prog-steps" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
+  </div>
+
+  <!-- OUTPUT (shown after generation) -->
+  <div id="brd-output-card" style="display:none">
+
+    <!-- Score banner -->
+    <div id="brd-score-banner" style="background:linear-gradient(135deg,rgba(108,71,255,.12),rgba(0,212,170,.08));border:0.5px solid rgba(108,71,255,.25);border-radius:12px;padding:14px 20px;margin-bottom:14px;display:flex;align-items:center;gap:16px">
+      <div>
+        <div id="brd-score-val" style="font-size:32px;font-weight:700;color:var(--accent);line-height:1">—</div>
+        <div style="font-size:10px;color:var(--muted2);margin-top:2px">BRD Quality Score</div>
+      </div>
+      <div style="flex:1">
+        <div id="brd-score-label" style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px"></div>
+        <div id="brd-score-reason" style="font-size:11.5px;color:var(--muted2);line-height:1.5"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="brdExportDoc()" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Export PDF</button>
+        <button onclick="brdCopyAll()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--muted2);cursor:pointer;font-family:inherit">📋 Copy</button>
+        <button onclick="brdRefine()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--muted2);cursor:pointer;font-family:inherit">✏️ Refine in Chat</button>
+      </div>
+    </div>
+
+    <!-- Sections accordion -->
+    <div id="brd-sections-output" style="display:flex;flex-direction:column;gap:8px"></div>
+
+  </div>
+
+</div>
 </div>
 
 <!-- ══ HOW TO USE ME MODAL ════════════════════════════════════ -->
