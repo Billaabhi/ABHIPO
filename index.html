@@ -17300,7 +17300,8 @@ function copyDocRich(){
 // ── Doc generator: export ───────────────────────────
 function _exportDocFromPanel(){
   var el = document.getElementById('doc-output-content');
-  if(!el||!docOutput){ toast('Generate a document first'); return; }
+  var text = el ? (el.innerText||el.textContent||'').trim() : '';
+  if(!text){ toast('Generate a document first'); return; }
   var cfg = DOC_CONFIGS[activeDocType]||{title:'Document'};
   var title = cfg.title.replace(/[^a-zA-Z0-9 \-]/g,'').trim();
   _buildAndOpenDoc(el.innerHTML, title);
@@ -17316,7 +17317,8 @@ function copyMomRich(){
 // ── MOM: export ─────────────────────────────────────
 function _exportMomFromPanel(){
   var el = document.getElementById('mom-output-content');
-  if(!el||!momOutput){ toast('Generate a MOM first'); return; }
+  var text = el ? (el.innerText||el.textContent||'').trim() : '';
+  if(!text){ toast('Generate a MOM first'); return; }
   _buildAndOpenDoc(el.innerHTML, 'Minutes of Meeting');
 }
 
@@ -24300,37 +24302,9 @@ function brdExport() {
 }
 
 // Override exportDoc to accept optional content
-const _origExportDoc = exportDoc;
-function exportDoc(sourceId, title, rawContent) {
-  if (rawContent) {
-    // BRD export — open print window with formatted content
-    const formatted = rawContent
-      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^\*\*(.+)\*\*$/gm, '<h3>$1</h3>')
-      .replace(/---/g, '<hr>')
-      .replace(/\n/g, '<br>');
-    const win = window.open('','_blank','width=900,height=700');
-    if (!win) { toast('Allow popups to export'); return; }
-    win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title||'BRD'}</title>
-      <style>body{font-family:Arial,sans-serif;font-size:13px;line-height:1.7;color:#1a1a2a;max-width:800px;margin:40px auto;padding:20px}
-      h1{font-size:22px;border-bottom:2px solid #6C47FF;padding-bottom:8px;color:#1a1a2a}
-      h2{font-size:16px;color:#6C47FF;margin-top:24px}h3{font-size:13px;color:#444;margin-top:14px}
-      hr{border:none;border-top:0.5px solid #ddd;margin:20px 0}
-      .hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:30px;padding-bottom:12px;border-bottom:2px solid #6C47FF}
-      .hdr h1{border:none;margin:0;font-size:20px}.hdr span{font-size:11px;color:#888}
-      @media print{button{display:none!important}}</style></head><body>
-      <div class="hdr"><h1>📋 ${title||'Business Requirements Document'}</h1>
-      <span>ProdMind AI · ${new Date().toLocaleDateString()}</span></div>
-      <div>${formatted}</div>
-      <br><button onclick="window.print()" style="background:#6C47FF;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer;margin-right:10px">🖨️ Print / Save PDF</button>
-      <button onclick="window.close()" style="background:#f0f0f0;border:none;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer">✕ Close</button>
-      </body></html>`);
-    win.document.close();
-  } else {
-    _origExportDoc(sourceId, title);
-  }
-}
+
+// BRD export handled by brdExportDoc()
+
 
 // BRD init handled by new system
 
@@ -24372,69 +24346,185 @@ async function brdGenerate() {
   const stakeholder = document.getElementById('brd-ctx-stakeholder')?.value || '';
   const tech        = document.getElementById('brd-ctx-tech')?.value || '';
 
-  // Save inputs
-  try { localStorage.setItem('prodmind_brd_v2', JSON.stringify({input:raw,product,stakeholder,tech,result:{}})); } catch(_) {}
-
   _brdRawInput = raw;
   _brdResult   = {};
 
-  // UI state
-  const genBtn = document.getElementById('brd-gen-btn');
-  const status = document.getElementById('brd-gen-status');
-  const progress = document.getElementById('brd-gen-progress');
-  const output   = document.getElementById('brd-output-card');
-  const progBar  = document.getElementById('brd-prog-bar');
-  const progSec  = document.getElementById('brd-prog-section');
-  const progSteps= document.getElementById('brd-prog-steps');
+  const genBtn  = document.getElementById('brd-gen-btn');
+  const progress= document.getElementById('brd-gen-progress');
+  const output  = document.getElementById('brd-output-card');
+  const progBar = document.getElementById('brd-prog-bar');
+  const progSec = document.getElementById('brd-prog-section');
+  const progSteps=document.getElementById('brd-prog-steps');
 
-  if (genBtn) { genBtn.disabled = true; genBtn.textContent = '⏳ Generating...'; }
-  if (progress) progress.style.display = 'block';
-  if (output) output.style.display = 'none';
-  if (progSteps) progSteps.innerHTML = '';
+  if (genBtn)  { genBtn.disabled=true; genBtn.textContent='⏳ Generating...'; }
+  if (progress){ progress.style.display='block'; }
+  if (output)  { output.style.display='none'; }
+  if (progSteps) progSteps.innerHTML='';
 
-  const ctx = `Product: ${product || 'not specified'}\nPrimary stakeholder: ${stakeholder || 'not specified'}\nTech stack: ${tech || 'not specified'}\n\nRequirement:\n${raw}`;
+  const ctx = `Product: ${product||'not specified'}\nPrimary stakeholder: ${stakeholder||'not specified'}\nTech stack: ${tech||'not specified'}\n\nRequirement:\n${raw}`;
 
-  // Generate all 16 sections in one API call (more coherent, faster)
-  const prompt = `You are a Principal Business Analyst and Senior Product Owner with 20 years enterprise experience.
+  // ── Two-pass generation ──────────────────────────────────────
+  // Pass 1: Sections 1-8 (context, scope, stakeholders, AS-IS/TO-BE, dependencies, FRs)
+  // Pass 2: Sections 9-16 (NFRs, errors, systems, assumptions, risks, metrics, sign-off, score)
 
-Based on the requirement below, generate a complete, production-ready Business Requirements Document covering all 16 sections.
+  const PASS1_PROMPT = `You are a Principal BA/PO. Based on this requirement, write BRD sections 1-9 in PLAIN TEXT format.
 
 ${ctx}
 
-Generate EXACTLY this JSON structure (valid JSON only, no markdown fences, no extra text):
-{
-  "exec": { "problem": "...", "background": "...", "outcome": "..." },
-  "objectives": { "objectives": "...", "kpis": "..." },
-  "stakeholders": { "register": "..." },
-  "scope": { "in_scope": "...", "out_scope": "..." },
-  "personas": { "personas": "..." },
-  "asis": { "flow": "...", "issues": "..." },
-  "tobe": { "flow": "...", "improvements": "..." },
-  "dependencies": { "list": "..." },
-  "fr": { "requirements": "..." },
-  "nfr": { "requirements": "..." },
-  "errors": { "handling": "..." },
-  "systems": { "ui": "...", "backend": "...", "integrations": "..." },
-  "assumptions": { "list": "..." },
-  "risks": { "register": "..." },
-  "metrics": { "success": "..." },
-  "signoff": { "approvers": "...", "date": "...", "form": "...", "blockers": "..." },
-  "score": { "value": 92, "label": "High Quality", "reason": "..." }
-}
+Write each section clearly separated. Use this EXACT format for each section:
+
+===EXEC===
+BUSINESS PROBLEM:
+[write the specific, quantified business problem]
+
+BACKGROUND:
+[write the context and why now]
+
+EXPECTED OUTCOME:
+[write measurable outcomes]
+
+===OBJECTIVES===
+BUSINESS OBJECTIVES:
+OBJ-01: [SMART objective — metric, baseline, target, timeline, owner]
+OBJ-02: [...]
+
+KPIs:
+KPI-01: [metric name] — Target: [number] — Measured by: [method]
+KPI-02: [...]
+
+===STAKEHOLDERS===
+REGISTER:
+[Name] | [Role] | [Interest] | [Influence H/M/L] | [Comms frequency]
+[repeat for each stakeholder]
+
+===SCOPE===
+IN SCOPE:
+• [item 1]
+• [item 2]
+
+OUT OF SCOPE (with rationale):
+• [item] — Rationale: [why excluded]
+
+===PERSONAS===
+PERSONA-01: [Role name]
+Goal: [what they need to achieve]
+Pain: [what frustrates them today]
+Frequency: [how often they use this]
+
+===ASIS===
+CURRENT FLOW:
+1. [step]
+2. [step]
+
+KEY ISSUES:
+• [issue with impact]
+
+===TOBE===
+PROPOSED FLOW:
+1. [step]
+2. [step]
+
+KEY IMPROVEMENTS:
+• [specific improvement]
+
+===DEPENDENCIES===
+DEP-01: [System/API/Team] — Owner: [Name] — Due: [Date] — Risk if delayed: [impact]
+DEP-02: [...]
+
+===FR===
+FR-01 | Priority: Must | Source: [stakeholder]
+Feature: [name]
+Trigger: [what initiates]
+Behavior: [system logic step by step]
+Output: [what user sees]
+AC: Given [context], when [action], then [result]
+
+FR-02 | Priority: Must | Source: [stakeholder]
+[repeat pattern]
+
+FR-03 | Priority: Should | Source: [stakeholder]
+[repeat pattern]
+
+[Write at least 5-8 FRs covering all features mentioned]
 
 Rules:
-- Be specific to the requirement provided — no generic filler
-- Every functional requirement: FR-[N] | Priority | Trigger | Behavior | Output | AC (Given/When/Then)
-- Every risk: RISK-[N] | Likelihood H/M/L | Impact H/M/L | Mitigation
-- Every assumption: A-[N] | Impact if wrong
-- Business objectives: SMART format with metric + baseline + target + timeline + owner
-- NFRs: specific numbers (not adjectives)
-- Score 0-100 based on completeness and specificity of the generated BRD`;
+- Be specific to the requirement, not generic
+- Use real names if given (e.g. Harry CDO, Harbour Platform)
+- Every FR must have full Trigger/Behavior/Output/AC`;
 
-  if (progSec) progSec.textContent = 'Generating 16 sections...';
-  if (progBar) progBar.style.width = '10%';
+  const PASS2_PROMPT = `You are a Principal BA/PO. Based on this requirement, write BRD sections 9-16 in PLAIN TEXT format.
 
-  try {
+${ctx}
+
+Write each section clearly separated. Use this EXACT format:
+
+===NFR===
+NFR-01 Performance: [specific metric e.g. page loads in <2s for 500 concurrent users]
+NFR-02 Security: [specific requirement e.g. Azure AD SSO, MFA enforced]
+NFR-03 Data Residency: [e.g. all data within UAE Azure region]
+NFR-04 Compliance: [e.g. audit trail 7 years per regulation]
+NFR-05 Availability: [e.g. 99.5% uptime 8am-8pm GST]
+NFR-06 Accessibility: [e.g. WCAG 2.1 AA]
+
+===ERRORS===
+ERR-01: [Failure scenario]
+System response: [what happens]
+User experience: [what user sees, with exact message]
+
+ERR-02: [...]
+[repeat for 4-5 key error scenarios]
+
+===SYSTEMS===
+UI CHANGES:
+• [specific screen change]
+• [specific field change]
+
+BACKEND CHANGES:
+• [specific service/model change]
+
+INTEGRATIONS:
+• [system]: [what changes]
+
+===ASSUMPTIONS===
+A-01: [Assumption]. Impact if wrong: [consequence]
+A-02: [...]
+[Write 5-7 assumptions]
+
+===RISKS===
+RISK-01: [Risk description]
+Likelihood: H/M/L | Impact: H/M/L
+Mitigation: [specific action]
+
+RISK-02: [...]
+[Write 5-6 risks]
+
+===METRICS===
+SM-01: [metric] — Target: [number] — Measured: [when and how]
+SM-02: [...]
+[Write 5-6 success metrics]
+
+===SIGNOFF===
+APPROVERS: [Named people and their roles]
+DEADLINE: [Specific date]
+FORM OF APPROVAL: [Written email / JIRA status / signature]
+OPEN BLOCKERS:
+1. [item] — Owner: [name] — Due: [date]
+2. [...]
+
+===SCORE===
+VALUE: [75-95]
+LABEL: [High Quality / Good / Needs Work]
+REASON: [Why this score — what's strong and what needs refinement]
+
+Rules:
+- Specific to the requirement
+- NFRs must have numbers, not adjectives
+- Risks must have likelihood/impact/mitigation`;
+
+  async function streamBrdSection(prompt, passNum) {
+    if (progSec) progSec.textContent = `Pass ${passNum}/2 — generating sections...`;
+    if (progBar) progBar.style.width = (passNum === 1 ? '15%' : '55%');
+
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -24445,57 +24535,211 @@ Rules:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 4096,
-        system: 'You are a Principal BA. Return ONLY valid JSON. No markdown. No explanation. No code fences.',
+        max_tokens: 8192,
+        stream: true,
+        system: 'You are a Principal BA. Write detailed, specific BRD sections. No generic filler. Use exact format specified.',
         messages: [{ role: 'user', content: prompt }]
       })
     });
 
-    if (progBar) progBar.style.width = '80%';
-    const data = await res.json();
-    const text = data.content?.map(b => b.text || '').join('') || '';
+    if (!res.ok) throw new Error(`API error ${res.status}`);
 
-    // Parse JSON
-    let parsed;
-    try {
-      parsed = JSON.parse(text.trim());
-    } catch(e) {
-      // Try extracting JSON from text
-      const m = text.match(/\{[\s\S]+\}/);
-      if (m) parsed = JSON.parse(m[0]);
-      else throw new Error('Could not parse BRD response');
-    }
+    let fullText = '';
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
 
-    _brdResult = parsed;
-    if (progBar) progBar.style.width = '100%';
-    if (progSec) progSec.textContent = '✅ Complete';
-
-    // Mark steps done
-    BRD_SECTIONS_META.forEach(([id,num,icon,title]) => {
-      if (progSteps) {
-        const chip = document.createElement('span');
-        chip.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(0,212,170,.12);color:#00D4AA;border:0.5px solid rgba(0,212,170,.25)';
-        chip.textContent = `${icon} ${title}`;
-        progSteps.appendChild(chip);
+    while (true) {
+      const { done, value } = await reader.read();
+      const chunk = done ? decoder.decode() : decoder.decode(value, { stream: true });
+      if (chunk) {
+        buffer += chunk;
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (data === '[DONE]') continue;
+          try {
+            const ev = JSON.parse(data);
+            if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') {
+              fullText += ev.delta.text;
+            }
+          } catch(_) {}
+        }
       }
-    });
-
-    setTimeout(() => {
-      if (progress) progress.style.display = 'none';
-      _renderBrdOutput();
-      // Save result
-      try { localStorage.setItem('prodmind_brd_v2', JSON.stringify({
-        input:raw, product, stakeholder, tech, result:parsed
-      })); } catch(_) {}
-    }, 600);
-
-  } catch(e) {
-    if (status) status.textContent = '❌ Error: ' + e.message;
-    if (progress) progress.style.display = 'none';
+      if (done) break;
+    }
+    if (buffer.trim()) {
+      for (const line of buffer.split('\n')) {
+        if (!line.startsWith('data: ')) continue;
+        try {
+          const ev = JSON.parse(line.slice(6).trim());
+          if (ev.type === 'content_block_delta') fullText += ev.delta?.text || '';
+        } catch(_) {}
+      }
+    }
+    return fullText;
   }
 
-  if (genBtn) { genBtn.disabled = false; genBtn.textContent = '🤖 Generate Full BRD'; }
+  try {
+    // Pass 1
+    const text1 = await streamBrdSection(PASS1_PROMPT, 1);
+    if (progBar) progBar.style.width = '50%';
+    _parseBrdText(text1);
+    _renderBrdOutput(); // show partial results immediately
+
+    // Pass 2
+    const text2 = await streamBrdSection(PASS2_PROMPT, 2);
+    if (progBar) progBar.style.width = '95%';
+    _parseBrdText(text2);
+    _renderBrdOutput(); // re-render with complete data
+
+    if (progBar) progBar.style.width = '100%';
+    if (progSec) progSec.textContent = '✅ BRD complete — 16 sections generated';
+    if (progress) setTimeout(() => { progress.style.display = 'none'; }, 1500);
+
+    // Save
+    try {
+      localStorage.setItem('prodmind_brd_v2', JSON.stringify({
+        input: raw, product, stakeholder, tech, result: _brdResult
+      }));
+    } catch(_) {}
+
+  } catch(e) {
+    if (progSec) progSec.textContent = '❌ ' + e.message;
+    if (Object.keys(_brdResult).length > 0) {
+      _renderBrdOutput(); // show whatever we have
+    }
+    console.error('BRD generation error:', e);
+  }
+
+  if (genBtn) { genBtn.disabled=false; genBtn.textContent='🤖 Generate Full BRD'; }
 }
+
+// Parse plain text BRD response into _brdResult sections
+function _parseBrdText(text) {
+  const SECTION_MAP = {
+    'EXEC':         ['exec',         ['problem','background','outcome']],
+    'OBJECTIVES':   ['objectives',   ['objectives','kpis']],
+    'STAKEHOLDERS': ['stakeholders', ['register']],
+    'SCOPE':        ['scope',        ['in_scope','out_scope']],
+    'PERSONAS':     ['personas',     ['personas']],
+    'ASIS':         ['asis',         ['flow','issues']],
+    'TOBE':         ['tobe',         ['flow','improvements']],
+    'DEPENDENCIES': ['dependencies', ['list']],
+    'FR':           ['fr',           ['requirements']],
+    'NFR':          ['nfr',          ['requirements']],
+    'ERRORS':       ['errors',       ['handling']],
+    'SYSTEMS':      ['systems',      ['ui','backend','integrations']],
+    'ASSUMPTIONS':  ['assumptions',  ['list']],
+    'RISKS':        ['risks',        ['register']],
+    'METRICS':      ['metrics',      ['success']],
+    'SIGNOFF':      ['signoff',      ['details']],
+    'SCORE':        ['score',        ['raw']],
+  };
+
+  // Split by ===SECTION=== markers
+  const sections = text.split(/===([A-Z0-9_]+)===/);
+  
+  for (let i = 1; i < sections.length; i += 2) {
+    const key = sections[i].trim();
+    const content = (sections[i+1] || '').trim();
+    if (!key || !content) continue;
+
+    const mapping = SECTION_MAP[key];
+    if (!mapping) continue;
+
+    const [sectionId] = mapping;
+
+    if (key === 'SCORE') {
+      // Parse score
+      const valMatch = content.match(/VALUE:\s*(\d+)/i);
+      const labelMatch = content.match(/LABEL:\s*(.+)/i);
+      const reasonMatch = content.match(/REASON:\s*([\s\S]+)/i);
+      _brdResult['score'] = {
+        value: valMatch ? parseInt(valMatch[1]) : 80,
+        label: labelMatch ? labelMatch[1].trim() : 'Good',
+        reason: reasonMatch ? reasonMatch[1].trim() : ''
+      };
+      continue;
+    }
+
+    if (key === 'FR' || key === 'NFR' || key === 'ERRORS' || key === 'RISKS' || key === 'ASSUMPTIONS' || key === 'DEPENDENCIES' || key === 'METRICS') {
+      // These sections store full content as one block
+      if (!_brdResult[sectionId]) _brdResult[sectionId] = {};
+      const fieldKey = mapping[1][0];
+      _brdResult[sectionId][fieldKey] = (_brdResult[sectionId][fieldKey] || '') + content;
+      continue;
+    }
+
+    if (key === 'SIGNOFF') {
+      if (!_brdResult['signoff']) _brdResult['signoff'] = {};
+      _brdResult['signoff']['details'] = content;
+      continue;
+    }
+
+    if (key === 'SYSTEMS') {
+      if (!_brdResult['systems']) _brdResult['systems'] = {};
+      // Try to split by UI/BACKEND/INTEGRATIONS sub-headers
+      const uiM = content.match(/UI CHANGES?:?([\s\S]*?)(?=BACKEND|INTEGRATION|$)/i);
+      const beM = content.match(/BACKEND CHANGES?:?([\s\S]*?)(?=UI|INTEGRATION|$)/i);
+      const intM = content.match(/INTEGRATIONS?:?([\s\S]*?)(?=UI|BACKEND|$)/i);
+      if (uiM) _brdResult['systems']['ui'] = uiM[1].trim();
+      if (beM) _brdResult['systems']['backend'] = beM[1].trim();
+      if (intM) _brdResult['systems']['integrations'] = intM[1].trim();
+      if (!uiM && !beM && !intM) _brdResult['systems']['details'] = content;
+      continue;
+    }
+
+    if (key === 'ASIS' || key === 'TOBE') {
+      if (!_brdResult[sectionId]) _brdResult[sectionId] = {};
+      const flowM = content.match(/(?:CURRENT|PROPOSED) FLOW:?([\s\S]*?)(?=KEY|$)/i);
+      const issueM = content.match(/KEY (?:ISSUES|IMPROVEMENTS):?([\s\S]*?)$/i);
+      if (flowM) _brdResult[sectionId]['flow'] = flowM[1].trim();
+      if (issueM) _brdResult[sectionId][key==='ASIS'?'issues':'improvements'] = issueM[1].trim();
+      if (!flowM && !issueM) _brdResult[sectionId]['flow'] = content;
+      continue;
+    }
+
+    if (key === 'EXEC') {
+      if (!_brdResult['exec']) _brdResult['exec'] = {};
+      const probM = content.match(/BUSINESS PROBLEM:?([\s\S]*?)(?=BACKGROUND|EXPECTED|$)/i);
+      const bgM   = content.match(/BACKGROUND:?([\s\S]*?)(?=BUSINESS PROBLEM|EXPECTED|$)/i);
+      const outM  = content.match(/EXPECTED OUTCOME:?([\s\S]*?)$/i);
+      if (probM) _brdResult['exec']['problem'] = probM[1].trim();
+      if (bgM)   _brdResult['exec']['background'] = bgM[1].trim();
+      if (outM)  _brdResult['exec']['outcome'] = outM[1].trim();
+      if (!probM && !bgM && !outM) _brdResult['exec']['content'] = content;
+      continue;
+    }
+
+    if (key === 'OBJECTIVES') {
+      if (!_brdResult['objectives']) _brdResult['objectives'] = {};
+      const objM = content.match(/BUSINESS OBJECTIVES:?([\s\S]*?)(?=KPIs?:|$)/i);
+      const kpiM = content.match(/KPIs?:?([\s\S]*?)$/i);
+      if (objM) _brdResult['objectives']['objectives'] = objM[1].trim();
+      if (kpiM) _brdResult['objectives']['kpis'] = kpiM[1].trim();
+      if (!objM && !kpiM) _brdResult['objectives']['objectives'] = content;
+      continue;
+    }
+
+    if (key === 'SCOPE') {
+      if (!_brdResult['scope']) _brdResult['scope'] = {};
+      const inM  = content.match(/IN SCOPE:?([\s\S]*?)(?=OUT OF SCOPE|$)/i);
+      const outM = content.match(/OUT OF SCOPE[^:]*:?([\s\S]*?)$/i);
+      if (inM)  _brdResult['scope']['in_scope'] = inM[1].trim();
+      if (outM) _brdResult['scope']['out_scope'] = outM[1].trim();
+      if (!inM && !outM) _brdResult['scope']['in_scope'] = content;
+      continue;
+    }
+
+    // Default: store full content
+    if (!_brdResult[sectionId]) _brdResult[sectionId] = {};
+    _brdResult[sectionId][mapping[1][0]] = content;
+  }
+}
+
 
 function _renderBrdOutput() {
   const output = document.getElementById('brd-output-card');
@@ -24560,17 +24804,40 @@ function _renderBrdOutput() {
 
 function _formatBrdSection(id, data) {
   let html = '';
+  const FIELD_LABELS = {
+    problem:'Business Problem', background:'Background / Context', outcome:'Expected Outcome',
+    objectives:'Business Objectives', kpis:'KPIs', register:'Stakeholder Register',
+    in_scope:'In Scope', out_scope:'Out of Scope', personas:'Personas',
+    flow:'Flow', issues:'Key Issues', improvements:'Key Improvements',
+    list:'Details', requirements:'Requirements', handling:'Error Handling',
+    ui:'UI Changes', backend:'Backend Changes', integrations:'Integrations',
+    details:'Details', register:'Register', success:'Success Metrics', raw:'Details'
+  };
   const entries = Object.entries(data);
   entries.forEach(([key, val]) => {
-    if (!val) return;
-    const label = key.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
-    html += `<div style="margin-bottom:12px">
-      <div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px">${label}</div>
-      <div style="font-size:12.5px;color:var(--text);line-height:1.7;white-space:pre-wrap;background:var(--bg3);border-radius:8px;padding:10px 12px;border:0.5px solid var(--border2)">${escapeHtml(String(val))}</div>
+    if (!val || String(val).trim().length < 3) return;
+    const label = FIELD_LABELS[key] || key.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
+    const text = String(val).trim();
+    // Format with syntax highlighting for FR/risk patterns
+    const formatted = text
+      .replace(/^(FR-\d+[^\n]*)/gm, '<strong style="color:var(--accent)">$1</strong>')
+      .replace(/^(RISK-\d+[^\n]*)/gm, '<strong style="color:#EF5350">$1</strong>')
+      .replace(/^(NFR-\d+[^\n]*)/gm, '<strong style="color:#F5A623">$1</strong>')
+      .replace(/^(A-\d+[^\n]*)/gm, '<strong style="color:#00D4AA">$1</strong>')
+      .replace(/^(SM-\d+[^\n]*)/gm, '<strong style="color:#9C7BFF">$1</strong>')
+      .replace(/^(DEP-\d+[^\n]*)/gm, '<strong style="color:#29B6F6">$1</strong>')
+      .replace(/^(AC:|Given|When|Then)/gm, '<em style="color:#00D4AA">$1</em>')
+      .replace(/\n/g, '<br>');
+    html += `<div style="margin-bottom:14px">
+      <div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
+        <span style="width:3px;height:12px;background:var(--accent);border-radius:2px;display:inline-block"></span>${label}
+      </div>
+      <div style="font-size:12.5px;color:var(--text);line-height:1.75;background:var(--bg3);border-radius:8px;padding:12px 14px;border:0.5px solid var(--border2)">${formatted}</div>
     </div>`;
   });
-  return html;
+  return html || '<div style="font-size:12px;color:var(--muted2);padding:8px">Generating...</div>';
 }
+
 
 function brdCopySection(id) {
   const data = _brdResult[id] || {};
