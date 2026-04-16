@@ -3953,95 +3953,6 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 #lock-submit-btn.ready { opacity: 1 !important; pointer-events: auto !important; }
 #lock-submit-btn:hover.ready { filter: brightness(1.1); }
 
-
-/* ══ BRD BUILDER ══════════════════════════════════════════════ */
-.brd-section-card {
-  background: var(--bg2);
-  border: 0.5px solid var(--border2);
-  border-radius: 12px;
-  overflow: hidden;
-  transition: border-color .2s;
-}
-.brd-section-card.complete { border-color: rgba(0,212,170,.4); }
-.brd-section-card.active   { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(108,71,255,.1); }
-
-.brd-section-hdr {
-  display: flex; align-items: center; gap: 10px;
-  padding: 12px 16px; cursor: pointer;
-  background: var(--bg3);
-  border-bottom: 0.5px solid var(--border2);
-  user-select: none;
-}
-.brd-section-hdr:hover { background: var(--bg4,var(--bg3)); }
-.brd-sec-num {
-  width: 26px; height: 26px; border-radius: 7px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 700; font-family: 'JetBrains Mono', monospace;
-  background: var(--bg2); border: 0.5px solid var(--border2); color: var(--muted2);
-}
-.brd-sec-num.done { background: rgba(0,212,170,.15); color: #00D4AA; border-color: rgba(0,212,170,.3); }
-.brd-sec-title { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
-.brd-sec-tag   { font-size: 9px; font-weight: 600; padding: 2px 8px; border-radius: 10px; flex-shrink: 0; }
-.brd-sec-arrow { font-size: 10px; color: var(--muted); transition: transform .2s; flex-shrink: 0; }
-.brd-section-card.open .brd-sec-arrow { transform: rotate(180deg); }
-
-.brd-section-body { display: none; padding: 16px; flex-direction: column; gap: 10px; }
-.brd-section-card.open .brd-section-body { display: flex; }
-
-.brd-field { display: flex; flex-direction: column; gap: 5px; }
-.brd-field label { font-size: 10.5px; font-weight: 600; color: var(--muted2); text-transform: uppercase; letter-spacing: .05em; }
-.brd-field input, .brd-field textarea, .brd-field select {
-  background: var(--bg3); border: 0.5px solid var(--border2);
-  border-radius: 8px; padding: 9px 12px;
-  font-size: 12.5px; color: var(--text); font-family: inherit;
-  outline: none; resize: vertical; transition: border .15s;
-}
-.brd-field input:focus, .brd-field textarea:focus { border-color: var(--accent); }
-.brd-field textarea { min-height: 80px; line-height: 1.6; }
-
-.brd-ai-btn {
-  background: var(--accent-l,rgba(108,71,255,.1));
-  border: 0.5px solid var(--accent-m,rgba(108,71,255,.3));
-  border-radius: 8px; padding: 7px 14px;
-  font-size: 11px; font-weight: 600; color: var(--accent);
-  cursor: pointer; font-family: inherit; transition: all .15s;
-  display: flex; align-items: center; gap: 6px; align-self: flex-start;
-}
-.brd-ai-btn:hover { background: var(--accent); color: #fff; }
-
-.brd-output {
-  background: var(--bg3); border: 0.5px solid var(--border2);
-  border-radius: 8px; padding: 12px; font-size: 12px;
-  color: var(--text); line-height: 1.7; display: none;
-  white-space: pre-wrap; word-break: break-word;
-}
-.brd-output.show { display: block; }
-.brd-output-hdr {
-  display: flex; align-items: center; gap: 6px;
-  margin-bottom: 8px; padding-bottom: 8px;
-  border-bottom: 0.5px solid var(--border2);
-}
-
-.brd-fr-row {
-  background: var(--bg3); border: 0.5px solid var(--border2);
-  border-radius: 8px; padding: 12px; display: grid;
-  grid-template-columns: 80px 1fr 1fr; gap: 8px;
-}
-.brd-fr-row .brd-field { margin: 0; }
-
-.brd-nav-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 8px; border-radius: 7px; cursor: pointer;
-  font-size: 11.5px; color: var(--muted2); transition: all .15s;
-}
-.brd-nav-item:hover { background: var(--bg3); color: var(--text); }
-.brd-nav-item.active { background: var(--bg3); color: var(--accent); font-weight: 600; }
-.brd-nav-item .brd-nav-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--border2); flex-shrink: 0; transition: background .2s;
-}
-.brd-nav-item.done .brd-nav-dot { background: #00D4AA; }
-
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -4396,7 +4307,6 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   <div class="nav-tab" onclick="switchTab('week-planner',this)">📅 My Week</div>
   <div class="nav-tab" onclick="switchTab('north-star',this)">⭐ North Star</div>
   <div class="nav-tab" onclick="switchTab('monte-carlo',this)">🎲 Forecast</div>
-  <div class="nav-tab" onclick="switchTab('brd',this)">📋 BRD Builder</div>
   <div class="nav-tab" style="color:var(--accent);opacity:.6;cursor:default;font-style:italic" title="Coming soon">🔗 Jira <span style="font-size:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:4px;padding:1px 5px;margin-left:3px">Soon</span></div>
   <div class="nav-tab" style="color:var(--accent);opacity:.6;cursor:default;font-style:italic" title="Coming soon">📓 Notion <span style="font-size:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:4px;padding:1px 5px;margin-left:3px">Soon</span></div>
 </div>
@@ -6582,6 +6492,8 @@ const ALL_BRAINS=[
   {id:'developer',icon:'💻',label:'Developer Brain',role:'Senior Software Developer',color:'#AB47BC'},
   {id:'pm',icon:'📌',label:'PM Brain',role:'Project Manager',color:'#EF5350'},
   {id:'qa',icon:'🧪',label:'QA Brain',role:'QA Engineer / Test Lead',color:'#29B6F6'},
+  {id:'rm',icon:'🚀',label:'Release Manager',role:'Principal Release Manager',color:'#FF7043'},
+  {id:'dm',icon:'📦',label:'Delivery Manager',role:'Principal Delivery Manager',color:'#26A69A'},
 ];
 
 const BRAIN_SYSTEM_PROMPTS={
@@ -7316,6 +7228,81 @@ RULES:
 - Call out when a quality problem is a requirements, design, or deployment practice problem.
 - Make a quality recommendation with a clear rationale for what is being deprioritised.
 - Never open with pleasantries. Start with the quality diagnosis immediately.`,
+
+  rm:`You are a Principal Release Manager — 18+ years owning high-stakes software releases across enterprise SaaS, proptech, fintech, and regulated B2B platforms. You have personally managed hundreds of production deployments including zero-downtime migrations, emergency hotfixes during live property transactions, and coordinated releases across 12-timezone engineering teams. You have never had an unplanned outage that lasted more than 30 minutes because you planned for every failure mode before the first line was deployed.
+
+DOMAIN CONTEXT: In a real estate platform, a failed release is not a UX inconvenience — it is a financial and legal event. A deployment that corrupts a unit mix calculation, breaks a gate approval flow, or drops a document signing integration can freeze millions in transactions. Every release decision is calibrated to this risk profile. You do not ship on Fridays. You do not skip rollback testing. You do not approve a go/no-go without defined success metrics and a named incident commander.
+
+PERSONA: You are the person who has been on the 3am incident call that could have been prevented. You ask the questions nobody wants to answer before a release. You make the call to delay when the risk is not worth it. You document everything.
+
+RESPONSE FORMAT:
+## Release risk summary
+The actual blast radius if this fails. Not the optimistic version.
+## Go/No-Go assessment
+Explicit criteria: 🟢 met / 🔴 not met / 🟡 partial. One line per criterion.
+## Release plan
+Specific steps, owners, timing windows, communication checkpoints.
+## Rollback playbook
+Exact trigger signal. Who calls it. Specific steps. Data integrity check after rollback.
+## Copy-ready output
+The runbook, go/no-go checklist, release comms, incident template, or release notes — ready to use.
+
+CHALLENGE BEHAVIOUR — challenge directly when:
+- Release has no tested rollback procedure
+- "We can hotfix it" used to justify skipping testing
+- Deploy window overlaps peak user activity
+- No named incident commander for P1-risk release
+- DB migrations without a staging dry-run
+- Multiple high-risk changes in a single release
+Start: "Before I sign off — I need to flag [specific risk]. It is a blocker as currently planned unless we [specific mitigation]."
+
+RULES: Always name rollback trigger before approving. Always define user-visible success metrics at T+1h/T+24h/T+7d. Never approve a release touching payments, contracts, or document signing without explicit UAT sign-off. Never open with pleasantries.`,
+
+  dm:`You are a Principal Delivery Manager — 20+ years embedding delivery discipline into high-velocity software teams across enterprise SaaS, proptech, fintech, and large-scale B2B platforms. You have led delivery for programmes worth hundreds of millions, coordinated 12+ cross-functional teams simultaneously, and turned chaotic feature factories into predictable, outcome-driven delivery organisations. You have navigated every flavour of dysfunction: scope creep disguised as requirements, velocity theatre, dependency gridlock, and the gap between roadmap promises and engineering reality.
+
+DOMAIN CONTEXT: You understand delivery in complex enterprise real estate platforms. A gate approval process that slips one sprint cascades into a delayed property launch worth tens of millions. An unresolved cross-team dependency that blocks the GFA calculation feature holds up every downstream gate. In this environment, "we are working on it" is not a status — a date, an owner, and a definition of done are a status. You know the difference between a team that is busy and a team that is delivering.
+
+PERSONA: You are the person who makes the invisible visible. You surface blockers before they become escalations. You do not accept "sprint board is green" when velocity is falling. You do not accept "dependency agreed in principle" when there is no date. You translate between engineering reality and stakeholder expectations without lying to either side. You are not the most comfortable person to work with on a project — you are the most valuable.
+
+RESPONSE FORMAT:
+## Delivery diagnosis
+What is actually happening in this delivery — the real picture, including what the team is not saying.
+## Blockers and risks
+Ranked by delivery impact. Each with: root cause, owner, unblock action, escalation if unblocked by [date].
+## Delivery recommendation
+The one action that will have the most impact on delivery confidence this week.
+## Stakeholder communication
+What to tell which stakeholder, in what format, with what level of honesty.
+## Copy-ready output
+The status report, RAID log entry, dependency map, delivery brief, escalation email, sprint review narrative, or programme update — ready to send.
+
+CALIBRATION: Sprint-level question = sprint-specific answer with velocity data, blocker list, and this-week action. Programme-level question = cross-team dependencies, milestone risk, and executive narrative. Never give a generic "agile best practice" answer when the question is about a specific delivery problem.
+
+CHALLENGE BEHAVIOUR — challenge directly when you detect:
+- Velocity being used as a health metric (it measures output, not outcomes)
+- Dependencies being described as "aligned" without a committed date and owner
+- A milestone being called "on track" when there are open blockers with no resolution date
+- Sprint goals that are task lists, not outcome statements
+- A team being asked to commit to scope without a capacity conversation first
+- Estimates given as single numbers with no range or confidence level
+- A programme update that describes activity but not progress against outcome
+Start: "Before I give you a status — I need to name what I actually see here: [specific observation]. That is different from what the board says."
+
+ANTI-PATTERNS TO CALL OUT:
+- Treating story points as a unit of business value
+- Velocity trending up while defect backlog also grows (shipping faster and breaking more)
+- Dependency resolution meetings with no decisions or owners
+- Status updates that describe what teams are doing instead of what has been delivered
+- Roadmap commitments made without engineering input
+- A "committed" date that nobody on the delivery team believes
+- Scope changes accepted mid-sprint without removing equivalent scope
+
+RULES:
+- Every blocker must have an owner and a resolution date — or it is not a blocker entry, it is a complaint.
+- Every status must reference what was planned vs what was delivered — not just what the team worked on.
+- Every dependency must have: what, who owns it, when it is needed, what happens if it slips.
+- When asked for a programme update, always give the honest delivery confidence level (High / Medium / Low / Red) before the narrative.
+- Never open with pleasantries. Start with the delivery picture immediately.`,
 };
 
 // BRAIN_PROMPTS mirrors BRAIN_SYSTEM_PROMPTS for multi-brain collab
@@ -7334,6 +7321,8 @@ const BRAIN_PROMPTS={
   ceo: BRAIN_SYSTEM_PROMPTS.ceo,
   marketing: BRAIN_SYSTEM_PROMPTS.marketing,
   sales: BRAIN_SYSTEM_PROMPTS.sales,
+  rm: BRAIN_SYSTEM_PROMPTS.rm,
+  dm: BRAIN_SYSTEM_PROMPTS.dm,
 };
 
 function buildBrainBar(){
@@ -9306,10 +9295,9 @@ function switchTab(tab,el){
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   const page = document.getElementById('page-'+tab);
   if(page) page.classList.add('active');
-  if(tab === 'brd') setTimeout(initBrdPageOnce, 50);
   if(el) el.classList.add('active');
   else {
-    const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7,commands:8,'decision-log':9,stakeholders:10,'sprint-health':11,strategy:12,experiments:13,mom:14,persona:15,'week-planner':16,'north-star':17,'monte-carlo':18,brd:19};
+    const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7,commands:8,'decision-log':9,stakeholders:10,'sprint-health':11,strategy:12,experiments:13,mom:14,persona:15,'week-planner':16,'north-star':17,'monte-carlo':18};
     const idx=tabs[tab];
     const navTabs = document.querySelectorAll('.nav-tab');
     if(idx!==undefined && navTabs[idx]) navTabs[idx].classList.add('active');
@@ -9967,6 +9955,8 @@ const BRAIN_WELCOME_CHIPS = {
   developer: [['Code review','Review this code: [PASTE CODE] — correctness, errors, security, performance, SOLID, tests'],['Debug root cause','I have a bug: [DESCRIBE]. Language: [LANG]. Find the root cause and the fix with a test'],['Refactoring plan','Refactor this code: [PASTE]. Problems: [ISSUES]. Show before/after with explanation']],
   pm:        [['Project initiation brief','Write a project initiation brief for [PROJECT] ready for sponsor sign-off'],['RAID log','Set up a RAID log for [PROJECT] with 6 risks, 5 assumptions, 3 issues, 4 dependencies'],['Stakeholder comms plan','Build a stakeholder comms plan with power/interest matrix, communication matrix, and escalation path']],
   qa:        [['Test strategy','Write a test strategy for [FEATURE] — scope, testing types, entry/exit criteria, automation plan'],['OWASP review','Run an OWASP Top 10 security review on [ENDPOINT] — risk, test, mitigation per category'],['Bug report','Write a complete bug report for: [DESCRIBE BUG] — steps, severity, impact, root cause hypothesis']],
+  rm:        [['Go/No-Go decision','/gonogo\n\nRelease: [FEATURE NAME]\nDeploy date: [DATE TIME]\nEnvironment: Production\nChange type: [Feature / Hotfix / Migration]\nRisk level: [High / Medium / Low]\nRollback tested: [Yes / No]\nSuccess metric at T+1h: [MEASURABLE OUTCOME]'],['Release runbook','/runbook\n\nRelease: [FEATURE NAME]\nDeploy window: [DATE TIME TIMEZONE]\nServices affected: [LIST]\nTeam on-call: [NAMES]\nDependencies: [UPSTREAM/DOWNSTREAM]'],['Rollback playbook','/rollback\n\nRelease: [FEATURE NAME]\nRollback trigger: [WHAT SIGNAL]\nData migration involved: [Yes / No]\nIncident commander: [NAME]'],['Release comms','/releasecomms\n\nRelease: [WHAT WE ARE RELEASING]\nAudience: [INTERNAL / CUSTOMERS / BOTH]\nDeploy window: [DATE TIME]\nUser impact: [NONE / BRIEF MAINTENANCE / NEW FEATURE]'],['Hotfix protocol','/hotfix\n\nIncident: [DESCRIBE PRODUCTION ISSUE]\nSeverity: [P1 / P2]\nUsers affected: [HOW MANY / WHO]\nProposed fix: [DESCRIBE CHANGE]']],
+  dm:        [['Sprint delivery review','Review my sprint delivery.\n\nSprint: [NUMBER]\nCommitted scope (SP): [NUMBER]\nDelivered scope (SP): [NUMBER]\nItems not delivered: [LIST WITH REASON]\nOpen blockers: [LIST]\nVelocity last 3 sprints: [NUMBERS]\n\nGive me: delivery diagnosis, root cause of slippage, blocker owners, and what I tell stakeholders.'],['Programme status update','Write my programme status update.\n\nProgramme: [NAME]\nReporting period: [DATES]\nOverall RAG: [RED/AMBER/GREEN — your honest view]\nMilestones this period: [PLANNED vs ACTUAL]\nOpen risks: [LIST]\nDependencies at risk: [LIST]\nNext milestone: [DATE AND WHAT IT REQUIRES]\n\nAudience: [CDO / Steering Committee / Team]'],['Dependency resolution','/dependency\n\nDependency: [WHAT IS NEEDED]\nBlocked team: [TEAM NAME]\nProviding team: [TEAM NAME]\nDate needed by: [DATE]\nImpact if late: [BUSINESS CONSEQUENCE]\nCurrent status: [DESCRIBE]'],['Escalation email','/escalate\n\nIssue: [DESCRIBE THE BLOCKER]\nImpact on delivery: [WHAT SLIPS AND WHEN]\nWhat I have tried: [ACTIONS TAKEN]\nDecision needed from: [ROLE/NAME]\nDeadline for decision: [DATE]'],['RAID log update','/raid\n\nProject: [NAME]\nNew risks: [LIST]\nNew assumptions to validate: [LIST]\nNew issues: [LIST]\nNew dependencies: [LIST]']],
 };
 
 function getWelcomeChips(){
@@ -10190,6 +10180,8 @@ async function multiAsk(){
     techlead: {icon:'🧑‍🔧',name:'Tech Lead'},
     developer:{icon:'💻', name:'Developer'},
     qa:       {icon:'🧪', name:'QA Brain'},
+    rm:       {icon:'🚀', name:'Release Manager'},
+    dm:       {icon:'📦', name:'Delivery Manager'},
     scrum:    {icon:'🏃', name:'Scrum Master'},
     pm:       {icon:'📌', name:'PM Brain'},
     marketing:{icon:'📣', name:'Marketing'},
@@ -17300,8 +17292,7 @@ function copyDocRich(){
 // ── Doc generator: export ───────────────────────────
 function _exportDocFromPanel(){
   var el = document.getElementById('doc-output-content');
-  var text = el ? (el.innerText||el.textContent||'').trim() : '';
-  if(!text){ toast('Generate a document first'); return; }
+  if(!el||!docOutput){ toast('Generate a document first'); return; }
   var cfg = DOC_CONFIGS[activeDocType]||{title:'Document'};
   var title = cfg.title.replace(/[^a-zA-Z0-9 \-]/g,'').trim();
   _buildAndOpenDoc(el.innerHTML, title);
@@ -17317,8 +17308,7 @@ function copyMomRich(){
 // ── MOM: export ─────────────────────────────────────
 function _exportMomFromPanel(){
   var el = document.getElementById('mom-output-content');
-  var text = el ? (el.innerText||el.textContent||'').trim() : '';
-  if(!text){ toast('Generate a MOM first'); return; }
+  if(!el||!momOutput){ toast('Generate a MOM first'); return; }
   _buildAndOpenDoc(el.innerHTML, 'Minutes of Meeting');
 }
 
@@ -17741,6 +17731,62 @@ const SLASH_COMMANDS = [
   {cmd:'/uatplan',    brain:'qa',  icon:'🧪', label:'UAT Plan',                   desc:'UAT plan giving business genuine confidence before go-live',
    prompt:'Write a User Acceptance Test plan.\n\nFeature: [WHAT USERS WILL TEST]\nUAT participants: [WHO — internal users / beta customers / stakeholders]\nUAT environment: [URL / ACCESS]\nDuration: [X days]\nAcceptance criteria: [LIST]\n\nProduce:\n## UAT objectives — business confidence this provides\n## Participant guide — what they will do, what to focus on, how to report issues\n## UAT scenarios (business language, not technical):\n  Scenario: [TITLE]\n  Business context: [THE REAL-WORLD SITUATION]\n  Steps: [Numbered, non-technical]\n  What success looks like: [Observable outcome]\n## Defect reporting — how to capture issues so developers can reproduce\n## UAT schedule — by participant by day\n## Pass/Fail criteria — what level of issues blocks go-live\n## Sign-off form — what participants sign and what it commits to\n## Known limitations — what UAT will not test and why'},
 
+
+  // ══ RELEASE MANAGER ══════════════════════════════════════════
+  {cmd:'/gonogo',       brain:'rm', icon:'🚀', label:'Go/No-Go Decision',         desc:'Structured Go/No-Go with explicit criteria, owners, and a clear call',
+   prompt:'Run a Go/No-Go release decision.\n\nRelease: [FEATURE / VERSION NAME]\nDeploy date: [DATE TIME TIMEZONE]\nChange type: [Feature / Hotfix / DB Migration / Config change]\nServices affected: [LIST]\nRisk level: [High / Medium / Low — and why]\nRollback tested: [Yes / No]\nSuccess metric at T+1h: [MEASURABLE OUTCOME]\nSuccess metric at T+24h: [MEASURABLE OUTCOME]\nIncident commander named: [NAME]\n\nProduce:\n## Release risk summary — blast radius if this fails, user and business impact\n## Go/No-Go criteria table — criterion | status (🟢/🔴/🟡) | owner | notes\n(Cover: code freeze, UAT sign-off, rollback tested, monitoring configured, comms sent, on-call confirmed, success metrics defined)\n## Decision — GO / NO-GO / CONDITIONAL GO with explicit conditions\n## If NO-GO — the specific action required to flip each red criterion\n## Deploy sequence — steps, owner, timing, checkpoint after each step\n## First 60 minutes monitoring — what to watch, alert thresholds, who is watching'},
+
+  {cmd:'/runbook',      brain:'rm', icon:'🚀', label:'Release Runbook',            desc:'Step-by-step runbook any engineer can execute — built for 2am',
+   prompt:'Write a release runbook.\n\nRelease: [FEATURE / VERSION NAME]\nDeploy window: [DATE TIME TIMEZONE]\nServices affected: [LIST — include dependencies]\nDeploy method: [CI/CD PIPELINE / MANUAL / BLUE-GREEN / CANARY]\nDB migration: [YES — describe / NO]\nTeam on-call: [NAMES AND ROLES]\n\nProduce:\n## Pre-deploy checklist — each item with owner and verification method\n## Deploy sequence — numbered steps, specific commands, expected output, time estimate per step\n## Health checks — exact URLs, expected responses, pass/fail criteria\n## Rollback trigger — the specific signal that initiates rollback\n## Rollback steps — numbered, specific commands, time to complete, verification\n## Post-deploy verification — user-visible checks at T+5min, T+30min, T+1h\n## Escalation path — condition → who to call → method → expected response time'},
+
+  {cmd:'/rollback',     brain:'rm', icon:'🚀', label:'Rollback Playbook',          desc:'Complete rollback plan: trigger, steps, data integrity, comms',
+   prompt:'Write a rollback playbook.\n\nRelease: [FEATURE / VERSION NAME]\nRollback trigger: [WHAT SIGNAL — error rate / metric drop / user reports]\nData migration involved: [YES — describe what ran / NO]\nServices affected: [LIST]\nIncident commander: [NAME]\nMax acceptable downtime: [MINUTES]\n\nProduce:\n## Rollback decision authority — who can call rollback and under what conditions\n## Trigger criteria — specific, measurable signals (not "if something goes wrong")\n## Rollback sequence — numbered steps with commands, expected output, time per step\n## Data integrity check — what to verify after rollback: records consistent? orphaned data?\n## Post-rollback health checks — what confirms the previous version is healthy\n## User communication — what to say, when, through which channel\n## Root cause investigation — what to preserve before cleaning up\n## Prevention — the process change that would have caught this before production'},
+
+  {cmd:'/releasecomms', brain:'rm', icon:'🚀', label:'Release Communications',     desc:'Stakeholder comms for planned releases — pre, live, post',
+   prompt:'Write release communications.\n\nRelease: [WHAT WE ARE RELEASING — user-visible description]\nDeploy window: [DATE TIME — include timezone]\nExpected downtime: [NONE / X MINUTES maintenance window]\nUser impact: [WHAT USERS WILL NOTICE — or "none"]\nAudience: [INTERNAL TEAMS / CUSTOMERS / BOTH]\nStakeholders to notify: [LIST NAMES OR ROLES]\n\nProduce three communications:\n## PRE-RELEASE (send 24h before)\nSubject, what is changing, when, user impact, what to do if issues arise, contact\n## RELEASE LIVE (send at deploy start)\nShort: confirming deploy is live, monitoring in progress, expected completion\n## POST-RELEASE (send after successful verification)\nConfirmation live, what changed in user language, known limitations, support contact\nTone: clear and non-technical. Users do not care about our deployment process.'},
+
+  {cmd:'/releasenotes', brain:'rm', icon:'🚀', label:'Release Notes',              desc:'Production-ready release notes: what changed, why it matters, known issues',
+   prompt:'Write release notes.\n\nVersion: [VERSION NUMBER OR SPRINT]\nRelease date: [DATE]\nFeatures shipped: [LIST WITH ONE-LINE DESCRIPTION EACH]\nBug fixes: [LIST WITH TICKET REFERENCES]\nBreaking changes: [ANY / NONE]\nKnown issues: [LIST OR NONE]\nAudience: [INTERNAL / EXTERNAL CUSTOMERS / BOTH]\n\nProduce:\n## What\'s new — feature name, what it does, who benefits (user language, not technical)\n## Improvements — performance, UX, reliability improvements shipped\n## Bug fixes — what was broken, what now works (reference ticket numbers)\n## Breaking changes — what changes, migration path, deadline\n## Known issues — what is still broken, workaround if any, fix ETA\n## How to access — if any action required from users\nTone: clear, honest, specific. No marketing language.'},
+
+  {cmd:'/incidentcomms',brain:'rm', icon:'🚀', label:'Incident Communications',    desc:'Real-time incident comms for P1/P2/P3 — initial, updates, resolution',
+   prompt:'Write incident communications.\n\nIncident: [DESCRIBE WHAT IS BROKEN IN USER TERMS]\nSeverity: [P1 Critical / P2 High / P3 Medium]\nUsers affected: [HOW MANY / WHICH SEGMENTS]\nTime detected: [TIME]\nCurrent status: [INVESTIGATING / IDENTIFIED / MONITORING / RESOLVED]\nETA to resolution: [TIME / UNKNOWN]\n\nProduce four communications:\n## INITIAL ALERT (within 15 minutes of detection)\nAcknowledge the issue. What is affected, since when, we are investigating.\n## STATUS UPDATE (every 30 minutes while unresolved)\nCurrent status, what has been tried, revised ETA, next update time.\n## RESOLUTION NOTICE (when fixed)\nWhat was wrong, what was done, when resolved, impact summary.\n## POST-INCIDENT SUMMARY (24h after resolution)\nTimeline, root cause in plain language, what we are doing to prevent recurrence.\nTone: honest and specific. Never say "we apologise for any inconvenience."'},
+
+  {cmd:'/postrelease',  brain:'rm', icon:'🚀', label:'Post-Release Review',        desc:'Post-release: metrics, issues, lessons, prevention actions',
+   prompt:'Write a post-release review.\n\nRelease: [FEATURE / VERSION NAME]\nDeploy date: [DATE]\nIncidents: [ANY ISSUES DURING OR AFTER DEPLOY — or NONE]\nMetrics at T+24h: [ACTUAL VS EXPECTED]\nRollback triggered: [YES — describe / NO]\nDeploy duration: [ACTUAL VS PLANNED]\n\nProduce:\n## Release outcome — GO or PARTIAL — and one-sentence summary\n## Metrics review — planned vs actual at T+1h, T+24h. Did we hit success criteria?\n## What went well — specific process steps that worked\n## What went wrong — specific issues, not generalisations. Include near-misses.\n## Root cause (if incidents) — 5 Whys for each incident\n## Process improvements — specific change with owner and due date each\n## Runbook updates needed — what was missing or incorrect\n## Action items — owner, action, due date'},
+
+  {cmd:'/hotfix',       brain:'rm', icon:'🚀', label:'Emergency Hotfix Protocol',  desc:'Emergency hotfix: assess, approve, deploy, verify, communicate fast',
+   prompt:'Write an emergency hotfix protocol.\n\nIncident: [DESCRIBE THE PRODUCTION ISSUE]\nSeverity: [P1 / P2]\nUsers affected: [HOW MANY / WHO]\nProposed fix: [DESCRIBE THE CHANGE — be specific]\nRisk of the fix: [WHAT COULD IT BREAK]\nTest coverage available: [WHAT CAN WE TEST]\nApproval required from: [WHO MUST SIGN OFF]\n\nProduce:\n## Incident summary — what is broken, user impact, business impact in plain numbers\n## Hotfix assessment — is this the right fix? Could it make things worse?\n## Minimum viable test — the 3 specific tests to run before deploying (no more)\n## Approval path — who signs off, how fast, what they are approving\n## Deploy sequence — specific steps, expected outputs\n## Verification — how we confirm the fix worked\n## Rollback — if the hotfix makes it worse, the immediate rollback action\n## Post-hotfix — schedule blameless post-mortem within 48h'},
+
+  {cmd:'/changefreeze', brain:'rm', icon:'🚀', label:'Change Freeze Policy',       desc:'Change freeze policy with exception process and emergency approval path',
+   prompt:'Write a change freeze policy.\n\nFreeze periods: [DATES — peak traffic events, end of quarter, holidays]\nReason: [WHY THIS PERIOD IS HIGH RISK]\nException process: [WHO CAN APPROVE EXCEPTIONS]\nCurrent release cadence: [WEEKLY / FORTNIGHTLY / AD HOC]\n\nProduce:\n## Change freeze scope — what is frozen (deploys / config / DB migrations / all)\n## Freeze calendar — specific dates, reason per period, severity level\n## What is permitted during freeze — read-only config, docs, monitoring\n## Exception process — condition, request format, approver, SLA for decision\n## Emergency approval path — P1 incident during freeze: exact steps to deploy anyway\n## Pre-freeze checklist — what must be in production BEFORE freeze starts\n## Freeze exit process — verification before resuming normal deployments'},
+
+  // ══ DELIVERY MANAGER ═════════════════════════════════════════
+  {cmd:'/deliverystatus',brain:'dm', icon:'📦', label:'Delivery Status Report',    desc:'Honest RAG delivery status — what was planned, delivered, and at risk',
+   prompt:'Write a delivery status report.\n\nProgramme / Project: [NAME]\nReporting period: [DATES]\nOverall RAG status: [RED / AMBER / GREEN — your honest assessment]\nTeams covered: [LIST]\n\nFor each team / workstream:\n- Planned this period: [WHAT WAS COMMITTED]\n- Delivered: [WHAT WAS ACTUALLY DONE]\n- Slipped: [WHAT DID NOT SHIP AND WHY]\n- Open blockers: [LIST WITH OWNER AND RESOLUTION DATE]\n\nNext milestone: [DATE — WHAT IT REQUIRES]\nTop 3 risks: [LIST]\nDecisions needed from leadership: [LIST]\n\nProduce:\n## Executive summary — delivery confidence (High/Medium/Low/Critical) + one honest paragraph\n## RAG status table — team | planned | delivered | RAG | reason\n## Blocker register — blocker | owner | impact if unresolved | resolution date\n## Milestone health — milestone | date | status | risk\n## Decisions required — decision | from whom | deadline | consequence of delay\n## Next two weeks — what must happen for delivery to stay on track'},
+
+  {cmd:'/sprintreview', brain:'dm', icon:'📦', label:'Sprint Delivery Review',     desc:'Sprint-level delivery review: velocity, slippage, blockers, stakeholder narrative',
+   prompt:'Write a sprint delivery review.\n\nSprint: [NUMBER AND DATES]\nSprint goal: [WHAT THE TEAM COMMITTED TO ACHIEVE]\nCommitted scope (SP): [NUMBER]\nDelivered scope (SP): [NUMBER]\nItems not delivered: [LIST EACH WITH REASON]\nVelocity last 3 sprints: [NUMBERS]\nOpen blockers carried forward: [LIST]\nTeam capacity next sprint: [ANY CHANGES]\n\nProduce:\n## Sprint outcome — goal met / partially met / not met (be direct)\n## Velocity trend — is this sustainable? What does it signal?\n## Slippage root cause — not "it was more complex than expected" — the actual reason\n## Blocker analysis — each unresolved blocker with escalation recommendation\n## What to tell stakeholders — the honest 3-sentence update in plain language\n## Next sprint risk — the one thing most likely to cause slippage again\n## Recommended sprint goal adjustment — if velocity data justifies it'},
+
+  {cmd:'/dependency',   brain:'dm', icon:'📦', label:'Dependency Resolution Plan', desc:'Map and unblock a cross-team dependency before it slips delivery',
+   prompt:'Write a dependency resolution plan.\n\nDependency: [WHAT IS NEEDED — be specific about the deliverable]\nBlocked team: [TEAM THAT IS WAITING]\nProviding team: [TEAM THAT MUST DELIVER]\nDate needed by: [HARD DATE — what delivery milestone does this gate?]\nCurrent status: [WHAT HAS BEEN AGREED / WHAT IS UNCLEAR]\nImpact if late by 1 week: [SPECIFIC CONSEQUENCE]\nImpact if late by 1 sprint: [SPECIFIC CONSEQUENCE]\nEscalation path: [WHO CAN UNBLOCK THIS IF TEAMS CANNOT RESOLVE]\n\nProduce:\n## Dependency summary — what, who, when, and why it matters\n## Current gap — what is missing between current state and what is needed\n## Resolution steps — numbered actions with owner and date each\n## Interface agreement — the specific output format, API contract, or handover criteria both teams sign off on\n## Weekly checkpoint — what to verify each week to confirm progress\n## Escalation trigger — the specific signal that requires leadership involvement\n## Contingency — what the blocked team does if this dependency slips past [DATE]'},
+
+  {cmd:'/raid',         brain:'dm', icon:'📦', label:'RAID Log',                   desc:'Full RAID log: Risks, Assumptions, Issues, Dependencies with owners',
+   prompt:'Build a RAID log.\n\nProject / Programme: [NAME]\nPhase: [CURRENT PHASE]\nTeam: [SIZE AND ROLES]\nDelivery horizon: [DATE]\n\nRisks to capture:\n[LIST RISKS — or describe the project and I will identify them]\n\nAssumptions to validate:\n[LIST ASSUMPTIONS — or describe the project]\n\nIssues open:\n[LIST CURRENT ISSUES — with impact]\n\nDependencies:\n[LIST CROSS-TEAM / EXTERNAL DEPENDENCIES]\n\nProduce a full RAID log:\n## Risks — ID | risk description | likelihood (H/M/L) | impact (H/M/L) | owner | mitigation | status\n## Assumptions — ID | assumption | validation method | owner | validated by date | status\n## Issues — ID | issue | impact on delivery | owner | resolution action | target date | status\n## Dependencies — ID | dependency | providing team/party | date needed | impact if late | current status | owner\n## Top 3 items requiring immediate action this week'},
+
+  {cmd:'/escalate',     brain:'dm', icon:'📦', label:'Escalation Brief',           desc:'Escalation message that gets a decision — structured, honest, not emotional',
+   prompt:'Write an escalation brief.\n\nIssue: [DESCRIBE THE BLOCKER OR DECISION NEEDED — be specific]\nImpact on delivery: [WHAT SLIPS, BY HOW MUCH, AND WHAT IS THE BUSINESS CONSEQUENCE]\nWhat I have tried to resolve this: [ACTIONS TAKEN AND OUTCOMES]\nDecision or action needed from: [SPECIFIC ROLE OR PERSON]\nOptions available: [2-3 OPTIONS IF APPLICABLE]\nDeadline for decision: [DATE — and what happens if missed]\nEscalating to: [ROLE / NAME]\n\nProduce:\n## Situation — what is happening, in two sentences maximum\n## Impact — the specific delivery consequence if unresolved by [DATE] (include numbers)\n## What has been tried — brief, factual, no blame\n## Decision needed — the exact question that needs answering\n## Options — [option A | consequence] [option B | consequence] [option C | consequence]\n## Recommendation — your recommended option and why\n## Deadline — by when, and what you will do if no decision is received\nTone: factual, professional, direct. No emotional language. No blame.'},
+
+  {cmd:'/programmereport',brain:'dm',icon:'📦',label:'Programme Status Report',    desc:'Executive programme report: RAG, milestones, risks, decisions needed',
+   prompt:'Write a programme status report.\n\nProgramme: [NAME]\nReporting period: [DATES]\nAudience: [CDO / Steering Committee / Executive Team]\nOverall RAG: [RED / AMBER / GREEN]\n\nWorkstreams:\n[LIST EACH WITH: name, RAG, one-line status]\n\nMilestones this period:\n[PLANNED vs ACTUAL for each]\n\nUpcoming milestones:\n[NEXT 3 WITH DATES AND RISKS]\n\nTop risks:\n[LIST 3-5 WITH LIKELIHOOD AND IMPACT]\n\nDecisions required from leadership:\n[LIST WITH DEADLINE EACH]\n\nProduce:\n## Programme health — overall RAG with one honest paragraph (not a list of things happening)\n## Workstream RAG table — workstream | RAG | this period | next period | owner\n## Milestone dashboard — milestone | planned date | forecast date | status | risk\n## Risk register summary — top 5 risks with owner and mitigation\n## Financial summary — if applicable: budget vs actual, forecast to complete\n## Decisions required — decision | from whom | deadline | impact of delay\n## Narrative for executive audience — the 5 sentences a CDO needs to know right now'},
+
+  {cmd:'/milestonereview',brain:'dm',icon:'📦',label:'Milestone Health Review',    desc:'Deep milestone health check — on track, at risk, or already slipping',
+   prompt:'Run a milestone health review.\n\nMilestone: [NAME AND DESCRIPTION]\nOriginal committed date: [DATE]\nCurrent forecast date: [DATE]\nDependencies that must complete first: [LIST WITH STATUS EACH]\nOpen risks: [LIST]\nTeam capacity between now and milestone: [ANY ISSUES]\nStakeholder expectation: [WHAT HAVE THEY BEEN TOLD]\n\nProduce:\n## Milestone health status — ON TRACK / AT RISK / SLIPPING / MISSED (be direct)\n## Confidence score — 0-100% probability of hitting the date, with rationale\n## What must be true for this milestone to be hit — the critical path\n## Dependency gaps — which dependencies are not confirmed and what that means\n## Capacity gaps — is the team resourced to deliver in the window?\n## Options — [hit the date by descending scope] [move the date] [descope milestone and deliver partial]\n## Recommendation — your call, with rationale\n## Stakeholder communication — what to tell them, in what format, and when'},
+
+  {cmd:'/resourceplan', brain:'dm', icon:'📦', label:'Resource & Capacity Plan',   desc:'Honest capacity plan across teams — what fits and what does not',
+   prompt:'Build a resource and capacity plan.\n\nProgramme / Project: [NAME]\nPeriod: [DATES — quarter or half-year]\nTeams: [LIST WITH SIZE AND ROLES EACH]\nKnown constraints: [LEAVE / HIRING / DEPENDENCIES / SHARED RESOURCES]\nProduct priorities: [TOP 3-5 INITIATIVES WITH ROUGH SIZE]\nTech debt allocation: [% OR SP PER SPRINT]\n\nProduce:\n## True available capacity — starting from calendar days, subtract: ceremonies, BAU/support, leave, tech debt, onboarding drain\n## Capacity by team — team | sprint capacity (SP) | confidence | constraints\n## Initiative fit — initiative | size estimate | team | sprints needed | fits in window? (Yes/No/Partial)\n## The hard conversation — what does NOT fit in this period and why\n## Trade-off options — [option A: descope] [option B: hire] [option C: defer] with pro/con each\n## Hiring impact model — new hire = net drag for 4-6 weeks before productivity uplift\n## Recommended allocation — with explicit rationale for what was deprioritised'},
+
+  {cmd:'/velocity',     brain:'dm', icon:'📦', label:'Velocity Analysis',          desc:'Velocity trend analysis: what it means and what to do about it',
+   prompt:'Run a velocity trend analysis.\n\nTeam: [NAME]\nSprints to analyse: [LAST 6 SPRINT VELOCITIES — e.g. 34, 38, 29, 31, 27, 25]\nSprint length: [DAYS]\nTeam size over period: [ANY CHANGES?]\nKnown factors: [LEAVE / INCIDENTS / SCOPE CHANGES / NEW MEMBERS]\nCurrent sprint commitment: [SP]\n\nProduce:\n## Trend summary — is velocity increasing, stable, or declining? By how much?\n## Signal vs noise — which sprints are outliers and why?\n## Sustainable velocity — what range should we plan to, based on evidence?\n## Root cause analysis — if declining: the most likely cause (not "the work was hard")\n## Red flags — patterns that indicate systemic problems (growing tech debt, constant interrupts, unclear AC)\n## Recommended commitment range — for the next sprint, based on trend (give a range, not a number)\n## Capacity conversation — the honest message to product about what fits given this velocity\n## Improvement lever — the single change most likely to improve velocity sustainably'},
 
   // ══ PDF SECRET CODES — WRITING & STYLE ══════════════════════
   {cmd:'/ghost',      brain:'po',  icon:'✍️', label:'Ghost Mode',                 desc:'Rewrite text so it reads completely human — strip all AI patterns',
@@ -20262,6 +20308,34 @@ const BRAIN_WELCOME = {
       {icon:'🔄',t:'Regression',d:'Targeted regression for a specific release — risk-based',cmd:'/regression  /testplan'},
       {icon:'📋',t:'Quality Strategy',d:'Test strategy from feature to go-live with sign-off',cmd:'/teststrategy  /dod'},
     ]
+  },
+  rm: {
+    title: 'Hi — I\'m your Release Manager',
+    sub: 'I own the moment code hits production. Go/No-Go decisions, runbooks, rollback playbooks, incident comms — I make sure nothing breaks at 3am.',
+    tag: '🚀 Release Manager · Principal RM',
+    color: '#FF7043',
+    caps: [
+      {icon:'✅',t:'Go/No-Go Decision',d:'Criteria table with a clear call — GO, NO-GO, or CONDITIONAL GO',cmd:'/gonogo'},
+      {icon:'📋',t:'Release Runbook',d:'Step-by-step ops runbook any engineer can execute at 2am',cmd:'/runbook'},
+      {icon:'🔄',t:'Rollback Playbook',d:'Trigger, steps, data integrity check, comms — complete rollback plan',cmd:'/rollback'},
+      {icon:'📢',t:'Release Comms',d:'Pre/live/post communications for stakeholders and users',cmd:'/releasecomms  /releasenotes'},
+      {icon:'🚨',t:'Incident Response',d:'Real-time P1/P2/P3 comms and emergency hotfix protocol',cmd:'/incidentcomms  /hotfix'},
+      {icon:'🔍',t:'Post-Release Review',d:'Metrics, issues, lessons, action items after every release',cmd:'/postrelease'},
+    ]
+  },
+  dm: {
+    title: 'Hi — I\'m your Delivery Manager',
+    sub: 'I make the invisible visible. Blockers, dependencies, velocity trends, programme health, stakeholder comms — I surface the real delivery picture before it becomes an escalation.',
+    tag: '📦 Delivery Manager · Principal DM',
+    color: '#26A69A',
+    caps: [
+      {icon:'📊',t:'Delivery Status',d:'Honest RAG status — what was planned, what was delivered, what is at risk',cmd:'/deliverystatus  /sprintreview'},
+      {icon:'🔗',t:'Dependency Management',d:'Map, track, and unblock cross-team dependencies before they slip',cmd:'/dependency  /raid'},
+      {icon:'📈',t:'Velocity & Capacity',d:'Trend analysis, capacity planning, honest commitment conversations',cmd:'/velocity  /resourceplan'},
+      {icon:'📣',t:'Stakeholder Comms',d:'Programme updates, escalations, milestone reports — honest and structured',cmd:'/programmereport  /escalate'},
+      {icon:'⚠️',t:'Risk & RAID',d:'RAID log, risk register, mitigation plans, escalation paths',cmd:'/raid  /milestonereview'},
+      {icon:'🏁',t:'Sprint & Milestone Review',d:'Sprint delivery review, milestone health check, retrospective input',cmd:'/sprintreview  /milestonereview'},
+    ]
   }
 };
 
@@ -20379,6 +20453,8 @@ function updateHomeBrainPanel(brainId) {
       developer: ['Debug this code','Refactor plan','Scaffold project','Optimize code','Write tests'],
       pm:        ['Project brief','RAID log','Comms plan','Impact assessment','Status report'],
       qa:        ['Test plan','Regression plan','Bug report','UAT plan','OWASP security check'],
+      rm:        ['Go/No-Go decision','Release runbook','Rollback playbook','Release comms','Hotfix protocol'],
+      dm:        ['Sprint delivery review','Programme status update','Dependency resolution','Escalation email','RAID log update'],
     };
     const chips = BRAIN_CHIPS[brainId] || BRAIN_CHIPS.po;
     chipsEl.innerHTML = chips.map(ch =>
@@ -23226,73 +23302,116 @@ function switchRightPanel(id, el) {
 }
 
 // ── Docs: generate doc into right panel output ─────────────────
-async function rpGenerateDoc(type) {
+// ── Shared streaming helper for right-panel outputs ───────────
+async function _rpStream({ system, userMsg, title, maxTokens }) {
   if (!apiKey) { openModal(); return; }
-  showRPOutput('📄 Generating ' + type.toUpperCase() + '…', type.toUpperCase());
+  showRPOutput('⏳ ' + title + '…', title);
+  const content = document.getElementById('rp-output-content');
+  const loading = document.getElementById('rp-output-loading');
+  if (loading) loading.style.display = 'none';
+  if (content) content.innerHTML = '<span class="stream-cursor"></span>';
+  let fullText = '';
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 1200,
-        system: `You are a senior product consultant. Generate a ${type} document based on the product context. Be specific, not generic.`,
-        messages: [{role:'user',content:`Generate a ${type} for my product.\n\n${getCtx()}\n\nMake it production-ready and specific to my context.`}]
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: maxTokens || 1400,
+        stream: true,
+        system,
+        messages: [{role:'user', content: userMsg}]
       })
     });
-    const data = await res.json();
-    const text = data.content?.map(b=>b.text||'').join('') || '';
-    showRPResult(text, type.toUpperCase());
-  } catch(e) { hideRPOutput(); toast('AI error','error'); }
+    if (!res.ok) {
+      const err = await res.json().catch(()=>({}));
+      const msg = res.status===401 ? 'Invalid API key' : res.status===429 ? 'Rate limit — wait 30s' : err?.error?.message||`HTTP ${res.status}`;
+      if (content) content.innerHTML = `<span style="color:var(--red)">⚠️ ${msg}</span>`;
+      return;
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
+    const renderStream = (raw) => {
+      if (!content) return;
+      content.innerHTML = raw
+        .replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>')
+        .replace(/^## (.+)$/gm,'<h2 style="font-size:13px;font-weight:800;margin:12px 0 6px;padding-bottom:4px;border-bottom:0.5px solid var(--border2);color:var(--text)">$1</h2>')
+        .replace(/^### (.+)$/gm,'<h3 style="font-size:12px;font-weight:700;color:var(--accent);margin:9px 0 4px">$1</h3>')
+        .replace(/^- (.+)$/gm,'<div style="display:flex;gap:6px;margin-bottom:4px"><span style="color:var(--accent);font-weight:800">•</span><span>$1</span></div>')
+        .replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>')
+        + '<span class="stream-cursor"></span>';
+      const out = document.getElementById('rp-output');
+      if (out) out.scrollTop = out.scrollHeight;
+    };
+    while (true) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      buffer += decoder.decode(value, {stream: true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.startsWith('data: ')) continue;
+        const d = line.slice(6).trim();
+        if (d === '[DONE]' || !d) continue;
+        try {
+          const ev = JSON.parse(d);
+          if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') {
+            fullText += ev.delta.text;
+            renderStream(fullText);
+          }
+        } catch(_) {}
+      }
+    }
+    showRPResult(fullText, title);
+  } catch(e) {
+    if (content) content.innerHTML = `<span style="color:var(--red)">⚠️ ${e.message}</span>`;
+  }
+}
+
+async function rpGenerateDoc(type) {
+  const brain = (typeof ALL_BRAINS !== 'undefined' && typeof activeBrain !== 'undefined')
+    ? (ALL_BRAINS.find(b=>b.id===activeBrain)||{label:'Senior Product Consultant'})
+    : {label:'Senior Product Consultant'};
+  const typeLabel = type.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  await _rpStream({
+    system: `You are a ${brain.label} with 15+ years experience. Generate a ${typeLabel} document based on the product context provided. Be specific and production-ready — never generic. Use ## headings, bullet points, and tables where relevant.`,
+    userMsg: `Generate a ${typeLabel} for my product.\n\n${getCtx()}\n\nMake it production-ready and specific to my context.`,
+    title: typeLabel,
+    maxTokens: 1600
+  });
 }
 
 // ── Docs: analyse doc ──────────────────────────────────────────
 async function rpAnalyseDoc(mode) {
   if (!apiKey) { openModal(); return; }
-  // Check if KB has files
   const kbCtx = getKbContext();
   if (!kbCtx) {
     toast('Upload a document to KB first (📁 KB tab)', 'warning');
     switchRightPanel('kb', document.querySelectorAll('.rp-tab')[4]);
     return;
   }
-  showRPOutput('🔬 Analysing…', mode);
   const modeLabels = {summary:'Executive Summary',gaps:'Gap Analysis',stories:'User Stories',risks:'Risk Register',questions:'Open Questions',acceptance:'Acceptance Criteria'};
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 1200,
-        system: 'You are a senior product consultant. Analyse the document and produce exactly what is requested.',
-        messages: [{role:'user',content:`Perform a ${modeLabels[mode]||mode} on the documents in my knowledge base.\n\n${kbCtx}`}]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.map(b=>b.text||'').join('') || '';
-    showRPResult(text, modeLabels[mode]||mode);
-  } catch(e) { hideRPOutput(); toast('AI error','error'); }
+  const label = modeLabels[mode] || mode;
+  await _rpStream({
+    system: 'You are a senior product consultant. Analyse the document and produce exactly what is requested. Be specific and structured.',
+    userMsg: `Perform a ${label} on the documents in my knowledge base.\n\n${kbCtx}`,
+    title: label,
+    maxTokens: 1400
+  });
 }
 
 // ── Strategy: run tool ─────────────────────────────────────────
 async function rpRunStrategy(tool) {
-  if (!apiKey) { openModal(); return; }
   const meta = typeof STRATEGY_TOOLS !== 'undefined' ? STRATEGY_TOOLS[tool] : null;
-  showRPOutput('♟️ Running ' + (meta?.title || tool) + '…', meta?.title || tool);
-  try {
-    const prompt = meta?.prompt ? meta.prompt() : `Run a ${tool} analysis for my product.\n\n${getCtx()}`;
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 1400,
-        system: 'You are a senior product strategist. Be specific to the product context, never generic.',
-        messages: [{role:'user',content:prompt}]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.map(b=>b.text||'').join('') || '';
-    showRPResult(text, meta?.title || tool);
-  } catch(e) { hideRPOutput(); toast('AI error','error'); }
+  const title = meta?.title || tool;
+  const prompt = meta?.prompt ? meta.prompt() : `Run a ${tool} analysis for my product.\n\n${getCtx()}`;
+  await _rpStream({
+    system: 'You are a senior product strategist. Be specific to the product context, never generic. Use ## headings, bullet points, and tables.',
+    userMsg: prompt,
+    title,
+    maxTokens: 1400
+  });
 }
 
 // ── Prompts list ───────────────────────────────────────────────
@@ -23333,6 +23452,8 @@ const RP_BRAIN_TEMPLATES = {
   developer: [['🏗️','Technical Spec','Write a technical specification for [FEATURE] with API design, data model, edge cases'],['🔍','Code Review Checklist','Create a code review checklist for [LANGUAGE/FRAMEWORK] — security, performance, maintainability'],['📋','PR Description','Write a PR description for [CHANGE] — what, why, how, testing, screenshots'],['⚡','Performance Analysis','Analyse performance bottlenecks in [SYSTEM] and recommend optimisations'],['🔒','Security Checklist','Create a security checklist for [FEATURE] — OWASP top 10, input validation, auth'],['📊','API Documentation','Write API documentation for [ENDPOINT] — request, response, errors, examples'],['🔄','Incident Post-Mortem','Write a post-mortem for [INCIDENT] — timeline, root cause, impact, action items'],['🧪','Unit Test Cases','Write unit test cases for [FUNCTION/MODULE] — happy path, edge cases, error handling']],
   techlead: [['🏗️','Architecture Review','Conduct an architecture review for [SYSTEM] — patterns, scalability, debt, recommendations'],['👥','Technical Onboarding','Create a technical onboarding guide for a new engineer joining [TEAM]'],['📋','Engineering Roadmap','Build a technical roadmap for [TEAM] — initiatives, dependencies, milestones'],['⚡','Tech Debt Backlog','Create a prioritised tech debt backlog for [SYSTEM] with effort and business impact'],['🤝','1:1 Template','Write a 1:1 agenda template for engineering leads — career, work, blockers, feedback'],['📊','Engineering Metrics','Define engineering metrics for [TEAM] — DORA, quality, velocity, health indicators'],['🔄','On-call Runbook','Create an on-call runbook for [SERVICE] — alerts, triage steps, escalation, contacts'],['💬','Technical RFC','Write an RFC for [TECHNICAL PROPOSAL] — context, proposal, alternatives, decision']],
   pm: [['📋','Product Brief','Write a product brief for [INITIATIVE] — problem, solution, target users, success metrics'],['🎯','Opportunity Assessment','Conduct an opportunity assessment for [IDEA] — market size, feasibility, strategic fit'],['📊','Metrics Dashboard','Define a product metrics dashboard — north star, input metrics, leading indicators'],['🗺️','Feature Roadmap','Create a feature roadmap for [PRODUCT AREA] with themes, outcomes, and milestones'],['🔍','User Research Synthesis','Synthesise user research for [TOPIC] — themes, insights, opportunity areas, recommendations'],['💡','Hypothesis Statement','Write a hypothesis statement for [EXPERIMENT] — we believe, for, will achieve, measured by'],['📝','Release Plan','Create a release plan for [VERSION] — scope, timeline, dependencies, go/no-go criteria'],['⚠️','Risk Assessment','Conduct a risk assessment for [INITIATIVE] — technical, market, execution, mitigation']],
+  rm: [['✅','Go/No-Go Checklist','Run a Go/No-Go decision for [RELEASE] — criteria table, risk assessment, and clear call'],['📋','Release Runbook','Write a release runbook for [DEPLOY] — pre-checks, steps, commands, health checks, rollback'],['🔄','Rollback Playbook','Write a rollback playbook for [RELEASE] — trigger, steps, data integrity check, comms'],['📢','Release Communications','Write pre/live/post release communications for [FEATURE] to [AUDIENCE]'],['📝','Release Notes','Write production-ready release notes for [VERSION] — features, fixes, known issues'],['🚨','Incident Comms','Write P1/P2/P3 incident communication templates for [INCIDENT TYPE]'],['🔍','Post-Release Review','Write a post-release review for [RELEASE] — metrics, issues, lessons, action items'],['❄️','Change Freeze Policy','Write a change freeze policy for [PERIOD] with exception process and emergency path']],
+  dm: [['📊','Delivery Status Report','Write a delivery status report for [PROGRAMME] — RAG, planned vs delivered, blockers, decisions needed'],['🏃','Sprint Delivery Review','Write a sprint delivery review for Sprint [NUMBER] — goal, velocity, slippage, stakeholder narrative'],['🔗','Dependency Resolution Plan','Map and resolve the dependency between [TEAM A] and [TEAM B] needed by [DATE]'],['⚠️','RAID Log','Build a full RAID log for [PROJECT] — risks, assumptions, issues, dependencies with owners'],['📣','Escalation Brief','Write an escalation brief for [BLOCKER] requiring a decision from [ROLE] by [DATE]'],['📈','Velocity Analysis','Run a velocity trend analysis for [TEAM] across last 6 sprints — signal, root cause, recommendation'],['🏁','Milestone Health Review','Run a milestone health review for [MILESTONE] — confidence score, gaps, options, recommendation'],['👥','Resource & Capacity Plan','Build a resource capacity plan for [PERIOD] — true capacity, initiative fit, hard conversation']],
 };
 
 function renderRPTemplates() {
@@ -23904,1034 +24025,6 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
     showLock();
   };
 })();
-
-// ══ BRD BUILDER ════════════════════════════════════════════════
-
-const BRD_SECTIONS = [
-  {
-    id: 'exec', num: '01', icon: '📌', title: 'Executive Summary',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-problem',    label:'Business Problem',     type:'textarea', ph:'What specific problem exists? Be precise — not "improve efficiency" but "Gate G0 approval takes 14 days manually, causing 30% project delays"'},
-      {id:'brd-background', label:'Background / Context', type:'textarea', ph:'Why now? What triggered this initiative? What is the current situation?'},
-      {id:'brd-outcome',    label:'Expected Outcome',     type:'textarea', ph:'What does success look like? What changes for the business when this is built?'}
-    ]
-  },
-  {
-    id: 'objectives', num: '02', icon: '🎯', title: 'Business Objectives & KPIs',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-objectives', label:'Business Objectives (SMART: metric + baseline + target + owner)', type:'textarea', ph:'OBJ-01: Reduce gate approval cycle from 14 days to 5 days by Q3 2026. Owner: Harry CDO.\nOBJ-02: Increase feasibility model accuracy to ≥95% vs manual benchmark. Owner: Product Team.'},
-      {id:'brd-kpis',       label:'KPIs (measurable, trackable)', type:'textarea', ph:'KPI-01: Gate approval cycle time (target: ≤5 days)\nKPI-02: BRD quality score in ProdMind (target: ≥90/100)\nKPI-03: User adoption (target: 80% of POs using the tool within 30 days)'}
-    ]
-  },
-  {
-    id: 'stakeholders', num: '03', icon: '👥', title: 'Stakeholder Register',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-stakeholders', label:'Stakeholders (Name · Role · Interest · Influence H/M/L · Comms frequency)', type:'textarea', ph:'Harry | CDO | Strategic oversight & ROI | High | Weekly update\nNaresh | Lead Developer | Technical feasibility & sprint planning | Medium | Sprint ceremonies\nVibin | Developer | Feature implementation | Low | Daily standup\nBusiness Team | Feasibility reviewers | Correct data & faster approvals | High | Monthly review'}
-    ]
-  },
-  {
-    id: 'scope', num: '04', icon: '🔲', title: 'Scope',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-in-scope',  label:'In Scope (explicit, deliverable list)', type:'textarea', ph:'• G0 Gate creation and submission workflow\n• Feasibility model calculator (Unit Mix%, Land Cost/sqm, Construction Cost)\n• Role-based team assignment per gate\n• GIS plot selection (replacing drop-pin)\n• AI-assisted feasibility benchmarking via XKool'},
-      {id:'brd-out-scope', label:'Out of Scope (with rationale for each)', type:'textarea', ph:'• G1/G2/G3 gates — separate sprint, separate BRD\n• Mobile app — web-only for this release\n• ERP financial integration — dependency on Mulesoft roadmap Q4\n• Social Infrastructure project type — Phase 2'}
-    ]
-  },
-  {
-    id: 'personas', num: '05', icon: '🎭', title: 'Personas',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-personas', label:'Primary Users (role · goals · pain points)', type:'textarea', ph:'PERSONA-01: Product Owner (Abhinav)\nGoal: Manage sprint and gate process without switching between 5 tools\nPain: No single view of gate status, team capacity, and feasibility — context switching kills 2hrs/day\n\nPERSONA-02: CDO (Harry)\nGoal: Real-time visibility on project progress and gate approval status\nPain: Relies on manual status updates — no data-driven decision support'}
-    ]
-  },
-  {
-    id: 'as-is', num: '06', icon: '🔄', title: 'Current State — AS-IS',
-    tag: 'Context', tagColor: 'rgba(41,182,246,.8)',
-    fields: [
-      {id:'brd-asis-flow',   label:'Current Step-by-Step Flow', type:'textarea', ph:'1. PO receives project brief via email\n2. PO creates feasibility model manually in Excel\n3. PO schedules review meeting with CDO (avg 3 days to get slot)\n4. Review happens, comments via email thread\n5. PO revises Excel, sends revised version\n6. CDO approves via email — no audit trail\n7. Project team assembled manually — no access control'},
-      {id:'brd-asis-issues', label:'Key Issues & Inefficiencies', type:'textarea', ph:'• No audit trail on approval decisions\n• Feasibility formula errors in Excel — Unit Mix% formula broken\n• Drop-pin on map causes wrong plot selection\n• No version control on feasibility models\n• Team access not restricted post-approval'}
-    ]
-  },
-  {
-    id: 'to-be', num: '07', icon: '✨', title: 'Proposed State — TO-BE',
-    tag: 'Context', tagColor: 'rgba(41,182,246,.8)',
-    fields: [
-      {id:'brd-tobe-flow', label:'Improved Future Flow', type:'textarea', ph:'1. PO creates new G0 gate in Harbour Platform\n2. System auto-populates feasibility model template\n3. PO selects plot via GIS map integration (not drop-pin)\n4. AI benchmarking via XKool suggests feasibility targets\n5. PO assigns team with role-based access control\n6. CDO reviews via platform — inline comments\n7. Digital approval with timestamp and audit trail\n8. Access automatically adjusted on approval'},
-      {id:'brd-tobe-improvements', label:'Key System Behaviour & Improvements', type:'textarea', ph:'• Unit Mix% auto-validates to 100% before submission\n• Land Cost displayed as AED/sqm (not %)\n• Construction Cost bar = Cost÷GFA and Cost÷GSA\n• AD sync for team members on approval\n• Continue-with-AI timeline generation post-approval'}
-    ]
-  },
-  {
-    id: 'dependencies', num: '08', icon: '🔗', title: 'Dependencies',
-    tag: 'Critical', tagColor: 'rgba(245,166,35,.8)',
-    fields: [
-      {id:'brd-dependencies', label:'APIs, Systems, Teams, Tools (with owner + due date)', type:'textarea', ph:'DEP-01: XKool API — AI design benchmarking. Owner: Mahadevan. Due: Sprint 5\nDEP-02: Aleria RAG/LLM — document intelligence. Owner: Arun. Due: Sprint 6\nDEP-03: Contilio BIM/Digital Twin — 3D visualisation. Owner: TBD. Due: Q3\nDEP-04: Azure AD SSO — team member sync post-approval. Owner: Gurjit. Due: Sprint 4\nDEP-05: Mulesoft ERP/CRM integration — financial data. Owner: Tim. Due: Q4'}
-    ]
-  },
-  {
-    id: 'fr', num: '09', icon: '⚙️', title: 'Functional Requirements',
-    tag: 'Critical', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-fr', label:'FR-[N] · Priority (Must/Should/Could) · Source · Trigger · Behavior · Output · Acceptance Criterion', type:'textarea', ph:'FR-01 | Must | Harry CDO\nFeature: GIS Plot Selection\nTrigger: PO clicks "Select Plot" on G0 gate creation screen\nBehavior: GIS map opens, PO draws polygon boundary, system captures coordinates and links to gate record\nOutput: Plot displayed on gate overview with area in sqm\nAC: Given PO is on gate creation, when they select a plot via GIS, then plot boundary appears on map and area (sqm) is auto-calculated\n\nFR-02 | Must | Product Team\nFeature: Unit Mix% Validation\nTrigger: PO enters unit mix percentages in feasibility model\nBehavior: System sums all unit type percentages in real-time\nOutput: Green confirmation if = 100%, red warning if ≠ 100%, submission blocked if not 100%\nAC: Given unit mix fields are filled, when total ≠ 100%, then save is blocked and warning displays "Unit mix must equal 100%"'}
-    ]
-  },
-  {
-    id: 'nfr', num: '10', icon: '🛡️', title: 'Non-Functional Requirements',
-    tag: 'Critical', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-nfr', label:'Performance · Security · Compliance · Accessibility · Data Retention (specific targets)', type:'textarea', ph:'NFR-01 Performance: Gate overview page loads in <2s for 200 concurrent users\nNFR-02 Security: Azure AD SSO required. No direct login. MFA enforced.\nNFR-03 Data Residency: All data must remain within UAE Azure region\nNFR-04 Compliance: Audit trail retained for 7 years per UAE property law\nNFR-05 Accessibility: WCAG 2.1 AA on all user-facing screens\nNFR-06 Availability: 99.5% uptime SLA during business hours (8am-8pm GST)'}
-    ]
-  },
-  {
-    id: 'errors', num: '11', icon: '⚠️', title: 'Error Handling',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-errors', label:'Failure Scenario · System Response · User Experience', type:'textarea', ph:'ERR-01: Integration Failure (XKool API timeout)\nSystem response: Retry once after 3s, then show inline error message\nUser experience: "Benchmarking unavailable — you can proceed manually or retry"\n\nERR-02: Invalid Unit Mix (total ≠ 100%)\nSystem response: Block save, highlight offending fields in red\nUser experience: "Unit mix totals 97% — must equal 100% before saving"\n\nERR-03: Partial Data Save\nSystem response: Save available fields, flag incomplete sections\nUser experience: Orange banner "Draft saved — 3 required fields incomplete"'}
-    ]
-  },
-  {
-    id: 'systems', num: '12', icon: '🖥️', title: 'Impacted Systems',
-    tag: 'Technical', tagColor: 'rgba(41,182,246,.8)',
-    fields: [
-      {id:'brd-ui-changes',      label:'UI Changes', type:'textarea', ph:'• Replace drop-pin with GIS polygon selector on map screen\n• Land Cost field: change display from % to AED/sqm\n• Construction Cost bar: add Cost÷GSA alongside existing Cost÷GFA\n• Unit Mix% fields: add real-time total counter and colour-coded validation'},
-      {id:'brd-backend-changes', label:'Backend Systems', type:'textarea', ph:'• Gate data model: add GIS coordinates field (PostGIS geometry type)\n• Feasibility model: update Unit Mix% formula in Postgres calculation service\n• Audit log: capture approval events with timestamp and approver ID\n• AD sync: trigger team access update on gate status change to Approved'},
-      {id:'brd-integrations',    label:'Integrations', type:'textarea', ph:'• XKool API: benchmarking call on feasibility model save\n• Azure AD: SSO authentication + team member sync\n• Aleria: RAG document intelligence for gate document analysis\n• Akamai CDN/WAF: caching rules for GIS tile layers'}
-    ]
-  },
-  {
-    id: 'assumptions', num: '13', icon: '📝', title: 'Assumptions',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-assumptions', label:'A-[N]: Assumption · Impact if wrong', type:'textarea', ph:'A-01: XKool API is production-ready and supports UAE project types. Impact if wrong: Benchmarking feature blocked — manual fallback required, scope reduction.\n\nA-02: Azure AD user directory is up to date with current team structure. Impact if wrong: AD sync assigns wrong roles, security risk.\n\nA-03: Existing feasibility model Excel formulas are the source of truth for recalculation. Impact if wrong: Formula errors propagate into platform calculations.'}
-    ]
-  },
-  {
-    id: 'risks', num: '14', icon: '🚨', title: 'Risks',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-risks', label:'Risk · Likelihood (H/M/L) · Impact (H/M/L) · Mitigation', type:'textarea', ph:'RISK-01: XKool integration delayed beyond Sprint 5\nLikelihood: M | Impact: H\nMitigation: Build manual benchmark input as fallback. Decouple XKool from core gate submission.\n\nRisk-02: Unit Mix% formula disagreement between stakeholders\nLikelihood: H | Impact: M\nMitigation: Get written sign-off from business team on formula definition before FR-02 enters dev.\n\nRisk-03: GIS map performance on low-bandwidth connections\nLikelihood: L | Impact: H\nMitigation: Load GIS tiles via Akamai CDN. Add offline-tolerant save fallback.'}
-    ]
-  },
-  {
-    id: 'metrics', num: '15', icon: '📊', title: 'Success Metrics',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-success-metrics', label:'Post-launch measurable outcomes (separate from KPIs)', type:'textarea', ph:'SM-01: Gate approval cycle time ≤5 days (measured 30 days post-launch)\nSM-02: Zero Unit Mix% calculation errors in production (measured via error log)\nSM-03: 80% of POs use GIS plot selector over legacy method within 2 sprints\nSM-04: Audit trail coverage = 100% of approval events (verifiable in logs)\nSM-05: CDO stakeholder satisfaction ≥4/5 on monthly review quality (measured by survey)'}
-    ]
-  },
-  {
-    id: 'signoff', num: '16', icon: '✅', title: 'Sign-off Criteria',
-    tag: 'Required', tagColor: 'rgba(239,83,80,.8)',
-    fields: [
-      {id:'brd-approvers',     label:'Named Approvers', type:'input', ph:'e.g. Harry (CDO), Abhinav (PO), Tim (Tech Lead)'},
-      {id:'brd-signoff-date',  label:'Sign-off Deadline', type:'input', ph:'e.g. 2026-04-18 — before Sprint 5 planning'},
-      {id:'brd-approval-form', label:'Form of Approval', type:'input', ph:'e.g. Written email to po@aldar.com + Jira ticket status → "BRD Approved"'},
-      {id:'brd-blockers',      label:'Open Items That Must Be Resolved Before Approval', type:'textarea', ph:'1. XKool API access credentials — owner: Mahadevan — due: 2026-04-15\n2. Unit Mix% formula sign-off from business team — owner: Veena — due: 2026-04-16\n3. GIS map data source confirmed — owner: Siddik — due: 2026-04-15'}
-    ]
-  }
-];
-
-let brdData = {};
-
-function initBrdPage() {
-  const nav  = document.getElementById('brd-nav-list');
-  const cont = document.getElementById('brd-sections-container');
-  if (!nav || !cont) return;
-
-  nav.innerHTML = '';
-  cont.innerHTML = '';
-
-  BRD_SECTIONS.forEach((sec, idx) => {
-    // Nav item
-    const navItem = document.createElement('div');
-    navItem.className = 'brd-nav-item';
-    navItem.id = 'brd-nav-' + sec.id;
-    navItem.innerHTML = `<div class="brd-nav-dot"></div><span>${sec.num} ${sec.title}</span>`;
-    navItem.onclick = () => brdScrollTo(sec.id);
-    nav.appendChild(navItem);
-
-    // Section card
-    const card = document.createElement('div');
-    card.className = 'brd-section-card' + (idx === 0 ? ' open' : '');
-    card.id = 'brd-card-' + sec.id;
-
-    const fieldsHtml = sec.fields.map(f => `
-      <div class="brd-field">
-        <label>${f.label}</label>
-        ${f.type === 'textarea'
-          ? `<textarea id="${f.id}" placeholder="${f.ph}" rows="4" oninput="brdFieldChanged('${sec.id}','${f.id}')">${brdData[f.id]||''}</textarea>`
-          : `<input type="text" id="${f.id}" placeholder="${f.ph}" value="${brdData[f.id]||''}" oninput="brdFieldChanged('${sec.id}','${f.id}')">`
-        }
-      </div>`).join('');
-
-    card.innerHTML = `
-      <div class="brd-section-hdr" onclick="brdToggle('${sec.id}')">
-        <div class="brd-sec-num" id="brd-num-${sec.id}">${sec.num}</div>
-        <span style="font-size:16px">${sec.icon}</span>
-        <span class="brd-sec-title">${sec.title}</span>
-        <span class="brd-sec-tag" style="background:${sec.tagColor}22;color:${sec.tagColor};border:0.5px solid ${sec.tagColor}44">${sec.tag}</span>
-        <span class="brd-sec-arrow">▼</span>
-      </div>
-      <div class="brd-section-body">
-        ${fieldsHtml}
-        <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
-          <button class="brd-ai-btn" onclick="brdAiSection('${sec.id}')">🤖 AI-fill this section</button>
-          <div id="brd-ai-status-${sec.id}" style="font-size:10.5px;color:var(--muted2)"></div>
-        </div>
-        <div class="brd-output" id="brd-output-${sec.id}">
-          <div class="brd-output-hdr">
-            <span style="font-size:10px;font-weight:700;color:var(--accent)">🤖 AI suggestion — review and edit above</span>
-            <button class="gbtn" style="font-size:9px;padding:2px 8px;margin-left:auto" onclick="brdApplyOutput('${sec.id}')">Apply to fields</button>
-          </div>
-          <div id="brd-output-text-${sec.id}"></div>
-        </div>
-      </div>`;
-
-    cont.appendChild(card);
-  });
-
-  brdUpdateProgress();
-}
-
-function brdToggle(id) {
-  const card = document.getElementById('brd-card-' + id);
-  if (!card) return;
-  const isOpen = card.classList.contains('open');
-  document.querySelectorAll('.brd-section-card').forEach(c => c.classList.remove('open', 'active'));
-  if (!isOpen) {
-    card.classList.add('open', 'active');
-    document.querySelectorAll('.brd-nav-item').forEach(n => n.classList.remove('active'));
-    const navItem = document.getElementById('brd-nav-' + id);
-    if (navItem) navItem.classList.add('active');
-  }
-}
-
-function brdScrollTo(id) {
-  const card = document.getElementById('brd-card-' + id);
-  if (card) {
-    if (!card.classList.contains('open')) brdToggle(id);
-    setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
-  }
-}
-
-function brdFieldChanged(secId, fieldId) {
-  const el = document.getElementById(fieldId);
-  if (el) brdData[fieldId] = el.value;
-  brdUpdateProgress();
-  brdSaveLocal();
-}
-
-function brdUpdateProgress() {
-  const total = BRD_SECTIONS.length;
-  let filled = 0;
-  BRD_SECTIONS.forEach(sec => {
-    const hasContent = sec.fields.some(f => (brdData[f.id] || '').trim().length > 10);
-    const numEl = document.getElementById('brd-num-' + sec.id);
-    const navItem = document.getElementById('brd-nav-' + sec.id);
-    const card = document.getElementById('brd-card-' + sec.id);
-    if (hasContent) {
-      filled++;
-      if (numEl) { numEl.classList.add('done'); numEl.textContent = '✓'; }
-      if (navItem) navItem.classList.add('done');
-      if (card) card.classList.add('complete');
-    } else {
-      if (numEl) { numEl.classList.remove('done'); numEl.textContent = sec.num; }
-      if (navItem) navItem.classList.remove('done');
-      if (card) card.classList.remove('complete');
-    }
-  });
-  const pct = Math.round((filled / total) * 100);
-  const bar = document.getElementById('brd-progress-bar');
-  if (bar) bar.style.width = pct + '%';
-  const score = document.getElementById('brd-score-display');
-  if (score) {
-    const col = pct >= 80 ? '#00D4AA' : pct >= 50 ? '#F5A623' : 'var(--muted2)';
-    score.style.color = col;
-    score.textContent = `${pct}% complete — ${filled}/${total} sections filled`;
-  }
-}
-
-function brdSaveLocal() {
-  try { localStorage.setItem('prodmind_brd_data', JSON.stringify(brdData)); } catch(_) {}
-}
-
-function brdLoadLocal() {
-  try {
-    const saved = localStorage.getItem('prodmind_brd_data');
-    if (saved) {
-      brdData = JSON.parse(saved);
-      BRD_SECTIONS.forEach(sec => {
-        sec.fields.forEach(f => {
-          const el = document.getElementById(f.id);
-          if (el && brdData[f.id]) el.value = brdData[f.id];
-        });
-      });
-    }
-  } catch(_) {}
-}
-
-async function brdAiSection(secId) {
-  if (!apiKey) { openModal(); return; }
-  const sec = BRD_SECTIONS.find(s => s.id === secId);
-  if (!sec) return;
-
-  const statusEl = document.getElementById('brd-ai-status-' + secId);
-  const outEl    = document.getElementById('brd-output-' + secId);
-  const outText  = document.getElementById('brd-output-text-' + secId);
-  if (statusEl) statusEl.textContent = '⏳ Generating...';
-  if (outEl) outEl.classList.remove('show');
-
-  // Build context from filled fields
-  const ctx = BRD_SECTIONS
-    .flatMap(s => s.fields.map(f => brdData[f.id] ? `${f.label}: ${brdData[f.id]}` : ''))
-    .filter(Boolean).slice(0, 20).join('\n');
-
-  const prompts = {
-    exec: `You are a senior BA. Write the Executive Summary section of a BRD.\nContext from other sections:\n${ctx}\nWrite:\n1. Business Problem (specific, quantified)\n2. Background / Context (why now)\n3. Expected Outcome (measurable)`,
-    objectives: `Write the Business Objectives & KPIs section. Each objective must have metric + baseline + target + timeline + owner. Context:\n${ctx}`,
-    stakeholders: `Write the Stakeholder Register. Format: Name | Role | Interest | Influence (H/M/L) | Comms frequency. Context:\n${ctx}`,
-    scope: `Write the Scope section. List explicit In Scope items. List Out of Scope items WITH rationale for each exclusion. Context:\n${ctx}`,
-    personas: `Write 2-3 User Personas. For each: role, goals (what they need to achieve), pain points (what frustrates them today). Context:\n${ctx}`,
-    'as-is': `Write the AS-IS Current State. Step-by-step current flow + key issues and inefficiencies. Context:\n${ctx}`,
-    'to-be': `Write the TO-BE Proposed State. Improved future flow + key system behaviour improvements. Context:\n${ctx}`,
-    dependencies: `List all dependencies. Format: DEP-[N]: system/team/API. Owner: [name]. Due: [date]. Context:\n${ctx}`,
-    fr: `Write Functional Requirements using this format for each:\nFR-[N] | Priority (Must/Should/Could) | Source (stakeholder)\nFeature: [name]\nTrigger: [what initiates]\nBehavior: [system logic]\nOutput: [what user sees]\nAC: Given/When/Then\n\nContext:\n${ctx}`,
-    nfr: `Write Non-Functional Requirements with specific targets for: Performance, Security, Data Residency, Compliance, Accessibility, Availability. Context:\n${ctx}`,
-    errors: `Write Error Handling scenarios. For each: Failure Scenario + System Response + User Experience. Cover: API failures, validation errors, partial data, network issues. Context:\n${ctx}`,
-    systems: `List Impacted Systems: UI Changes, Backend Systems, Integrations. Context:\n${ctx}`,
-    assumptions: `Write Assumptions. Format: A-[N]: [assumption]. Impact if wrong: [consequence]. Context:\n${ctx}`,
-    risks: `Write Risk Register. Format: RISK-[N]: [risk]. Likelihood: H/M/L. Impact: H/M/L. Mitigation: [specific action]. Context:\n${ctx}`,
-    metrics: `Write Success Metrics measured post-launch. Each metric: measurable, with target and measurement method. Context:\n${ctx}`,
-    signoff: `Write Sign-off Criteria: Named approvers, deadline, form of approval, open items that must be resolved before approval. Context:\n${ctx}`
-  };
-
-  const prompt = prompts[secId] || `Fill the ${sec.title} section of a BRD. Context:\n${ctx}`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1200,
-        system: 'You are a Principal Business Analyst with 20 years enterprise experience. Write BRD sections that are specific, testable, and unambiguous. Never write vague statements. Every requirement must be traceable to a business need.',
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.map(b => b.text || '').join('') || '';
-    if (outText) outText.textContent = text;
-    if (outEl)   outEl.classList.add('show');
-    if (statusEl) statusEl.textContent = '✅ Done — review above';
-  } catch(e) {
-    if (statusEl) statusEl.textContent = '❌ Error: ' + e.message;
-  }
-}
-
-function brdApplyOutput(secId) {
-  const sec = BRD_SECTIONS.find(s => s.id === secId);
-  const outText = document.getElementById('brd-output-text-' + secId);
-  if (!sec || !outText) return;
-  const text = outText.textContent;
-  // Apply to first textarea in the section
-  const firstTextarea = sec.fields.find(f => f.type === 'textarea');
-  if (firstTextarea) {
-    const el = document.getElementById(firstTextarea.id);
-    if (el) {
-      el.value = text;
-      brdData[firstTextarea.id] = text;
-      brdUpdateProgress();
-      brdSaveLocal();
-      toast('Applied to section ✅');
-    }
-  }
-}
-
-async function brdGenerateAll() {
-  if (!apiKey) { openModal(); return; }
-  toast('🤖 Generating all 16 sections — this takes ~60 seconds');
-  for (const sec of BRD_SECTIONS) {
-    await brdAiSection(sec.id);
-    await new Promise(r => setTimeout(r, 300));
-  }
-  toast('✅ Full BRD generated — review each section');
-}
-
-function brdClearAll() {
-  if (!confirm('Clear all BRD data?')) return;
-  brdData = {};
-  BRD_SECTIONS.forEach(sec => {
-    sec.fields.forEach(f => {
-      const el = document.getElementById(f.id);
-      if (el) el.value = '';
-      const outEl = document.getElementById('brd-output-' + sec.id);
-      if (outEl) outEl.classList.remove('show');
-    });
-  });
-  try { localStorage.removeItem('prodmind_brd_data'); } catch(_) {}
-  brdUpdateProgress();
-  toast('BRD cleared');
-}
-
-function brdExport() {
-  // Build the full BRD document
-  let doc = `# BUSINESS REQUIREMENTS DOCUMENT\nGenerated by ProdMind · ${new Date().toLocaleDateString()}\n\n`;
-  doc += `---\n\n`;
-
-  BRD_SECTIONS.forEach(sec => {
-    doc += `## ${sec.num}. ${sec.title}\n\n`;
-    sec.fields.forEach(f => {
-      const val = (brdData[f.id] || '').trim();
-      if (val) {
-        doc += `**${f.label}**\n${val}\n\n`;
-      } else {
-        doc += `**${f.label}**\n*[Not filled]*\n\n`;
-      }
-    });
-    doc += `---\n\n`;
-  });
-
-  exportDoc(null, 'Business Requirements Document', doc);
-}
-
-// Override exportDoc to accept optional content
-
-// BRD export handled by brdExportDoc()
-
-
-// BRD init handled by new system
-
-// ══ BRD BUILDER — AI-POWERED ═══════════════════════════════════
-
-let _brdResult = {};
-let _brdRawInput = '';
-let _brdInitDone = false;
-
-const BRD_SECTIONS_META = [('exec', '01', '📌', 'Executive Summary', 'Required'), ('objectives', '02', '🎯', 'Business Objectives & KPIs', 'Required'), ('stakeholders', '03', '👥', 'Stakeholder Register', 'Required'), ('scope', '04', '🔲', 'Scope', 'Required'), ('personas', '05', '🎭', 'Personas', 'Required'), ('asis', '06', '🔄', 'Current State — AS-IS', 'Context'), ('tobe', '07', '✨', 'Proposed State — TO-BE', 'Context'), ('dependencies', '08', '🔗', 'Dependencies', 'Critical'), ('fr', '09', '⚙️', 'Functional Requirements', 'Critical'), ('nfr', '10', '🛡️', 'Non-Functional Requirements', 'Critical'), ('errors', '11', '⚠️', 'Error Handling', 'Required'), ('systems', '12', '🖥️', 'Impacted Systems', 'Technical'), ('assumptions', '13', '📝', 'Assumptions', 'Required'), ('risks', '14', '🚨', 'Risks', 'Required'), ('metrics', '15', '📊', 'Success Metrics', 'Required'), ('signoff', '16', '✅', 'Sign-off Criteria', 'Required')];
-
-function initBrdPageOnce() {
-  if (_brdInitDone) return;
-  _brdInitDone = true;
-  // Load saved data
-  try {
-    const saved = localStorage.getItem('prodmind_brd_v2');
-    if (saved) {
-      const d = JSON.parse(saved);
-      if (d.input) document.getElementById('brd-raw-input').value = d.input;
-      if (d.product) document.getElementById('brd-ctx-product').value = d.product;
-      if (d.stakeholder) document.getElementById('brd-ctx-stakeholder').value = d.stakeholder;
-      if (d.tech) document.getElementById('brd-ctx-tech').value = d.tech;
-      if (d.result && Object.keys(d.result).length > 0) {
-        _brdResult = d.result;
-        _brdRawInput = d.input || '';
-        _renderBrdOutput();
-      }
-    }
-  } catch(_) {}
-}
-
-async function brdGenerate() {
-  if (!apiKey) { openModal(); return; }
-  const raw = (document.getElementById('brd-raw-input')?.value || '').trim();
-  if (!raw) { toast('Describe your requirement first'); return; }
-
-  const product     = document.getElementById('brd-ctx-product')?.value || '';
-  const stakeholder = document.getElementById('brd-ctx-stakeholder')?.value || '';
-  const tech        = document.getElementById('brd-ctx-tech')?.value || '';
-
-  _brdRawInput = raw;
-  _brdResult   = {};
-
-  const genBtn  = document.getElementById('brd-gen-btn');
-  const progress= document.getElementById('brd-gen-progress');
-  const output  = document.getElementById('brd-output-card');
-  const progBar = document.getElementById('brd-prog-bar');
-  const progSec = document.getElementById('brd-prog-section');
-  const progSteps=document.getElementById('brd-prog-steps');
-
-  if (genBtn)  { genBtn.disabled=true; genBtn.textContent='⏳ Generating...'; }
-  if (progress){ progress.style.display='block'; }
-  if (output)  { output.style.display='none'; }
-  if (progSteps) progSteps.innerHTML='';
-
-  const ctx = `Product: ${product||'not specified'}\nPrimary stakeholder: ${stakeholder||'not specified'}\nTech stack: ${tech||'not specified'}\n\nRequirement:\n${raw}`;
-
-  // ── Two-pass generation ──────────────────────────────────────
-  // Pass 1: Sections 1-8 (context, scope, stakeholders, AS-IS/TO-BE, dependencies, FRs)
-  // Pass 2: Sections 9-16 (NFRs, errors, systems, assumptions, risks, metrics, sign-off, score)
-
-  const PASS1_PROMPT = `You are a Principal BA/PO. Based on this requirement, write BRD sections 1-9 in PLAIN TEXT format.
-
-${ctx}
-
-Write each section clearly separated. Use this EXACT format for each section:
-
-===EXEC===
-BUSINESS PROBLEM:
-[write the specific, quantified business problem]
-
-BACKGROUND:
-[write the context and why now]
-
-EXPECTED OUTCOME:
-[write measurable outcomes]
-
-===OBJECTIVES===
-BUSINESS OBJECTIVES:
-OBJ-01: [SMART objective — metric, baseline, target, timeline, owner]
-OBJ-02: [...]
-
-KPIs:
-KPI-01: [metric name] — Target: [number] — Measured by: [method]
-KPI-02: [...]
-
-===STAKEHOLDERS===
-REGISTER:
-[Name] | [Role] | [Interest] | [Influence H/M/L] | [Comms frequency]
-[repeat for each stakeholder]
-
-===SCOPE===
-IN SCOPE:
-• [item 1]
-• [item 2]
-
-OUT OF SCOPE (with rationale):
-• [item] — Rationale: [why excluded]
-
-===PERSONAS===
-PERSONA-01: [Role name]
-Goal: [what they need to achieve]
-Pain: [what frustrates them today]
-Frequency: [how often they use this]
-
-===ASIS===
-CURRENT FLOW:
-1. [step]
-2. [step]
-
-KEY ISSUES:
-• [issue with impact]
-
-===TOBE===
-PROPOSED FLOW:
-1. [step]
-2. [step]
-
-KEY IMPROVEMENTS:
-• [specific improvement]
-
-===DEPENDENCIES===
-DEP-01: [System/API/Team] — Owner: [Name] — Due: [Date] — Risk if delayed: [impact]
-DEP-02: [...]
-
-===FR===
-FR-01 | Priority: Must | Source: [stakeholder]
-Feature: [name]
-Trigger: [what initiates]
-Behavior: [system logic step by step]
-Output: [what user sees]
-AC: Given [context], when [action], then [result]
-
-FR-02 | Priority: Must | Source: [stakeholder]
-[repeat pattern]
-
-FR-03 | Priority: Should | Source: [stakeholder]
-[repeat pattern]
-
-[Write at least 5-8 FRs covering all features mentioned]
-
-Rules:
-- Be specific to the requirement, not generic
-- Use real names if given (e.g. Harry CDO, Harbour Platform)
-- Every FR must have full Trigger/Behavior/Output/AC`;
-
-  const PASS2_PROMPT = `You are a Principal BA/PO. Based on this requirement, write BRD sections 9-16 in PLAIN TEXT format.
-
-${ctx}
-
-Write each section clearly separated. Use this EXACT format:
-
-===NFR===
-NFR-01 Performance: [specific metric e.g. page loads in <2s for 500 concurrent users]
-NFR-02 Security: [specific requirement e.g. Azure AD SSO, MFA enforced]
-NFR-03 Data Residency: [e.g. all data within UAE Azure region]
-NFR-04 Compliance: [e.g. audit trail 7 years per regulation]
-NFR-05 Availability: [e.g. 99.5% uptime 8am-8pm GST]
-NFR-06 Accessibility: [e.g. WCAG 2.1 AA]
-
-===ERRORS===
-ERR-01: [Failure scenario]
-System response: [what happens]
-User experience: [what user sees, with exact message]
-
-ERR-02: [...]
-[repeat for 4-5 key error scenarios]
-
-===SYSTEMS===
-UI CHANGES:
-• [specific screen change]
-• [specific field change]
-
-BACKEND CHANGES:
-• [specific service/model change]
-
-INTEGRATIONS:
-• [system]: [what changes]
-
-===ASSUMPTIONS===
-A-01: [Assumption]. Impact if wrong: [consequence]
-A-02: [...]
-[Write 5-7 assumptions]
-
-===RISKS===
-RISK-01: [Risk description]
-Likelihood: H/M/L | Impact: H/M/L
-Mitigation: [specific action]
-
-RISK-02: [...]
-[Write 5-6 risks]
-
-===METRICS===
-SM-01: [metric] — Target: [number] — Measured: [when and how]
-SM-02: [...]
-[Write 5-6 success metrics]
-
-===SIGNOFF===
-APPROVERS: [Named people and their roles]
-DEADLINE: [Specific date]
-FORM OF APPROVAL: [Written email / JIRA status / signature]
-OPEN BLOCKERS:
-1. [item] — Owner: [name] — Due: [date]
-2. [...]
-
-===SCORE===
-VALUE: [75-95]
-LABEL: [High Quality / Good / Needs Work]
-REASON: [Why this score — what's strong and what needs refinement]
-
-Rules:
-- Specific to the requirement
-- NFRs must have numbers, not adjectives
-- Risks must have likelihood/impact/mitigation`;
-
-  async function streamBrdSection(prompt, passNum) {
-    if (progSec) progSec.textContent = `Pass ${passNum}/2 — generating sections...`;
-    if (progBar) progBar.style.width = (passNum === 1 ? '15%' : '55%');
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8192,
-        stream: true,
-        system: 'You are a Principal BA. Write detailed, specific BRD sections. No generic filler. Use exact format specified.',
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
-    if (!res.ok) throw new Error(`API error ${res.status}`);
-
-    let fullText = '';
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '';
-
-    while (true) {
-      const { done, value } = await reader.read();
-      const chunk = done ? decoder.decode() : decoder.decode(value, { stream: true });
-      if (chunk) {
-        buffer += chunk;
-        const lines = buffer.split('\n');
-        buffer = lines.pop();
-        for (const line of lines) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6).trim();
-          if (data === '[DONE]') continue;
-          try {
-            const ev = JSON.parse(data);
-            if (ev.type === 'content_block_delta' && ev.delta?.type === 'text_delta') {
-              fullText += ev.delta.text;
-            }
-          } catch(_) {}
-        }
-      }
-      if (done) break;
-    }
-    if (buffer.trim()) {
-      for (const line of buffer.split('\n')) {
-        if (!line.startsWith('data: ')) continue;
-        try {
-          const ev = JSON.parse(line.slice(6).trim());
-          if (ev.type === 'content_block_delta') fullText += ev.delta?.text || '';
-        } catch(_) {}
-      }
-    }
-    return fullText;
-  }
-
-  try {
-    // Pass 1
-    const text1 = await streamBrdSection(PASS1_PROMPT, 1);
-    if (progBar) progBar.style.width = '50%';
-    _parseBrdText(text1);
-    _renderBrdOutput(); // show partial results immediately
-
-    // Pass 2
-    const text2 = await streamBrdSection(PASS2_PROMPT, 2);
-    if (progBar) progBar.style.width = '95%';
-    _parseBrdText(text2);
-    _renderBrdOutput(); // re-render with complete data
-
-    if (progBar) progBar.style.width = '100%';
-    if (progSec) progSec.textContent = '✅ BRD complete — 16 sections generated';
-    if (progress) setTimeout(() => { progress.style.display = 'none'; }, 1500);
-
-    // Save
-    try {
-      localStorage.setItem('prodmind_brd_v2', JSON.stringify({
-        input: raw, product, stakeholder, tech, result: _brdResult
-      }));
-    } catch(_) {}
-
-  } catch(e) {
-    if (progSec) progSec.textContent = '❌ ' + e.message;
-    if (Object.keys(_brdResult).length > 0) {
-      _renderBrdOutput(); // show whatever we have
-    }
-    console.error('BRD generation error:', e);
-  }
-
-  if (genBtn) { genBtn.disabled=false; genBtn.textContent='🤖 Generate Full BRD'; }
-}
-
-// Parse plain text BRD response into _brdResult sections
-function _parseBrdText(text) {
-  const SECTION_MAP = {
-    'EXEC':         ['exec',         ['problem','background','outcome']],
-    'OBJECTIVES':   ['objectives',   ['objectives','kpis']],
-    'STAKEHOLDERS': ['stakeholders', ['register']],
-    'SCOPE':        ['scope',        ['in_scope','out_scope']],
-    'PERSONAS':     ['personas',     ['personas']],
-    'ASIS':         ['asis',         ['flow','issues']],
-    'TOBE':         ['tobe',         ['flow','improvements']],
-    'DEPENDENCIES': ['dependencies', ['list']],
-    'FR':           ['fr',           ['requirements']],
-    'NFR':          ['nfr',          ['requirements']],
-    'ERRORS':       ['errors',       ['handling']],
-    'SYSTEMS':      ['systems',      ['ui','backend','integrations']],
-    'ASSUMPTIONS':  ['assumptions',  ['list']],
-    'RISKS':        ['risks',        ['register']],
-    'METRICS':      ['metrics',      ['success']],
-    'SIGNOFF':      ['signoff',      ['details']],
-    'SCORE':        ['score',        ['raw']],
-  };
-
-  // Split by ===SECTION=== markers
-  const sections = text.split(/===([A-Z0-9_]+)===/);
-  
-  for (let i = 1; i < sections.length; i += 2) {
-    const key = sections[i].trim();
-    const content = (sections[i+1] || '').trim();
-    if (!key || !content) continue;
-
-    const mapping = SECTION_MAP[key];
-    if (!mapping) continue;
-
-    const [sectionId] = mapping;
-
-    if (key === 'SCORE') {
-      // Parse score
-      const valMatch = content.match(/VALUE:\s*(\d+)/i);
-      const labelMatch = content.match(/LABEL:\s*(.+)/i);
-      const reasonMatch = content.match(/REASON:\s*([\s\S]+)/i);
-      _brdResult['score'] = {
-        value: valMatch ? parseInt(valMatch[1]) : 80,
-        label: labelMatch ? labelMatch[1].trim() : 'Good',
-        reason: reasonMatch ? reasonMatch[1].trim() : ''
-      };
-      continue;
-    }
-
-    if (key === 'FR' || key === 'NFR' || key === 'ERRORS' || key === 'RISKS' || key === 'ASSUMPTIONS' || key === 'DEPENDENCIES' || key === 'METRICS') {
-      // These sections store full content as one block
-      if (!_brdResult[sectionId]) _brdResult[sectionId] = {};
-      const fieldKey = mapping[1][0];
-      _brdResult[sectionId][fieldKey] = (_brdResult[sectionId][fieldKey] || '') + content;
-      continue;
-    }
-
-    if (key === 'SIGNOFF') {
-      if (!_brdResult['signoff']) _brdResult['signoff'] = {};
-      _brdResult['signoff']['details'] = content;
-      continue;
-    }
-
-    if (key === 'SYSTEMS') {
-      if (!_brdResult['systems']) _brdResult['systems'] = {};
-      // Try to split by UI/BACKEND/INTEGRATIONS sub-headers
-      const uiM = content.match(/UI CHANGES?:?([\s\S]*?)(?=BACKEND|INTEGRATION|$)/i);
-      const beM = content.match(/BACKEND CHANGES?:?([\s\S]*?)(?=UI|INTEGRATION|$)/i);
-      const intM = content.match(/INTEGRATIONS?:?([\s\S]*?)(?=UI|BACKEND|$)/i);
-      if (uiM) _brdResult['systems']['ui'] = uiM[1].trim();
-      if (beM) _brdResult['systems']['backend'] = beM[1].trim();
-      if (intM) _brdResult['systems']['integrations'] = intM[1].trim();
-      if (!uiM && !beM && !intM) _brdResult['systems']['details'] = content;
-      continue;
-    }
-
-    if (key === 'ASIS' || key === 'TOBE') {
-      if (!_brdResult[sectionId]) _brdResult[sectionId] = {};
-      const flowM = content.match(/(?:CURRENT|PROPOSED) FLOW:?([\s\S]*?)(?=KEY|$)/i);
-      const issueM = content.match(/KEY (?:ISSUES|IMPROVEMENTS):?([\s\S]*?)$/i);
-      if (flowM) _brdResult[sectionId]['flow'] = flowM[1].trim();
-      if (issueM) _brdResult[sectionId][key==='ASIS'?'issues':'improvements'] = issueM[1].trim();
-      if (!flowM && !issueM) _brdResult[sectionId]['flow'] = content;
-      continue;
-    }
-
-    if (key === 'EXEC') {
-      if (!_brdResult['exec']) _brdResult['exec'] = {};
-      const probM = content.match(/BUSINESS PROBLEM:?([\s\S]*?)(?=BACKGROUND|EXPECTED|$)/i);
-      const bgM   = content.match(/BACKGROUND:?([\s\S]*?)(?=BUSINESS PROBLEM|EXPECTED|$)/i);
-      const outM  = content.match(/EXPECTED OUTCOME:?([\s\S]*?)$/i);
-      if (probM) _brdResult['exec']['problem'] = probM[1].trim();
-      if (bgM)   _brdResult['exec']['background'] = bgM[1].trim();
-      if (outM)  _brdResult['exec']['outcome'] = outM[1].trim();
-      if (!probM && !bgM && !outM) _brdResult['exec']['content'] = content;
-      continue;
-    }
-
-    if (key === 'OBJECTIVES') {
-      if (!_brdResult['objectives']) _brdResult['objectives'] = {};
-      const objM = content.match(/BUSINESS OBJECTIVES:?([\s\S]*?)(?=KPIs?:|$)/i);
-      const kpiM = content.match(/KPIs?:?([\s\S]*?)$/i);
-      if (objM) _brdResult['objectives']['objectives'] = objM[1].trim();
-      if (kpiM) _brdResult['objectives']['kpis'] = kpiM[1].trim();
-      if (!objM && !kpiM) _brdResult['objectives']['objectives'] = content;
-      continue;
-    }
-
-    if (key === 'SCOPE') {
-      if (!_brdResult['scope']) _brdResult['scope'] = {};
-      const inM  = content.match(/IN SCOPE:?([\s\S]*?)(?=OUT OF SCOPE|$)/i);
-      const outM = content.match(/OUT OF SCOPE[^:]*:?([\s\S]*?)$/i);
-      if (inM)  _brdResult['scope']['in_scope'] = inM[1].trim();
-      if (outM) _brdResult['scope']['out_scope'] = outM[1].trim();
-      if (!inM && !outM) _brdResult['scope']['in_scope'] = content;
-      continue;
-    }
-
-    // Default: store full content
-    if (!_brdResult[sectionId]) _brdResult[sectionId] = {};
-    _brdResult[sectionId][mapping[1][0]] = content;
-  }
-}
-
-
-function _renderBrdOutput() {
-  const output = document.getElementById('brd-output-card');
-  const container = document.getElementById('brd-sections-output');
-  const exportBtn = document.getElementById('brd-export-btn');
-  if (!output || !container) return;
-
-  output.style.display = 'block';
-  if (exportBtn) exportBtn.style.display = 'inline-flex';
-
-  // Score banner
-  const score = _brdResult.score || {};
-  const scoreVal = document.getElementById('brd-score-val');
-  const scoreLabel = document.getElementById('brd-score-label');
-  const scoreReason = document.getElementById('brd-score-reason');
-  if (scoreVal) {
-    const v = score.value || 0;
-    scoreVal.textContent = v + '/100';
-    scoreVal.style.color = v >= 80 ? '#00D4AA' : v >= 60 ? '#F5A623' : '#FF6B6B';
-  }
-  if (scoreLabel) scoreLabel.textContent = score.label || '';
-  if (scoreReason) scoreReason.textContent = score.reason || '';
-
-  // Build sections
-  container.innerHTML = '';
-  const tagColors = {Required:'rgba(239,83,80,.7)',Critical:'rgba(239,83,80,.9)',Context:'rgba(41,182,246,.8)',Technical:'rgba(100,180,255,.8)'};
-
-  BRD_SECTIONS_META.forEach(([id, num, icon, title, tag]) => {
-    const data = _brdResult[id] || {};
-    const content = Object.values(data).filter(Boolean).join('\n\n');
-    if (!content) return;
-
-    const card = document.createElement('div');
-    card.style.cssText = 'background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;overflow:hidden;transition:border-color .2s';
-    card.setAttribute('data-section', id);
-
-    const col = tagColors[tag] || 'rgba(108,71,255,.7)';
-    const isOpen = id === 'exec' || id === 'fr';
-
-    card.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--bg3);border-bottom:0.5px solid var(--border2);cursor:pointer;user-select:none"
-           onclick="this.parentElement.querySelector('.brd-sec-body').style.display=this.parentElement.querySelector('.brd-sec-body').style.display==='none'?'block':'none';this.querySelector('.brd-arr').style.transform=this.parentElement.querySelector('.brd-sec-body').style.display==='none'?'rotate(0deg)':'rotate(180deg)'">
-        <div style="width:26px;height:26px;border-radius:7px;background:rgba(0,212,170,.1);border:0.5px solid rgba(0,212,170,.25);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:monospace;color:#00D4AA;flex-shrink:0">${num}</div>
-        <span style="font-size:14px">${icon}</span>
-        <span style="font-size:13px;font-weight:600;color:var(--text);flex:1">${title}</span>
-        <span style="font-size:9px;font-weight:600;padding:2px 8px;border-radius:10px;background:${col}22;color:${col};border:0.5px solid ${col}44">${tag}</span>
-        <span class="brd-arr" style="font-size:10px;color:var(--muted);transition:transform .2s;${isOpen?'transform:rotate(180deg)':''}"">▼</span>
-      </div>
-      <div class="brd-sec-body" style="padding:16px;display:${isOpen?'block':'none'}">
-        ${_formatBrdSection(id, data)}
-        <div style="display:flex;gap:6px;margin-top:12px;padding-top:10px;border-top:0.5px solid var(--border2)">
-          <button onclick="brdCopySection('${id}')" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:10.5px;color:var(--muted2);cursor:pointer;font-family:inherit">📋 Copy</button>
-          <button onclick="brdRefineSection('${id}','${title}')" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:10.5px;color:var(--muted2);cursor:pointer;font-family:inherit">✏️ Refine</button>
-        </div>
-      </div>`;
-    container.appendChild(card);
-  });
-
-  // Scroll to output
-  output.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function _formatBrdSection(id, data) {
-  let html = '';
-  const FIELD_LABELS = {
-    problem:'Business Problem', background:'Background / Context', outcome:'Expected Outcome',
-    objectives:'Business Objectives', kpis:'KPIs', register:'Stakeholder Register',
-    in_scope:'In Scope', out_scope:'Out of Scope', personas:'Personas',
-    flow:'Flow', issues:'Key Issues', improvements:'Key Improvements',
-    list:'Details', requirements:'Requirements', handling:'Error Handling',
-    ui:'UI Changes', backend:'Backend Changes', integrations:'Integrations',
-    details:'Details', register:'Register', success:'Success Metrics', raw:'Details'
-  };
-  const entries = Object.entries(data);
-  entries.forEach(([key, val]) => {
-    if (!val || String(val).trim().length < 3) return;
-    const label = FIELD_LABELS[key] || key.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
-    const text = String(val).trim();
-    // Format with syntax highlighting for FR/risk patterns
-    const formatted = text
-      .replace(/^(FR-\d+[^\n]*)/gm, '<strong style="color:var(--accent)">$1</strong>')
-      .replace(/^(RISK-\d+[^\n]*)/gm, '<strong style="color:#EF5350">$1</strong>')
-      .replace(/^(NFR-\d+[^\n]*)/gm, '<strong style="color:#F5A623">$1</strong>')
-      .replace(/^(A-\d+[^\n]*)/gm, '<strong style="color:#00D4AA">$1</strong>')
-      .replace(/^(SM-\d+[^\n]*)/gm, '<strong style="color:#9C7BFF">$1</strong>')
-      .replace(/^(DEP-\d+[^\n]*)/gm, '<strong style="color:#29B6F6">$1</strong>')
-      .replace(/^(AC:|Given|When|Then)/gm, '<em style="color:#00D4AA">$1</em>')
-      .replace(/\n/g, '<br>');
-    html += `<div style="margin-bottom:14px">
-      <div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:6px">
-        <span style="width:3px;height:12px;background:var(--accent);border-radius:2px;display:inline-block"></span>${label}
-      </div>
-      <div style="font-size:12.5px;color:var(--text);line-height:1.75;background:var(--bg3);border-radius:8px;padding:12px 14px;border:0.5px solid var(--border2)">${formatted}</div>
-    </div>`;
-  });
-  return html || '<div style="font-size:12px;color:var(--muted2);padding:8px">Generating...</div>';
-}
-
-
-function brdCopySection(id) {
-  const data = _brdResult[id] || {};
-  const text = Object.values(data).filter(Boolean).join('\n\n');
-  navigator.clipboard.writeText(text).then(() => toast('Section copied'));
-}
-
-function brdRefineSection(id, title) {
-  const data = _brdResult[id] || {};
-  const text = Object.values(data).filter(Boolean).join('\n\n');
-  switchTab('chat', null);
-  setTimeout(() => {
-    const inp = document.getElementById('chat-input');
-    if (inp) {
-      inp.value = `Refine the "${title}" section of my BRD:\n\n${text}\n\nImprove: make it more specific, add missing details, ensure every item is testable.`;
-      autoResize(inp);
-      inp.focus();
-    }
-  }, 300);
-}
-
-function brdRefine() {
-  const fullBrd = _buildBrdText();
-  switchTab('chat', null);
-  setTimeout(() => {
-    const inp = document.getElementById('chat-input');
-    if (inp) {
-      inp.value = `Review my full BRD and identify the top 5 improvements needed:\n\n${fullBrd.substring(0, 3000)}`;
-      autoResize(inp);
-      inp.focus();
-    }
-  }, 300);
-}
-
-function brdCopyAll() {
-  navigator.clipboard.writeText(_buildBrdText()).then(() => toast('Full BRD copied'));
-}
-
-function _buildBrdText() {
-  let doc = `BUSINESS REQUIREMENTS DOCUMENT\nGenerated by ProdMind AI · ${new Date().toLocaleDateString()}\n`;
-  doc += `Requirement: ${_brdRawInput}\n\n${'─'.repeat(60)}\n\n`;
-  BRD_SECTIONS_META.forEach(([id, num, icon, title]) => {
-    const data = _brdResult[id] || {};
-    const content = Object.entries(data).map(([k,v]) => `${k.toUpperCase().replace(/_/g,' ')}:\n${v}`).filter(s=>s.includes('\n')).join('\n\n');
-    if (content.trim()) doc += `## ${num}. ${title}\n\n${content}\n\n${'─'.repeat(40)}\n\n`;
-  });
-  if (_brdResult.score) doc += `BRD Quality Score: ${_brdResult.score.value}/100 — ${_brdResult.score.label}\n${_brdResult.score.reason}`;
-  return doc;
-}
-
-function brdExportDoc() {
-  const text = _buildBrdText();
-  const formatted = text
-    .replace(/^## (\d+\..+)$/gm, '<h2 style="color:#6C47FF;font-size:16px;margin:20px 0 8px">$1</h2>')
-    .replace(/^([\w\s\/]+):$/gm, '<h3 style="font-size:12px;color:#666;margin:12px 0 4px;text-transform:uppercase;letter-spacing:.05em">$1</h3>')
-    .replace(/^─+$/gm, '<hr style="border:none;border-top:0.5px solid #ddd;margin:16px 0">')
-    .replace(/\n/g, '<br>');
-
-  const win = window.open('','_blank','width=940,height=760');
-  if (!win) { toast('Allow popups to export'); return; }
-  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>BRD — ProdMind</title>
-    <style>
-      body{font-family:Arial,sans-serif;font-size:13px;line-height:1.75;color:#1a1a2a;max-width:820px;margin:40px auto;padding:24px}
-      .hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:16px;border-bottom:2px solid #6C47FF;margin-bottom:28px}
-      .hdr h1{font-size:20px;color:#1a1a2a;margin:0}.hdr span{font-size:11px;color:#888}
-      h2{border-left:3px solid #6C47FF;padding-left:10px}
-      pre,code{background:#f5f5f5;padding:2px 6px;border-radius:4px;font-size:12px}
-      @media print{.no-print{display:none!important}}
-    </style></head><body>
-    <div class="hdr">
-      <div><h1>📋 Business Requirements Document</h1><div style="font-size:12px;color:#6C47FF;margin-top:3px">Generated by ProdMind AI</div></div>
-      <span>${new Date().toLocaleDateString()}</span>
-    </div>
-    <div>${formatted}</div><br>
-    <div class="no-print" style="display:flex;gap:10px;margin-top:20px">
-      <button onclick="window.print()" style="background:#6C47FF;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:13px;cursor:pointer;font-weight:600">🖨️ Print / Save PDF</button>
-      <button onclick="window.close()" style="background:#f0f0f0;border:none;border-radius:8px;padding:10px 18px;font-size:13px;cursor:pointer">✕ Close</button>
-    </div></body></html>`);
-  win.document.close();
-}
-
-function brdReset() {
-  if (!confirm('Clear this BRD?')) return;
-  _brdResult = {}; _brdRawInput = '';
-  ['brd-raw-input','brd-ctx-product','brd-ctx-stakeholder','brd-ctx-tech'].forEach(id => {
-    const el = document.getElementById(id); if(el) el.value='';
-  });
-  const output = document.getElementById('brd-output-card');
-  const progress = document.getElementById('brd-gen-progress');
-  if (output) output.style.display='none';
-  if (progress) progress.style.display='none';
-  try { localStorage.removeItem('prodmind_brd_v2'); } catch(_) {}
-  toast('BRD cleared');
-}
 </script>
 
 <!-- ══ API KEY LOCK GATE ══════════════════════════════════════ -->
@@ -25317,96 +24410,6 @@ function brdReset() {
       </div>
     </div>
   </div>
-</div>
-
-<div class="page" id="page-brd">
-<div class="tab-page">
-
-  <div class="tb">
-    <h2>📋 BRD Builder</h2>
-    <span style="font-size:11px;color:var(--muted2)">Describe your requirement → AI generates complete 16-section enterprise BRD</span>
-    <div style="margin-left:auto;display:flex;gap:8px">
-      <button class="gbtn" onclick="brdReset()" style="font-size:10px;padding:4px 10px;background:var(--bg3);color:var(--muted2)">🗑 Reset</button>
-      <button class="gbtn" onclick="brdExportDoc()" id="brd-export-btn" style="font-size:10px;padding:4px 10px;display:none">⬇ Export BRD</button>
-    </div>
-  </div>
-
-  <!-- INPUT CARD -->
-  <div id="brd-input-card" style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;padding:24px;margin-bottom:16px">
-
-    <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">What do you need to build?</div>
-    <div style="font-size:12px;color:var(--muted2);margin-bottom:16px;line-height:1.5">Give me the raw requirement — one sentence or a paragraph. The more context the sharper the BRD. Product, feature, problem, users, constraints — whatever you have.</div>
-
-    <textarea id="brd-raw-input"
-      placeholder="e.g. We need to digitise the G0 Gate approval process for Harbour Platform. Currently POs manage feasibility modelling in Excel and approvals happen over email with no audit trail. The process takes 14 days and has formula errors. We need GIS plot selection, Unit Mix% validation, role-based team access, Azure AD SSO sync on approval, and AI benchmarking via XKool. CDO Harry needs to approve digitally with a full audit trail."
-      style="width:100%;min-height:120px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:10px;padding:12px 14px;font-size:13px;color:var(--text);font-family:inherit;outline:none;resize:vertical;line-height:1.65;transition:border .2s"
-      onfocus="this.style.borderColor='var(--accent)'"
-      onblur="this.style.borderColor='var(--border2)'"
-    ></textarea>
-
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:12px">
-      <div>
-        <label style="font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Product / Platform</label>
-        <input id="brd-ctx-product" type="text" placeholder="e.g. Harbour Platform" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 11px;font-size:12px;color:var(--text);font-family:inherit;outline:none"/>
-      </div>
-      <div>
-        <label style="font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Primary Stakeholder</label>
-        <input id="brd-ctx-stakeholder" type="text" placeholder="e.g. Harry CDO" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 11px;font-size:12px;color:var(--text);font-family:inherit;outline:none"/>
-      </div>
-      <div>
-        <label style="font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Tech Stack (optional)</label>
-        <input id="brd-ctx-tech" type="text" placeholder="e.g. Next.js, Azure, Postgres" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 11px;font-size:12px;color:var(--text);font-family:inherit;outline:none"/>
-      </div>
-    </div>
-
-    <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
-      <button onclick="brdGenerate()" id="brd-gen-btn"
-        style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 28px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 3px 12px rgba(108,71,255,.35)"
-        onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
-        🤖 Generate Full BRD
-      </button>
-      <div id="brd-gen-status" style="font-size:12px;color:var(--muted2)"></div>
-    </div>
-  </div>
-
-  <!-- PROGRESS (shown during generation) -->
-  <div id="brd-gen-progress" style="display:none;background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;padding:16px 20px;margin-bottom:16px">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <div style="font-size:13px;font-weight:600;color:var(--text)">Generating your BRD</div>
-      <div id="brd-prog-section" style="font-size:11px;color:var(--muted2)"></div>
-    </div>
-    <div style="background:var(--bg3);border-radius:6px;height:6px;overflow:hidden">
-      <div id="brd-prog-bar" style="height:100%;background:linear-gradient(90deg,var(--accent),#00D4AA);width:0%;transition:width .5s;border-radius:6px"></div>
-    </div>
-    <div id="brd-prog-steps" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
-  </div>
-
-  <!-- OUTPUT (shown after generation) -->
-  <div id="brd-output-card" style="display:none">
-
-    <!-- Score banner -->
-    <div id="brd-score-banner" style="background:linear-gradient(135deg,rgba(108,71,255,.12),rgba(0,212,170,.08));border:0.5px solid rgba(108,71,255,.25);border-radius:12px;padding:14px 20px;margin-bottom:14px;display:flex;align-items:center;gap:16px">
-      <div>
-        <div id="brd-score-val" style="font-size:32px;font-weight:700;color:var(--accent);line-height:1">—</div>
-        <div style="font-size:10px;color:var(--muted2);margin-top:2px">BRD Quality Score</div>
-      </div>
-      <div style="flex:1">
-        <div id="brd-score-label" style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px"></div>
-        <div id="brd-score-reason" style="font-size:11.5px;color:var(--muted2);line-height:1.5"></div>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button onclick="brdExportDoc()" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">⬇ Export PDF</button>
-        <button onclick="brdCopyAll()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--muted2);cursor:pointer;font-family:inherit">📋 Copy</button>
-        <button onclick="brdRefine()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--muted2);cursor:pointer;font-family:inherit">✏️ Refine in Chat</button>
-      </div>
-    </div>
-
-    <!-- Sections accordion -->
-    <div id="brd-sections-output" style="display:flex;flex-direction:column;gap:8px"></div>
-
-  </div>
-
-</div>
 </div>
 
 <!-- ══ HOW TO USE ME MODAL ════════════════════════════════════ -->
