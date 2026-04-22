@@ -4307,7 +4307,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   <div class="nav-tab" onclick="switchTab('week-planner',this)">📅 My Week</div>
   <div class="nav-tab" onclick="switchTab('north-star',this)">⭐ North Star</div>
   <div class="nav-tab" onclick="switchTab('monte-carlo',this)">🎲 Forecast</div>
-  <div class="nav-tab" style="color:var(--accent);opacity:.6;cursor:default;font-style:italic" title="Coming soon">🔗 Jira <span style="font-size:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:4px;padding:1px 5px;margin-left:3px">Soon</span></div>
+  <div class="nav-tab" onclick="switchTab('jira',this)">🔗 Jira</div>
   <div class="nav-tab" style="color:var(--accent);opacity:.6;cursor:default;font-style:italic" title="Coming soon">📓 Notion <span style="font-size:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:4px;padding:1px 5px;margin-left:3px">Soon</span></div>
 </div>
 
@@ -5424,7 +5424,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
         <span id="rp-output-title" style="font-size:11px;font-weight:700;color:var(--accent)"></span>
         <div style="display:flex;gap:6px;margin-left:auto">
           <button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="rpCopyOutput()">📋 Copy</button>
-          <button class="export-btn" style="font-size:9.5px;padding:3px 9px" onclick="exportDoc('rp-output-content', document.getElementById('rp-output-title').textContent.replace('✅ ',''))">⬇ Export</button>
+          <button class="export-btn" style="font-size:9.5px;padding:3px 9px" onclick="exportDoc('rp-output-content', document.getElementById('rp-output-title').textContent.replace('✅ ',''))">⬇ Export</button><button class="gbtn" onclick="openJiraPushText('rp-output-content','auto')" style="font-size:9.5px;padding:3px 9px;background:rgba(0,82,204,0.12);color:#4C9AFF;border-color:rgba(0,82,204,0.35)">🔗 Jira</button>
           <button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="rpSendToChat()">💬 To chat</button>
           <button class="gbtn" style="font-size:9.5px;padding:3px 9px;color:var(--red)" onclick="document.getElementById('rp-output').style.display='none'">✕</button>
         </div>
@@ -5803,6 +5803,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
             <button class="gbtn" onclick="copyMomRich()">📋 Copy</button>
             <button class="gbtn" onclick="copyMom()">📄 Plain text</button>
             <button class="gbtn" onclick="_exportMomFromPanel()" style="background:var(--accent);color:#fff;border-color:var(--accent)">⬇ Export doc</button>
+            <button class="gbtn" onclick="openJiraPushText('mom-output','mom')" style="background:rgba(0,82,204,0.12);color:#4C9AFF;border-color:rgba(0,82,204,0.35)">🔗 Jira</button>
             <button class="gbtn" onclick="sendMomToChat()">💬 Refine in Chat</button>
             <button class="gbtn" onclick="document.getElementById('mom-output').style.display='none'">Close</button>
           </div>
@@ -5898,6 +5899,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
             <button class="gbtn" onclick="copyDocRich()">📋 Copy</button>
             <button class="gbtn" onclick="copyDoc()">📄 Plain text</button>
             <button class="gbtn" onclick="_exportDocFromPanel()" style="background:var(--accent);color:#fff;border-color:var(--accent)">⬇ Export doc</button>
+            <button class="gbtn" onclick="openJiraPushText('doc-output-content','doc')" style="background:rgba(0,82,204,0.12);color:#4C9AFF;border-color:rgba(0,82,204,0.35)">🔗 Push to Jira</button>
             <button class="gbtn" onclick="regenerateDoc()">🔄 Regenerate</button>
             <button class="gbtn" onclick="sendDocToChat()">💬 Refine in Chat</button>
             <button class="gbtn" onclick="closeDocGenerator()">Close</button>
@@ -6275,7 +6277,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 
     <!-- AI analysis output -->
     <div id="sh-ai-output" style="display:none;background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;padding:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--accent)">🤖 AI Sprint Analysis</div><div style="display:flex;gap:6px"><button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="copyDocText('sh-ai-text')">📋 Copy</button><button class="export-btn" onclick="exportDoc('sh-ai-text','Sprint Health Report')">⬇ Export</button></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--accent)">🤖 AI Sprint Analysis</div><div style="display:flex;gap:6px"><button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="copyDocText('sh-ai-text')">📋 Copy</button><button class="export-btn" onclick="exportDoc('sh-ai-text','Sprint Health Report')">⬇ Export</button><button class="gbtn" onclick="openJiraPushText('sh-ai-text','sprint-health')" style="font-size:9.5px;padding:3px 9px;background:rgba(0,82,204,0.12);color:#4C9AFF;border-color:rgba(0,82,204,0.35)">🔗 Jira</button></div></div>
       <div id="sh-ai-text" style="font-size:12.5px;line-height:1.75;color:var(--text)"></div>
     </div>
   </div>
@@ -9297,7 +9299,7 @@ function switchTab(tab,el){
   if(page) page.classList.add('active');
   if(el) el.classList.add('active');
   else {
-    const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7,commands:8,'decision-log':9,stakeholders:10,'sprint-health':11,strategy:12,experiments:13,mom:14,persona:15,'week-planner':16,'north-star':17,'monte-carlo':18};
+    const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7,commands:8,'decision-log':9,stakeholders:10,'sprint-health':11,strategy:12,experiments:13,mom:14,persona:15,'week-planner':16,'north-star':17,'monte-carlo':18,jira:19};
     const idx=tabs[tab];
     const navTabs = document.querySelectorAll('.nav-tab');
     if(idx!==undefined && navTabs[idx]) navTabs[idx].classList.add('active');
@@ -10308,6 +10310,7 @@ function addMsg(role, content){
         <div class="msg-actions">
           <button class="msg-act-btn" onclick="copyMsgById('${msgId}','')" data-raw="${encodeURIComponent(content)}">📋 Copy</button>
           <button class="msg-act-btn" onclick="_exportDoc('${msgId}')">⬇ Export</button>
+          <button class="msg-act-btn" onclick="openJiraPush('${msgId}')" style="color:#4C9AFF;border-color:rgba(0,82,204,0.3);background:rgba(0,82,204,0.08)">🔗 Jira</button>
           <span style="font-size:8.5px;color:var(--muted);margin-left:2px">${brain.icon} ${ALL_BRAINS.find(b=>b.id===activeBrain)?.label||'AI'} · ${ts}</span>
         </div>
       </div>`;
@@ -10483,6 +10486,7 @@ async function sendMsg(){
         <div class="msg-actions" id="acts-${msgId}" style="opacity:0;pointer-events:none">
           <button class="msg-act-btn" onclick="copyMsgById('${msgId}','')">📋 Copy</button>
           <button class="msg-act-btn" onclick="_exportDoc('${msgId}')">⬇ Export</button>
+          <button class="msg-act-btn" onclick="openJiraPush('${msgId}')" style="color:#4C9AFF;border-color:rgba(0,82,204,0.3);background:rgba(0,82,204,0.08)">🔗 Jira</button>
           <span style="font-size:8.5px;color:var(--muted);margin-left:2px">${brain.icon} ${brain.label} · ${ts}</span>
         </div>
       </div>`;
@@ -17174,7 +17178,719 @@ Rarely run / change frequently / require human judgement / cost more to maintain
 Who owns failing tests / what triggers a test review / how to prevent test suite rot.
 
 ## Coverage measurement
-How to track and report meaningfully — not just % of tests automated.`}
+How to track and report meaningfully — not just % of tests automated.`},
+
+  // ── RELEASE MANAGER ──────────────────────────────────────────
+  {brain:'rm',icon:'🚀',color:'#FF7043',name:'Go/No-Go Release Decision',prompt:`Run a structured Go/No-Go decision for my upcoming release.
+
+Release: [FEATURE / VERSION NAME]
+Deploy date and time: [DATE TIME TIMEZONE]
+Environment: Production
+Change type: [Feature rollout / Hotfix / DB migration / Config change / Infrastructure change]
+Services affected: [LIST ALL — including dependencies]
+Risk level: [High / Medium / Low] — because: [REASON]
+Rollback tested in staging: [Yes / No]
+Rollback estimated time: [MINUTES]
+DB migration included: [Yes — describe / No]
+Success metric at T+1h: [SPECIFIC MEASURABLE OUTCOME]
+Success metric at T+24h: [SPECIFIC MEASURABLE OUTCOME]
+Incident commander named: [NAME]
+On-call engineer confirmed: [NAME]
+Stakeholders notified: [Yes / No]
+
+Produce:
+
+## Release risk summary
+The honest blast radius if this deployment fails. User impact, business impact, financial exposure. Not the optimistic version.
+
+## Go/No-Go Criteria Table
+| Criterion | Status | Owner | Evidence / Notes |
+|---|---|---|---|
+Code freeze complete | 🟢/🔴/🟡 | | |
+All AC signed off by PO | | | |
+QA regression passed | | | |
+Performance tested under expected load | | | |
+Rollback procedure documented and tested | | | |
+Monitoring and alerting configured | | | |
+Feature flags configured correctly | | | |
+DB migration dry-run completed in staging | | | |
+Stakeholder communications sent | | | |
+On-call engineer confirmed and briefed | | | |
+Success metrics defined and baselined | | | |
+Incident commander named | | | |
+
+## Decision
+**GO / NO-GO / CONDITIONAL GO**
+State the call explicitly. If CONDITIONAL GO — list the exact conditions that must be met and by when.
+
+## If NO-GO — Flip Actions
+For each 🔴 criterion: the specific action, owner, and date that converts it to 🟢.
+
+## Deploy Sequence
+| Step | Action | Owner | Expected output | Time | Checkpoint |
+
+## First 60 Minutes Monitoring
+What to watch, specific thresholds, who is watching, what triggers an immediate rollback call.`},
+
+  {brain:'rm',icon:'🚀',color:'#FF7043',name:'Production Incident Response',prompt:`Write a complete production incident response plan.
+
+Incident description: [WHAT IS BROKEN — describe in user terms, not technical terms]
+Severity: [P1 Critical / P2 High / P3 Medium / P4 Low]
+P1 = revenue impact or data loss. P2 = major feature broken. P3 = degraded experience. P4 = minor issue.
+Users affected: [HOW MANY / WHICH SEGMENTS / WHICH REGIONS]
+System affected: [SERVICE / FEATURE / COMPONENT]
+Time detected: [TIME AND HOW — monitoring alert / user report / internal discovery]
+Current status: [INVESTIGATING / ROOT CAUSE IDENTIFIED / FIX IN PROGRESS / MONITORING]
+Cause (if known): [DESCRIBE OR "UNKNOWN"]
+ETA to resolution: [TIME / UNKNOWN]
+Incident commander: [NAME]
+
+Produce:
+
+## Incident Summary
+One paragraph: what is broken, who is affected, since when, what we know so far. Plain language — written for a non-technical executive.
+
+## Severity Justification
+Why this is [P1/P2/P3/P4]. The business impact in specific terms (transactions blocked, users unable to complete X, revenue exposure per hour).
+
+## Immediate Actions (Next 30 Minutes)
+1. Who is incident commander?
+2. Who is investigating root cause?
+3. Who is communicating to stakeholders?
+4. Can a feature flag disable or a rollback mitigate faster than a fix?
+5. What monitoring dashboard is open and who is watching it?
+
+## Root Cause Investigation
+The diagnostic steps in order. What to check first, second, third. Specific commands, queries, or dashboards.
+
+## Communication Sequence
+| Time | Audience | Message | Channel | Sent by |
+T+15min — internal team acknowledgement
+T+30min — stakeholder initial notification
+T+60min — first status update
+Every 30min until resolved — rolling update
+Resolution — resolution notice
+T+24h — post-incident summary
+
+## Rollback / Mitigation Decision
+The specific signal that triggers an immediate rollback. Who makes that call. How fast can it be executed.
+
+## Post-Incident Actions
+- Schedule blameless post-mortem within 48 hours
+- Preserve: logs, snapshots, dashboards, timeline
+- What monitoring improvement would have caught this earlier`},
+
+  {brain:'rm',icon:'🚀',color:'#FF7043',name:'Release Runbook — Full Operational',prompt:`Write a complete operational release runbook.
+
+Release name: [NAME]
+Deploy window: [DATE TIME TIMEZONE — start and expected end]
+Services being deployed: [LIST ALL]
+Infrastructure: [Azure AKS / AWS ECS / On-prem / Hybrid]
+Deploy method: [CI/CD pipeline name / Manual steps / Blue-green / Canary rollout / Feature flag enable]
+DB migration: [YES — describe the migration / NO]
+External dependencies: [THIRD PARTY APIS / INTEGRATIONS THAT MUST BE LIVE]
+Team on-call: [NAME — ROLE for each person]
+Rollback time estimate: [MINUTES]
+
+Produce a runbook an engineer who has never run this deployment can execute alone at 2am:
+
+## Pre-Deploy Checklist (complete 30 minutes before window)
+| Check | Owner | How to verify | Status |
+(code freeze, pipeline green, staging validation, rollback tested, monitoring ready, comms sent, on-call confirmed)
+
+## Deploy Sequence
+| Step # | Action | Specific command or link | Expected output | Time estimate | ✅ Done |
+Number every step. Be specific — no "deploy the service", write the exact command or pipeline trigger.
+
+## Health Checks (run immediately after each service deploy)
+| Check | URL / Command | Expected response | Pass criteria | Fail action |
+
+## Rollback Trigger
+The exact metric, error rate, or user-visible signal that means "stop and rollback NOW". One sentence. No ambiguity.
+
+## Rollback Steps
+| Step # | Action | Command | Expected output | Time |
+
+## Post-Deploy Verification (T+5, T+30, T+60 minutes)
+| Time | Check | How | Pass | Escalate if |
+
+## Escalation Path
+| Condition | Contact | Method | Response time expected |`},
+
+  {brain:'rm',icon:'🚀',color:'#FF7043',name:'Post-Release Review',prompt:`Write a thorough post-release review.
+
+Release: [FEATURE / VERSION NAME]
+Release date: [DATE]
+Planned deploy window: [START — END]
+Actual deploy duration: [TIME]
+Incidents during or after release: [LIST OR NONE]
+Rollback triggered: [YES — describe what happened / NO]
+Success metrics at T+1h: [PLANNED vs ACTUAL]
+Success metrics at T+24h: [PLANNED vs ACTUAL]
+Success metrics at T+7d: [PLANNED vs ACTUAL — if available]
+Team involved: [NAMES AND ROLES]
+
+Produce:
+
+## Release Outcome
+**SUCCESSFUL / PARTIAL SUCCESS / FAILED** — one-sentence summary of what actually happened.
+
+## Metrics Review
+| Metric | Planned | Actual T+1h | Actual T+24h | Status |
+Did we hit our success criteria? If not — what does that mean?
+
+## Timeline
+| Time | Event | Who | Notes |
+Walk through the actual deployment from start to finish. Include any deviations from the runbook.
+
+## What Went Well
+Specific process steps, decisions, or behaviours that worked. Not generic ("the team communicated well") — specific ("the blue-green switch took 4 minutes instead of the planned 10 because X").
+
+## What Went Wrong
+Every issue, near-miss, and deviation. No blame — specific facts.
+For each incident: what happened → root cause (5 Whys) → business impact → resolution time.
+
+## Process Improvements
+| Improvement | Owner | Due date | Expected outcome |
+The specific change to make before the next release. Not principles — actions.
+
+## Runbook Updates Required
+What was incorrect, missing, or unclear in the runbook? Who updates it and by when?
+
+## Monitoring Gaps
+Alerts that should have fired but didn't. Dashboards that were missing. What to instrument before next release.
+
+## Action Items
+| Action | Owner | Due date | Priority |`},
+
+  {brain:'rm',icon:'🚀',color:'#FF7043',name:'Rollback Playbook — Full',prompt:`Write a complete rollback playbook.
+
+Release: [FEATURE / VERSION NAME]
+Original deploy date: [DATE]
+Services deployed: [LIST]
+DB migration included: [YES — describe exactly what ran / NO]
+Data volume affected by migration: [ROWS / TABLES / ESTIMATE]
+Rollback window: [HOW LONG AFTER DEPLOY IS ROLLBACK SAFE]
+Incident commander: [NAME]
+Max acceptable downtime during rollback: [MINUTES]
+Users currently affected: [HOW MANY / WHICH SEGMENTS]
+
+Produce:
+
+## Rollback Authority
+Who can authorise rollback. Under what conditions. Who executes it. No group decisions during a P1 — name the individual.
+
+## Trigger Criteria
+The specific, measurable signals that mean "rollback now". Not "if something looks wrong" — exact thresholds:
+- Error rate above [X]% for [Y] minutes
+- [Specific metric] drops below [value]
+- [User-visible symptom] reported by [N] users
+- [Service] health check returning [status] for [duration]
+
+## Rollback Decision Checklist
+Before executing: confirm each item
+[ ] Incident commander has been notified and authorised rollback
+[ ] Root cause investigation has ruled out that rollback will make it worse
+[ ] Data integrity impact assessed — is rollback safe?
+[ ] Stakeholder comms prepared to send immediately after rollback
+[ ] Post-rollback verification steps ready
+
+## Rollback Sequence
+| Step # | Action | Exact command or procedure | Expected output | Time estimate | ✅ |
+Number every step. Include exact commands.
+
+## Data Integrity Check (critical if DB migration ran)
+| Check | Query / Method | Expected result | Action if fails |
+What records to verify. What orphaned data to look for. What the database state should be after rollback.
+
+## Post-Rollback Health Verification
+| Check | How | Pass criteria | Escalate if |
+
+## User Communication
+What to say. When. Which channel. Who sends it.
+
+## Root Cause Preservation
+What to capture before cleaning up: logs snapshot, error screenshots, timeline, monitoring dashboards. Who owns this.
+
+## Prevention
+The specific process change that would have caught this before production.`},
+
+  {brain:'rm',icon:'🚀',color:'#FF7043',name:'Release Communication Suite',prompt:`Write a complete release communication suite.
+
+Release: [FEATURE NAME — describe in user language, not technical language]
+Deploy window: [DATE TIME TIMEZONE]
+Expected duration: [HOW LONG]
+User-visible impact: [EXACTLY WHAT USERS WILL NOTICE — or "No impact during deployment"]
+Downtime expected: [NONE / YES — duration and what is unavailable]
+New features being released: [LIST — user language]
+Audience breakdown:
+- Internal (engineering, product, operations): [YES / NO]
+- Business stakeholders (leadership, sales, CS): [YES / NO]
+- External users / customers: [YES / NO]
+
+Produce all five communications:
+
+## 1. PRE-RELEASE NOTICE (send 24h before)
+Subject line: [clear, specific]
+Body: what is changing, when, what users will experience, what to do if issues arise, who to contact.
+
+## 2. PRE-RELEASE REMINDER (send 2h before)
+Short. Confirms timing. Reminds of impact. Contact for issues.
+
+## 3. RELEASE IN PROGRESS (send at deploy start)
+Very short. Deploy has started. Expected completion time. Status page or channel to follow.
+
+## 4. RELEASE COMPLETE (send after successful verification)
+What went live. What users can now do differently. Any known limitations. Where to get help.
+
+## 5. STAKEHOLDER EXECUTIVE SUMMARY (internal only)
+3-5 sentences. What shipped. Business value. Any issues encountered and how resolved. Next milestone.
+
+Tone across all: clear, specific, non-technical. No corporate hedging. No "we are excited to announce".`},
+
+  {brain:'rm',icon:'🚀',color:'#FF7043',name:'Change Freeze & Release Calendar',prompt:`Write a change freeze policy and release calendar.
+
+Product: [PRODUCT NAME]
+Team size: [ENGINEERS + QA + DEVOPS]
+Current release cadence: [WEEKLY SPRINT / FORTNIGHTLY / ON-DEMAND / CONTINUOUS DEPLOYMENT]
+High-risk periods: [LIST — peak business periods, financial year end, regulatory deadlines, major launches, holidays]
+Reason each period is high risk: [DESCRIBE BUSINESS IMPACT IF SOMETHING BREAKS DURING THESE PERIODS]
+Exception approval authority: [ROLE / NAME WHO CAN APPROVE EMERGENCY CHANGES]
+Regulatory constraints: [ANY CHANGE CONTROL REQUIREMENTS — SOC2 / ISO27001 / GDPR / INTERNAL POLICY]
+
+Produce:
+
+## Change Freeze Policy
+
+### What is frozen
+Define exactly: all production deployments / feature deploys only (config excluded) / feature + config (infrastructure excluded) / everything including hotfixes (emergency process only).
+
+### Freeze Calendar
+| Period | Start | End | Risk reason | Freeze level | Emergency contact |
+
+### Permitted During Freeze
+What is explicitly allowed: documentation, monitoring config, read-only operations, approved hotfixes via emergency path.
+
+### Prohibited During Freeze
+What is explicitly not allowed. No ambiguity.
+
+## Exception Process
+1. Who requests an exception (and in what format)
+2. Who reviews it (and what they assess)
+3. Who approves it (role, not name — names change)
+4. SLA for decision: [HOURS]
+5. What documentation is required for the exception
+
+## Emergency Approval Path (P1 incident during freeze)
+The exact steps to make a production change during a freeze when user impact demands it. Named approvers. Maximum approval time.
+
+## Pre-Freeze Checklist (complete before freeze starts)
+What must be in production, tested, and verified before the freeze window opens.
+
+## Freeze Exit Process
+What verification is required before resuming normal deployments after a freeze ends.
+
+## Communication Plan
+Who is notified of freeze periods, how far in advance, through which channel.`},
+
+  {brain:'rm',icon:'🚀',color:'#FF7043',name:'Release Risk Assessment',prompt:`Run a comprehensive release risk assessment.
+
+Release: [FEATURE / VERSION NAME]
+Release date: [DATE]
+Change summary: [WHAT IS CHANGING — be specific: new endpoints, DB schema changes, third-party integrations, UI changes, background jobs, data migrations]
+Team experience with this type of change: [High / Medium / Low — have we done this before?]
+Last incident related to this area: [DATE AND BRIEF DESCRIPTION / NONE]
+Test coverage on affected code: [% estimate / HIGH / MEDIUM / LOW]
+Staging environment fidelity: [Matches production / Partial / Significantly different]
+Peak traffic window for our users: [TIMES AND DAYS — when is the worst time to have an outage?]
+Proposed deploy time: [DATE TIME]
+
+Produce:
+
+## Risk Profile Summary
+Overall risk rating: [HIGH / MEDIUM / LOW] with one-paragraph justification.
+
+## Risk Register
+| Risk | Likelihood (H/M/L) | Impact (H/M/L) | Risk Score | Mitigation | Contingency | Owner |
+(Cover: deployment failure, data corruption, performance degradation, third-party integration failure, rollback failure, user-visible errors, security exposure, compliance breach)
+
+## Top 3 Risks — Deep Analysis
+For each: what could go wrong, why it might happen, early warning signal, mitigation action, and rollback trigger.
+
+## Deploy Timing Assessment
+Is the proposed deploy time safe given our peak traffic window? Recommendation with alternatives if not.
+
+## Test Coverage Gaps
+What is not tested that could fail? The specific scenarios that give you the most concern.
+
+## Rollback Confidence
+How confident are we in the rollback? What makes it risky? What would make it faster or safer?
+
+## Go/No-Go Recommendation
+Based on this risk assessment: should we proceed, delay, or descope? Specific rationale.`},
+
+  // ── DELIVERY MANAGER ─────────────────────────────────────────
+  {brain:'dm',icon:'📦',color:'#26A69A',name:'Sprint Delivery Review — Full',prompt:`Write a complete sprint delivery review.
+
+Sprint: [NUMBER]
+Sprint dates: [START — END]
+Sprint goal: [THE OUTCOME STATEMENT — not a task list]
+Goal achieved: [YES / PARTIALLY — describe / NO — describe]
+Committed scope: [SP]
+Delivered scope: [SP]
+Stories not delivered: [LIST EACH WITH: title, SP, reason not completed]
+Velocity last 5 sprints: [LIST E.G. 38, 34, 31, 29, 27]
+Team capacity this sprint vs planned: [ANY CHANGES — leave, incidents, unplanned work]
+Carry-over from previous sprint: [SP AND COUNT]
+Open blockers at sprint end: [LIST EACH WITH OWNER]
+Next sprint capacity forecast: [ANY KNOWN CHANGES]
+
+Produce:
+
+## Sprint Outcome
+**GOAL MET / PARTIALLY MET / NOT MET** — direct statement, one sentence.
+
+## Velocity Analysis
+| Sprint | Velocity | vs Average | Signal |
+Is velocity trending up, stable, or declining? What does the trend actually mean?
+
+## Delivery vs Commitment
+| Story | Committed SP | Delivered | Reason if not delivered |
+Aggregate: X% of committed scope delivered.
+
+## Slippage Root Cause
+Not "it was more complex than expected." The actual root cause:
+- Requirements were unclear at sprint start
+- Dependency not resolved in time
+- Unplanned interrupt work consumed capacity
+- Technical debt slowed implementation
+- Story was not ready (DoR not met)
+Which one? Evidence for the diagnosis.
+
+## Blocker Analysis
+| Blocker | Impact | Owner | Status | Escalation needed? |
+For each unresolved blocker: recommended escalation action and deadline.
+
+## What to Tell Stakeholders
+The 3-sentence honest update. Plain language, no jargon, accurate.
+
+## Next Sprint Recommendation
+Based on velocity trend and open blockers: recommended capacity commitment range for next sprint (give a range, not a single number). What must be resolved before sprint planning.`},
+
+  {brain:'dm',icon:'📦',color:'#26A69A',name:'Programme Status Report — Executive',prompt:`Write an executive programme status report.
+
+Programme: [NAME]
+Reporting period: [DATES]
+Audience: [CDO / Steering Committee / Executive Team / Board]
+Overall RAG: [RED / AMBER / GREEN — your honest assessment, not the team's optimistic view]
+
+Workstreams:
+[For each workstream — name, RAG, planned this period, delivered this period, slipped this period]
+
+Upcoming milestones (next 3):
+[Name, committed date, current forecast, risk level]
+
+Top risks:
+[List 3-5 with likelihood, impact, owner, mitigation status]
+
+Decisions required from leadership:
+[List with deadline and consequence of delay each]
+
+Budget status (if applicable):
+[Spent vs planned, forecast to complete, variance]
+
+Produce:
+
+## Programme Health
+**Overall: [RED/AMBER/GREEN]** — Delivery confidence: [High / Medium / Low / Critical]
+
+One honest paragraph: the real picture. What is going well, what is at risk, what needs a decision. Written for a CDO who has 30 seconds to read this.
+
+## Workstream RAG Table
+| Workstream | RAG | This Period | Next Period | Owner | Key Risk |
+
+## Milestone Dashboard
+| Milestone | Committed Date | Forecast Date | Slippage | Status | Risk |
+Colour code: 🟢 on track / 🟡 at risk / 🔴 slipping / ⚫ missed
+
+## Risk Register (Top 5)
+| Risk | Likelihood | Impact | Owner | Mitigation | Status |
+
+## Dependency Health
+| Dependency | From | To | Date Needed | Status | Risk |
+
+## Financial Summary (if applicable)
+| Category | Budget | Spent | Forecast to Complete | Variance |
+
+## Decisions Required
+| Decision | From Whom | Deadline | Consequence if Delayed |
+
+## The 5 Things the Programme Director Needs to Know Right Now
+Five specific, honest, numbered statements. Not what is happening — what matters and what action is needed.`},
+
+  {brain:'dm',icon:'📦',color:'#26A69A',name:'Delivery Risk & Blocker Register',prompt:`Build a comprehensive delivery risk and blocker register.
+
+Programme / Project: [NAME]
+Current phase: [DISCOVERY / BUILD / TESTING / RELEASE / POST-LAUNCH]
+Delivery horizon: [TARGET DATE]
+Teams involved: [LIST]
+Recent incidents or slippages: [DESCRIBE]
+
+Known risks (describe each or let me identify them from context):
+[LIST OR DESCRIBE THE PROJECT AND I WILL IDENTIFY RISKS]
+
+Known blockers (issues currently stopping or slowing work):
+[LIST EACH WITH IMPACT]
+
+Known dependencies at risk:
+[LIST CROSS-TEAM OR EXTERNAL DEPENDENCIES WITH STATUS]
+
+Produce:
+
+## Delivery Risk Register
+| ID | Risk Description | Category | Likelihood (H/M/L) | Impact (H/M/L) | Risk Score | Owner | Mitigation Action | Contingency | Review Date |
+Categories: Technical / Dependency / Resource / Scope / External / Process
+
+For High-score risks — a paragraph on: why this risk is real, the early warning signal to watch, and the specific mitigation step with a deadline.
+
+## Blocker Register
+| ID | Blocker | Team Affected | Root Cause | Owner | Impact if Unresolved | Resolution Action | Target Date | Escalation Date |
+
+## Dependency Risk Register
+| ID | Dependency | Providing Party | Date Needed | Current Status | Risk Level | Impact if Late | Escalation Owner |
+
+## Top 5 Items Requiring Immediate Action This Week
+Ranked by delivery impact. For each: what to do, who does it, by when.
+
+## Escalation Recommendations
+Which risks and blockers require leadership involvement now? The specific ask from leadership for each.
+
+## Risk Trend
+Compared to last reporting period: is the delivery risk profile improving, stable, or deteriorating? Why?`},
+
+  {brain:'dm',icon:'📦',color:'#26A69A',name:'RAID Log — Full',prompt:`Build a complete RAID log.
+
+Project / Programme: [NAME]
+Phase: [CURRENT PHASE]
+Delivery date: [TARGET]
+Team: [SIZE AND ROLES]
+Stakeholders: [KEY NAMES AND ROLES]
+
+Risks — describe or let me identify from context:
+[LIST KNOWN RISKS or describe the project]
+
+Assumptions — what must be true for delivery to succeed:
+[LIST ASSUMPTIONS or describe the project]
+
+Issues — current problems affecting delivery:
+[LIST OPEN ISSUES WITH CURRENT IMPACT]
+
+Dependencies — what this project needs from other teams or parties:
+[LIST CROSS-TEAM AND EXTERNAL DEPENDENCIES]
+
+Produce a complete, actionable RAID log:
+
+## RISKS
+| ID | Risk | Category | Likelihood | Impact | Score | Owner | Mitigation | Contingency | Status | Review |
+Likelihood × Impact scoring: H×H=Critical, H×M or M×H=High, M×M=Medium, L×anything=Low
+
+## ASSUMPTIONS
+| ID | Assumption | Why critical | Validation method | Owner | Validate by | Status | If wrong: impact |
+An assumption that turns out to be wrong is an issue — track them actively.
+
+## ISSUES
+| ID | Issue | Root cause | Current impact on delivery | Owner | Resolution action | Target resolution | Escalation if unresolved by |
+
+## DEPENDENCIES
+| ID | Dependency (what exactly is needed) | Providing team/party | Date needed | What it gates | Current status | Risk level | Owner | Escalation path |
+
+## RAID Summary Dashboard
+| Category | Total | Critical/High | Resolved | Open | Overdue |
+
+## Actions Required This Week
+The top 5 RAID items that need an action or decision in the next 5 working days. Owner and deadline for each.`},
+
+  {brain:'dm',icon:'📦',color:'#26A69A',name:'Cross-Team Dependency Resolution',prompt:`Write a dependency resolution plan.
+
+Dependency: [DESCRIBE EXACTLY WHAT IS NEEDED — the specific deliverable, API, data feed, decision, or sign-off]
+Blocked team: [TEAM THAT CANNOT PROCEED WITHOUT THIS]
+Providing team: [TEAM OR PARTY THAT MUST DELIVER THIS]
+Date needed by: [HARD DATE — what delivery milestone does this gate?]
+What this gates: [WHICH FEATURES, STORIES, OR MILESTONES CANNOT START WITHOUT THIS]
+Current status: [WHAT HAS BEEN DISCUSSED / WHAT IS AGREED / WHAT IS UNCLEAR]
+Why it has not been resolved: [ROOT CAUSE OF THE DEPENDENCY GAP]
+Impact if late by 1 sprint: [SPECIFIC DELIVERY CONSEQUENCE]
+Impact if late by 1 quarter: [SPECIFIC BUSINESS CONSEQUENCE]
+Who can escalate if teams cannot resolve: [ROLE / NAME]
+
+Produce:
+
+## Dependency Summary
+What is needed, who needs it, who provides it, when, and what it gates. Two sentences. No ambiguity.
+
+## Current Gap Analysis
+The specific delta between what has been agreed and what is actually needed to unblock the blocked team.
+
+## Root Cause
+Why does this dependency gap exist? Is it: unclear interface definition / competing priorities / resource constraints / misaligned timelines / technical uncertainty / process gap?
+
+## Resolution Steps
+| Step | Action | Owner | Date | Done when |
+Number every step. Include: interface definition meeting, written agreement, staging environment access, API contract sign-off — whatever this dependency specifically needs.
+
+## Interface Agreement
+The specific output that both teams sign off on. What exactly will the providing team deliver? In what format? By what date? What does "done" look like?
+
+## Weekly Checkpoint
+What to verify each week to confirm this dependency is on track.
+
+## Escalation Trigger
+The specific signal (date or event) that requires leadership escalation. Who escalates. What they ask for.
+
+## Contingency Plan
+If this dependency slips past [DATE]: what does the blocked team do? Can any work proceed in parallel? What is the minimum viable version that unblocks the critical path?`},
+
+  {brain:'dm',icon:'📦',color:'#26A69A',name:'Escalation Brief — Decision Forcing',prompt:`Write an escalation brief that forces a decision.
+
+Issue: [DESCRIBE THE BLOCKER OR DECISION NEEDED — be precise]
+How long this has been unresolved: [DAYS / WEEKS]
+What I have tried to resolve this without escalating: [ACTIONS TAKEN — with dates and outcomes]
+Impact on delivery: [WHAT SLIPS, BY HOW MUCH, WHAT IS THE BUSINESS CONSEQUENCE IN NUMBERS]
+Delivery date at risk: [MILESTONE, DATE, AND BUSINESS VALUE OF THAT MILESTONE]
+Decision needed from: [SPECIFIC ROLE — not just "leadership"]
+Options available:
+Option A: [DESCRIBE] — consequence: [OUTCOME]
+Option B: [DESCRIBE] — consequence: [OUTCOME]
+Option C (if applicable): [DESCRIBE] — consequence: [OUTCOME]
+My recommendation: [OPTION AND BRIEF RATIONALE]
+Decision needed by: [DATE]
+What happens if no decision by that date: [SPECIFIC CONSEQUENCE]
+
+Produce:
+
+## Situation (2 sentences maximum)
+What is blocked. Why it cannot be resolved at team level.
+
+## Business Impact
+The specific delivery consequence if unresolved by [DATE]. Use numbers: sprints delayed, revenue at risk, milestone missed, contract penalty.
+
+## What Has Been Tried
+| Date | Action | Outcome |
+Factual. No emotion. Demonstrates this is a genuine escalation, not a first attempt.
+
+## Options and Trade-offs
+| Option | What it means | Delivery consequence | Cost / Risk |
+Present each option fairly. Your recommendation is stated but the decision-maker can choose.
+
+## Recommendation
+Your call. One sentence on what you recommend and the primary reason.
+
+## Decision Required
+The exact question that needs answering. One sentence.
+
+## Deadline
+By [DATE]. If no decision is received by then, I will [specific action you will take — e.g. escalate to next level / default to Option A / place milestone at RED].
+
+Tone: factual, direct, professional. No emotional language. No passive-aggressive phrasing. Written for a CDO or Programme Director.`},
+
+  {brain:'dm',icon:'📦',color:'#26A69A',name:'Velocity & Capacity Analysis',prompt:`Run a deep velocity and capacity analysis.
+
+Team: [NAME]
+Sprint length: [DAYS]
+Last 6 sprints velocity: [E.G. 42, 38, 35, 31, 29, 27 — most recent last]
+Team composition over this period: [ANY CHANGES — new joiners, leavers, role changes]
+Known factors affecting velocity: [LEAVE / INCIDENTS / TECH DEBT SPRINTS / UNPLANNED WORK / UNCLEAR AC]
+Current sprint commitment: [SP]
+Next quarter scope estimate: [TOTAL SP OF PLANNED WORK]
+Tech debt allocation per sprint: [SP OR %]
+Ceremony overhead: [HOURS PER SPRINT ACROSS TEAM — sprint planning, daily, review, retro]
+Known capacity changes next quarter: [HIRING / LEAVE / SECONDMENTS]
+
+Produce:
+
+## Velocity Trend Analysis
+| Sprint | Velocity | Delta | Signal |
+Trend: [INCREASING / STABLE / DECLINING / VOLATILE]
+Rate of change: [SP per sprint on average]
+Outlier identification: which sprints are anomalies and why?
+
+## Sustainable Velocity Range
+Based on the trend (not the average, not the peak): the range to plan against with confidence.
+P50 (50% likely to meet): [SP]
+P80 (80% likely to meet — recommended commitment): [SP]
+
+## Root Cause Diagnosis
+If declining: what is the most likely cause? Not "the work is getting harder." Specific:
+- Growing unresolved tech debt slowing each story
+- Constant unplanned interrupt work consuming capacity
+- AC being unclear at sprint start causing rework
+- Team composition changes reducing throughput
+- Dependency blockers eating sprint time
+Evidence for the diagnosis from the data.
+
+## Capacity Model — Next Quarter
+| Week | Available team-days | Minus ceremonies | Minus BAU/support | Minus leave | Net delivery days | Estimated SP |
+
+## Scope Fit Analysis
+Next quarter scope: [SP]
+Available capacity at P80: [SP]
+Fit: [YES / PARTIAL — X% fits / NO — significant gap]
+The hard conversation: what does NOT fit in this quarter?
+
+## Improvement Levers
+The single change most likely to improve sustainable velocity — with rationale, owner, and how to measure impact.
+
+## Commitment Recommendation
+The SP range to commit to in next sprint planning. A range, not a number. Rationale for why the team should not commit to more.`},
+
+  {brain:'dm',icon:'📦',color:'#26A69A',name:'Milestone Health Review',prompt:`Run a milestone health review.
+
+Milestone: [NAME AND DESCRIPTION — what is being delivered]
+Original committed date: [DATE — when was this first promised]
+Current forecast date: [DATE — what does the team currently believe]
+Slippage so far: [DAYS / SPRINTS if already moved]
+Dependencies that must complete before this milestone: [LIST EACH WITH CURRENT STATUS]
+Open risks: [LIST]
+Team capacity between now and milestone: [HEADCOUNT, KNOWN ABSENCES, CONSTRAINTS]
+Committed scope: [LIST FEATURES / STORIES]
+Scope completeness today: [% AND BRIEF STATUS]
+Stakeholder expectation: [WHAT HAVE THEY BEEN TOLD AND WHEN]
+Business consequence of missing this date: [CONTRACT / LAUNCH / REVENUE / REPUTATIONAL]
+
+Produce:
+
+## Milestone Health Status
+**ON TRACK / AT RISK / SLIPPING / ALREADY MISSED**
+Delivery confidence: [0-100%] — rationale for this score.
+
+## Critical Path Analysis
+The 3-5 items that absolutely must be completed for this milestone to be hit. For each: status, owner, risk.
+
+## Dependency Gap Assessment
+| Dependency | Status | Date confirmed | Risk | Impact if it slips |
+Which dependencies are not confirmed? What does each gap mean for the milestone date?
+
+## Capacity vs Scope Assessment
+Work remaining: [SP estimate]
+Available sprints: [NUMBER]
+Available capacity: [SP at P80]
+Verdict: [SCOPE FITS / SCOPE IS TIGHT / SCOPE EXCEEDS CAPACITY — by X SP]
+
+## Options
+**Option A: Hit the date — descope**
+What to remove to fit in the window. Specific stories or features. Business impact of deferral.
+
+**Option B: Keep scope — move the date**
+Realistic revised date based on capacity and dependencies. Business consequence of the move.
+
+**Option C: Partial milestone**
+What subset can be delivered by the committed date? What is deferred to a follow-up milestone?
+
+## Recommendation
+Your call. Which option. Why. What you need the stakeholder to decide.
+
+## Stakeholder Communication
+What to tell them, in what format, when, and how to frame the trade-off conversation.`},
 
 ];
 
@@ -17787,6 +18503,62 @@ const SLASH_COMMANDS = [
 
   {cmd:'/velocity',     brain:'dm', icon:'📦', label:'Velocity Analysis',          desc:'Velocity trend analysis: what it means and what to do about it',
    prompt:'Run a velocity trend analysis.\n\nTeam: [NAME]\nSprints to analyse: [LAST 6 SPRINT VELOCITIES — e.g. 34, 38, 29, 31, 27, 25]\nSprint length: [DAYS]\nTeam size over period: [ANY CHANGES?]\nKnown factors: [LEAVE / INCIDENTS / SCOPE CHANGES / NEW MEMBERS]\nCurrent sprint commitment: [SP]\n\nProduce:\n## Trend summary — is velocity increasing, stable, or declining? By how much?\n## Signal vs noise — which sprints are outliers and why?\n## Sustainable velocity — what range should we plan to, based on evidence?\n## Root cause analysis — if declining: the most likely cause (not "the work was hard")\n## Red flags — patterns that indicate systemic problems (growing tech debt, constant interrupts, unclear AC)\n## Recommended commitment range — for the next sprint, based on trend (give a range, not a number)\n## Capacity conversation — the honest message to product about what fits given this velocity\n## Improvement lever — the single change most likely to improve velocity sustainably'},
+
+  // ══ RELEASE MANAGER ════════════════════════════════════════════
+  {cmd:'/gonogo',       brain:'rm', icon:'🚀', label:'Go/No-Go Decision',          desc:'Structured Go/No-Go with explicit criteria table and a clear call',
+   prompt:'Run a Go/No-Go release decision.\n\nRelease: [FEATURE / VERSION NAME]\nDeploy date: [DATE TIME TIMEZONE]\nChange type: [Feature / Hotfix / DB Migration / Config change]\nServices affected: [LIST]\nRisk level: [High / Medium / Low — and why]\nRollback tested: [Yes / No]\nSuccess metric at T+1h: [MEASURABLE OUTCOME]\nSuccess metric at T+24h: [MEASURABLE OUTCOME]\nIncident commander named: [NAME]\n\nProduce:\n## Release risk summary — blast radius, user impact, business consequence\n## Go/No-Go criteria table — criterion | status (🟢/🔴/🟡) | owner | notes\n## Decision — GO / NO-GO / CONDITIONAL GO (state conditions explicitly)\n## If NO-GO — specific action to flip each red criterion\n## Deploy sequence — steps, owner, timing, checkpoint\n## First 60 minutes monitoring — what to watch, thresholds, who watches'},
+
+  {cmd:'/runbook',      brain:'rm', icon:'🚀', label:'Release Runbook',            desc:'Step-by-step runbook any engineer can execute — built for 2am',
+   prompt:'Write a release runbook.\n\nRelease: [FEATURE / VERSION NAME]\nDeploy window: [DATE TIME TIMEZONE]\nServices affected: [LIST — include dependencies]\nDeploy method: [CI/CD / MANUAL / BLUE-GREEN / CANARY]\nDB migration: [YES — describe / NO]\nTeam on-call: [NAMES AND ROLES]\n\nProduce:\n## Pre-deploy checklist — each item with owner and verification method\n## Deploy sequence — numbered steps, specific commands, expected output, time estimate\n## Health checks — exact URLs, expected responses, pass/fail criteria\n## Rollback trigger — the specific signal that initiates rollback\n## Rollback steps — numbered, specific commands, time to complete, verification\n## Post-deploy verification — user-visible checks at T+5min, T+30min, T+1h\n## Escalation path — condition → who to call → method → response time'},
+
+  {cmd:'/rollback',     brain:'rm', icon:'🚀', label:'Rollback Playbook',          desc:'Complete rollback plan: trigger, steps, data integrity, comms',
+   prompt:'Write a rollback playbook.\n\nRelease: [FEATURE / VERSION NAME]\nRollback trigger: [WHAT SIGNAL — error rate / metric drop / user reports]\nData migration involved: [YES — describe / NO]\nServices affected: [LIST]\nIncident commander: [NAME]\nMax acceptable downtime: [MINUTES]\n\nProduce:\n## Rollback decision authority — who can call rollback and under what conditions\n## Trigger criteria — specific, measurable signals (not "if something goes wrong")\n## Rollback sequence — numbered steps with commands, expected output, time per step\n## Data integrity check — what to verify after rollback: records consistent? orphaned data?\n## Post-rollback health checks — confirms previous version is healthy\n## User communication — what to say, when, through which channel\n## Root cause preservation — what to archive before cleanup\n## Prevention — the process change that would have caught this before production'},
+
+  {cmd:'/releasecomms', brain:'rm', icon:'🚀', label:'Release Communications',     desc:'Stakeholder comms for planned releases — pre, live, post',
+   prompt:'Write release communications.\n\nRelease: [USER-VISIBLE DESCRIPTION]\nDeploy window: [DATE TIME TIMEZONE]\nUser impact: [WHAT USERS WILL NOTICE — or "none"]\nAudience: [INTERNAL / CUSTOMERS / BOTH]\nStakeholders to notify: [LIST]\n\nProduce three communications:\n## PRE-RELEASE (24h before) — what is changing, when, user impact, contact if issues\n## RELEASE LIVE (at deploy start) — confirming live, monitoring in progress, ETA\n## POST-RELEASE (after verification) — confirmed live, what changed in user language, known limitations\nTone: clear and non-technical. Users do not care about our deployment process.'},
+
+  {cmd:'/releasenotes', brain:'rm', icon:'🚀', label:'Release Notes',              desc:'Production-ready release notes: what changed, why it matters, known issues',
+   prompt:'Write release notes.\n\nVersion: [VERSION NUMBER OR SPRINT]\nRelease date: [DATE]\nFeatures shipped: [LIST WITH ONE-LINE DESCRIPTION EACH]\nBug fixes: [LIST WITH TICKET REFERENCES]\nBreaking changes: [ANY / NONE]\nKnown issues: [LIST OR NONE]\nAudience: [INTERNAL / EXTERNAL CUSTOMERS / BOTH]\n\nProduce:\n## What\'s new — feature name, what it does, who benefits (user language)\n## Improvements — performance, UX, reliability shipped\n## Bug fixes — what was broken, what now works, ticket references\n## Breaking changes — what changes, migration path, deadline\n## Known issues — what is still broken, workaround, fix ETA\nTone: clear, honest, specific. No marketing language.'},
+
+  {cmd:'/incidentcomms',brain:'rm', icon:'🚀', label:'Incident Communications',    desc:'Real-time P1/P2/P3 incident comms — initial, updates, resolution, post-mortem',
+   prompt:'Write incident communications.\n\nIncident: [WHAT IS BROKEN IN USER TERMS]\nSeverity: [P1 Critical / P2 High / P3 Medium]\nUsers affected: [HOW MANY / WHICH SEGMENTS]\nTime detected: [TIME]\nCurrent status: [INVESTIGATING / IDENTIFIED / MONITORING / RESOLVED]\nETA to resolution: [TIME / UNKNOWN]\n\nProduce four communications:\n## INITIAL ALERT (within 15 minutes) — acknowledge, what is affected, we are on it\n## STATUS UPDATE (every 30 minutes) — current status, tried, revised ETA, next update\n## RESOLUTION NOTICE — what was wrong, fixed, when resolved, impact summary\n## POST-INCIDENT SUMMARY (24h after) — timeline, root cause plain language, prevention\nTone: honest and specific. Never say "we apologise for any inconvenience."'},
+
+  {cmd:'/postrelease',  brain:'rm', icon:'🚀', label:'Post-Release Review',        desc:'Post-release: metrics, issues, lessons, prevention actions',
+   prompt:'Write a post-release review.\n\nRelease: [FEATURE / VERSION NAME]\nDeploy date: [DATE]\nIncidents: [ANY ISSUES — or NONE]\nMetrics at T+24h: [ACTUAL VS EXPECTED]\nRollback triggered: [YES — describe / NO]\nDeploy duration: [ACTUAL VS PLANNED]\n\nProduce:\n## Release outcome — GO or PARTIAL — one honest sentence\n## Metrics review — planned vs actual at T+1h, T+24h\n## What went well — specific process steps\n## What went wrong — specific failures, near-misses\n## Root cause (if incidents) — 5 Whys for each\n## Process improvements — specific change, owner, due date\n## Runbook updates needed — what was missing or wrong\n## Action items — owner, action, due date'},
+
+  {cmd:'/hotfix',       brain:'rm', icon:'🚀', label:'Emergency Hotfix Protocol',  desc:'Emergency hotfix: assess, approve, deploy, verify, communicate fast',
+   prompt:'Write an emergency hotfix protocol.\n\nIncident: [DESCRIBE THE PRODUCTION ISSUE]\nSeverity: [P1 / P2]\nUsers affected: [HOW MANY / WHO]\nProposed fix: [DESCRIBE THE CHANGE]\nRisk of the fix: [WHAT COULD IT BREAK]\nApproval required from: [WHO MUST SIGN OFF]\n\nProduce:\n## Incident summary — user impact, business consequence\n## Hotfix risk assessment — is this the right fix? Could it make things worse?\n## Minimum viable test — 3 specific tests before deploying (no more)\n## Approval path — who signs off, how fast, what they approve\n## Deploy sequence — specific steps, expected outputs\n## Verification — how we confirm the fix worked\n## Rollback — if hotfix makes it worse, immediate rollback action\n## Post-hotfix — schedule blameless post-mortem within 48h'},
+
+  {cmd:'/changefreeze', brain:'rm', icon:'🚀', label:'Change Freeze Policy',       desc:'Change freeze with exception process and emergency approval path',
+   prompt:'Write a change freeze policy.\n\nFreeze periods: [DATES AND REASON EACH]\nException approver: [ROLE]\nCurrent release cadence: [WEEKLY / FORTNIGHTLY / AD HOC]\n\nProduce:\n## Change freeze scope — what is frozen\n## Freeze calendar — dates, reason, severity per period\n## What is permitted during freeze — read-only, monitoring, docs\n## Exception process — request format, approver, SLA\n## Emergency approval path — P1 during freeze: exact steps\n## Pre-freeze checklist — what must be in production before freeze\n## Freeze exit process — verification before resuming deployments'},
+
+  // ══ DELIVERY MANAGER ════════════════════════════════════════════
+  {cmd:'/deliverystatus',brain:'dm', icon:'📦', label:'Delivery Status Report',    desc:'Honest RAG delivery status — planned, delivered, at risk, decisions needed',
+   prompt:'Write a delivery status report.\n\nProgramme: [NAME]\nReporting period: [DATES]\nOverall RAG: [RED / AMBER / GREEN — honest]\nTeams covered: [LIST]\n\nFor each team:\n- Planned this period: [COMMITTED]\n- Delivered: [ACTUALLY DONE]\n- Slipped: [DID NOT SHIP AND WHY]\n- Open blockers: [WITH OWNER AND RESOLUTION DATE]\n\nNext milestone: [DATE — WHAT IT REQUIRES]\nTop 3 risks: [LIST]\nDecisions needed from leadership: [LIST]\n\nProduce:\n## Executive summary — delivery confidence + one honest paragraph\n## RAG status table — team | planned | delivered | RAG | reason\n## Blocker register — blocker | owner | impact | resolution date\n## Milestone health — milestone | date | status | risk\n## Decisions required — decision | from whom | deadline | consequence of delay'},
+
+  {cmd:'/sprintreview', brain:'dm', icon:'📦', label:'Sprint Delivery Review',     desc:'Sprint-level review: velocity, slippage, blockers, stakeholder narrative',
+   prompt:'Write a sprint delivery review.\n\nSprint: [NUMBER AND DATES]\nSprint goal: [COMMITTED OUTCOME — not task list]\nCommitted scope (SP): [NUMBER]\nDelivered scope (SP): [NUMBER]\nItems not delivered: [LIST EACH WITH REASON]\nVelocity last 3 sprints: [NUMBERS]\nOpen blockers carried forward: [LIST]\n\nProduce:\n## Sprint outcome — goal met / partially met / not met (be direct)\n## Velocity trend — is this sustainable? What does it signal?\n## Slippage root cause — the actual reason, not "more complex than expected"\n## Blocker analysis — each with escalation recommendation\n## What to tell stakeholders — honest 3-sentence update in plain language\n## Next sprint risk — the one thing most likely to cause slippage again'},
+
+  {cmd:'/dependency',   brain:'dm', icon:'📦', label:'Dependency Resolution Plan', desc:'Map and unblock a cross-team dependency before it slips delivery',
+   prompt:'Write a dependency resolution plan.\n\nDependency: [WHAT IS NEEDED — specific deliverable]\nBlocked team: [TEAM WAITING]\nProviding team: [TEAM THAT MUST DELIVER]\nDate needed by: [HARD DATE — what milestone does this gate?]\nCurrent status: [WHAT HAS BEEN AGREED / WHAT IS UNCLEAR]\nImpact if late by 1 sprint: [SPECIFIC CONSEQUENCE]\n\nProduce:\n## Dependency summary — what, who, when, why it matters\n## Current gap — what is missing between today and resolution\n## Resolution steps — numbered actions, owner, date each\n## Interface agreement — exact spec both teams sign off on\n## Weekly checkpoint — what to verify each week\n## Escalation trigger — specific signal requiring leadership involvement\n## Contingency — what the blocked team does if this slips past [DATE]'},
+
+  {cmd:'/raid',         brain:'dm', icon:'📦', label:'RAID Log',                   desc:'Full RAID log: Risks, Assumptions, Issues, Dependencies with owners and dates',
+   prompt:'Build a RAID log.\n\nProject: [NAME]\nPhase: [CURRENT PHASE]\nDelivery horizon: [DATE]\n\nDescribe the project and situation (or list known items):\n[DESCRIPTION]\n\nProduce a full RAID log:\n## Risks — ID | description | likelihood (H/M/L) | impact (H/M/L) | owner | mitigation | status\n## Assumptions — ID | assumption | validation method | owner | validate by | status\n## Issues — ID | issue | delivery impact | owner | resolution action | target date | status\n## Dependencies — ID | dependency | providing party | date needed | milestone gated | impact if late | status\n## Top 3 items requiring immediate action this week'},
+
+  {cmd:'/escalate',     brain:'dm', icon:'📦', label:'Escalation Brief',           desc:'Escalation that gets a decision — structured, factual, not emotional',
+   prompt:'Write an escalation brief.\n\nIssue: [DESCRIBE THE BLOCKER — be specific]\nHow long open: [DAYS / WEEKS]\nDelivery impact: [WHAT SLIPS, BY HOW MUCH, BUSINESS CONSEQUENCE]\nWhat I have tried: [ACTIONS TAKEN WITH DATES AND OUTCOMES]\nDecision needed from: [SPECIFIC ROLE OR PERSON]\nOptions available: [2-3 OPTIONS]\nMy recommendation: [WHAT I THINK WE SHOULD DO]\nDeadline for decision: [DATE]\n\nProduce:\n## Situation — 2 sentences maximum\n## Delivery impact — specific consequence if unresolved by [DATE]\n## What has been tried — bullet list, factual, no blame\n## Decision required — the exact question needing an answer\n## Options — option | delivery outcome | risk | cost\n## Recommendation — your call with rationale\n## Deadline — by [DATE] I need [DECISION], otherwise I will [DEFAULT ACTION]\nTone: factual, professional, zero blame, zero emotion'},
+
+  {cmd:'/programmereport',brain:'dm',icon:'📦',label:'Programme Status Report',    desc:'Executive programme report: RAG, milestones, risks, decisions needed',
+   prompt:'Write a programme status report.\n\nProgramme: [NAME]\nReporting period: [DATES]\nAudience: [CDO / Steering Committee / Executive Team]\nOverall RAG: [RED / AMBER / GREEN]\n\nWorkstreams: [LIST EACH WITH NAME, RAG, ONE-LINE STATUS]\nMilestones this period: [PLANNED vs ACTUAL]\nUpcoming milestones: [NEXT 3 WITH DATES AND RISKS]\nTop risks: [LIST 3-5]\nDecisions required: [LIST WITH DEADLINE EACH]\n\nProduce:\n## Programme health — overall RAG with one honest paragraph\n## Workstream RAG table — workstream | RAG | this period | next period | owner\n## Milestone dashboard — milestone | planned | forecast | status | risk\n## Risk register summary — top 5 risks with owner and mitigation\n## Decisions required — decision | from whom | deadline | impact of delay\n## The honest paragraph for the CDO — what they need to know in 90 seconds'},
+
+  {cmd:'/milestonereview',brain:'dm',icon:'📦',label:'Milestone Health Review',    desc:'Deep milestone health check — on track, at risk, or already slipping',
+   prompt:'Run a milestone health review.\n\nMilestone: [NAME AND DESCRIPTION]\nOriginal committed date: [DATE]\nCurrent forecast date: [DATE]\nDependencies required first: [LIST WITH STATUS EACH]\nOpen risks: [LIST]\nTeam capacity to milestone: [ANY ISSUES]\nStakeholder expectation: [WHAT HAVE THEY BEEN TOLD]\n\nProduce:\n## Milestone status — ON TRACK / AT RISK / SLIPPING / MISSED (be direct)\n## Delivery confidence score — X% probability of hitting date, with rationale\n## Critical path — the sequence that, if any step slips, pushes the milestone\n## Dependency gaps — which are not confirmed and what that means\n## Capacity gaps — is the team resourced for the window?\n## Options — hit date (descope) | move date | partial delivery\n## Recommendation — your call with rationale\n## Stakeholder communication — what to tell them and when'},
+
+  {cmd:'/resourceplan', brain:'dm', icon:'📦', label:'Resource & Capacity Plan',   desc:'Honest capacity plan — what fits and what does not, with trade-offs',
+   prompt:'Build a resource and capacity plan.\n\nPeriod: [QUARTER OR HALF-YEAR]\nTeams: [LIST WITH HEADCOUNT AND ROLES EACH]\nKnown constraints: [LEAVE / HIRING / SHARED RESOURCES / CONTRACTORS]\nDelivery priorities (ranked): [LIST WITH ROUGH SIZE EACH]\nTech debt allocation: [% OF CAPACITY]\nBAU / support allocation: [% OF CAPACITY]\n\nProduce:\n## True available capacity — calendar days minus ceremonies, BAU, leave, tech debt, ramp\n## Capacity summary — team | sprint capacity | deductions | true available | confidence\n## Initiative fit — initiative | estimated SP | team | sprints needed | fits in horizon?\n## The hard conversation — what does NOT fit and why\n## Trade-off options — descope | move date | hire (with pro/con each)\n## Hiring impact — new hire = net drag for 4-6 weeks before uplift\n## Risk factors — 3 events that reduce capacity below plan'},
+
+  {cmd:'/velocity',     brain:'dm', icon:'📦', label:'Velocity Analysis',          desc:'Velocity trend analysis: what the data says and what to do about it',
+   prompt:'Run a velocity trend analysis.\n\nTeam: [NAME]\nLast 6 sprint velocities: [e.g. 34, 38, 29, 31, 27, 25]\nSprint length: [DAYS]\nTeam changes over period: [ANY CHANGES]\nKnown factors: [LEAVE / INCIDENTS / SCOPE CHANGES / NEW MEMBERS]\nCurrent sprint commitment: [SP]\n\nProduce:\n## Trend summary — increasing, stable, or declining? By how much?\n## Signal vs noise — which sprints are outliers and why?\n## Sustainable velocity — the range to plan to, with confidence levels\n## Root cause (if declining) — the systemic cause, not "the work was hard"\n## Red flags — patterns indicating systemic problems\n## Recommended commitment range — for next sprint (range not single number)\n## Capacity conversation — the honest message to product given this velocity\n## Improvement lever — the single change most likely to improve velocity sustainably'},
 
   // ══ PDF SECRET CODES — WRITING & STYLE ══════════════════════
   {cmd:'/ghost',      brain:'po',  icon:'✍️', label:'Ghost Mode',                 desc:'Rewrite text so it reads completely human — strip all AI patterns',
@@ -23625,6 +24397,40 @@ function exportDoc(sourceId, title) {
   .print-btn{background:${brainColor};color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px}
   .copy-btn{background:#f4f4f8;color:#333;border:1px solid #ddd;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
   .close-btn{background:#fff;color:#888;border:1px solid #ddd;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;margin-left:auto}
+
+/* ── JIRA INTEGRATION ───────────────────────── */
+.jira-sub-tab{
+  background:transparent;border:none;border-bottom:2px solid transparent;
+  padding:8px 14px;font-size:11px;font-weight:600;color:var(--muted2);
+  cursor:pointer;font-family:inherit;transition:all .15s;
+}
+.jira-sub-tab:hover{color:var(--text)}
+.jira-sub-tab.active{color:#4C9AFF;border-bottom-color:#0052CC}
+.jira-col-header{
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  color:var(--muted2);padding:6px 2px 8px;border-bottom:0.5px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;
+}
+.jira-issue-card{
+  background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;
+  padding:9px 10px;cursor:pointer;transition:all .15s;margin-bottom:5px;
+  position:relative;overflow:hidden;
+}
+.jira-issue-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2.5px;background:var(--jic,var(--muted))}
+.jira-issue-card:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.3)}
+.jira-issue-key{font-size:9px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;font-weight:500;margin-bottom:3px}
+.jira-issue-title{font-size:11px;font-weight:500;color:var(--text);line-height:1.4;margin-bottom:5px}
+.jira-issue-meta{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.jira-type-badge{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:1px 5px;border-radius:3px}
+/* Jira push modal */
+#jira-push-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;display:none;align-items:center;justify-content:center}
+#jira-push-modal.show{display:flex}
+#jira-push-inner{background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;width:520px;max-width:95vw;max-height:88vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+/* Jira connect modal */
+#jira-modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;display:none;align-items:center;justify-content:center}
+#jira-modal.show{display:flex}
+#jira-modal-inner{background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;width:420px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.6)}
+
 </style>
 </head>
 <body>
@@ -24412,6 +25218,173 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
   </div>
 </div>
 
+
+<!-- ══ JIRA PAGE ═══════════════════════════════════════════════ -->
+<div class="page" id="page-jira">
+  <div class="tab-page">
+    <div class="tb" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <h2>🔗 Jira Integration</h2>
+        <span style="font-size:11px;color:var(--muted2)">Connect once — push any ProdMind output directly to your Harbour projects</span>
+      </div>
+      <div id="jira-conn-status" style="display:flex;align-items:center;gap:8px">
+        <div id="jira-status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0"></div>
+        <span id="jira-status-text" style="font-size:11px;color:var(--muted2)">Not connected</span>
+        <button onclick="openJiraConnectModal()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit" id="jira-connect-btn">⚙ Configure</button>
+      </div>
+    </div>
+
+    <!-- Sub-nav -->
+    <div style="display:flex;gap:3px;margin-bottom:16px;border-bottom:0.5px solid var(--border);padding-bottom:0">
+      <button class="jira-sub-tab active" onclick="showJiraSubTab('board',this)" id="jst-board">🗂 Sprint Board</button>
+      <button class="jira-sub-tab" onclick="showJiraSubTab('backlog',this)" id="jst-backlog">📋 Backlog</button>
+      <button class="jira-sub-tab" onclick="showJiraSubTab('create',this)" id="jst-create">✍️ Create Issue</button>
+      <button class="jira-sub-tab" onclick="showJiraSubTab('search',this)" id="jst-search">🔍 JQL Search</button>
+    </div>
+
+    <!-- BOARD SUB-PANEL -->
+    <div id="jsub-board" class="jira-sub-panel" style="display:block">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <select id="jira-project-sel" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
+          <option value="">Select project…</option>
+          <option value="HRB">Digital Futures Harbour (HRB)</option>
+          <option value="HIP">Harbour - Linkon (HIP)</option>
+          <option value="HUP">Harbour - Mirros (HUP)</option>
+          <option value="MIN">Harbour - Mindra (MIN)</option>
+          <option value="SHL">Harbour - Shellix (SHL)</option>
+        </select>
+        <select id="jira-type-filter" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
+          <option value="">All types</option>
+          <option value="Story">Story</option>
+          <option value="Bug">Bug</option>
+          <option value="Task">Task</option>
+          <option value="Epic">Epic</option>
+        </select>
+        <input id="jira-board-search" placeholder="Filter…" oninput="filterJiraBoard(this.value)" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;max-width:180px"/>
+        <button class="gbtn" onclick="loadJiraBoard()" style="font-size:10px;padding:4px 10px">🔄 Refresh</button>
+        <button class="gbtn" onclick="aiJiraReview()" style="font-size:10px;padding:4px 10px;background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)">🧠 AI Sprint Review</button>
+      </div>
+      <div id="jira-board-cols" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;min-height:300px">
+        <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;color:var(--muted2);gap:8px">
+          <span style="font-size:28px;opacity:.4">🔗</span>
+          <span style="font-size:12px;font-weight:500">Configure Jira connection to load board</span>
+          <button onclick="openJiraConnectModal()" style="background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;margin-top:4px">⚙ Connect now →</button>
+        </div>
+      </div>
+      <div id="jira-ai-review-out" style="display:none;margin-top:14px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:10px;padding:14px">
+        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🧠 AI Sprint Review</div>
+        <div id="jira-ai-review-text" style="font-size:12px;color:var(--text);line-height:1.65"></div>
+      </div>
+    </div>
+
+    <!-- BACKLOG SUB-PANEL -->
+    <div id="jsub-backlog" class="jira-sub-panel" style="display:none">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
+        <select id="jira-bl-project" onchange="loadJiraBacklog()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
+          <option value="">Select project…</option>
+          <option value="HRB">Digital Futures Harbour (HRB)</option>
+          <option value="HIP">Harbour - Linkon (HIP)</option>
+          <option value="HUP">Harbour - Mirros (HUP)</option>
+          <option value="MIN">Harbour - Mindra (MIN)</option>
+          <option value="SHL">Harbour - Shellix (SHL)</option>
+        </select>
+        <button class="gbtn" onclick="loadJiraBacklog()" style="font-size:10px;padding:4px 10px">🔄 Refresh</button>
+        <button class="gbtn" onclick="aiRiceBacklog()" style="font-size:10px;padding:4px 10px;background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)">⚡ AI RICE Score</button>
+        <button class="gbtn" onclick="showJiraSubTab('create',document.getElementById('jst-create'))" style="font-size:10px;padding:4px 10px;background:var(--green-l);color:var(--green);border-color:rgba(0,200,150,0.3)">+ Create Issue</button>
+      </div>
+      <div id="jira-backlog-table">
+        <div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Select a project to load backlog</div>
+      </div>
+      <div id="jira-rice-out" style="display:none;margin-top:14px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:10px;padding:14px">
+        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">⚡ AI RICE Prioritisation</div>
+        <div id="jira-rice-text" style="font-size:12px;color:var(--text);line-height:1.65"></div>
+      </div>
+    </div>
+
+    <!-- CREATE SUB-PANEL -->
+    <div id="jsub-create" class="jira-sub-panel" style="display:none">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Issue Details</div>
+          <div class="cf"><label>Project</label>
+            <select id="jira-create-proj" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text);font-family:inherit;outline:none">
+              <option value="HRB">Digital Futures Harbour (HRB)</option>
+              <option value="HIP">Harbour - Linkon (HIP)</option>
+              <option value="HUP">Harbour - Mirros (HUP)</option>
+              <option value="MIN">Harbour - Mindra (MIN)</option>
+              <option value="SHL">Harbour - Shellix (SHL)</option>
+            </select>
+          </div>
+          <div class="cf"><label>Issue type</label>
+            <select id="jira-create-type" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text);font-family:inherit;outline:none">
+              <option>Story</option><option>Bug</option><option>Task</option><option>Epic</option>
+            </select>
+          </div>
+          <div class="cf"><label>Summary *</label>
+            <input id="jira-create-summary" placeholder="As a [user], I want to [action]…"/>
+          </div>
+          <div class="cf"><label>Description / Acceptance Criteria</label>
+            <textarea id="jira-create-desc" style="height:100px;resize:vertical" placeholder="AC, context, notes…"></textarea>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="cf"><label>Priority</label>
+              <select id="jira-create-priority" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text);font-family:inherit;outline:none">
+                <option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option><option>Lowest</option>
+              </select>
+            </div>
+            <div class="cf"><label>Story Points</label>
+              <input id="jira-create-sp" type="number" placeholder="3" style="max-width:100%"/>
+            </div>
+          </div>
+          <div class="cf"><label>Labels (comma separated)</label>
+            <input id="jira-create-labels" placeholder="g0-gate, harbour-platform"/>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn" id="jira-push-btn" onclick="jiraCreateIssue()" style="background:#0052CC;border-color:#0052CC;flex:1">🚀 Push to Jira</button>
+            <button class="gbtn" onclick="jiraAiWriteStory()">🧠 AI Write</button>
+          </div>
+          <div id="jira-created-result" style="display:none;margin-top:10px;background:var(--green-l);border:0.5px solid rgba(0,200,150,0.3);border-radius:8px;padding:10px">
+            <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">✅ Issue created!</div>
+            <a id="jira-created-key" href="#" target="_blank" style="font-size:13px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#4C9AFF;text-decoration:none"></a>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">🧠 AI Story Writer</div>
+          <div style="font-size:10px;color:var(--muted2);margin-bottom:8px">Describe what you need — AI writes the full story with AC</div>
+          <textarea id="jira-ai-input" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:8px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;resize:none;min-height:80px" placeholder="e.g. Users need to save G0 gate progress and resume without losing data…"></textarea>
+          <div style="display:flex;gap:6px;margin:8px 0">
+            <button class="gbtn" onclick="jiraAiWriteStory()" style="flex:1;font-size:10px">✨ Write Story</button>
+            <button class="gbtn" onclick="jiraAiWriteAC()" style="flex:1;font-size:10px">📋 Write AC</button>
+            <button class="gbtn" onclick="jiraAiBulkCreate()" style="flex:1;font-size:10px">⚡ Bulk Create</button>
+          </div>
+          <div id="jira-ai-write-out" style="display:none;background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;padding:10px;font-size:11px;line-height:1.65;color:var(--text);max-height:250px;overflow-y:auto"></div>
+          <button id="jira-ai-fill-btn" onclick="jiraFillFromAI()" style="display:none;width:100%;margin-top:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:7px;padding:6px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit">↑ Fill form from AI output</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEARCH SUB-PANEL -->
+    <div id="jsub-search" class="jira-sub-panel" style="display:none">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input id="jira-jql-input" placeholder="project = HRB AND sprint in openSprints() ORDER BY priority DESC" style="flex:1;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:8px 11px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none" onkeydown="if(event.key==='Enter')runJiraJQL()"/>
+        <button class="btn" onclick="runJiraJQL()" style="background:#0052CC;border-color:#0052CC;white-space:nowrap">Run JQL</button>
+      </div>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND sprint in openSprints() ORDER BY priority DESC')">🏃 Open Sprint</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND issuetype = Bug AND status != Done ORDER BY priority DESC')">🐛 Open Bugs</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND issuetype = Story AND status = "To Do" ORDER BY created DESC')">📗 Stories</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND priority in (Highest,High) AND status != Done')">🔴 High Priority</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND updated >= -7d ORDER BY updated DESC')">🕐 Last 7 days</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND labels = "g0-gate" ORDER BY priority DESC')">🏷 g0-gate</button>
+      </div>
+      <div id="jira-search-results">
+        <div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Run a JQL query to see results</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- ══ HOW TO USE ME MODAL ════════════════════════════════════ -->
 <div id="how-to-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);z-index:2000;overflow-y:auto;padding:24px 16px">
 <div style="max-width:820px;margin:0 auto;background:var(--bg2);border:0.5px solid var(--border2);border-radius:20px;overflow:hidden;animation:slide-up .3s cubic-bezier(.22,1,.36,1)">
@@ -24737,6 +25710,1359 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
 
 </div>
 </div>
+
+
+<!-- ══ JIRA CONNECT MODAL ══════════════════════════════════════ -->
+<div id="jira-modal">
+  <div id="jira-modal-inner">
+    <div style="padding:16px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <div style="font-size:13px;font-weight:700">🔗 Connect to Jira</div>
+      <button onclick="closeJiraConnectModal()" style="background:var(--bg3);border:none;border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted2);cursor:pointer">✕</button>
+    </div>
+    <div style="padding:18px 20px;display:flex;flex-direction:column;gap:10px">
+      <div style="font-size:11px;color:var(--muted2);line-height:1.5">Enter your Atlassian credentials. Your API token is stored only in localStorage — never sent anywhere except directly to Jira.</div>
+      <div class="cf"><label>Atlassian Domain</label><input id="jm-domain" value="ebdae.atlassian.net" placeholder="yourcompany.atlassian.net"/></div>
+      <div class="cf"><label>Email</label><input id="jm-email" type="email" placeholder="you@company.com"/></div>
+      <div class="cf" style="position:relative">
+        <label>API Token <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" style="color:#4C9AFF;font-size:9px;text-decoration:none">Get token ↗</a></label>
+        <input id="jm-token" type="password" placeholder="ATATT3xFfGF0…"/>
+      </div>
+      <div class="cf" style="position:relative">
+        <label>Vercel Proxy URL <span style="font-size:9px;color:var(--muted2)">(after deploying — fixes CORS)</span></label>
+        <input id="jm-proxy" placeholder="https://prodmind-jira-proxy.vercel.app"/>
+      </div>
+      <button onclick="saveJiraConfig()" style="background:#0052CC;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Save & Connect</button>
+      <div id="jm-status" style="font-size:10px;color:var(--muted2);text-align:center;min-height:14px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ JIRA PUSH MODAL ═════════════════════════════════════════ -->
+<div id="jira-push-modal">
+  <div id="jira-push-inner">
+    <div style="padding:14px 18px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--bg2);z-index:1">
+      <span style="font-size:13px;font-weight:700">🔗 Push to Jira</span>
+      <span id="jpm-auto-type" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:4px;background:var(--accent-l);color:var(--accent);border:0.5px solid var(--accent-m)"></span>
+      <button onclick="closeJiraPushModal()" style="margin-left:auto;background:var(--bg3);border:none;border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted2);cursor:pointer">✕</button>
+    </div>
+    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+      <!-- Content preview -->
+      <div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);margin-bottom:5px">Content to push</div>
+        <div id="jpm-preview" style="background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;padding:10px;font-size:11px;color:var(--text);max-height:160px;overflow-y:auto;line-height:1.55;white-space:pre-wrap"></div>
+      </div>
+      <!-- Smart detection notice -->
+      <div id="jpm-detection" style="font-size:10px;color:var(--muted2);background:var(--bg3);border-radius:6px;padding:7px 10px;display:none"></div>
+      <!-- Push options -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="cf"><label>Project</label>
+          <select id="jpm-project" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
+            <option value="HRB">Digital Futures Harbour (HRB)</option>
+            <option value="HIP">Harbour - Linkon (HIP)</option>
+            <option value="HUP">Harbour - Mirros (HUP)</option>
+            <option value="MIN">Harbour - Mindra (MIN)</option>
+            <option value="SHL">Harbour - Shellix (SHL)</option>
+          </select>
+        </div>
+        <div class="cf"><label>Issue Type</label>
+          <select id="jpm-type" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
+            <option>Story</option><option>Bug</option><option>Task</option><option>Epic</option>
+          </select>
+        </div>
+        <div class="cf" style="grid-column:1/-1"><label>Summary (Title)</label>
+          <input id="jpm-summary" placeholder="Issue title…" style="font-size:12px"/>
+        </div>
+        <div class="cf"><label>Priority</label>
+          <select id="jpm-priority" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
+            <option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option>
+          </select>
+        </div>
+        <div class="cf"><label>Story Points</label>
+          <input id="jpm-sp" type="number" placeholder="e.g. 3"/>
+        </div>
+        <div class="cf" style="grid-column:1/-1"><label>Labels</label>
+          <input id="jpm-labels" placeholder="prodmind, g0-gate, harbour-platform"/>
+        </div>
+      </div>
+      <!-- Push options: single or bulk -->
+      <div id="jpm-bulk-section" style="display:none">
+        <div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">⚡ Bulk push detected — create as separate issues?</div>
+        <div id="jpm-bulk-list" style="background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;padding:8px;font-size:11px;color:var(--text);max-height:120px;overflow-y:auto"></div>
+      </div>
+      <!-- Actions -->
+      <div style="display:flex;gap:8px">
+        <button id="jpm-push-btn" onclick="executePushToJira()" style="flex:1;background:#0052CC;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">🚀 Push to Jira</button>
+        <button id="jpm-bulk-btn" onclick="executeBulkPushToJira()" style="flex:1;display:none;background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Bulk Create All</button>
+        <button onclick="closeJiraPushModal()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:9px 14px;font-size:12px;color:var(--muted2);cursor:pointer;font-family:inherit">Cancel</button>
+      </div>
+      <!-- Result -->
+      <div id="jpm-result" style="display:none;background:var(--green-l);border:0.5px solid rgba(0,200,150,0.3);border-radius:8px;padding:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">✅ Created!</div>
+        <a id="jpm-result-key" href="#" target="_blank" style="font-size:13px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#4C9AFF;text-decoration:none"></a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  PRODMIND × JIRA INTEGRATION ENGINE
+// ══════════════════════════════════════════════════════════════
+
+// ── Config ────────────────────────────────────────────────────
+let jiraConfig = null;
+let _jiraPushPayload = { rawText:'', sourceType:'auto' };
+
+(function initJira(){
+  const saved = localStorage.getItem('pm_jira_config');
+  if(saved){ jiraConfig = JSON.parse(saved); updateJiraStatusUI(); }
+  // Restore email from localStorage if present
+  const email = localStorage.getItem('pm_jira_email');
+  if(email) { const el = document.getElementById('jm-email'); if(el) el.value = email; }
+})();
+
+function updateJiraStatusUI(){
+  const dot = document.getElementById('jira-status-dot');
+  const txt = document.getElementById('jira-status-text');
+  const btn = document.getElementById('jira-connect-btn');
+  if(!dot || !txt) return;
+  if(jiraConfig){
+    dot.style.background = 'var(--green)';
+    dot.style.boxShadow = '0 0 6px var(--green)';
+    txt.style.color = 'var(--green)';
+    txt.textContent = jiraConfig.domain.replace('.atlassian.net','') + ' ✓';
+    if(btn) { btn.textContent = '⚙ Reconnect'; btn.style.color='var(--green)'; }
+  }
+}
+
+// ── Connect modal ─────────────────────────────────────────────
+function openJiraConnectModal(){
+  document.getElementById('jira-modal').classList.add('show');
+  if(jiraConfig){
+    const d=document.getElementById('jm-domain'); if(d) d.value=jiraConfig.domain;
+    const e=document.getElementById('jm-email'); if(e) e.value=jiraConfig.email;
+    const t=document.getElementById('jm-token'); if(t) t.value=jiraConfig.token;
+  }
+}
+function closeJiraConnectModal(){ document.getElementById('jira-modal').classList.remove('show'); }
+
+function saveJiraConfig(){
+  const domain = document.getElementById('jm-domain').value.trim().replace(/^https?:\/\//,'');
+  const email  = document.getElementById('jm-email').value.trim();
+  const token  = document.getElementById('jm-token').value.trim();
+  const proxy  = (document.getElementById('jm-proxy')?.value||'').trim().replace(/\/+$/,'');
+  const st     = document.getElementById('jm-status');
+  if(!domain||!email||!token){ st.textContent='Fill in all fields'; st.style.color='var(--red)'; return; }
+  jiraConfig = { domain, email, token };
+  localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
+  localStorage.setItem('pm_jira_email', email);
+  if(proxy){ localStorage.setItem('pm_jira_proxy', proxy); jiraProxyUrl = proxy; }
+  st.textContent = 'Saved! Testing connection…'; st.style.color = 'var(--muted2)';
+  jiraFetch('/myself').then(r=>{
+    if(r.ok){ st.textContent='✅ Connected!'; st.style.color='var(--green)'; updateJiraStatusUI(); setTimeout(closeJiraConnectModal,1000); }
+    else{ st.textContent='⚠ Saved — CORS may block browser calls. See notes below.'; st.style.color='var(--yellow)'; updateJiraStatusUI(); setTimeout(closeJiraConnectModal,2000); }
+  }).catch(()=>{ st.textContent='⚠ Saved — CORS may apply. Use proxy or extension.'; st.style.color='var(--yellow)'; updateJiraStatusUI(); setTimeout(closeJiraConnectModal,2000); });
+}
+
+// ── Jira fetch helper ─────────────────────────────────────────
+// ── Proxy URL — set this after deploying your Vercel proxy ────
+// Deploy: github.com/YOUR_USERNAME/prodmind-jira-proxy → Vercel
+// Then update this URL:
+const JIRA_PROXY_URL = localStorage.getItem('pm_jira_proxy') || '';
+
+function setJiraProxy(url){
+  localStorage.setItem('pm_jira_proxy', url.trim().replace(/\/+$/, ''));
+  jiraProxyUrl = url.trim().replace(/\/+$/, '');
+  toast('✅ Proxy URL saved!', 'success');
+}
+
+let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
+
+async function jiraFetch(path, opts={}){
+  if(!jiraConfig) throw new Error('Jira not configured');
+
+  // ── Try proxy first (no CORS issues) ──────────────────────
+  if(jiraProxyUrl){
+    const proxyUrl = jiraProxyUrl + '/api/jira?path=/rest/api/3' + path;
+    return fetch(proxyUrl, {
+      ...opts,
+      headers:{
+        'Content-Type':'application/json',
+        'Accept':'application/json',
+        'X-Jira-Domain': jiraConfig.domain,
+        'X-Jira-Email': jiraConfig.email,
+        'X-Jira-Token': jiraConfig.token,
+        ...(opts.headers||{})
+      }
+    });
+  }
+
+  // ── Direct call fallback (works with CORS browser extension) ─
+  const creds = btoa(jiraConfig.email+':'+jiraConfig.token);
+  const url = 'https://'+jiraConfig.domain+'/rest/api/3'+path;
+  return fetch(url, {
+    ...opts,
+    headers:{'Authorization':'Basic '+creds,'Content-Type':'application/json','Accept':'application/json',...(opts.headers||{})},
+    mode:'cors'
+  });
+}
+
+function jiraADFBody(text){
+  if(!text) return undefined;
+  return { type:'doc', version:1, content:[{ type:'paragraph', content:[{ type:'text', text }] }] };
+}
+
+// ── Smart content detection ───────────────────────────────────
+function detectContentType(text){
+  const t = text.toLowerCase();
+  // Bug list detection
+  if((t.match(/bug|fix|broken|error|crash|fails?|issue/g)||[]).length > 2) return { type:'Bug', confidence:'high', reason:'Multiple bug-related terms detected' };
+  // User story detection
+  if(t.includes('as a') && (t.includes('i want') || t.includes('so that'))) return { type:'Story', confidence:'high', reason:'User story format detected' };
+  // Acceptance criteria
+  if(t.includes('acceptance criteria') || t.includes('given') && t.includes('when') && t.includes('then')) return { type:'Story', confidence:'medium', reason:'AC/BDD format detected' };
+  // Sprint goal / planning
+  if(t.includes('sprint goal') || t.includes('sprint planning')) return { type:'Task', confidence:'medium', reason:'Sprint planning content' };
+  // Epic / roadmap
+  if(t.includes('epic') || t.includes('initiative') || t.includes('roadmap')) return { type:'Epic', confidence:'medium', reason:'Epic/initiative scope detected' };
+  // Multi-line list = potential bulk
+  const lines = text.split('
+').filter(l => l.trim().match(/^(\d+\.|-|\*|\[)/));
+  if(lines.length > 3) return { type:'Story', confidence:'medium', reason:`${lines.length} items detected — consider bulk create`, bulk:lines };
+  return { type:'Story', confidence:'low', reason:'Defaulting to Story' };
+}
+
+function extractSummary(text){
+  // Try to get first line or SUMMARY: line
+  const sumLine = text.match(/SUMMARY:\s*(.+)/i);
+  if(sumLine) return sumLine[1].trim().slice(0,200);
+  // First non-empty line under 200 chars
+  const firstLine = text.split('
+').find(l => l.trim() && l.trim().length < 200);
+  if(firstLine) return firstLine.replace(/^[#\-\*\d\.>\s]+/,'').trim().slice(0,200);
+  return text.slice(0,120).trim();
+}
+
+// ── Open push modal from chat msg ────────────────────────────
+function openJiraPush(msgId){
+  const el = document.getElementById(msgId);
+  if(!el) return;
+  const text = el.innerText || el.textContent || '';
+  openJiraPushText(null, 'auto', text);
+}
+
+function openJiraPushText(elemId, sourceType, overrideText){
+  let text = overrideText || '';
+  if(!text && elemId){
+    const el = document.getElementById(elemId);
+    text = el ? (el.innerText || el.textContent || '') : '';
+  }
+  if(!text){ toast('No content to push','warning'); return; }
+  if(!jiraConfig){ openJiraConnectModal(); toast('Configure Jira connection first','warning'); return; }
+
+  _jiraPushPayload = { rawText: text, sourceType };
+
+  const detected = detectContentType(text);
+  const modal = document.getElementById('jira-push-modal');
+  const preview = document.getElementById('jpm-preview');
+  const detection = document.getElementById('jpm-detection');
+  const typeTag = document.getElementById('jpm-auto-type');
+  const bulkSection = document.getElementById('jpm-bulk-section');
+  const bulkBtn = document.getElementById('jpm-bulk-btn');
+  const pushBtn = document.getElementById('jpm-push-btn');
+
+  // Fill preview
+  preview.textContent = text.slice(0,800) + (text.length > 800 ? '
+…' : '');
+
+  // Auto-fill type
+  document.getElementById('jpm-type').value = detected.type;
+  typeTag.textContent = detected.type;
+
+  // Auto-fill summary
+  document.getElementById('jpm-summary').value = extractSummary(text);
+
+  // Auto-fill labels based on source
+  const autoLabels = { 'doc':'prodmind-doc', 'mom':'mom-action', 'sprint-health':'sprint-health', 'auto':'prodmind' };
+  document.getElementById('jpm-labels').value = autoLabels[sourceType] || 'prodmind';
+
+  // Show detection reason
+  detection.style.display = 'block';
+  detection.textContent = '🧠 Detected: ' + detected.reason;
+
+  // Bulk handling
+  if(detected.bulk && detected.bulk.length > 2){
+    bulkSection.style.display = 'block';
+    document.getElementById('jpm-bulk-list').innerHTML = detected.bulk.slice(0,10).map((l,i) =>
+      `<div style="padding:3px 0;border-bottom:0.5px solid var(--border)">${i+1}. ${l.replace(/^[\d\.\-\*\s]+/,'').slice(0,120)}</div>`
+    ).join('');
+    bulkBtn.style.display = 'flex';
+    _jiraPushPayload.bulkItems = detected.bulk;
+  } else {
+    bulkSection.style.display = 'none';
+    bulkBtn.style.display = 'none';
+  }
+
+  document.getElementById('jpm-result').style.display = 'none';
+  pushBtn.disabled = false;
+  pushBtn.innerHTML = '🚀 Push to Jira';
+  modal.classList.add('show');
+}
+
+function closeJiraPushModal(){ document.getElementById('jira-push-modal').classList.remove('show'); }
+
+// ── Execute push ──────────────────────────────────────────────
+async function executePushToJira(){
+  if(!jiraConfig){ toast('Configure Jira first','error'); return; }
+  const btn = document.getElementById('jpm-push-btn');
+  btn.disabled = true; btn.innerHTML = '⏳ Creating…';
+
+  const project  = document.getElementById('jpm-project').value;
+  const type     = document.getElementById('jpm-type').value;
+  const summary  = document.getElementById('jpm-summary').value.trim();
+  const priority = document.getElementById('jpm-priority').value;
+  const sp       = document.getElementById('jpm-sp').value;
+  const labelsRaw= document.getElementById('jpm-labels').value;
+  const labels   = labelsRaw ? labelsRaw.split(',').map(l=>l.trim()).filter(Boolean) : [];
+
+  if(!summary){ toast('Summary required','error'); btn.disabled=false; btn.innerHTML='🚀 Push to Jira'; return; }
+
+  const body = {
+    fields:{
+      project:{ key:project },
+      summary,
+      issuetype:{ name:type },
+      priority:{ name:priority },
+      description: jiraADFBody(_jiraPushPayload.rawText.slice(0,5000)),
+      ...(labels.length && { labels }),
+      ...(sp && { customfield_10016: parseFloat(sp) }),
+    }
+  };
+
+  try{
+    const res = await jiraFetch('/issue',{ method:'POST', body:JSON.stringify(body) });
+    if(res.ok){
+      const data = await res.json();
+      const key = data.key;
+      const link = `https://${jiraConfig.domain}/browse/${key}`;
+      const resultEl = document.getElementById('jpm-result');
+      const keyEl = document.getElementById('jpm-result-key');
+      resultEl.style.display = 'block';
+      keyEl.textContent = `${key} — Open in Jira ↗`;
+      keyEl.href = link;
+      btn.innerHTML = '✅ Created';
+      toast(`✅ ${key} created in ${project}!`,'success');
+    } else {
+      const err = await res.json().catch(()=>({}));
+      const msg = err.errors ? Object.values(err.errors).join(', ') : err.errorMessages?.join(', ')||`HTTP ${res.status}`;
+      toast('Jira error: '+msg,'error');
+      btn.disabled=false; btn.innerHTML='🚀 Push to Jira';
+    }
+  }catch(e){
+    toast('Error: '+e.message,'error');
+    btn.disabled=false; btn.innerHTML='🚀 Push to Jira';
+  }
+}
+
+// ── Bulk push ────────────────────────────────────────────────
+async function executeBulkPushToJira(){
+  if(!jiraConfig || !_jiraPushPayload.bulkItems) return;
+  const project  = document.getElementById('jpm-project').value;
+  const type     = document.getElementById('jpm-type').value;
+  const priority = document.getElementById('jpm-priority').value;
+  const labelsRaw= document.getElementById('jpm-labels').value;
+  const labels   = labelsRaw ? labelsRaw.split(',').map(l=>l.trim()).filter(Boolean) : [];
+
+  const btn = document.getElementById('jpm-bulk-btn');
+  btn.disabled = true;
+  let created=0, failed=0;
+
+  for(const item of _jiraPushPayload.bulkItems){
+    const summary = item.replace(/^[\d\.\-\*\[\]\s]+/,'').trim().slice(0,200);
+    if(!summary) continue;
+    btn.textContent = `Creating ${created+1} of ${_jiraPushPayload.bulkItems.length}…`;
+    try{
+      const body = { fields:{ project:{key:project}, summary, issuetype:{name:type}, priority:{name:priority}, ...(labels.length&&{labels}) }};
+      const r = await jiraFetch('/issue',{method:'POST',body:JSON.stringify(body)});
+      if(r.ok) created++; else failed++;
+      await new Promise(r=>setTimeout(r,250));
+    }catch(e){ failed++; }
+  }
+
+  toast(`✅ Created ${created} issues${failed?`, ${failed} failed`:''} in ${project}!`,'success');
+  btn.textContent = `✅ Created ${created}`;
+  document.getElementById('jpm-result').style.display = 'block';
+  document.getElementById('jpm-result-key').textContent = `${created} issues created in ${project}`;
+  document.getElementById('jpm-result-key').href = `https://${jiraConfig.domain}/browse/${project}`;
+}
+
+// ── Jira Tab: Sub-tab switching ───────────────────────────────
+function showJiraSubTab(id, el){
+  document.querySelectorAll('.jira-sub-panel').forEach(p=>p.style.display='none');
+  document.querySelectorAll('.jira-sub-tab').forEach(t=>t.classList.remove('active'));
+  const panel = document.getElementById('jsub-'+id);
+  if(panel) panel.style.display='block';
+  if(el) el.classList.add('active');
+}
+
+// ── Board ─────────────────────────────────────────────────────
+async function loadJiraBoard(){
+  const project = document.getElementById('jira-project-sel').value;
+  const typeFilter = document.getElementById('jira-type-filter').value;
+  if(!project) return;
+  if(!jiraConfig){ openJiraConnectModal(); return; }
+
+  const boardEl = document.getElementById('jira-board-cols');
+  boardEl.innerHTML = `<div style="grid-column:1/-1;display:flex;justify-content:center;padding:32px"><div class="loading"></div></div>`;
+
+  const typeJQL = typeFilter ? ` AND issuetype = "${typeFilter}"` : '';
+  const jql = `project = ${project}${typeJQL} ORDER BY status ASC, priority DESC`;
+
+  try{
+    const res = await jiraFetch(`/search?jql=${encodeURIComponent(jql)}&maxResults=80&fields=summary,status,issuetype,priority,assignee,customfield_10016`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    renderJiraBoard(data.issues||[]);
+  }catch(e){
+    boardEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)">⚠ ${e.message}<br><span style="font-size:10px">CORS may be blocking — try a browser extension or proxy</span></div>`;
+  }
+}
+
+function renderJiraBoard(issues){
+  const COLS = {'To Do':[],'In Progress':[],'In Review':[],'Done':[]};
+  const SCOL = {'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896'};
+  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+  const PEMU = {'Highest':'🔴','High':'🟠','Medium':'🟡','Low':'🟢','Lowest':'⚪'};
+
+  issues.forEach(issue=>{
+    const s = issue.fields.status?.name||'To Do';
+    const col = Object.keys(COLS).find(k=>s.toLowerCase().includes(k.toLowerCase().replace(' ','')))
+      || (s==='Done'?'Done':s.includes('Progress')?'In Progress':s.includes('Review')?'In Review':'To Do');
+    if(COLS[col]) COLS[col].push(issue);
+    else COLS['To Do'].push(issue);
+  });
+
+  document.getElementById('jira-board-cols').innerHTML = Object.entries(COLS).map(([col,items])=>`
+    <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:10px">
+      <div class="jira-col-header">
+        <span style="color:${SCOL[col]}">${col}</span>
+        <span style="font-size:9px;background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1px 7px;color:var(--muted2)">${items.length}</span>
+      </div>
+      ${items.length===0 ? '<div style="font-size:10px;color:var(--muted);text-align:center;padding:12px">No issues</div>' :
+        items.map(issue=>{
+          const f=issue.fields;
+          const tc=TCOL[f.issuetype?.name]||'#7a7a90';
+          return `<div class="jira-issue-card" style="--jic:${tc}" onclick="openJiraIssueDetail('${issue.key}')">
+            <div class="jira-issue-key">${issue.key}</div>
+            <div class="jira-issue-title">${escapeHtml(f.summary)}</div>
+            <div class="jira-issue-meta">
+              <span class="jira-type-badge" style="background:${tc}18;color:${tc}">${f.issuetype?.name||'Story'}</span>
+              <span>${PEMU[f.priority?.name]||'⚪'}</span>
+              ${f.assignee?`<span style="font-size:9px;color:var(--muted2);margin-left:auto">👤 ${f.assignee.displayName.split(' ')[0]}</span>`:''}
+            </div>
+          </div>`;
+        }).join('')
+      }
+    </div>`).join('');
+}
+
+function filterJiraBoard(q){
+  document.querySelectorAll('.jira-issue-card').forEach(c=>{
+    c.style.display = c.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ── AI Sprint Review ─────────────────────────────────────────
+async function aiJiraReview(){
+  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
+  const cards = document.querySelectorAll('.jira-issue-card');
+  if(!cards.length){ toast('Load board first','warning'); return; }
+  const items = [...cards].map(c=>{
+    const key = c.querySelector('.jira-issue-key')?.textContent||'';
+    const title = c.querySelector('.jira-issue-title')?.textContent||'';
+    const col = c.closest('[style*="background"]')?.querySelector('.jira-col-header span')?.textContent||'';
+    return `[${col}] ${key}: ${title}`;
+  }).join('
+');
+
+  const outEl = document.getElementById('jira-ai-review-out');
+  const textEl = document.getElementById('jira-ai-review-text');
+  outEl.style.display = 'block';
+  textEl.innerHTML = '<div class="loading"></div>';
+
+  const brain = ALL_BRAINS.find(b=>b.id===activeBrain)||{label:'Senior PO'};
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,stream:true,
+        system:BRAIN_SYSTEM_PROMPTS[activeBrain]||BRAIN_SYSTEM_PROMPTS.po,
+        messages:[{role:'user',content:`Review this sprint board snapshot for ${document.getElementById('jira-project-sel').value}:
+
+${items}
+
+Produce:
+## Sprint Health — RAG status + one honest sentence
+## Blockers & risks — what concerns you?
+## Velocity signal — what does the distribution tell you?
+## Top 3 actions this week`}]})
+    });
+    const reader=res.body.getReader(); const decoder=new TextDecoder(); let buf='',full='';
+    textEl.innerHTML='<span class="stream-cursor"></span>';
+    while(true){
+      const {done,value}=await reader.read(); if(done)break;
+      buf+=decoder.decode(value,{stream:true});
+      const lines=buf.split('
+'); buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        const d=line.slice(6).trim(); if(d==='[DONE]'||!d)continue;
+        try{ const ev=JSON.parse(d); if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){ full+=ev.delta.text; textEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>'; } }catch(_){}
+      }
+    }
+    textEl.innerHTML=formatMsg(full);
+  }catch(e){ textEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
+}
+
+// ── Backlog ───────────────────────────────────────────────────
+async function loadJiraBacklog(){
+  const project = document.getElementById('jira-bl-project').value;
+  if(!project) return;
+  if(!jiraConfig){ openJiraConnectModal(); return; }
+  const el = document.getElementById('jira-backlog-table');
+  el.innerHTML='<div style="text-align:center;padding:30px"><div class="loading"></div></div>';
+  try{
+    const jql=`project = ${project} AND status = "To Do" ORDER BY priority DESC, created DESC`;
+    const res=await jiraFetch(`/search?jql=${encodeURIComponent(jql)}&maxResults=60&fields=summary,issuetype,priority,customfield_10016,assignee`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json();
+    renderJiraBacklog(data.issues||[], data.total||0);
+  }catch(e){
+    el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted2)">⚠ ${e.message}</div>`;
+  }
+}
+
+function renderJiraBacklog(issues, total){
+  const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+  const el=document.getElementById('jira-backlog-table');
+  if(!issues.length){ el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">No backlog items</div>'; return; }
+  el.innerHTML=`
+    <div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total} items</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Key</th>
+        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Summary</th>
+        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Type</th>
+        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Priority</th>
+        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">SP</th>
+        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Action</th>
+      </tr></thead>
+      <tbody>
+        ${issues.map(issue=>{
+          const f=issue.fields; const tc=TCOL[f.issuetype?.name]||'#7a7a90';
+          const sp=f.customfield_10016||'-';
+          return `<tr style="cursor:pointer" onclick="openJiraIssueDetail('${issue.key}')">
+            <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)">${issue.key}</td>
+            <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:320px">${escapeHtml(f.summary)}</td>
+            <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'-'}</span></td>
+            <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border)">${f.priority?.name||'-'}</td>
+            <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--accent);border-bottom:0.5px solid var(--border)">${sp}</td>
+            <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)" onclick="event.stopPropagation()">
+              <button onclick="openJiraPushText(null,'auto','${escapeHtml(issue.key)}: '+${JSON.stringify(f.summary)})" style="font-size:9px;padding:2px 7px;border:0.5px solid rgba(0,82,204,0.3);background:rgba(0,82,204,0.08);color:#4C9AFF;border-radius:4px;cursor:pointer;font-family:inherit">🔗</button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ── AI RICE Backlog ───────────────────────────────────────────
+async function aiRiceBacklog(){
+  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
+  const table = document.querySelector('#jira-backlog-table table');
+  if(!table){ toast('Load backlog first','warning'); return; }
+  const items = [...table.querySelectorAll('tbody tr')].map(r=>{
+    const cells=r.querySelectorAll('td');
+    return `${cells[0]?.textContent}: ${cells[1]?.textContent} [${cells[2]?.textContent}/${cells[3]?.textContent}]`;
+  }).join('
+');
+
+  const outEl=document.getElementById('jira-rice-out');
+  const textEl=document.getElementById('jira-rice-text');
+  outEl.style.display='block';
+  textEl.innerHTML='<div class="loading"></div>';
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,stream:true,
+        system:BRAIN_SYSTEM_PROMPTS[activeBrain]||BRAIN_SYSTEM_PROMPTS.po,
+        messages:[{role:'user',content:`RICE score and prioritise this Jira backlog:
+
+${items}
+
+## RICE Table
+| Key | Summary | Reach | Impact | Confidence | Effort | RICE |
+
+## Top 5 to pull into next sprint — with rationale
+
+## What to defer and why`}]})
+    });
+    const reader=res.body.getReader(); const decoder=new TextDecoder(); let buf='',full='';
+    textEl.innerHTML='<span class="stream-cursor"></span>';
+    while(true){
+      const {done,value}=await reader.read(); if(done)break;
+      buf+=decoder.decode(value,{stream:true});
+      const lines=buf.split('
+'); buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        const d=line.slice(6).trim(); if(d==='[DONE]'||!d)continue;
+        try{ const ev=JSON.parse(d); if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){ full+=ev.delta.text; textEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>'; } }catch(_){}
+      }
+    }
+    textEl.innerHTML=formatMsg(full);
+  }catch(e){ textEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
+}
+
+// ── Create Issue in Jira Tab ──────────────────────────────────
+async function jiraCreateIssue(){
+  if(!jiraConfig){ openJiraConnectModal(); return; }
+  const project  = document.getElementById('jira-create-proj').value;
+  const type     = document.getElementById('jira-create-type').value;
+  const summary  = document.getElementById('jira-create-summary').value.trim();
+  const desc     = document.getElementById('jira-create-desc').value.trim();
+  const priority = document.getElementById('jira-create-priority').value;
+  const sp       = document.getElementById('jira-create-sp').value;
+  const labelsRaw= document.getElementById('jira-create-labels').value;
+  const labels   = labelsRaw ? labelsRaw.split(',').map(l=>l.trim()).filter(Boolean) : [];
+
+  if(!summary){ toast('Summary required','error'); return; }
+  const btn=document.getElementById('jira-push-btn');
+  btn.disabled=true; btn.textContent='⏳ Creating…';
+
+  const body={fields:{
+    project:{key:project}, summary,
+    issuetype:{name:type}, priority:{name:priority},
+    description: jiraADFBody(desc),
+    ...(labels.length&&{labels}),
+    ...(sp&&{customfield_10016:parseFloat(sp)}),
+  }};
+
+  try{
+    const res=await jiraFetch('/issue',{method:'POST',body:JSON.stringify(body)});
+    if(res.ok){
+      const data=await res.json();
+      const key=data.key;
+      const resEl=document.getElementById('jira-created-result');
+      const keyEl=document.getElementById('jira-created-key');
+      resEl.style.display='block';
+      keyEl.textContent=`${key} — Open in Jira ↗`;
+      keyEl.href=`https://${jiraConfig.domain}/browse/${key}`;
+      toast(`✅ ${key} created!`,'success');
+    } else {
+      const err=await res.json().catch(()=>({}));
+      toast('Error: '+(err.errorMessages?.join(', ')||`HTTP ${res.status}`),'error');
+    }
+  }catch(e){ toast('Error: '+e.message,'error'); }
+  btn.disabled=false; btn.textContent='🚀 Push to Jira';
+}
+
+// ── AI Write Story in Jira Tab ────────────────────────────────
+async function jiraAiWriteStory(){
+  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
+  const prompt = document.getElementById('jira-ai-input').value.trim()
+    || document.getElementById('jira-create-summary').value.trim();
+  if(!prompt){ toast('Describe what you need','warning'); return; }
+
+  const outEl=document.getElementById('jira-ai-write-out');
+  const fillBtn=document.getElementById('jira-ai-fill-btn');
+  outEl.style.display='block';
+  outEl.innerHTML='<div class="loading"></div>';
+  let full='';
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,stream:true,
+        system:'You are a senior PO writing Jira stories. Format:
+SUMMARY: [story title]
+DESCRIPTION:
+## Acceptance Criteria
+- [ ] ...
+TYPE: Story
+PRIORITY: Medium
+POINTS: 3',
+        messages:[{role:'user',content:'Write a Jira story for: '+prompt}]})
+    });
+    const reader=res.body.getReader(); const decoder=new TextDecoder(); let buf='';
+    outEl.innerHTML='<span class="stream-cursor"></span>';
+    while(true){
+      const {done,value}=await reader.read(); if(done)break;
+      buf+=decoder.decode(value,{stream:true});
+      const lines=buf.split('
+'); buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        const d=line.slice(6).trim(); if(d==='[DONE]'||!d)continue;
+        try{ const ev=JSON.parse(d); if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){ full+=ev.delta.text; outEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>'; } }catch(_){}
+      }
+    }
+    outEl.innerHTML=formatMsg(full);
+    outEl._rawText=full;
+    fillBtn.style.display='block';
+  }catch(e){ outEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
+}
+
+async function jiraAiWriteAC(){
+  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
+  const summary=document.getElementById('jira-create-summary').value.trim()||document.getElementById('jira-ai-input').value.trim();
+  if(!summary){ toast('Enter a story title first','warning'); return; }
+  const outEl=document.getElementById('jira-ai-write-out');
+  outEl.style.display='block'; outEl.innerHTML='<div class="loading"></div>';
+  let full='';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,stream:true,
+        system:'You are a senior BA writing BDD acceptance criteria. Be specific and testable.',
+        messages:[{role:'user',content:`Write 5-8 BDD acceptance criteria for: "${summary}"
+
+Format: - [ ] Given [context] When [action] Then [outcome]`}]})
+    });
+    const reader=res.body.getReader(); const decoder=new TextDecoder(); let buf='';
+    outEl.innerHTML='<span class="stream-cursor"></span>';
+    while(true){
+      const {done,value}=await reader.read(); if(done)break;
+      buf+=decoder.decode(value,{stream:true});
+      const lines=buf.split('
+'); buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        const d=line.slice(6).trim(); if(d==='[DONE]'||!d)continue;
+        try{ const ev=JSON.parse(d); if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){ full+=ev.delta.text; outEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>'; } }catch(_){}
+      }
+    }
+    outEl.innerHTML=formatMsg(full);
+    outEl._rawText=full;
+    document.getElementById('jira-ai-fill-btn').style.display='block';
+  }catch(e){ outEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
+}
+
+async function jiraAiBulkCreate(){
+  if(!jiraConfig||!apiKey){ toast('Configure Jira + Anthropic key first','error'); return; }
+  const raw=document.getElementById('jira-ai-input').value.trim();
+  if(!raw){ toast('Enter items to bulk create','warning'); return; }
+  const project=document.getElementById('jira-create-proj').value;
+  const priority=document.getElementById('jira-create-priority').value;
+  const outEl=document.getElementById('jira-ai-write-out');
+  outEl.style.display='block'; outEl.innerHTML='🧠 AI structuring…';
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
+        system:'Return ONLY valid JSON array. No markdown.',
+        messages:[{role:'user',content:`Structure these as Jira issues. JSON array of {summary, issuetype, priority}:
+
+${raw}`}]})
+    });
+    const data=await res.json();
+    const text=data.content?.map(c=>c.text||'').join('')||'[]';
+    const issues=JSON.parse(text.replace(/```json|```/g,'').trim());
+    let created=0;
+    for(const issue of issues){
+      outEl.innerHTML=`Creating ${created+1} of ${issues.length}: ${issue.summary?.slice(0,50)}…`;
+      try{
+        const body={fields:{project:{key:project},summary:issue.summary,issuetype:{name:issue.issuetype||'Story'},priority:{name:issue.priority||priority}}};
+        const r=await jiraFetch('/issue',{method:'POST',body:JSON.stringify(body)});
+        if(r.ok) created++;
+        await new Promise(r=>setTimeout(r,280));
+      }catch(_){}
+    }
+    outEl.innerHTML=formatMsg(`✅ **${created} issues created** in ${project}!`);
+    toast(`Created ${created} issues!`,'success');
+  }catch(e){ outEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
+}
+
+function jiraFillFromAI(){
+  const outEl=document.getElementById('jira-ai-write-out');
+  const raw=outEl._rawText||outEl.innerText||'';
+  if(!raw) return;
+  const sum=raw.match(/SUMMARY:\s*(.+)/i);
+  if(sum) document.getElementById('jira-create-summary').value=sum[1].trim();
+  const typ=raw.match(/TYPE:\s*(Story|Bug|Task|Epic)/i);
+  if(typ) document.getElementById('jira-create-type').value=typ[1];
+  const pri=raw.match(/PRIORITY:\s*(Highest|High|Medium|Low|Lowest)/i);
+  if(pri) document.getElementById('jira-create-priority').value=pri[1];
+  const pt=raw.match(/POINTS:\s*(\d+)/i);
+  if(pt) document.getElementById('jira-create-sp').value=pt[1];
+  const desc=raw.replace(/SUMMARY:.+
+?/gi,'').replace(/TYPE:.+
+?/gi,'').replace(/PRIORITY:.+
+?/gi,'').replace(/POINTS:.+
+?/gi,'').trim();
+  document.getElementById('jira-create-desc').value=desc;
+  toast('✅ Form filled!','success');
+}
+
+// ── JQL Search ────────────────────────────────────────────────
+function setJiraJQL(jql){
+  document.getElementById('jira-jql-input').value=jql;
+  runJiraJQL();
+}
+
+async function runJiraJQL(){
+  if(!jiraConfig){ openJiraConnectModal(); return; }
+  const jql=document.getElementById('jira-jql-input').value.trim();
+  if(!jql) return;
+  const el=document.getElementById('jira-search-results');
+  el.innerHTML='<div style="text-align:center;padding:30px"><div class="loading"></div></div>';
+  try{
+    const res=await jiraFetch(`/search?jql=${encodeURIComponent(jql)}&maxResults=50&fields=summary,status,issuetype,priority,assignee`);
+    if(!res.ok){ const err=await res.json().catch(()=>({})); throw new Error(err.errorMessages?.join(', ')||`HTTP ${res.status}`); }
+    const data=await res.json();
+    renderJiraSearchResults(data.issues||[], data.total||0);
+  }catch(e){ el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted2)">⚠ ${e.message}</div>`; }
+}
+
+function renderJiraSearchResults(issues, total){
+  const el=document.getElementById('jira-search-results');
+  const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+  const SCOL={'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896','Closed':'#00C896'};
+  if(!issues.length){ el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">No results</div>'; return; }
+  el.innerHTML=`<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total}</div>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Key</th>
+      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Summary</th>
+      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Type</th>
+      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Status</th>
+      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Action</th>
+    </tr></thead>
+    <tbody>
+      ${issues.map(issue=>{
+        const f=issue.fields; const tc=TCOL[f.issuetype?.name]||'#7a7a90'; const sc=SCOL[f.status?.name]||'#7a7a90';
+        return `<tr style="cursor:pointer">
+          <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)" onclick="openJiraIssueDetail('${issue.key}')">${issue.key}</td>
+          <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:300px" onclick="openJiraIssueDetail('${issue.key}')">${escapeHtml(f.summary)}</td>
+          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'-'}</span></td>
+          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;background:${sc}18;color:${sc}">${f.status?.name||'-'}</span></td>
+          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)">
+            <button onclick="openJiraPushText(null,'auto',${JSON.stringify(issue.key+': '+f.summary)})" style="font-size:9px;padding:2px 7px;border:0.5px solid rgba(0,82,204,0.3);background:rgba(0,82,204,0.08);color:#4C9AFF;border-radius:4px;cursor:pointer;font-family:inherit">🔗 Push</button>
+          </td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ── Issue Detail (mini modal via toast-like overlay) ─────────
+async function openJiraIssueDetail(key){
+  // Use existing chat to analyse — switch to chat, load issue context
+  if(!jiraConfig) return;
+  try{
+    const res=await jiraFetch(`/issue/${key}?fields=summary,description,status,issuetype,priority,assignee,customfield_10016,labels`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data=await res.json(); const f=data.fields;
+    const desc=extractJiraADFText(f.description);
+    const context=`Jira Issue ${key}:
+Type: ${f.issuetype?.name}
+Summary: ${f.summary}
+Status: ${f.status?.name}
+Priority: ${f.priority?.name}
+SP: ${f.customfield_10016||'?'}
+Assignee: ${f.assignee?.displayName||'Unassigned'}
+Labels: ${f.labels?.join(', ')||'none'}
+Description: ${desc||'(none)'}`;
+    switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+    setTimeout(()=>{
+      const inp=document.getElementById('chat-input');
+      if(inp){ inp.value=`Analyse this Jira issue and tell me: (1) is it ready to develop? (2) what is missing? (3) suggested AC if none exist.
+
+${context}`; autoResize(inp); inp.focus(); }
+      toast(`${key} loaded in AI Chat — press Send to analyse`,'success');
+    }, 150);
+  }catch(e){ toast('Could not load issue: '+e.message,'error'); }
+}
+
+function extractJiraADFText(adf){
+  if(!adf) return '';
+  if(typeof adf==='string') return adf;
+  const texts=[];
+  const walk=(node)=>{ if(node.type==='text') texts.push(node.text); if(node.content) node.content.forEach(walk); };
+  if(adf.content) adf.content.forEach(walk);
+  return texts.join(' ');
+}
+
+// ── Update switchTab to know about jira ───────────────────────
+(function patchSwitchTab(){
+  const _orig = window.switchTab;
+  window.switchTab = function(tab, el){
+    _orig(tab, el);
+    if(tab === 'jira'){
+      updateJiraStatusUI();
+      // Restore proxy URL in modal
+      const proxyEl = document.getElementById('jm-proxy');
+      if(proxyEl && jiraProxyUrl) proxyEl.value = jiraProxyUrl;
+    }
+  };
+})();
+
+// ══════════════════════════════════════════════════════════════
+//  JIRA CONTEXT MODE — Load any issue into ANY ProdMind brain
+//  The issue becomes the context for every brain call
+// ══════════════════════════════════════════════════════════════
+
+let _jiraContextIssue = null; // Currently loaded Jira issue
+
+// ── Load issue into Jira Context Mode ─────────────────────────
+async function loadIssueIntoContext(key) {
+  if(!jiraConfig){ openJiraConnectModal(); return; }
+  toast('⏳ Loading ' + key + '…');
+  try {
+    const res = await jiraFetch(`/issue/${key}?fields=summary,description,status,issuetype,priority,assignee,reporter,customfield_10016,labels,comment,subtasks,parent`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    _jiraContextIssue = data;
+    openIssueDetailPanel(data);
+  } catch(e) {
+    toast('Error loading issue: ' + e.message, 'error');
+  }
+}
+
+// ── Extract ADF text ─────────────────────────────────────────
+function _adfToText(node) {
+  if(!node) return '';
+  if(typeof node === 'string') return node;
+  if(node.type === 'text') return node.text || '';
+  if(node.type === 'hardBreak') return '\n';
+  if(node.content) return node.content.map(_adfToText).join('');
+  return '';
+}
+
+function buildIssueContext(issue) {
+  const f = issue.fields;
+  const desc = _adfToText(f.description);
+  return `JIRA ISSUE CONTEXT:
+Key: ${issue.key}
+Type: ${f.issuetype?.name}
+Summary: ${f.summary}
+Status: ${f.status?.name}
+Priority: ${f.priority?.name}
+Assignee: ${f.assignee?.displayName || 'Unassigned'}
+Reporter: ${f.reporter?.displayName || 'Unknown'}
+Story Points: ${f.customfield_10016 || 'Not estimated'}
+Labels: ${f.labels?.join(', ') || 'None'}
+Description:
+${desc || '(No description)'}`;
+}
+
+// ── Open Issue Detail Panel ────────────────────────────────────
+function openIssueDetailPanel(issue) {
+  const f = issue.fields;
+  const desc = _adfToText(f.description);
+  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+  const SCOL = {'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896','Ready For QA':'#F5A623','In Development':'#6C47FF','Ready For Release':'#00C896','SIT DONE':'#00C896'};
+  const tc = TCOL[f.issuetype?.name] || '#7a7a90';
+  const sc = SCOL[f.status?.name] || '#7a7a90';
+
+  // Build brain action buttons — ALL 15 brains
+  const ALL_BRAIN_ACTIONS = [
+    { id:'po',    icon:'🧠', label:'PO Review',      prompt:`You are reviewing this Jira issue as a Principal PO. Assess: (1) Is it ready to develop? What is missing? (2) Is the business value clear? (3) Is priority justified? (4) Suggest 3 AC if none exist.` },
+    { id:'ba',    icon:'🔎', label:'Write BRD/AC',   prompt:`You are a BA reviewing this Jira issue. Write: (1) Full BDD acceptance criteria (Given/When/Then) (2) Non-functional requirements (3) Out of scope (4) Assumptions` },
+    { id:'qa',    icon:'🧪', label:'Test Cases',     prompt:`You are a QA Lead reviewing this issue. Write: (1) 5-8 UAT test cases covering happy path and edge cases (2) Risk assessment (3) What could go wrong in production` },
+    { id:'cto',   icon:'🧑‍💻', label:'Tech Review',  prompt:`You are a CTO reviewing this issue. Assess: (1) Technical complexity (2) Architecture risks (3) Performance/security concerns (4) Implementation approach recommendation (5) Story point validation` },
+    { id:'rm',    icon:'🚀', label:'Release Risk',   prompt:`You are a Release Manager reviewing this issue. Assess: (1) Release risk (High/Medium/Low) with rationale (2) Rollback risk if this fails in production (3) Pre-release checklist for this specific change (4) Go/No-Go recommendation` },
+    { id:'dm',    icon:'📦', label:'Delivery Risk',  prompt:`You are a Delivery Manager reviewing this issue. Assess: (1) Delivery risk and blockers (2) Dependencies that need resolving (3) Realistic story point estimate (4) Sprint readiness (is this DoR-compliant?)` },
+    { id:'ux',    icon:'🎨', label:'UX Review',      prompt:`You are a UX Lead reviewing this issue. Assess: (1) User experience impact (2) What user research is needed (3) Accessibility concerns (4) Success metrics for UX quality` },
+    { id:'scrum', icon:'🏃', label:'Sprint Ready?',  prompt:`You are a Scrum Master reviewing this issue. Assess: (1) Is this story sprint-ready? Apply INVEST criteria. (2) What needs refinement before sprint planning (3) Dependencies that block sprint commitment (4) Recommended story points` },
+    { id:'dev',   icon:'💻', label:'Dev Complexity', prompt:`You are a Senior Developer reviewing this issue. Assess: (1) Technical complexity (2) Implementation approach (3) Code areas affected (4) Technical debt risk (5) Realistic SP estimate with confidence %` },
+  ];
+
+  const brainBtns = ALL_BRAIN_ACTIONS.map(b => {
+    const safePrompt = encodeURIComponent(b.prompt);
+    return `<button onclick="runBrainOnIssueByKey('${issue.key}','${b.id}','${encodeURIComponent(b.prompt)}')" style="display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:inherit;transition:all .15s;white-space:nowrap" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='var(--bg3)'">${b.icon} ${b.label}</button>`;
+  }).join('');
+
+  const modal = document.getElementById('jira-issue-modal');
+  if(!modal) { buildIssueModal(); return openIssueDetailPanel(issue); }
+
+  document.getElementById('jim-key').textContent = issue.key;
+  document.getElementById('jim-type').textContent = f.issuetype?.name || '';
+  document.getElementById('jim-type').style.cssText = `font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:${tc}18;color:${tc};border:0.5px solid ${tc}40`;
+  document.getElementById('jim-status').textContent = f.status?.name || '';
+  document.getElementById('jim-status').style.cssText = `font-size:9px;font-weight:600;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:${sc}18;color:${sc}`;
+  document.getElementById('jim-title').textContent = f.summary;
+  document.getElementById('jim-meta').innerHTML = [
+    {l:'Priority', v:f.priority?.name||'-'},
+    {l:'Assignee', v:f.assignee?.displayName||'Unassigned'},
+    {l:'Reporter', v:f.reporter?.displayName||'-'},
+    {l:'Story Points', v:f.customfield_10016||'—'},
+    {l:'Labels', v:f.labels?.length ? f.labels.join(', ') : 'None'},
+    {l:'Type', v:f.issuetype?.name||'-'},
+  ].map(m=>`<div style="background:var(--bg3);border-radius:7px;padding:8px 10px"><div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:2px">${m.l}</div><div style="font-size:11px;color:var(--text);font-weight:500">${m.v}</div></div>`).join('');
+  document.getElementById('jim-desc').textContent = desc || 'No description.';
+  document.getElementById('jim-brain-btns').innerHTML = brainBtns;
+  document.getElementById('jim-ai-out').style.display = 'none';
+  document.getElementById('jim-ai-out').innerHTML = '';
+  document.getElementById('jim-push-chat-btn').onclick = () => {
+    closeIssueModal();
+    setTimeout(() => {
+      switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+      setTimeout(() => {
+        const inp = document.getElementById('chat-input');
+        if(inp) { inp.value = 'Analyse this Jira issue:\n\n' + buildIssueContext(issue); autoResize(inp); inp.focus(); }
+      }, 150);
+    }, 100);
+  };
+  document.getElementById('jim-open-jira-btn').href = `https://${jiraConfig?.domain||'ebdae.atlassian.net'}/browse/${issue.key}`;
+
+  modal.classList.add('show');
+}
+
+function buildIssueModal() {
+  const div = document.createElement('div');
+  div.id = 'jira-issue-modal';
+  div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:3500;display:none;align-items:center;justify-content:center';
+  div.innerHTML = `
+    <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;width:700px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 48px rgba(0,0,0,.7)">
+      <div style="padding:14px 18px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px;position:sticky;top:0;background:var(--bg2);z-index:1">
+        <span id="jim-key" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#4C9AFF;font-weight:700"></span>
+        <span id="jim-type"></span>
+        <span id="jim-status"></span>
+        <a id="jim-open-jira-btn" href="#" target="_blank" style="font-size:10px;color:#4C9AFF;text-decoration:none;margin-left:4px">↗ Open in Jira</a>
+        <button onclick="closeIssueModal()" style="margin-left:auto;background:var(--bg3);border:none;border-radius:6px;padding:5px 11px;font-size:11px;color:var(--muted2);cursor:pointer">✕</button>
+      </div>
+      <div style="padding:18px 20px">
+        <div id="jim-title" style="font-size:16px;font-weight:700;margin-bottom:14px;line-height:1.4;color:var(--text)"></div>
+        <div id="jim-meta" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"></div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Description</div>
+        <div id="jim-desc" style="background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;color:var(--muted2);line-height:1.65;white-space:pre-wrap;max-height:180px;overflow-y:auto;margin-bottom:16px"></div>
+        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">🧠 Run any ProdMind Brain on this issue</div>
+        <div id="jim-brain-btns" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px"></div>
+        <div id="jim-ai-out" style="display:none;background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:12px;font-size:12px;color:var(--text);line-height:1.65;max-height:340px;overflow-y:auto;margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px">
+          <button id="jim-push-chat-btn" style="flex:1;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:8px;padding:8px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit">💬 Open in AI Chat</button>
+          <button onclick="loadIssueIntoContextChat()" style="flex:1;background:rgba(0,82,204,0.12);border:0.5px solid rgba(0,82,204,0.3);border-radius:8px;padding:8px;font-size:11px;font-weight:600;color:#4C9AFF;cursor:pointer;font-family:inherit">🔗 Set as Chat Context</button>
+        </div>
+      </div>
+    </div>`;
+  div.addEventListener('click', e => { if(e.target===div) closeIssueModal(); });
+  document.body.appendChild(div);
+}
+
+function closeIssueModal() {
+  const m = document.getElementById('jira-issue-modal');
+  if(m) m.classList.remove('show');
+}
+
+// ── Wrapper: decode prompt from encodeURIComponent ───────────
+async function runBrainOnIssueByKey(key, brainId, encodedPrompt) {
+  const brainPrompt = decodeURIComponent(encodedPrompt);
+  await runBrainOnIssue(key, brainId, brainPrompt);
+}
+
+// ── Run a specific brain on a loaded issue ────────────────────
+async function runBrainOnIssue(key, brainId, brainPrompt) {
+  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
+  if(!_jiraContextIssue) return;
+
+  const outEl = document.getElementById('jim-ai-out');
+  outEl.style.display = 'block';
+  outEl.innerHTML = '<div class="loading"></div>';
+
+  const issueCtx = buildIssueContext(_jiraContextIssue);
+  const sys = BRAIN_SYSTEM_PROMPTS[brainId] || BRAIN_SYSTEM_PROMPTS.po;
+  const fullPrompt = `${brainPrompt}\n\n---\n${issueCtx}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        stream: true,
+        system: sys,
+        messages: [{ role:'user', content: fullPrompt }]
+      })
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '', fullText = '';
+    outEl.innerHTML = '<span class="stream-cursor"></span>';
+
+    while(true) {
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream:true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for(const line of lines) {
+        if(!line.startsWith('data: ')) continue;
+        const d = line.slice(6).trim();
+        if(d==='[DONE]'||!d) continue;
+        try {
+          const ev = JSON.parse(d);
+          if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta') {
+            fullText += ev.delta.text;
+            outEl.innerHTML = formatMsg(fullText) + '<span class="stream-cursor"></span>';
+            outEl.scrollTop = outEl.scrollHeight;
+          }
+        } catch(_) {}
+      }
+    }
+    outEl.innerHTML = formatMsg(fullText);
+
+    // Also offer to push result back to Jira as comment or update
+    const pushBar = document.createElement('div');
+    pushBar.style.cssText = 'display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)';
+    pushBar.innerHTML = `
+      <button onclick="addJiraComment('${key}', this.closest('div').previousSibling.innerText)" style="font-size:10px;padding:4px 10px;border:0.5px solid rgba(0,82,204,0.3);background:rgba(0,82,204,0.08);color:#4C9AFF;border-radius:5px;cursor:pointer;font-family:inherit">🔗 Add as Jira Comment</button>
+      <button onclick="copyText(this.closest('div').previousSibling.innerText)" style="font-size:10px;padding:4px 10px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);border-radius:5px;cursor:pointer;font-family:inherit">📋 Copy</button>`;
+    outEl.after(pushBar);
+
+  } catch(e) {
+    outEl.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+}
+
+// ── Set issue as persistent chat context ──────────────────────
+function loadIssueIntoContextChat() {
+  if(!_jiraContextIssue) return;
+  const ctx = buildIssueContext(_jiraContextIssue);
+  // Inject into Knowledge Base context so it persists across all chat messages
+  const kbKey = 'jira_context_' + _jiraContextIssue.key;
+  try {
+    localStorage.setItem(kbKey, ctx);
+  } catch(e) {}
+  // Load into chat input
+  closeIssueModal();
+  switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+  setTimeout(() => {
+    const inp = document.getElementById('chat-input');
+    if(inp) {
+      inp.value = `/context\n\n${ctx}`;
+      autoResize(inp);
+      inp.focus();
+      toast(`✅ ${_jiraContextIssue.key} loaded as context — every brain call now knows this issue`, 'success');
+    }
+  }, 200);
+}
+
+// ── Add comment to Jira issue ─────────────────────────────────
+async function addJiraComment(key, text) {
+  if(!jiraConfig){ toast('Configure Jira first','error'); return; }
+  if(!text){ toast('No content to add','warning'); return; }
+  try {
+    const body = {
+      body: {
+        type: 'doc', version: 1,
+        content: [{
+          type: 'paragraph',
+          content: [{ type: 'text', text: '🧠 ProdMind AI Analysis:\n\n' + text.slice(0, 5000) }]
+        }]
+      }
+    };
+    const res = await jiraFetch(`/issue/${key}/comment`, { method:'POST', body: JSON.stringify(body) });
+    if(res.ok) { toast(`✅ Comment added to ${key}!`, 'success'); }
+    else { const err=await res.json().catch(()=>({})); toast('Comment failed: '+(err.errorMessages?.join(',')||`HTTP ${res.status}`),'error'); }
+  } catch(e) { toast('Error: '+e.message,'error'); }
+}
+
+// ── Upgrade board cards to use full Issue Detail panel ────────
+function renderJiraBoard(issues){
+  const COLS = {'To Do':[],'In Progress':[],'In Review':[],'Done':[]};
+  const SCOL = {'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896'};
+  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+  const PEMU = {'Highest':'🔴','High':'🟠','Medium':'🟡','Low':'🟢','Lowest':'⚪'};
+
+  issues.forEach(issue => {
+    const s = issue.fields.status?.name || 'To Do';
+    const col = s==='Done'?'Done':s.includes('Progress')?'In Progress':s.includes('Review')?'In Review':'To Do';
+    if(COLS[col]) COLS[col].push(issue);
+    else COLS['To Do'].push(issue);
+  });
+
+  document.getElementById('jira-board-cols').innerHTML = Object.entries(COLS).map(([col,items]) => `
+    <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:10px">
+      <div class="jira-col-header">
+        <span style="color:${SCOL[col]}">${col}</span>
+        <span style="font-size:9px;background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1px 7px;color:var(--muted2)">${items.length}</span>
+      </div>
+      ${items.length===0 ? '<div style="font-size:10px;color:var(--muted);text-align:center;padding:12px">No issues</div>' :
+        items.map(issue => {
+          const f = issue.fields;
+          const tc = TCOL[f.issuetype?.name] || '#7a7a90';
+          return `<div class="jira-issue-card" style="--jic:${tc}" onclick="loadIssueIntoContext('${issue.key}')">
+            <div class="jira-issue-key">${issue.key}</div>
+            <div class="jira-issue-title">${escapeHtml(f.summary)}</div>
+            <div class="jira-issue-meta">
+              <span class="jira-type-badge" style="background:${tc}18;color:${tc}">${f.issuetype?.name||'Story'}</span>
+              <span>${PEMU[f.priority?.name]||'⚪'}</span>
+              ${f.assignee ? `<span style="font-size:9px;color:var(--muted2);margin-left:auto">👤 ${f.assignee.displayName.split(' ')[0]}</span>` : ''}
+            </div>
+          </div>`;
+        }).join('')
+      }
+    </div>`).join('');
+}
+
+// ── RICE on live backlog with Jira data ───────────────────────
+async function aiRiceBacklog(){
+  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
+  const table = document.querySelector('#jira-backlog-table table');
+  if(!table){ toast('Load backlog first','warning'); return; }
+
+  const items = [...table.querySelectorAll('tbody tr')].map(r => {
+    const cells = r.querySelectorAll('td');
+    return `${cells[0]?.textContent}: ${cells[1]?.textContent} [${cells[2]?.textContent} / ${cells[3]?.textContent} / SP:${cells[4]?.textContent}]`;
+  }).join('\n');
+
+  const outEl = document.getElementById('jira-rice-out');
+  const textEl = document.getElementById('jira-rice-text');
+  outEl.style.display = 'block';
+  textEl.innerHTML = '<div class="loading"></div>';
+
+  const project = document.getElementById('jira-bl-project').value;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1200,
+        stream: true,
+        system: BRAIN_SYSTEM_PROMPTS[activeBrain] || BRAIN_SYSTEM_PROMPTS.po,
+        messages: [{role:'user', content:
+          `RICE score and prioritise this live Jira backlog from ${project}. Each item shows: KEY: SUMMARY [TYPE / PRIORITY / SP]\n\nBacklog:\n${items}\n\nProduce:\n## RICE Scoring Table\n| Key | Summary | Reach (0-10) | Impact (0.25-3) | Confidence % | Effort (SP) | RICE Score |\n\n## Top 5 to pull into next sprint\nFor each: key, summary, why it scores highest, recommended SP if not set.\n\n## Defer list — with rationale\n\n## Sprint recommendation\nGiven this data, what is a realistic sprint commitment range?`
+        }]
+      })
+    });
+
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '', fullText = '';
+    textEl.innerHTML = '<span class="stream-cursor"></span>';
+
+    while(true) {
+      const {done, value} = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, {stream:true});
+      const lines = buffer.split('\n');
+      buffer = lines.pop();
+      for(const line of lines) {
+        if(!line.startsWith('data: ')) continue;
+        const d = line.slice(6).trim();
+        if(d==='[DONE]'||!d) continue;
+        try {
+          const ev = JSON.parse(d);
+          if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta') {
+            fullText += ev.delta.text;
+            textEl.innerHTML = formatMsg(fullText) + '<span class="stream-cursor"></span>';
+          }
+        } catch(_) {}
+      }
+    }
+    textEl.innerHTML = formatMsg(fullText);
+  } catch(e) {
+    textEl.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+  }
+}
+
+// ── Upgrade backlog rows to use Issue Detail panel ────────────
+function renderJiraBacklog(issues, total) {
+  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+  const el = document.getElementById('jira-backlog-table');
+  if(!issues.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted2)">No backlog items</div>'; return; }
+
+  el.innerHTML = `
+    <div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total} backlog items — click any row to analyse</div>
+    <table style="width:100%;border-collapse:collapse">
+      <thead><tr>
+        ${['Key','Summary','Type','Priority','SP','Actions'].map(h =>
+          `<th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">${h}</th>`
+        ).join('')}
+      </tr></thead>
+      <tbody>
+        ${issues.map(issue => {
+          const f = issue.fields;
+          const tc = TCOL[f.issuetype?.name] || '#7a7a90';
+          const sp = f.customfield_10016 || '—';
+          return `<tr style="cursor:pointer" onclick="loadIssueIntoContext('${issue.key}')">
+            <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)">${issue.key}</td>
+            <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:300px">${escapeHtml(f.summary)}</td>
+            <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'-'}</span></td>
+            <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border)">${f.priority?.name||'-'}</td>
+            <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--accent);border-bottom:0.5px solid var(--border)">${sp}</td>
+            <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)" onclick="event.stopPropagation()">
+              <div style="display:flex;gap:4px">
+                <button onclick="loadIssueIntoContext('${issue.key}')" style="font-size:9px;padding:2px 7px;border:0.5px solid var(--accent-m);background:var(--accent-l);color:var(--accent);border-radius:4px;cursor:pointer;font-family:inherit">🧠 Analyse</button>
+                <button onclick="openJiraPushText(null,'auto',${JSON.stringify(issue.key+': '+f.summary)})" style="font-size:9px;padding:2px 7px;border:0.5px solid rgba(0,82,204,0.3);background:rgba(0,82,204,0.08);color:#4C9AFF;border-radius:4px;cursor:pointer;font-family:inherit">🔗</button>
+              </div>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ── Upgrade search results to use Issue Detail panel ──────────
+function renderJiraSearchResults(issues, total) {
+  const el = document.getElementById('jira-search-results');
+  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+  const SCOL = {'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896','Closed':'#00C896','Ready For QA':'#F5A623','In Development':'#6C47FF','Ready For Release':'#00C896','SIT DONE':'#00C896'};
+  if(!issues.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted2)">No results</div>'; return; }
+  el.innerHTML = `<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total} — click any row to run all ProdMind brains on it</div>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr>
+      ${['Key','Summary','Type','Status','Priority','Actions'].map(h =>
+        `<th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">${h}</th>`
+      ).join('')}
+    </tr></thead>
+    <tbody>
+      ${issues.map(issue => {
+        const f = issue.fields;
+        const tc = TCOL[f.issuetype?.name]||'#7a7a90';
+        const sc = SCOL[f.status?.name]||'#7a7a90';
+        return `<tr style="cursor:pointer" onclick="loadIssueIntoContext('${issue.key}')">
+          <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)">${issue.key}</td>
+          <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:280px">${escapeHtml(f.summary)}</td>
+          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'-'}</span></td>
+          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;background:${sc}18;color:${sc}">${f.status?.name||'-'}</span></td>
+          <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border)">${f.priority?.name||'-'}</td>
+          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)" onclick="event.stopPropagation()">
+            <button onclick="loadIssueIntoContext('${issue.key}')" style="font-size:9px;padding:2px 8px;border:0.5px solid var(--accent-m);background:var(--accent-l);color:var(--accent);border-radius:4px;cursor:pointer;font-family:inherit">🧠 All Brains</button>
+          </td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+}
+
+// ── Copy text helper ──────────────────────────────────────────
+function copyText(text) {
+  navigator.clipboard.writeText(text).catch(()=>{});
+  toast('📋 Copied!', 'success');
+}
+
+// ── Build issue modal on page load ────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  buildIssueModal();
+  const m = document.getElementById('jira-issue-modal');
+  if(m) m.classList.add('show') || m.classList.remove('show');
+});
+// Also build immediately in case DOMContentLoaded already fired
+setTimeout(buildIssueModal, 500);
+
+</script>
 
 </body>
 </html>
