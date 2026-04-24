@@ -65,7 +65,11 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .api-btn.connected .dot{background:var(--green);animation:pulse 2.5s infinite}
 
 /* ── NAV TABS ── */
-.nav-tabs{height:42px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 16px;gap:1px;overflow-x:auto;position:sticky;top:54px;z-index:190;-ms-overflow-style:none;scrollbar-width:none}
+.nav-tabs{height:42px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 8px;gap:1px;overflow-x:auto;overflow-y:hidden;position:sticky;top:54px;z-index:190;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+.nav-tabs::-webkit-scrollbar{height:3px}
+.nav-tabs::-webkit-scrollbar-track{background:transparent}
+.nav-tabs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+.nav-tabs::-webkit-scrollbar-thumb:hover{background:var(--muted)}
 .nav-tabs::-webkit-scrollbar{display:none}
 .nav-tab{
   display:flex;align-items:center;gap:5px;padding:6px 14px;
@@ -82,6 +86,21 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   font-weight:700;
   box-shadow:inset 0 -2px 0 var(--accent);
 }
+.nav-tab-jira{
+  background:rgba(0,82,204,0.08) !important;
+  border-color:rgba(0,82,204,0.25) !important;
+  color:#4C9AFF !important;
+}
+.nav-tab-jira:hover{
+  background:rgba(0,82,204,0.15) !important;
+  color:#2D7DD2 !important;
+}
+.nav-tab-jira.active{
+  background:rgba(0,82,204,0.18) !important;
+  border-color:rgba(0,82,204,0.5) !important;
+  color:#0052CC !important;
+}
+
 
 /* ── PAGE CONTENT ── */
 .page{display:none}
@@ -4286,7 +4305,9 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 </div>
 
 <!-- NAV TABS -->
-<div class="nav-tabs">
+<div style="position:sticky;top:54px;z-index:191;display:flex;align-items:center;background:var(--bg2);border-bottom:0.5px solid var(--border)">
+  <button onclick="document.querySelector('.nav-tabs').scrollBy({left:-200,behavior:'smooth'})" style="flex-shrink:0;background:var(--bg2);border:none;border-right:0.5px solid var(--border);padding:0 10px;height:42px;cursor:pointer;color:var(--muted2);font-size:14px;display:flex;align-items:center;transition:color .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted2)'">‹</button>
+  <div class="nav-tabs" style="flex:1;position:static;border-bottom:none;z-index:auto">
   <div class="nav-tab active" onclick="switchTab('home',this)">🏠 Home</div>
   <div class="nav-tab" onclick="switchTab('chat',this)">💬 AI Chat</div>
   <div class="nav-tab" onclick="switchTab('backlog',this)">📋 Backlog</div>
@@ -4307,8 +4328,11 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   <div class="nav-tab" onclick="switchTab('week-planner',this)">📅 My Week</div>
   <div class="nav-tab" onclick="switchTab('north-star',this)">⭐ North Star</div>
   <div class="nav-tab" onclick="switchTab('monte-carlo',this)">🎲 Forecast</div>
-  <div class="nav-tab" onclick="switchTab('jira',this)">🔗 Jira</div>
+  <div class="nav-tab nav-tab-jira" onclick="switchTab('jira',this)" id="nav-tab-jira">🔗 Jira</div>
   <div class="nav-tab" style="color:var(--accent);opacity:.6;cursor:default;font-style:italic" title="Coming soon">📓 Notion <span style="font-size:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:4px;padding:1px 5px;margin-left:3px">Soon</span></div>
+</div>
+  </div>
+  <button onclick="(function(){var t=document.querySelector('.nav-tabs');t.scrollBy({left:200,behavior:'smooth'});var jira=document.getElementById('nav-tab-jira');if(jira)jira.scrollIntoView({behavior:'smooth',inline:'center'});})()" style="flex-shrink:0;background:linear-gradient(to right,var(--bg2),var(--bg2));border:none;border-left:0.5px solid var(--border);padding:0 10px;height:42px;cursor:pointer;font-size:11px;font-weight:700;color:#4C9AFF;display:flex;align-items:center;gap:4px;white-space:nowrap;transition:all .15s" onmouseover="this.style.background='rgba(0,82,204,0.08)'" onmouseout="this.style.background='var(--bg2)'">🔗 Jira ›</button>
 </div>
 
 <!-- BRAIN SELECTOR BAR -->
@@ -25292,7 +25316,7 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
         </h2>
         <span style="font-size:11px;color:var(--muted2)">Browse and analyse your Harbour Platform issues — write mode after demo</span>
       </div>
-      <button onclick="openJiraConnectModal()" id="jira-connect-btn" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">⚙ Configure</button>
+      <button onclick="(function(){var m=document.getElementById('jira-modal');if(m){m.classList.add('show');m.style.setProperty('display','flex','important');}else{alert('Modal not found — try refreshing');}})()" id="jira-connect-btn" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">⚙ Configure</button>
     </div>
 
     <!-- ── CONNECTION STATUS BANNER ───────────────────────── -->
@@ -25804,16 +25828,20 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
 // ── Connect modal ─────────────────────────────────────────────
 function openJiraConnectModal(){
   const el = document.getElementById('jira-modal');
-  if(!el) return;
+  if(!el){ console.error('jira-modal not found'); return; }
   if(jiraConfig){
     const d=document.getElementById('jm-domain'); if(d) d.value=jiraConfig.domain||'ebdae.atlassian.net';
     const e=document.getElementById('jm-email');  if(e) e.value=jiraConfig.email||'';
   }
-  el.style.display='flex';
+  // Both approaches to ensure it works regardless of CSS specificity
+  el.classList.add('show');
+  el.style.setProperty('display','flex','important');
 }
 function closeJiraConnectModal(){
   const el=document.getElementById('jira-modal');
-  if(el) el.style.display='none';
+  if(!el) return;
+  el.classList.remove('show');
+  el.style.removeProperty('display');
 }
 
 // ── Save config and test ──────────────────────────────────────
@@ -26255,13 +26283,15 @@ async function loadIssueIntoContext(key){
         },150);
       },100);
     };
-    modal.style.display='flex';
+    modal.classList.add('show'); modal.style.setProperty('display','flex','important');
   }catch(e){ toast('Error loading '+key+': '+e.message,'error'); }
 }
 
 function closeIssueModal(){
   const m=document.getElementById('jira-issue-modal');
-  if(m) m.style.display='none';
+  if(!m) return;
+  m.classList.remove('show');
+  m.style.removeProperty('display');
 }
 
 // ── Run brain on issue ────────────────────────────────────────
