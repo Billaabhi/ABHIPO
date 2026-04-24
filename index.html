@@ -5424,7 +5424,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
         <span id="rp-output-title" style="font-size:11px;font-weight:700;color:var(--accent)"></span>
         <div style="display:flex;gap:6px;margin-left:auto">
           <button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="rpCopyOutput()">📋 Copy</button>
-          <button class="export-btn" style="font-size:9.5px;padding:3px 9px" onclick="exportDoc('rp-output-content', document.getElementById('rp-output-title').textContent.replace('✅ ',''))">⬇ Export</button><button class="gbtn" onclick="openJiraPushText('rp-output-content','auto')" style="font-size:9.5px;padding:3px 9px;background:rgba(0,82,204,0.12);color:#4C9AFF;border-color:rgba(0,82,204,0.35)">🔗 Jira</button>
+          <button class="export-btn" style="font-size:9.5px;padding:3px 9px" onclick="exportDoc('rp-output-content', document.getElementById('rp-output-title').textContent.replace('✅ ',''))">⬇ Export</button><!-- Jira push disabled — read-only demo mode -->
           <button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="rpSendToChat()">💬 To chat</button>
           <button class="gbtn" style="font-size:9.5px;padding:3px 9px;color:var(--red)" onclick="document.getElementById('rp-output').style.display='none'">✕</button>
         </div>
@@ -5803,7 +5803,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
             <button class="gbtn" onclick="copyMomRich()">📋 Copy</button>
             <button class="gbtn" onclick="copyMom()">📄 Plain text</button>
             <button class="gbtn" onclick="_exportMomFromPanel()" style="background:var(--accent);color:#fff;border-color:var(--accent)">⬇ Export doc</button>
-            <button class="gbtn" onclick="openJiraPushText('mom-output','mom')" style="background:rgba(0,82,204,0.12);color:#4C9AFF;border-color:rgba(0,82,204,0.35)">🔗 Jira</button>
+            <!-- Jira push disabled — read-only demo mode -->
             <button class="gbtn" onclick="sendMomToChat()">💬 Refine in Chat</button>
             <button class="gbtn" onclick="document.getElementById('mom-output').style.display='none'">Close</button>
           </div>
@@ -5899,7 +5899,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
             <button class="gbtn" onclick="copyDocRich()">📋 Copy</button>
             <button class="gbtn" onclick="copyDoc()">📄 Plain text</button>
             <button class="gbtn" onclick="_exportDocFromPanel()" style="background:var(--accent);color:#fff;border-color:var(--accent)">⬇ Export doc</button>
-            <button class="gbtn" onclick="openJiraPushText('doc-output-content','doc')" style="background:rgba(0,82,204,0.12);color:#4C9AFF;border-color:rgba(0,82,204,0.35)">🔗 Push to Jira</button>
+            <!-- Jira push disabled — read-only demo mode -->
             <button class="gbtn" onclick="regenerateDoc()">🔄 Regenerate</button>
             <button class="gbtn" onclick="sendDocToChat()">💬 Refine in Chat</button>
             <button class="gbtn" onclick="closeDocGenerator()">Close</button>
@@ -6277,7 +6277,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 
     <!-- AI analysis output -->
     <div id="sh-ai-output" style="display:none;background:var(--bg2);border:0.5px solid var(--border2);border-radius:12px;padding:16px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--accent)">🤖 AI Sprint Analysis</div><div style="display:flex;gap:6px"><button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="copyDocText('sh-ai-text')">📋 Copy</button><button class="export-btn" onclick="exportDoc('sh-ai-text','Sprint Health Report')">⬇ Export</button><button class="gbtn" onclick="openJiraPushText('sh-ai-text','sprint-health')" style="font-size:9.5px;padding:3px 9px;background:rgba(0,82,204,0.12);color:#4C9AFF;border-color:rgba(0,82,204,0.35)">🔗 Jira</button></div></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:11px;font-weight:700;color:var(--accent)">🤖 AI Sprint Analysis</div><div style="display:flex;gap:6px"><button class="gbtn" style="font-size:9.5px;padding:3px 9px" onclick="copyDocText('sh-ai-text')">📋 Copy</button><button class="export-btn" onclick="exportDoc('sh-ai-text','Sprint Health Report')">⬇ Export</button><!-- Jira push disabled — read-only demo mode --></div></div>
       <div id="sh-ai-text" style="font-size:12.5px;line-height:1.75;color:var(--text)"></div>
     </div>
   </div>
@@ -10310,7 +10310,7 @@ function addMsg(role, content){
         <div class="msg-actions">
           <button class="msg-act-btn" onclick="copyMsgById('${msgId}','')" data-raw="${encodeURIComponent(content)}">📋 Copy</button>
           <button class="msg-act-btn" onclick="_exportDoc('${msgId}')">⬇ Export</button>
-          <button class="msg-act-btn" onclick="openJiraPush('${msgId}')" style="color:#4C9AFF;border-color:rgba(0,82,204,0.3);background:rgba(0,82,204,0.08)">🔗 Jira</button>
+          <!-- Jira push disabled — read-only demo mode -->
           <span style="font-size:8.5px;color:var(--muted);margin-left:2px">${brain.icon} ${ALL_BRAINS.find(b=>b.id===activeBrain)?.label||'AI'} · ${ts}</span>
         </div>
       </div>`;
@@ -10486,7 +10486,7 @@ async function sendMsg(){
         <div class="msg-actions" id="acts-${msgId}" style="opacity:0;pointer-events:none">
           <button class="msg-act-btn" onclick="copyMsgById('${msgId}','')">📋 Copy</button>
           <button class="msg-act-btn" onclick="_exportDoc('${msgId}')">⬇ Export</button>
-          <button class="msg-act-btn" onclick="openJiraPush('${msgId}')" style="color:#4C9AFF;border-color:rgba(0,82,204,0.3);background:rgba(0,82,204,0.08)">🔗 Jira</button>
+          <!-- Jira push disabled — read-only demo mode -->
           <span style="font-size:8.5px;color:var(--muted);margin-left:2px">${brain.icon} ${brain.label} · ${ts}</span>
         </div>
       </div>`;
@@ -25224,21 +25224,29 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
   <div class="tab-page">
     <div class="tb" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
       <div>
-        <h2>🔗 Jira Integration</h2>
-        <span style="font-size:11px;color:var(--muted2)">Connect once — push any ProdMind output directly to your Harbour projects</span>
+        <h2>🔗 Jira Integration <span style="font-size:11px;font-weight:400;background:rgba(0,200,150,0.12);color:#00C896;border:0.5px solid rgba(0,200,150,0.3);border-radius:4px;padding:2px 8px;margin-left:6px;vertical-align:middle">📖 Read-Only Mode</span></h2>
+        <span style="font-size:11px;color:var(--muted2)">Browse and analyse your Harbour Platform Jira issues — write mode available after demo</span>
       </div>
-      <div id="jira-conn-status" style="display:flex;align-items:center;gap:8px">
-        <div id="jira-status-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted);flex-shrink:0"></div>
-        <span id="jira-status-text" style="font-size:11px;color:var(--muted2)">Not connected</span>
+      <div style="display:flex;align-items:center;gap:8px">
         <button onclick="openJiraConnectModal()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit" id="jira-connect-btn">⚙ Configure</button>
       </div>
+    </div>
+
+    <!-- ── CONNECTION STATUS BANNER ─────────────────────────── -->
+    <div id="jira-status-banner" style="border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;transition:all .3s">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
+        <div id="jira-status-dot" style="width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:all .3s"></div>
+        <span id="jira-status-text" style="font-size:12px;font-weight:600;color:var(--muted2)">Not connected — click ⚙ Configure to connect</span>
+      </div>
+      <div id="jira-conn-detail" style="display:none;font-size:10px;color:var(--muted2);gap:16px;flex-wrap:wrap"></div>
+      <button id="jira-test-btn" onclick="testJiraConnection()" style="display:none;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">↻ Test</button>
     </div>
 
     <!-- Sub-nav -->
     <div style="display:flex;gap:3px;margin-bottom:16px;border-bottom:0.5px solid var(--border);padding-bottom:0">
       <button class="jira-sub-tab active" onclick="showJiraSubTab('board',this)" id="jst-board">🗂 Sprint Board</button>
       <button class="jira-sub-tab" onclick="showJiraSubTab('backlog',this)" id="jst-backlog">📋 Backlog</button>
-      <button class="jira-sub-tab" onclick="showJiraSubTab('create',this)" id="jst-create">✍️ Create Issue</button>
+      <!-- Create Issue tab hidden — read-only mode for demo -->
       <button class="jira-sub-tab" onclick="showJiraSubTab('search',this)" id="jst-search">🔍 JQL Search</button>
     </div>
 
@@ -25821,20 +25829,80 @@ let _jiraPushPayload = { rawText:'', sourceType:'auto' };
   if(email) { const el = document.getElementById('jm-email'); if(el) el.value = email; }
 })();
 
-function updateJiraStatusUI(){
+function updateJiraStatusUI(testResult){
   try {
-    const dot = document.getElementById('jira-status-dot');
-    const txt = document.getElementById('jira-status-text');
-    const btn = document.getElementById('jira-connect-btn');
+    const dot    = document.getElementById('jira-status-dot');
+    const txt    = document.getElementById('jira-status-text');
+    const btn    = document.getElementById('jira-connect-btn');
+    const banner = document.getElementById('jira-status-banner');
+    const detail = document.getElementById('jira-conn-detail');
+    const testBtn= document.getElementById('jira-test-btn');
     if(!dot || !txt) return;
-    if(jiraConfig){
-      dot.style.background = '#00C896';
-      dot.style.boxShadow = '0 0 6px #00C896';
+
+    if(!jiraConfig){
+      dot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#666;transition:all .3s';
+      txt.style.color = 'var(--muted2)';
+      txt.textContent = 'Not connected — click ⚙ Configure to connect';
+      if(banner) banner.style.background = 'var(--bg2)';
+      return;
+    }
+
+    // Connected — show credentials loaded
+    const domain = (jiraConfig.domain||'ebdae').replace('.atlassian.net','');
+    dot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#F5A623;box-shadow:0 0 6px #F5A623;transition:all .3s';
+    txt.style.color = '#F5A623';
+    txt.textContent = 'Credentials loaded — ' + domain + ' · ' + jiraConfig.email;
+    if(banner) banner.style.background = 'rgba(245,166,35,0.06)';
+    if(btn){ btn.textContent = '⚙ Reconfigure'; btn.style.color='#F5A623'; }
+    if(testBtn) testBtn.style.display = 'block';
+
+    // If test result passed in
+    if(testResult === 'ok'){
+      dot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#00C896;box-shadow:0 0 8px #00C896;transition:all .3s';
       txt.style.color = '#00C896';
-      txt.textContent = (jiraConfig.domain||'ebdae').replace('.atlassian.net','') + ' ✓';
-      if(btn) { btn.textContent = '⚙ Reconnect'; btn.style.color='#00C896'; }
+      txt.textContent = '✅ Connected · ' + domain + ' · ' + jiraConfig.email + ' · Read-Only';
+      if(banner) banner.style.background = 'rgba(0,200,150,0.06)';
+      if(btn){ btn.textContent = '⚙ Reconfigure'; btn.style.color='#00C896'; }
+      if(detail){
+        detail.style.display = 'flex';
+        detail.innerHTML = '<span style="background:rgba(0,200,150,0.1);border:0.5px solid rgba(0,200,150,0.3);border-radius:4px;padding:2px 8px;color:#00C896">📖 Read-Only</span>' +
+          '<span>Cloud: fd834394</span><span>Projects: HRB · HIP · HUP · MIN · SHL</span><span>API: Atlassian Cloud v3</span>';
+      }
+    } else if(testResult === 'fail'){
+      dot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#FF4757;box-shadow:0 0 6px #FF4757;transition:all .3s';
+      txt.style.color = '#FF4757';
+      txt.textContent = '⚠ Credentials saved but connection test failed — check API token or proxy URL';
+      if(banner) banner.style.background = 'rgba(255,71,87,0.06)';
     }
   } catch(e) { /* element not in DOM yet */ }
+}
+
+// ── Live connection test ──────────────────────────────────────
+async function testJiraConnection(){
+  if(!jiraConfig){ toast('Configure Jira first','warning'); return; }
+  const testBtn = document.getElementById('jira-test-btn');
+  const txt     = document.getElementById('jira-status-text');
+  if(testBtn){ testBtn.textContent = '↻ Testing…'; testBtn.disabled = true; }
+  if(txt){ txt.textContent = 'Testing connection…'; txt.style.color = 'var(--muted2)'; }
+  try {
+    const res = await jiraFetch('/myself');
+    if(res.ok){
+      const data = await res.json();
+      const name = data.displayName || data.name || jiraConfig.email;
+      updateJiraStatusUI('ok');
+      // Update text with real user name
+      const txt2 = document.getElementById('jira-status-text');
+      if(txt2) txt2.textContent = '✅ Connected · ' + name + ' · ebdae · Read-Only';
+      toast('✅ Jira connected as ' + name, 'success');
+    } else {
+      updateJiraStatusUI('fail');
+      toast('⚠ Connection test failed: HTTP ' + res.status, 'warning');
+    }
+  } catch(e){
+    updateJiraStatusUI('fail');
+    toast('⚠ Connection error: ' + e.message, 'warning');
+  }
+  if(testBtn){ testBtn.textContent = '↻ Test'; testBtn.disabled = false; }
 }
 
 // ── Connect modal ─────────────────────────────────────────────
@@ -25865,14 +25933,27 @@ function saveJiraConfig(){
   if(st){ st.textContent='✅ Saved!'; st.style.color='var(--green)'; }
   updateJiraStatusUI();
 
-  // Close modal immediately — don't wait for test
+  // Close modal immediately
   setTimeout(closeJiraConnectModal, 600);
 
-  // Test connection in background — show result as toast
+  // Auto-run connection test in background
   jiraFetch('/myself').then(r=>{
-    if(r.ok){ toast('✅ Jira connected — ' + domain, 'success'); }
-    else{ toast('⚠ Credentials saved. Test call returned HTTP ' + r.status, 'warning'); }
-  }).catch(e=>{ toast('⚠ Credentials saved. Connection test failed: ' + e.message, 'warning'); });
+    if(r.ok){
+      r.json().then(data => {
+        const name = data.displayName || data.name || email;
+        updateJiraStatusUI('ok');
+        const txt2 = document.getElementById('jira-status-text');
+        if(txt2) txt2.textContent = '✅ Connected · ' + name + ' · ' + domain.replace('.atlassian.net','') + ' · Read-Only';
+        toast('✅ Jira connected as ' + name, 'success');
+      }).catch(()=>{ updateJiraStatusUI('ok'); toast('✅ Jira connected!', 'success'); });
+    } else {
+      updateJiraStatusUI('fail');
+      toast('⚠ Credentials saved but test failed: HTTP ' + r.status, 'warning');
+    }
+  }).catch(e=>{
+    updateJiraStatusUI('fail');
+    toast('⚠ Credentials saved. Test error: ' + e.message, 'warning');
+  });
 }
 
 // ── Jira fetch helper ─────────────────────────────────────────
@@ -25930,6 +26011,33 @@ async function jiraFetch(path, opts={}){
 function jiraADFBody(text){
   if(!text) return undefined;
   return { type:'doc', version:1, content:[{ type:'paragraph', content:[{ type:'text', text }] }] };
+}
+
+// ── Project-specific required fields (discovered from Jira metadata) ──
+// HIP/HUP/SHL = Story Points field is customfield_10028
+// Task type in HIP requires customfield_11754 (Task Category)
+// Default issue type to Story to avoid required field issues with Task
+function buildJiraCreateBody(project, type, summary, desc, priority, sp, labels){
+  // Always default Task → Story to avoid customfield_11754 requirement
+  const safeType = (type === 'Task') ? 'Story' : type;
+
+  const fields = {
+    project: { key: project },
+    summary,
+    issuetype: { name: safeType },
+    priority: { name: priority || 'Medium' },
+  };
+
+  if(desc) fields.description = jiraADFBody(desc);
+  if(labels && labels.length) fields.labels = labels;
+
+  // Story Points — HIP/HUP/SHL use customfield_10028
+  if(sp){
+    fields.customfield_10028 = parseFloat(sp); // Harbour projects
+    fields.customfield_10016 = parseFloat(sp); // fallback for other projects
+  }
+
+  return { fields };
 }
 
 // ── Smart content detection ───────────────────────────────────
@@ -26047,17 +26155,11 @@ async function executePushToJira(){
 
   if(!summary){ toast('Summary required','error'); btn.disabled=false; btn.innerHTML='🚀 Push to Jira'; return; }
 
-  const body = {
-    fields:{
-      project:{ key:project },
-      summary,
-      issuetype:{ name:type },
-      priority:{ name:priority },
-      description: jiraADFBody(_jiraPushPayload.rawText.slice(0,5000)),
-      ...(labels.length && { labels }),
-      ...(sp && { customfield_10016: parseFloat(sp) }),
-    }
-  };
+  const body = buildJiraCreateBody(
+    project, type, summary,
+    _jiraPushPayload.rawText.slice(0, 5000),
+    priority, sp, labels
+  );
 
   try{
     const res = await jiraFetch('/issue',{ method:'POST', body:JSON.stringify(body) });
@@ -26362,13 +26464,7 @@ async function jiraCreateIssue(){
   const btn=document.getElementById('jira-push-btn');
   btn.disabled=true; btn.textContent='⏳ Creating…';
 
-  const body={fields:{
-    project:{key:project}, summary,
-    issuetype:{name:type}, priority:{name:priority},
-    description: jiraADFBody(desc),
-    ...(labels.length&&{labels}),
-    ...(sp&&{customfield_10016:parseFloat(sp)}),
-  }};
+  const body = buildJiraCreateBody(project, type, summary, desc, priority, sp, labels);
 
   try{
     const res=await jiraFetch('/issue',{method:'POST',body:JSON.stringify(body)});
@@ -26573,7 +26669,7 @@ function renderJiraSearchResults(issues, total){
           <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'-'}</span></td>
           <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;background:${sc}18;color:${sc}">${f.status?.name||'-'}</span></td>
           <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)">
-            <button onclick="openJiraPushText(null,'auto',${JSON.stringify(issue.key+': '+f.summary)})" style="font-size:9px;padding:2px 7px;border:0.5px solid rgba(0,82,204,0.3);background:rgba(0,82,204,0.08);color:#4C9AFF;border-radius:4px;cursor:pointer;font-family:inherit">🔗 Push</button>
+            
           </td>
         </tr>`;
       }).join('')}
@@ -26625,10 +26721,14 @@ function extractJiraADFText(adf){
   window.switchTab = function(tab, el){
     _orig(tab, el);
     if(tab === 'jira'){
-      updateJiraStatusUI();
       // Restore proxy URL in modal
       const proxyEl = document.getElementById('jm-proxy');
       if(proxyEl && jiraProxyUrl) proxyEl.value = jiraProxyUrl;
+      // Show current status, then auto-test if credentials exist
+      updateJiraStatusUI();
+      if(jiraConfig){
+        setTimeout(testJiraConnection, 400);
+      }
     }
   };
 })();
@@ -26844,7 +26944,7 @@ async function runBrainOnIssue(key, brainId, brainPrompt) {
     const pushBar = document.createElement('div');
     pushBar.style.cssText = 'display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)';
     pushBar.innerHTML = `
-      <button onclick="addJiraComment('${key}', this.closest('div').previousSibling.innerText)" style="font-size:10px;padding:4px 10px;border:0.5px solid rgba(0,82,204,0.3);background:rgba(0,82,204,0.08);color:#4C9AFF;border-radius:5px;cursor:pointer;font-family:inherit">🔗 Add as Jira Comment</button>
+      <!-- Add comment disabled — read-only demo mode -->
       <button onclick="copyText(this.closest('div').previousSibling.innerText)" style="font-size:10px;padding:4px 10px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);border-radius:5px;cursor:pointer;font-family:inherit">📋 Copy</button>`;
     outEl.after(pushBar);
 
@@ -27025,7 +27125,7 @@ function renderJiraBacklog(issues, total) {
             <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)" onclick="event.stopPropagation()">
               <div style="display:flex;gap:4px">
                 <button onclick="loadIssueIntoContext('${issue.key}')" style="font-size:9px;padding:2px 7px;border:0.5px solid var(--accent-m);background:var(--accent-l);color:var(--accent);border-radius:4px;cursor:pointer;font-family:inherit">🧠 Analyse</button>
-                <button onclick="openJiraPushText(null,'auto',${JSON.stringify(issue.key+': '+f.summary)})" style="font-size:9px;padding:2px 7px;border:0.5px solid rgba(0,82,204,0.3);background:rgba(0,82,204,0.08);color:#4C9AFF;border-radius:4px;cursor:pointer;font-family:inherit">🔗</button>
+                
               </div>
             </td>
           </tr>`;
