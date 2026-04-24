@@ -25822,17 +25822,19 @@ let _jiraPushPayload = { rawText:'', sourceType:'auto' };
 })();
 
 function updateJiraStatusUI(){
-  const dot = document.getElementById('jira-status-dot');
-  const txt = document.getElementById('jira-status-text');
-  const btn = document.getElementById('jira-connect-btn');
-  if(!dot || !txt) return;
-  if(jiraConfig){
-    dot.style.background = 'var(--green)';
-    dot.style.boxShadow = '0 0 6px var(--green)';
-    txt.style.color = 'var(--green)';
-    txt.textContent = jiraConfig.domain.replace('.atlassian.net','') + ' ✓';
-    if(btn) { btn.textContent = '⚙ Reconnect'; btn.style.color='var(--green)'; }
-  }
+  try {
+    const dot = document.getElementById('jira-status-dot');
+    const txt = document.getElementById('jira-status-text');
+    const btn = document.getElementById('jira-connect-btn');
+    if(!dot || !txt) return;
+    if(jiraConfig){
+      dot.style.background = '#00C896';
+      dot.style.boxShadow = '0 0 6px #00C896';
+      txt.style.color = '#00C896';
+      txt.textContent = (jiraConfig.domain||'ebdae').replace('.atlassian.net','') + ' ✓';
+      if(btn) { btn.textContent = '⚙ Reconnect'; btn.style.color='#00C896'; }
+    }
+  } catch(e) { /* element not in DOM yet */ }
 }
 
 // ── Connect modal ─────────────────────────────────────────────
@@ -25852,23 +25854,32 @@ function saveJiraConfig(){
   const token  = document.getElementById('jm-token').value.trim();
   const proxy  = (document.getElementById('jm-proxy')?.value||'').trim().replace(/\/+$/,'');
   const st     = document.getElementById('jm-status');
-  if(!domain||!email||!token){ st.textContent='Fill in all fields'; st.style.color='var(--red)'; return; }
+  if(!domain||!email||!token){ if(st){st.textContent='Fill in all fields'; st.style.color='var(--red)';} return; }
+
+  // Save immediately — don't block on test call
   jiraConfig = { domain, email, token };
   localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
   localStorage.setItem('pm_jira_email', email);
   if(proxy){ localStorage.setItem('pm_jira_proxy', proxy); jiraProxyUrl = proxy; }
-  st.textContent = 'Saved! Testing connection…'; st.style.color = 'var(--muted2)';
+
+  if(st){ st.textContent='✅ Saved!'; st.style.color='var(--green)'; }
+  updateJiraStatusUI();
+
+  // Close modal immediately — don't wait for test
+  setTimeout(closeJiraConnectModal, 600);
+
+  // Test connection in background — show result as toast
   jiraFetch('/myself').then(r=>{
-    if(r.ok){ st.textContent='✅ Connected!'; st.style.color='var(--green)'; updateJiraStatusUI(); setTimeout(closeJiraConnectModal,1000); }
-    else{ st.textContent='⚠ Saved — CORS may block browser calls. See notes below.'; st.style.color='var(--yellow)'; updateJiraStatusUI(); setTimeout(closeJiraConnectModal,2000); }
-  }).catch(()=>{ st.textContent='⚠ Saved — CORS may apply. Use proxy or extension.'; st.style.color='var(--yellow)'; updateJiraStatusUI(); setTimeout(closeJiraConnectModal,2000); });
+    if(r.ok){ toast('✅ Jira connected — ' + domain, 'success'); }
+    else{ toast('⚠ Credentials saved. Test call returned HTTP ' + r.status, 'warning'); }
+  }).catch(e=>{ toast('⚠ Credentials saved. Connection test failed: ' + e.message, 'warning'); });
 }
 
 // ── Jira fetch helper ─────────────────────────────────────────
-// ── Proxy URL — set this after deploying your Vercel proxy ────
-// Deploy: github.com/YOUR_USERNAME/prodmind-jira-proxy → Vercel
-// Then update this URL:
-const JIRA_PROXY_URL = localStorage.getItem('pm_jira_proxy') || '';
+// ── Jira Cloud ID (Abhinav's instance) ──────────────────────
+const JIRA_CLOUD_ID = 'fd834394-ca79-4414-b7b9-86c7a47cf3e1';
+
+let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
 
 function setJiraProxy(url){
   localStorage.setItem('pm_jira_proxy', url.trim().replace(/\/+$/, ''));
@@ -25876,20 +25887,23 @@ function setJiraProxy(url){
   toast('✅ Proxy URL saved!', 'success');
 }
 
-let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
-
 async function jiraFetch(path, opts={}){
   if(!jiraConfig) throw new Error('Jira not configured');
 
-  // ── Try proxy first (no CORS issues) ──────────────────────
+  // Atlassian Cloud REST API — correct base URL for cloud instances
+  // Uses: https://api.atlassian.com/ex/jira/{cloudId}/rest/api/3{path}
+  const jiraBase = '/rest/api/3' + path;
+
+  // ── Via proxy (no CORS) ────────────────────────────────────
   if(jiraProxyUrl){
-    const proxyUrl = jiraProxyUrl + '/api/jira?path=/rest/api/3' + path;
+    const proxyUrl = jiraProxyUrl + '/api/jira?path=' + encodeURIComponent(jiraBase);
     return fetch(proxyUrl, {
       ...opts,
       headers:{
         'Content-Type':'application/json',
         'Accept':'application/json',
-        'X-Jira-Domain': jiraConfig.domain,
+        'X-Jira-Domain': 'api.atlassian.com',
+        'X-Jira-Cloudid': JIRA_CLOUD_ID,
         'X-Jira-Email': jiraConfig.email,
         'X-Jira-Token': jiraConfig.token,
         ...(opts.headers||{})
@@ -25897,13 +25911,19 @@ async function jiraFetch(path, opts={}){
     });
   }
 
-  // ── Direct call fallback (works with CORS browser extension) ─
-  const creds = btoa(jiraConfig.email+':'+jiraConfig.token);
-  const url = 'https://'+jiraConfig.domain+'/rest/api/3'+path;
+  // ── Direct call (Atlassian Cloud API with OAuth token) ─────
+  // Atlassian cloud REST v3 — uses api.atlassian.com not instance domain
+  const creds = btoa(jiraConfig.email + ':' + jiraConfig.token);
+  const url = 'https://api.atlassian.com/ex/jira/' + JIRA_CLOUD_ID + jiraBase;
   return fetch(url, {
     ...opts,
-    headers:{'Authorization':'Basic '+creds,'Content-Type':'application/json','Accept':'application/json',...(opts.headers||{})},
-    mode:'cors'
+    headers:{
+      'Authorization': 'Basic ' + creds,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      ...(opts.headers||{})
+    },
+    mode: 'cors'
   });
 }
 
