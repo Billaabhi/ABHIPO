@@ -3246,7 +3246,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   overflow-y: auto;
   padding: 12px 14px;
 }
-.rp-panel.active { display: flex; }
+.rp-panel.active { display: flex; position:relative; z-index:1; }
 .rp-panel::-webkit-scrollbar { width: 4px }
 .rp-panel::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px }
 
@@ -3355,9 +3355,12 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   flex-shrink: 0;
   border-top: 0.5px solid var(--border2);
   background: var(--bg2);
-  max-height: 45%;
+  max-height: 50%;
   overflow-y: auto;
   padding: 10px 14px;
+  position: relative;
+  z-index: 20;
+  margin-top: auto;
 }
 .rp-output-header {
   display: flex;
@@ -3552,9 +3555,12 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   flex-shrink: 0;
   border-top: 0.5px solid var(--border2);
   background: var(--bg2);
-  max-height: 45%;
+  max-height: 50%;
   overflow-y: auto;
   padding: 10px 14px;
+  position: relative;
+  z-index: 20;
+  margin-top: auto;
 }
 .rp-output-header {
   display: flex;
@@ -4535,7 +4541,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               <div class="ctx-role-label">Developers</div>
               <div class="ctx-role-controls">
                 <button class="ctx-minus" onclick="adjustRole('ctx-dev',-1)">−</button>
-                <span class="ctx-role-count" id="ctx-dev">4</span>
+                <span class="ctx-role-count" id="ctx-dev">0</span>
                 <button class="ctx-plus" onclick="adjustRole('ctx-dev',1)">+</button>
               </div>
             </div>
@@ -4544,7 +4550,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               <div class="ctx-role-label">QA Engineers</div>
               <div class="ctx-role-controls">
                 <button class="ctx-minus" onclick="adjustRole('ctx-qa',-1)">−</button>
-                <span class="ctx-role-count" id="ctx-qa">2</span>
+                <span class="ctx-role-count" id="ctx-qa">0</span>
                 <button class="ctx-plus" onclick="adjustRole('ctx-qa',1)">+</button>
               </div>
             </div>
@@ -4553,7 +4559,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               <div class="ctx-role-label">Architects</div>
               <div class="ctx-role-controls">
                 <button class="ctx-minus" onclick="adjustRole('ctx-arch',-1)">−</button>
-                <span class="ctx-role-count" id="ctx-arch">1</span>
+                <span class="ctx-role-count" id="ctx-arch">0</span>
                 <button class="ctx-plus" onclick="adjustRole('ctx-arch',1)">+</button>
               </div>
             </div>
@@ -4562,7 +4568,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               <div class="ctx-role-label">Designers</div>
               <div class="ctx-role-controls">
                 <button class="ctx-minus" onclick="adjustRole('ctx-design',-1)">−</button>
-                <span class="ctx-role-count" id="ctx-design">1</span>
+                <span class="ctx-role-count" id="ctx-design">0</span>
                 <button class="ctx-plus" onclick="adjustRole('ctx-design',1)">+</button>
               </div>
             </div>
@@ -4571,7 +4577,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               <div class="ctx-role-label">BAs</div>
               <div class="ctx-role-controls">
                 <button class="ctx-minus" onclick="adjustRole('ctx-ba',-1)">−</button>
-                <span class="ctx-role-count" id="ctx-ba">1</span>
+                <span class="ctx-role-count" id="ctx-ba">0</span>
                 <button class="ctx-plus" onclick="adjustRole('ctx-ba',1)">+</button>
               </div>
             </div>
@@ -4580,7 +4586,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               <div class="ctx-role-label">Scrum Masters</div>
               <div class="ctx-role-controls">
                 <button class="ctx-minus" onclick="adjustRole('ctx-sm',-1)">−</button>
-                <span class="ctx-role-count" id="ctx-sm">1</span>
+                <span class="ctx-role-count" id="ctx-sm">0</span>
                 <button class="ctx-plus" onclick="adjustRole('ctx-sm',1)">+</button>
               </div>
             </div>
@@ -4589,7 +4595,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               <div class="ctx-role-label">DevOps / Infra</div>
               <div class="ctx-role-controls">
                 <button class="ctx-minus" onclick="adjustRole('ctx-devops',-1)">−</button>
-                <span class="ctx-role-count" id="ctx-devops">1</span>
+                <span class="ctx-role-count" id="ctx-devops">0</span>
                 <button class="ctx-plus" onclick="adjustRole('ctx-devops',1)">+</button>
               </div>
             </div>
@@ -4598,7 +4604,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               <div class="ctx-role-label">PMs / POs</div>
               <div class="ctx-role-controls">
                 <button class="ctx-minus" onclick="adjustRole('ctx-po',-1)">−</button>
-                <span class="ctx-role-count" id="ctx-po">1</span>
+                <span class="ctx-role-count" id="ctx-po">0</span>
                 <button class="ctx-plus" onclick="adjustRole('ctx-po',1)">+</button>
               </div>
             </div>
@@ -5474,7 +5480,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
     </div>
 
     <!-- Output area (shared) — shows result of right panel actions -->
-    <div class="rp-output" id="rp-output" style="display:none">
+    <div class="rp-output" id="rp-output" style="display:none;position:relative;z-index:20;clear:both">
       <div class="rp-output-header">
         <span id="rp-output-title" style="font-size:11px;font-weight:700;color:var(--accent)"></span>
         <div style="display:flex;gap:6px;margin-left:auto">
@@ -6267,8 +6273,21 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
     <div class="tb">
       <h2>💚 Sprint Health</h2>
       <span style="font-size:11px;color:var(--muted2)">AI sprint health scorer — flags risks before they become misses</span>
-      <div style="margin-left:auto">
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
         <div id="sh-stale-badge" style="display:none;align-items:center;gap:6px;background:rgba(245,166,35,.15);border:0.5px solid rgba(245,166,35,.4);border-radius:8px;padding:5px 12px;font-size:11px;font-weight:600;color:#F5A623">⚠️ Inputs changed — rescore to update</div>
+        <select id="sh-jira-project" style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
+          <option value="">Load from Jira…</option>
+          <option value="HIP">HIP — Harbour Linkon</option>
+          <option value="HUP">HUP — Harbour Mirros</option>
+          <option value="MIN">MIN — Harbour Mindra</option>
+          <option value="SHL">SHL — Harbour Shellix</option>
+          <option value="HD">HD — Harbour Discovery</option>
+          <option value="DFG">DFG — Digital Futures Gates</option>
+          <option value="BRP">BRP — Broker Portal</option>
+          <option value="HEA">HEA — Hello Aldar</option>
+          <option value="ATD">ATD — Tech Debt</option>
+        </select>
+        <button class="btn" onclick="loadSprintFromJira()" style="background:rgba(0,82,204,0.15);border-color:rgba(0,82,204,0.4);color:#4C9AFF">🔗 Load Sprint</button>
         <button class="btn" onclick="runSprintHealthScore()">🤖 Score This Sprint</button>
       </div>
     </div>
@@ -6287,13 +6306,13 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
           <div class="cf">
             <label>Stories committed <span style="font-size:9px;color:var(--muted2);font-weight:400">(delivery team only)</span></label>
-            <input id="sh-committed" type="number" placeholder="e.g. 8" value="8"/>
+            <input id="sh-committed" type="number" placeholder="Load from Jira ↑" value="0"/>
             <div id="sh-commit-warning" style="display:none;font-size:9.5px;color:var(--yellow);margin-top:3px;line-height:1.4"></div>
           </div>
-          <div class="cf"><label>Stories completed</label><input id="sh-completed" type="number" placeholder="e.g. 5" value="5"/></div>
-          <div class="cf"><label>Current day of sprint</label><input id="sh-day" type="number" placeholder="e.g. 6" value="6"/></div>
-          <div class="cf"><label>Sprint length (days)</label><input id="sh-length" type="number" placeholder="e.g. 10" value="10"/></div>
-          <div class="cf"><label>Active blockers</label><input id="sh-blockers" type="number" placeholder="e.g. 2" value="2"/></div>
+          <div class="cf"><label>Stories completed</label><input id="sh-completed" type="number" placeholder="Load from Jira ↑" value="0"/></div>
+          <div class="cf"><label>Current day of sprint</label><input id="sh-day" type="number" placeholder="e.g. 6" value="0"/></div>
+          <div class="cf"><label>Sprint length (days)</label><input id="sh-length" type="number" placeholder="e.g. 10" value="0"/></div>
+          <div class="cf"><label>Active blockers</label><input id="sh-blockers" type="number" placeholder="Load from Jira ↑" value="0"/></div>
           <div class="cf"><label>Scope changes</label><input id="sh-scope" type="number" placeholder="e.g. 1" value="0"/></div>
           <div class="cf">
             <label>Delivery team size <span style="font-size:9px;color:var(--muted2);font-weight:400">(devs + QA + tech lead only)</span></label>
@@ -6306,7 +6325,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
               oninput="_shAutoRescore()"/>
           </div>
           <div class="cf"><label>Team sentiment</label><select id="sh-sentiment"><option value="5">😄 Energised</option><option value="4" selected>🙂 Good</option><option value="3">😐 Neutral</option><option value="2">😔 Stressed</option><option value="1">😰 Struggling</option></select></div>
-          <div class="cf"><label>Unplanned work %</label><input id="sh-unplanned" type="number" placeholder="e.g. 15" value="15"/></div>
+          <div class="cf"><label>Unplanned work %</label><input id="sh-unplanned" type="number" placeholder="e.g. 0" value="0"/></div>
         </div>
       </div>
     </div>
@@ -10430,6 +10449,10 @@ async function sendMsg(){
   if(activeAddons.size > 0) fullPrompt = getAddonPrefix() + fullPrompt;
   fullPrompt+=getCtx();
   fullPrompt+=getKbContext();
+  // Auto-inject live Jira data if message mentions ticket keys
+  if(typeof injectJiraContextIfNeeded === 'function' && jiraConfig){
+    injectJiraContextIfNeeded(userMessage).then(jiraCtx=>{ if(jiraCtx) fullPrompt+=jiraCtx; }).catch(()=>{});
+  }
   fullPrompt+=getChatAttachContext();
 
   input.value=''; input.style.height='auto';
@@ -11068,6 +11091,28 @@ async function processOneFile(file){
 function readAsText(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsText(f);});}
 function readAsDataUrl(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(f);});}
 function readAsArrayBuffer(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsArrayBuffer(f);});}
+
+// ── Jira context injection for AI chat ───────────────────────
+// When user mentions a ticket key (e.g. HIP-2336), auto-fetch and inject
+async function injectJiraContextIfNeeded(userMsg){
+  if(!jiraConfig || !jiraConfig.token) return '';
+  // Find ticket keys in the message
+  const keys = [...new Set((userMsg.match(/[A-Z]+-\d+/g)||[]))];
+  if(!keys.length) return '';
+  // Fetch up to 3 tickets
+  const results = [];
+  for(const key of keys.slice(0,3)){
+    try{
+      const res = await jiraFetch('/issue/'+key+'?fields=summary,description,status,issuetype,priority,assignee,customfield_10028,labels');
+      if(res.ok){
+        const data = await res.json();
+        const f = data.fields;
+        results.push('\n\n--- LIVE JIRA ISSUE: '+key+' ---\nSummary: '+f.summary+'\nType: '+f.issuetype?.name+'\nStatus: '+f.status?.name+'\nPriority: '+f.priority?.name+'\nSP: '+(f.customfield_10028||'?')+'\nAssignee: '+(f.assignee?.displayName||'Unassigned')+'\nDescription: '+_adfToText(f.description).slice(0,800));
+      }
+    }catch(_){}
+  }
+  return results.join('');
+}
 
 function getKbContext(){
   const textFiles=knowledgeBase.filter(f=>f.type!=='image');if(!textFiles.length)return '';
@@ -25255,8 +25300,8 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
       <div>
         <div style="font-size:12px;font-weight:700;margin-bottom:12px;color:var(--text)">📥 Velocity History + Backlog</div>
         <div class="cf"><label>Sprint velocities (last 5–10 sprints, comma-separated)</label><input id="mc-velocities" placeholder="e.g. 38,42,35,40,44,38,41,36"/></div>
-        <div class="cf"><label>Remaining story points in backlog</label><input id="mc-backlog" type="number" placeholder="e.g. 120" value="120"/></div>
-        <div class="cf"><label>Sprint length (days)</label><input id="mc-sprint-len" type="number" value="10"/></div>
+        <div class="cf"><label>Remaining story points in backlog</label><input id="mc-backlog" type="number" placeholder="e.g. 0" value="0"/></div>
+        <div class="cf"><label>Sprint length (days)</label><input id="mc-sprint-len" type="number" value="0"/></div>
         <div class="cf"><label>Number of simulations</label><select id="mc-sims"><option value="1000">1,000 (fast)</option><option value="5000" selected>5,000 (standard)</option><option value="10000">10,000 (precise)</option></select></div>
         <button class="btn" style="width:100%;justify-content:center;margin-top:8px" onclick="runMonteCarlo()">🎲 Run Simulation</button>
 
@@ -25304,6 +25349,131 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
 </div>
 
 
+
+<!-- ══ JIRA LIVE WIDGET injected into home ══════════════════ -->
+<script>
+(function(){
+  // Inject Jira live widget into home dashboard after DOM ready
+  function injectJiraWidget(){
+    const home = document.getElementById('page-home');
+    if(!home) return;
+    // Find the widgets grid
+    const wgrid = home.querySelector('.widgets-grid');
+    if(!wgrid) return;
+    if(document.getElementById('jira-home-widget')) return; // already injected
+
+    const widget = document.createElement('div');
+    widget.id = 'jira-home-widget';
+    widget.className = 'widget';
+    widget.style.cssText = 'grid-column:1/-1';
+    widget.innerHTML = `
+      <div class="widget-header">
+        <div class="widget-title">🔗 Jira Live
+          <span style="font-size:9px;font-weight:500;color:#4C9AFF;background:rgba(0,82,204,0.08);border:0.5px solid rgba(0,82,204,0.25);border-radius:4px;padding:1px 7px;margin-left:6px">READ-ONLY</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <select id="jhw-project" onchange="if(typeof loadJiraHomeWidget==='function')loadJiraHomeWidget()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:5px;padding:3px 7px;font-size:10px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
+            <option value="HIP">HIP</option>
+            <option value="HUP">HUP</option>
+            <option value="MIN">MIN</option>
+            <option value="SHL">SHL</option>
+            <option value="HD">HD</option>
+            <option value="DFG">DFG</option>
+            <option value="CAP">CAP</option>
+            <option value="BRP">BRP</option>
+            <option value="HEA">HEA</option>
+            <option value="PAY">PAY</option>
+            <option value="ATD">ATD</option>
+            <option value="APG">APG</option>
+          </select>
+          <span id="jhw-status" style="font-size:9px;color:var(--muted2)">Not connected</span>
+          <button onclick="switchTab('jira',document.getElementById('nav-tab-jira'))" style="font-size:10px;padding:3px 10px;border-radius:5px;background:rgba(0,82,204,0.08);border:0.5px solid rgba(0,82,204,0.25);color:#4C9AFF;cursor:pointer;font-family:inherit">Open →</button>
+        </div>
+      </div>
+      <div class="widget-body" style="padding:10px 14px">
+        <div id="jhw-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+          <div style="background:var(--bg3);border-radius:8px;padding:8px 10px;text-align:center">
+            <div id="jhw-total" style="font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent)">—</div>
+            <div style="font-size:9px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Total</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:8px 10px;text-align:center">
+            <div id="jhw-inprog" style="font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#6C47FF">—</div>
+            <div style="font-size:9px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.06em">In Progress</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:8px 10px;text-align:center">
+            <div id="jhw-bugs" style="font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#FF4757">—</div>
+            <div style="font-size:9px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.06em">Open Bugs</div>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:8px 10px;text-align:center">
+            <div id="jhw-high" style="font-size:20px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#F5A623">—</div>
+            <div style="font-size:9px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.06em">High Priority</div>
+          </div>
+        </div>
+        <div id="jhw-issues" style="display:flex;flex-direction:column;gap:4px">
+          <div style="font-size:10px;color:var(--muted2);text-align:center;padding:8px">Connect Jira to see live issues</div>
+        </div>
+      </div>`;
+    wgrid.appendChild(widget);
+    // Load data if connected
+    if(typeof jiraConfig !== 'undefined' && jiraConfig && jiraConfig.token){
+      loadJiraHomeWidget();
+    }
+  }
+
+  async function loadJiraHomeWidget(){
+    if(!jiraConfig || !jiraConfig.token) return;
+    try{
+      // Parallel fetch — total, in progress, bugs, high priority
+        const proj = (document.getElementById('jhw-project') && document.getElementById('jhw-project').value) || 'HIP';
+      const [r1,r2,r3,r4] = await Promise.all([
+        jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND statusCategory != Done')+'&maxResults=5&fields=summary,status,issuetype,priority,assignee'),
+        jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND statusCategory = "In Progress"')+'&maxResults=1&fields=summary'),
+        jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND issuetype = Bug AND statusCategory != Done')+'&maxResults=1&fields=summary'),
+        jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND priority in (Highest,High) AND statusCategory != Done')+'&maxResults=1&fields=summary'),
+      ]);
+      const d1=await r1.json(), d2=await r2.json(), d3=await r3.json(), d4=await r4.json();
+      const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+      const PEMU={'Highest':'🔴','High':'🟠','Medium':'🟡','Low':'🟢','Lowest':'⚪'};
+      const el = document.getElementById('jira-home-widget');
+      if(!el) return;
+      const statusEl = document.getElementById('jhw-status');
+      if(statusEl) statusEl.textContent = 'Live · HIP';
+      const t=document.getElementById('jhw-total'); if(t) t.textContent=d1.total||d1.issues?.length||'0';
+      const ip=document.getElementById('jhw-inprog'); if(ip) ip.textContent=d2.total||'0';
+      const bg=document.getElementById('jhw-bugs'); if(bg) bg.textContent=d3.total||'0';
+      const hp=document.getElementById('jhw-high'); if(hp) hp.textContent=d4.total||'0';
+      const issuesEl=document.getElementById('jhw-issues');
+      if(issuesEl && d1.issues?.length){
+        issuesEl.innerHTML = (d1.issues||[]).map(function(issue){
+          const f=issue.fields;
+          const tc=(TCOL[f.issuetype&&f.issuetype.name])||'#7a7a90';
+          const pe=(PEMU[f.priority&&f.priority.name])||'&#9898;';
+          return '<div data-k="'+issue.key+'" onclick="window._jiraNavIssue(this.dataset.k)" style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;cursor:pointer">'
+            +'<span style="font-size:9px;font-family:monospace;color:#4C9AFF;flex-shrink:0">'+issue.key+'</span>'
+            +'<span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:1px 5px;border-radius:3px;background:'+tc+'18;color:'+tc+';flex-shrink:0">'+(f.issuetype&&f.issuetype.name||'?')+'</span>'
+            +'<span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+escapeHtml(f.summary)+'</span>'
+            +'<span>'+pe+'</span></div>';
+        }).join('');
+      }
+    }catch(e){ console.log('Jira widget error:',e.message); }
+  }
+
+  // Expose so switchTab can refresh it
+  window.loadJiraHomeWidget = loadJiraHomeWidget;
+  // Inject after DOM ready
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', injectJiraWidget);
+  } else {
+    setTimeout(injectJiraWidget, 200);
+  }
+  // Re-inject when switching to home tab
+  const _origSwitch = window.switchTab;
+  if(_origSwitch && typeof _origSwitch === 'function'){
+    // Will be patched after main script loads
+  }
+})();
+</script>
+
 <!-- ══ JIRA PAGE ═══════════════════════════════════════════════ -->
 <div class="page" id="page-jira">
   <div class="tab-page">
@@ -25349,11 +25519,62 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
     <div id="jsub-board" class="jira-sub-panel">
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
         <select id="jira-project-sel" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
-          <option value="">Select project…</option>
-          <option value="HRB">Digital Futures Harbour (HRB)</option>
-          <option value="HIP">Harbour - Linkon (HIP)</option>
-          <option value="HUP">Harbour - Mirros (HUP)</option>
-          <option value="SHL">Harbour - Shellix (SHL)</option>
+          <option value="">— Select project —</option>
+        <optgroup label="🏗 Harbour Platform">
+          <option value="HIP">HIP — Harbour Linkon</option>
+          <option value="HUP">HUP — Harbour Mirros</option>
+          <option value="MIN">MIN — Harbour Mindra</option>
+          <option value="SHL">SHL — Harbour Shellix</option>
+          <option value="HD">HD — Harbour Discovery</option>
+        </optgroup>
+        <optgroup label="🏢 GDF / Digital Futures">
+          <option value="DFG">DFG — Digital Futures Gates</option>
+          <option value="CAP">CAP — Digital Futures Magnet</option>
+          <option value="DFIB">DFIB — Idea Board</option>
+          <option value="RDM2026">RDM2026 — 2026 Roadmap</option>
+          <option value="ATD">ATD — Aldar Tech Debt</option>
+          <option value="DEMO">DEMO — GDF Demos</option>
+          <option value="AILAB">AILAB — AI Experience Lab</option>
+        </optgroup>
+        <optgroup label="🌐 Digital Products">
+          <option value="HEA">HEA — Hello Aldar</option>
+          <option value="BRP">BRP — Broker Portal</option>
+          <option value="PAY">PAY — Aldar Payments</option>
+          <option value="LAV">LAV — Live Aldar Abu Dhabi</option>
+          <option value="LIA">LIA — Living-in Bridge</option>
+          <option value="OB">OB — Marketplace</option>
+          <option value="GD">GD — Darna</option>
+          <option value="PIN">PIN — Pinnacle</option>
+          <option value="SG">SG — Saadiyat Grove</option>
+        </optgroup>
+        <optgroup label="🎓 Education">
+          <option value="ADP">ADP — Aldar Education Digital</option>
+          <option value="M2">M2 — Aldar Education Mobile</option>
+        </optgroup>
+        <optgroup label="🏘 Estates & Retail">
+          <option value="ESMRP">ESMRP — Estates Super Roadmap</option>
+          <option value="RCM">RCM — Retail CRM</option>
+          <option value="RET">RET — Retail Strategy</option>
+          <option value="LSQD">LSQD — LSQ Digital</option>
+          <option value="CRL">CRL — Landlord</option>
+          <option value="AHM">AHM — Aldar Home</option>
+        </optgroup>
+        <optgroup label="📱 Mobile & Native">
+          <option value="ANM">ANM — AE Native Mobile</option>
+          <option value="MAFP">MAFP — MAFP</option>
+          <option value="DSIR">DSIR — Digital Sales Issue Reporting</option>
+        </optgroup>
+        <optgroup label="⚙️ Platform & Operations">
+          <option value="APG">APG — Aldar Projects Gateways</option>
+          <option value="AEPMO">AEPMO — AE EPMO</option>
+          <option value="LSUP">LSUP — Launch Support</option>
+          <option value="SMPI">SMPI — SFMCI</option>
+          <option value="SSC">SSC — Deal Prime</option>
+          <option value="SSR">SSR — Service Prime</option>
+          <option value="TCSS">TCSS — Cloud Solutions Suite</option>
+          <option value="GH">GH — GDF Hiring</option>
+          <option value="GTMS">GTMS — Go to Market Sample</option>
+        </optgroup>
         </select>
         <select id="jira-type-filter" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
           <option value="">All types</option>
@@ -25382,11 +25603,62 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
     <div id="jsub-backlog" class="jira-sub-panel" style="display:none">
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
         <select id="jira-bl-project" onchange="loadJiraBacklog()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
-          <option value="">Select project…</option>
-          <option value="HRB">Digital Futures Harbour (HRB)</option>
-          <option value="HIP">Harbour - Linkon (HIP)</option>
-          <option value="HUP">Harbour - Mirros (HUP)</option>
-          <option value="SHL">Harbour - Shellix (SHL)</option>
+          <option value="">— Select project —</option>
+        <optgroup label="🏗 Harbour Platform">
+          <option value="HIP">HIP — Harbour Linkon</option>
+          <option value="HUP">HUP — Harbour Mirros</option>
+          <option value="MIN">MIN — Harbour Mindra</option>
+          <option value="SHL">SHL — Harbour Shellix</option>
+          <option value="HD">HD — Harbour Discovery</option>
+        </optgroup>
+        <optgroup label="🏢 GDF / Digital Futures">
+          <option value="DFG">DFG — Digital Futures Gates</option>
+          <option value="CAP">CAP — Digital Futures Magnet</option>
+          <option value="DFIB">DFIB — Idea Board</option>
+          <option value="RDM2026">RDM2026 — 2026 Roadmap</option>
+          <option value="ATD">ATD — Aldar Tech Debt</option>
+          <option value="DEMO">DEMO — GDF Demos</option>
+          <option value="AILAB">AILAB — AI Experience Lab</option>
+        </optgroup>
+        <optgroup label="🌐 Digital Products">
+          <option value="HEA">HEA — Hello Aldar</option>
+          <option value="BRP">BRP — Broker Portal</option>
+          <option value="PAY">PAY — Aldar Payments</option>
+          <option value="LAV">LAV — Live Aldar Abu Dhabi</option>
+          <option value="LIA">LIA — Living-in Bridge</option>
+          <option value="OB">OB — Marketplace</option>
+          <option value="GD">GD — Darna</option>
+          <option value="PIN">PIN — Pinnacle</option>
+          <option value="SG">SG — Saadiyat Grove</option>
+        </optgroup>
+        <optgroup label="🎓 Education">
+          <option value="ADP">ADP — Aldar Education Digital</option>
+          <option value="M2">M2 — Aldar Education Mobile</option>
+        </optgroup>
+        <optgroup label="🏘 Estates & Retail">
+          <option value="ESMRP">ESMRP — Estates Super Roadmap</option>
+          <option value="RCM">RCM — Retail CRM</option>
+          <option value="RET">RET — Retail Strategy</option>
+          <option value="LSQD">LSQD — LSQ Digital</option>
+          <option value="CRL">CRL — Landlord</option>
+          <option value="AHM">AHM — Aldar Home</option>
+        </optgroup>
+        <optgroup label="📱 Mobile & Native">
+          <option value="ANM">ANM — AE Native Mobile</option>
+          <option value="MAFP">MAFP — MAFP</option>
+          <option value="DSIR">DSIR — Digital Sales Issue Reporting</option>
+        </optgroup>
+        <optgroup label="⚙️ Platform & Operations">
+          <option value="APG">APG — Aldar Projects Gateways</option>
+          <option value="AEPMO">AEPMO — AE EPMO</option>
+          <option value="LSUP">LSUP — Launch Support</option>
+          <option value="SMPI">SMPI — SFMCI</option>
+          <option value="SSC">SSC — Deal Prime</option>
+          <option value="SSR">SSR — Service Prime</option>
+          <option value="TCSS">TCSS — Cloud Solutions Suite</option>
+          <option value="GH">GH — GDF Hiring</option>
+          <option value="GTMS">GTMS — Go to Market Sample</option>
+        </optgroup>
         </select>
         <button class="gbtn" onclick="loadJiraBacklog()" style="font-size:10px;padding:4px 10px">🔄 Refresh</button>
         <button class="gbtn" onclick="aiRiceBacklog()" style="font-size:10px;padding:4px 10px;background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)">⚡ AI RICE Score</button>
@@ -25405,12 +25677,14 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
         <button class="btn" onclick="runJiraJQL()" style="background:#0052CC;border-color:#0052CC;white-space:nowrap;font-size:11px">Run JQL</button>
       </div>
       <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND sprint in openSprints() ORDER BY priority DESC')">🏃 Open Sprint</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND issuetype = Bug AND status != Done ORDER BY priority DESC')">🐛 Open Bugs</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND issuetype = Story AND status = "To Do" ORDER BY created DESC')">📗 Stories</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND priority in (Highest,High) AND status != Done')">🔴 High Priority</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND updated >= -7d ORDER BY updated DESC')">🕐 Last 7 days</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND labels = "g0-gate" ORDER BY priority DESC')">🏷 g0-gate</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND statusCategory = &quot;In Progress&quot; ORDER BY priority DESC')">🏃 In Progress</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')">🐛 Open Bugs</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND statusCategory = &quot;To Do&quot; ORDER BY priority DESC')">📋 Backlog</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC')">🔴 High Priority</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND updated >= -7d ORDER BY updated DESC')">🕐 Last 7 days</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;Ready For QA&quot; ORDER BY priority DESC')">🧪 Ready for QA</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;SIT DONE&quot; ORDER BY updated DESC')">✅ SIT Done</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND issuetype = Bug AND priority = Highest ORDER BY created DESC')">🚨 Critical Bugs</button>
       </div>
       <div id="jira-search-results"><div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Run a JQL query to see results</div></div>
     </div>
@@ -26063,7 +26337,7 @@ async function loadJiraBoard(){
   const boardEl=document.getElementById('jira-board-cols');
   boardEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)"><div class="loading"></div></div>';
   const typeJQL=typeFilter?' AND issuetype = "'+typeFilter+'"':'';
-  const jql='project = '+project+typeJQL+' ORDER BY status ASC, priority DESC';
+  const jql='project = '+project+typeJQL+' AND statusCategory in ("To Do","In Progress","Done") ORDER BY priority DESC';
   try{
     const res=await jiraFetch('/search?jql='+encodeURIComponent(jql)+'&maxResults=80&fields=summary,status,issuetype,priority,assignee,customfield_10028');
     if(!res.ok) throw new Error('HTTP '+res.status);
@@ -26160,7 +26434,7 @@ async function loadJiraBacklog(){
   const el=document.getElementById('jira-backlog-table');
   el.innerHTML='<div style="text-align:center;padding:30px"><div class="loading"></div></div>';
   try{
-    const jql='project = '+project+' AND status = "To Do" ORDER BY priority DESC, created DESC';
+    const jql='project = '+project+' AND statusCategory = "To Do" ORDER BY priority DESC, created DESC';
     const res=await jiraFetch('/search?jql='+encodeURIComponent(jql)+'&maxResults=50&fields=summary,issuetype,priority,customfield_10028,assignee,status');
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
@@ -26230,6 +26504,19 @@ async function aiRiceBacklog(){
 
 // ── JQL Search ────────────────────────────────────────────────
 function setJiraJQL(jql){ document.getElementById('jira-jql-input').value=jql; runJiraJQL(); }
+
+// Project-aware JQL preset — prepends active project from search or board tab
+function setJiraJQLp(suffix){
+  // Try to get active project from board or backlog selectors
+  const proj = (document.getElementById('jira-project-sel') && document.getElementById('jira-project-sel').value)
+    || (document.getElementById('jira-bl-project') && document.getElementById('jira-bl-project').value)
+    || 'HIP';
+  const jql = 'project = ' + proj + ' ' + suffix.replace(/&quot;/g, '"');
+  document.getElementById('jira-jql-input').value = jql;
+  // Switch to search tab
+  showJiraSubTab('search', document.querySelectorAll('.jira-sub-tab')[2]);
+  runJiraJQL();
+}
 
 async function runJiraJQL(){
   if(!jiraConfig){ openJiraConnectModal(); return; }
@@ -26496,6 +26783,170 @@ async function loadAndAnalyse(mode){
     await rpAnalyseDoc(mode);
   }, 300);
 }
+
+// ══════════════════════════════════════════════════════════════
+//  JIRA → SPRINT HEALTH auto-fill
+// ══════════════════════════════════════════════════════════════
+async function loadSprintFromJira(){
+  const project = document.getElementById('sh-jira-project')?.value;
+  if(!project){ toast('Select a project first','warning'); return; }
+  if(!jiraConfig){ openJiraConnectModal(); return; }
+  toast('Loading sprint data from '+project+'…');
+  try{
+    // Fetch in parallel: total committed, completed (done this sprint), blockers
+    const [rAll, rDone, rBug] = await Promise.all([
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=50&fields=summary,status,issuetype,assignee,customfield_10028'),
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory = Done AND updated >= -14d ORDER BY updated DESC')+'&maxResults=50&fields=summary,status'),
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=10&fields=summary,priority'),
+    ]);
+    const dAll = await rAll.json();
+    const dDone = await rDone.json();
+    const dBug = await rBug.json();
+
+    const committed = (dAll.total || dAll.issues?.length || 0) + (dDone.issues?.length || 0);
+    const completed = dDone.issues?.length || 0;
+    const blockers  = Math.min(dBug.issues?.length || 0, 10);
+    // Count unique assignees as team size proxy
+    const assignees = new Set((dAll.issues||[]).map(i=>i.fields?.assignee?.displayName).filter(Boolean));
+    const teamSize  = Math.max(assignees.size, 1);
+
+    // Fill Sprint Health inputs
+    const set = (id, val) => { const el=document.getElementById(id); if(el) el.value=val; };
+    set('sh-committed', committed);
+    set('sh-completed', completed);
+    set('sh-blockers',  blockers);
+    set('sh-delivery-team', teamSize);
+    set('sh-scope', 0);
+
+    toast('✅ Sprint data loaded from '+project+' — '+committed+' items, '+blockers+' bugs, '+teamSize+' assignees', 'success');
+
+    // Show a summary banner
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:rgba(0,82,204,0.06);border:0.5px solid rgba(0,82,204,0.25);border-radius:8px;padding:8px 12px;font-size:11px;color:#4C9AFF;margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap';
+    banner.innerHTML = '<strong>🔗 Live from '+project+':</strong>'
+      +' <span>📋 '+committed+' open items</span>'
+      +' <span>✅ '+completed+' done (last 14d)</span>'
+      +' <span>🐛 '+blockers+' open bugs</span>'
+      +' <span>👥 '+teamSize+' assignees</span>';
+    const shForm = document.querySelector('#page-sprint-health .tab-page');
+    const existing = shForm?.querySelector('#sh-jira-banner');
+    if(existing) existing.remove();
+    banner.id = 'sh-jira-banner';
+    shForm?.insertBefore(banner, shForm?.children[1]);
+
+  }catch(e){
+    toast('Error loading sprint: '+e.message, 'error');
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+//  JIRA slash command for AI Chat
+//  /jira HIP-2336     → fetches ticket + starts AI analysis
+//  /jira sprint HIP   → fetches sprint summary
+//  /jira bugs HIP     → fetches top open bugs
+//  /jira rice HIP     → runs RICE on backlog
+// ══════════════════════════════════════════════════════════════
+async function handleJiraSlashCommand(cmd){
+  const parts = cmd.trim().replace(/^\/jira\s*/i, '').split(' ');
+  const subCmd = parts[0]?.toLowerCase();
+  const arg    = parts[1] || 'HIP';
+  if(!jiraConfig){ openJiraConnectModal(); return; }
+
+  // /jira TICKET-KEY
+  if(/^[a-z]+-\d+$/i.test(subCmd)){
+    const key = subCmd.toUpperCase();
+    toast('Loading '+key+'...');
+    const res = await jiraFetch('/issue/'+key+'?fields=summary,description,status,issuetype,priority,assignee,customfield_10028,labels');
+    if(!res.ok){ toast('Issue not found: '+key,'error'); return; }
+    const data = await res.json();
+    _jiraContextIssue = data;
+    const f = data.fields;
+    const nl = '\n';
+    const ctx = 'LIVE JIRA ISSUE: '+key+nl+'Type: '+f.issuetype?.name+nl+'Status: '+f.status?.name+nl+'Priority: '+f.priority?.name+nl+'SP: '+(f.customfield_10028||'?')+nl+'Assignee: '+(f.assignee?.displayName||'Unassigned')+nl+'Summary: '+f.summary+nl+'Description: '+_adfToText(f.description).slice(0,1200);
+    const inp = document.getElementById('chat-input');
+    if(inp){ inp.value = 'Analyse this Jira issue as the active brain:'+nl+nl+ctx; if(typeof autoResize==='function') autoResize(inp); inp.focus(); }
+    toast('Loaded '+key+' — press Enter to analyse', 'success');
+    return;
+  }
+
+  // /jira sprint PROJECT
+  if(subCmd === 'sprint'){
+    toast('Loading sprint for '+arg+'...');
+    const res = await jiraFetch('/search?jql='+encodeURIComponent('project = '+arg+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+    if(!res.ok){ toast('Error: HTTP '+res.status,'error'); return; }
+    const data = await res.json();
+    const issues = data.issues || [];
+    const nl = '\n';
+    const lines = issues.map(function(i){ return '- '+i.key+': '+i.fields.summary+' ['+i.fields.status?.name+' / '+i.fields.priority?.name+']'; });
+    const summary = '## Live Sprint — '+arg+nl+'Total open: '+data.total+nl+nl+lines.join(nl);
+    const inp = document.getElementById('chat-input');
+    if(inp){ inp.value = 'Review this live sprint data and give health assessment, top risks, action items:'+nl+nl+summary; if(typeof autoResize==='function') autoResize(inp); inp.focus(); }
+    return;
+  }
+
+  // /jira bugs PROJECT
+  if(subCmd === 'bugs'){
+    toast('Loading bugs for '+arg+'...');
+    const res = await jiraFetch('/search?jql='+encodeURIComponent('project = '+arg+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,priority,assignee');
+    if(!res.ok){ toast('Error','error'); return; }
+    const data = await res.json();
+    const bugs = data.issues || [];
+    const nl = '\n';
+    const lines = bugs.map(function(i){ return '- '+i.key+' ['+i.fields.priority?.name+']: '+i.fields.summary+' - '+(i.fields.assignee?.displayName||'Unassigned'); });
+    const summary = '## Open Bugs — '+arg+' ('+data.total+' total)'+nl+nl+lines.join(nl);
+    const inp = document.getElementById('chat-input');
+    if(inp){ inp.value = 'Analyse these open bugs. Identify patterns, highest risk, recommend triage order:'+nl+nl+summary; if(typeof autoResize==='function') autoResize(inp); inp.focus(); }
+    return;
+  }
+
+  // /jira rice PROJECT
+  if(subCmd === 'rice'){
+    toast('Loading backlog for RICE — '+arg+'...');
+    const res = await jiraFetch('/search?jql='+encodeURIComponent('project = '+arg+' AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=25&fields=summary,issuetype,priority,customfield_10028');
+    if(!res.ok){ toast('Error','error'); return; }
+    const data = await res.json();
+    const nl = '\n';
+    const items = (data.issues||[]).map(function(i){ return i.key+': '+i.fields.summary+' ['+i.fields.issuetype?.name+'/'+i.fields.priority?.name+'/SP:'+(i.fields.customfield_10028||'?')+']'; }).join(nl);
+    const inp = document.getElementById('chat-input');
+    if(inp){ inp.value = 'RICE score and prioritise this live Jira backlog from '+arg+':'+nl+nl+items+nl+nl+'Produce: RICE table, top 5 for next sprint with rationale, defer list, sprint recommendation.'; if(typeof autoResize==='function') autoResize(inp); inp.focus(); }
+    return;
+  }
+
+  // Default help
+  const nl = '\n';
+  const inp = document.getElementById('chat-input');
+  if(inp){ inp.value = 'Jira slash commands:'+nl+'/jira HIP-2336 - analyse a ticket'+nl+'/jira sprint HIP - sprint summary'+nl+'/jira bugs HIP - bug triage'+nl+'/jira rice HIP - RICE scoring'; if(typeof autoResize==='function') autoResize(inp); }
+}
+
+// ── Register /jira in slash command system ────────────────────
+(function registerJiraSlashCmd(){
+  if(typeof SLASH_COMMANDS === 'undefined') return;
+  // Check if already registered
+  if(SLASH_COMMANDS.some(c=>c.cmd==='/jira')) return;
+  SLASH_COMMANDS.unshift(
+    {cmd:'/jira', label:'Jira Context', desc:'Load any Jira issue/sprint/bugs into AI Chat. e.g. /jira HIP-2336 or /jira sprint HIP', brain:'all', fn:'handleJiraSlashCommand', category:'Jira'},
+    {cmd:'/jira sprint', label:'Jira Sprint Summary', desc:'Pull live sprint data from Jira into AI Chat for analysis', brain:'all', category:'Jira'},
+    {cmd:'/jira bugs', label:'Jira Bug Triage', desc:'Load open bugs from any project for AI triage', brain:'all', category:'Jira'},
+    {cmd:'/jira rice', label:'Jira RICE Scoring', desc:'Pull live backlog and run RICE prioritisation', brain:'all', category:'Jira'}
+  );
+})();
+
+// ── Intercept /jira in chat send ─────────────────────────────
+(function patchSendForJira(){
+  const _origSend = window.sendMessage;
+  if(!_origSend) return;
+  window.sendMessage = async function(){
+    const inp = document.getElementById('chat-input');
+    if(!inp) return _origSend.apply(this, arguments);
+    const val = inp.value.trim();
+    if(val.toLowerCase().startsWith('/jira')){
+      inp.value = '';
+      await handleJiraSlashCommand(val);
+      return;
+    }
+    return _origSend.apply(this, arguments);
+  };
+})();
 
 // ── Load ticket by key directly into Doc Analyser ────────────
 async function loadTicketIntoDocAnalyser(){
