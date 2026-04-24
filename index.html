@@ -25316,7 +25316,16 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
         </h2>
         <span style="font-size:11px;color:var(--muted2)">Browse and analyse your Harbour Platform issues — write mode after demo</span>
       </div>
-      <button onclick="(function(){var m=document.getElementById('jira-modal');if(m){m.classList.add('show');m.style.setProperty('display','flex','important');}else{alert('Modal not found — try refreshing');}})()" id="jira-connect-btn" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">⚙ Configure</button>
+      <button id="jira-connect-btn" onclick="
+  var m=document.getElementById('jira-modal');
+  if(m){
+    var d=document.getElementById('jm-domain');
+    var e=document.getElementById('jm-email');
+    if(d) d.value='ebdae.atlassian.net';
+    if(e) e.value='abilla@aldar.com';
+    m.style.cssText='position:fixed!important;inset:0!important;background:rgba(0,0,0,0.75)!important;z-index:9999!important;display:flex!important;align-items:center!important;justify-content:center!important';
+  }
+" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">⚙ Configure</button>
     </div>
 
     <!-- ── CONNECTION STATUS BANNER ───────────────────────── -->
@@ -25737,7 +25746,7 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
 
 
 <!-- ══ JIRA CONNECT MODAL ══════════════════════════════════════ -->
-<div id="jira-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;display:none;align-items:center;justify-content:center">
+<div id="jira-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:none;align-items:center;justify-content:center">
   <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;width:420px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.6)">
     <div style="padding:16px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
       <div style="font-size:13px;font-weight:700">🔗 Connect to Jira</div>
@@ -25814,14 +25823,49 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
 
 // ── Init: restore saved config ────────────────────────────────
 (function(){
+  // ── Auto-connect: Harbour Platform Jira (ebdae.atlassian.net) ──
+  // Credentials pre-loaded — no manual config needed
+  const PRESET = {
+    domain: 'ebdae.atlassian.net',
+    email:  'abilla@aldar.com',
+    token:  ''  // User must paste their API token once — stored in localStorage
+  };
+
+  // Try localStorage first (persists across sessions)
   const saved = localStorage.getItem('pm_jira_config');
   if(saved){
-    try { jiraConfig = JSON.parse(saved); } catch(_){}
+    try {
+      jiraConfig = JSON.parse(saved);
+      // Always ensure domain + email are correct even if token was saved
+      jiraConfig.domain = PRESET.domain;
+      jiraConfig.email  = PRESET.email;
+    } catch(_){ jiraConfig = null; }
   }
-  // Pre-fill modal fields if saved
-  if(jiraConfig){
-    const d=document.getElementById('jm-domain'); if(d) d.value=jiraConfig.domain||'';
-    const e=document.getElementById('jm-email');  if(e) e.value=jiraConfig.email||'';
+
+  // Pre-fill modal with known values
+  const d=document.getElementById('jm-domain'); if(d) d.value=PRESET.domain;
+  const e=document.getElementById('jm-email');  if(e) e.value=PRESET.email;
+  if(jiraConfig && jiraConfig.token){
+    // Already have token — show connected state
+    setJiraStatusCredentialsSaved(PRESET.domain, PRESET.email);
+    // Auto-test in background
+    setTimeout(()=>{
+      jiraFetch('/myself').then(r=>{
+        if(r.ok) r.json().then(data=>{
+          setJiraStatusConnected(data.displayName||PRESET.email, PRESET.domain);
+        });
+      }).catch(()=>{});
+    }, 800);
+  } else {
+    // No token yet — prompt user
+    setJiraStatusDisconnected();
+    // Auto-open config modal after 1s if on Jira tab
+    setTimeout(()=>{
+      const activePage = document.querySelector('.page.active');
+      if(activePage && activePage.id==='page-jira'){
+        openJiraConnectModal();
+      }
+    }, 1000);
   }
 })();
 
@@ -25829,19 +25873,20 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
 function openJiraConnectModal(){
   const el = document.getElementById('jira-modal');
   if(!el){ console.error('jira-modal not found'); return; }
-  if(jiraConfig){
-    const d=document.getElementById('jm-domain'); if(d) d.value=jiraConfig.domain||'ebdae.atlassian.net';
-    const e=document.getElementById('jm-email');  if(e) e.value=jiraConfig.email||'';
+  // Pre-fill known credentials
+  const d=document.getElementById('jm-domain'); if(d) d.value='ebdae.atlassian.net';
+  const e=document.getElementById('jm-email');  if(e) e.value='abilla@aldar.com';
+  if(jiraConfig && jiraConfig.token){
+    const t=document.getElementById('jm-token'); if(t) t.value=jiraConfig.token;
   }
-  // Both approaches to ensure it works regardless of CSS specificity
-  el.classList.add('show');
-  el.style.setProperty('display','flex','important');
+  // Nuclear CSS override — works regardless of any conflicting rules
+  el.style.cssText='position:fixed!important;inset:0!important;background:rgba(0,0,0,0.75)!important;z-index:9999!important;display:flex!important;align-items:center!important;justify-content:center!important';
 }
 function closeJiraConnectModal(){
   const el=document.getElementById('jira-modal');
   if(!el) return;
   el.classList.remove('show');
-  el.style.removeProperty('display');
+  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:none;align-items:center;justify-content:center';
 }
 
 // ── Save config and test ──────────────────────────────────────
@@ -26309,19 +26354,12 @@ function loadIssueIntoDocAnalyser(){
     if(!node) return '';
     if(typeof node === 'string') return node;
     if(node.type === 'text') return node.text || '';
-    if(node.type === 'hardBreak') return '
-';
-    if(node.type === 'paragraph') return (node.content||[]).map(n=>adfToPlain(n,depth)).join('') + '
-';
-    if(node.type === 'heading') return '
-' + '#'.repeat(node.attrs?.level||2) + ' ' + (node.content||[]).map(n=>adfToPlain(n,depth)).join('') + '
-';
+    if(node.type === 'hardBreak') return '\n';
+    if(node.type === 'paragraph') return (node.content||[]).map(n=>adfToPlain(n,depth)).join('') + '\n';
+    if(node.type === 'heading') return '\n' + '#'.repeat(node.attrs?.level||2) + ' ' + (node.content||[]).map(n=>adfToPlain(n,depth)).join('') + '\n';
     if(node.type === 'bulletList'||node.type === 'orderedList') return (node.content||[]).map(n=>adfToPlain(n,depth)).join('');
-    if(node.type === 'listItem') return '  - ' + (node.content||[]).map(n=>adfToPlain(n,depth)).join('').trim() + '
-';
-    if(node.type === 'rule') return '
----
-';
+    if(node.type === 'listItem') return '  - ' + (node.content||[]).map(n=>adfToPlain(n,depth)).join('').trim() + '\n';
+    if(node.type === 'rule') return '\n---\n';
     if(node.type === 'strong'||node.type === 'em') return (node.content||[]).map(n=>adfToPlain(n,depth)).join('');
     if(node.content) return node.content.map(n=>adfToPlain(n,depth)).join('');
     return '';
@@ -26350,10 +26388,8 @@ function loadIssueIntoDocAnalyser(){
     '## Description',
     desc,
     '',
-    acText ? '## Acceptance Criteria
-' + acText : '',
-  ].filter(Boolean).join('
-');
+    acText ? '## Acceptance Criteria\n' + acText : '',
+  ].filter(Boolean).join('\n');
 
   const docName = issue.key + ' — ' + f.summary.substring(0, 60) + (f.summary.length > 60 ? '…' : '');
   const sizeKb  = Math.round(docContent.length / 1024 * 10) / 10 || 1;
@@ -26501,19 +26537,12 @@ async function loadTicketIntoDocAnalyser(){
       if(!node) return '';
       if(typeof node === 'string') return node;
       if(node.type === 'text') return node.text || '';
-      if(node.type === 'hardBreak') return '
-';
-      if(node.type === 'paragraph') return (node.content||[]).map(adfToPlain).join('') + '
-';
-      if(node.type === 'heading') return '
-' + '#'.repeat(node.attrs?.level||2) + ' ' + (node.content||[]).map(adfToPlain).join('') + '
-';
+      if(node.type === 'hardBreak') return '\n';
+      if(node.type === 'paragraph') return (node.content||[]).map(adfToPlain).join('') + '\n';
+      if(node.type === 'heading') return '\n' + '#'.repeat(node.attrs?.level||2) + ' ' + (node.content||[]).map(adfToPlain).join('') + '\n';
       if(node.type === 'bulletList'||node.type === 'orderedList') return (node.content||[]).map(adfToPlain).join('');
-      if(node.type === 'listItem') return '  - ' + (node.content||[]).map(adfToPlain).join('').trim() + '
-';
-      if(node.type === 'rule') return '
----
-';
+      if(node.type === 'listItem') return '  - ' + (node.content||[]).map(adfToPlain).join('').trim() + '\n';
+      if(node.type === 'rule') return '\n---\n';
       if(node.content) return node.content.map(adfToPlain).join('');
       return '';
     }
@@ -26538,10 +26567,8 @@ async function loadTicketIntoDocAnalyser(){
       '## Description',
       desc,
       '',
-      acText ? '## Acceptance Criteria
-' + acText : '',
-    ].filter(Boolean).join('
-');
+      acText ? '## Acceptance Criteria\n' + acText : '',
+    ].filter(Boolean).join('\n');
 
     const docName = key + ' — ' + f.summary.substring(0, 60) + (f.summary.length > 60 ? '…' : '');
     const sizeKb  = Math.round(docContent.length / 1024 * 10) / 10 || 1;
