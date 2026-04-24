@@ -5372,12 +5372,43 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
       </div>
       <div class="rp-section-label" style="margin-top:12px">Analyse a document</div>
       <div class="rp-doc-grid">
+        <!-- ── Load from Jira ticket ───────────────────────── -->
+        <div style="grid-column:1/-1;display:flex;gap:8px;align-items:center;background:var(--bg);border:0.5px solid var(--border2);border-radius:8px;padding:8px 10px;margin-bottom:2px">
+          <span style="font-size:11px;color:var(--muted2);flex:1">Load a Jira ticket directly:</span>
+          <input id="jira-ticket-input" placeholder="e.g. HIP-2336" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:5px 8px;font-size:11px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none;width:110px" onkeydown="if(event.key==='Enter') loadTicketIntoDocAnalyser()"/>
+          <button onclick="loadTicketIntoDocAnalyser()" style="background:rgba(0,200,150,0.1);border:0.5px solid rgba(0,200,150,0.3);border-radius:6px;padding:5px 10px;font-size:10px;font-weight:700;color:#00C896;cursor:pointer;font-family:inherit;white-space:nowrap">📄 Load</button>
+        </div>
+        <div id="jira-load-status" style="display:none;grid-column:1/-1;font-size:10px;font-weight:600;padding:5px 8px;border-radius:6px;text-align:center"></div>
+
+        <!-- ── Analyse ticket (6 modes) ─────────────────────── -->
+        <div style="grid-column:1/-1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);padding:4px 0 2px">🔬 Analyse Ticket</div>
         <div class="rp-doc-card" onclick="rpAnalyseDoc('summary')"><span>📋</span><span>Summary</span></div>
         <div class="rp-doc-card" onclick="rpAnalyseDoc('gaps')"><span>🔍</span><span>Gap Analysis</span></div>
         <div class="rp-doc-card" onclick="rpAnalyseDoc('stories')"><span>✍️</span><span>User Stories</span></div>
         <div class="rp-doc-card" onclick="rpAnalyseDoc('risks')"><span>⚠️</span><span>Risks</span></div>
         <div class="rp-doc-card" onclick="rpAnalyseDoc('questions')"><span>❓</span><span>Open Qs</span></div>
-        <div class="rp-doc-card" onclick="rpAnalyseDoc('acceptance')"><span>✅</span><span>Acceptance Criteria</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('acceptance')"><span>✅</span><span>AC</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('brd')"><span>📘</span><span>BRD</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('usecase')"><span>🎭</span><span>Use Cases</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('testplan')"><span>🧪</span><span>Test Plan</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('dependencies')"><span>🔗</span><span>Dependencies</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('impact')"><span>💥</span><span>Impact</span></div>
+        <div class="rp-doc-card" onclick="rpAnalyseDoc('dor')"><span>✔️</span><span>DoR Check</span></div>
+
+        <!-- ── Generate from ticket (12 docs) ───────────────── -->
+        <div style="grid-column:1/-1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted2);padding:6px 0 2px;border-top:0.5px solid var(--border);margin-top:2px">📝 Generate from Ticket</div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('prd')"><span>📄</span><span>PRD</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('user-story')"><span>✍️</span><span>User Story</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('okr')"><span>🎯</span><span>OKR</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('sprint-goal')"><span>🏃</span><span>Sprint Goal</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('risk-register')"><span>⚠️</span><span>Risk Register</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('business-case')"><span>💰</span><span>Business Case</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('gtm')"><span>📣</span><span>GTM Plan</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('exec-brief')"><span>📋</span><span>Exec Brief</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('release-notes')"><span>🚀</span><span>Release Notes</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('uat-plan')"><span>✅</span><span>UAT Plan</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('adr')"><span>🏗️</span><span>ADR</span></div>
+        <div class="rp-doc-card" onclick="rpGenerateDoc('status-report')"><span>📊</span><span>Status Report</span></div>
       </div>
     </div>
 
@@ -24163,13 +24194,43 @@ async function rpAnalyseDoc(mode) {
     switchRightPanel('kb', document.querySelectorAll('.rp-tab')[4]);
     return;
   }
-  const modeLabels = {summary:'Executive Summary',gaps:'Gap Analysis',stories:'User Stories',risks:'Risk Register',questions:'Open Questions',acceptance:'Acceptance Criteria'};
-  const label = modeLabels[mode] || mode;
+  const modeLabels = {
+    summary:      'Executive Summary',
+    gaps:         'Gap Analysis',
+    stories:      'User Stories',
+    risks:        'Risk Register',
+    questions:    'Open Questions',
+    acceptance:   'Acceptance Criteria',
+    brd:          'Business Requirements Document',
+    usecase:      'Use Cases',
+    testplan:     'Test Plan',
+    dependencies: 'Dependency Analysis',
+    impact:       'Impact Analysis',
+    dor:          'Definition of Ready Check',
+  };
+
+  const modePrompts = {
+    summary:      `Produce an executive summary of this Jira ticket. Cover: what it is, why it matters, what success looks like, and any risks or open questions. Max 300 words.`,
+    gaps:         `Identify gaps in this Jira ticket. What is missing, ambiguous, or unclear? Cover: missing AC, undefined edge cases, unclear business rules, missing NFRs, unanswered questions, and anything that would block development.`,
+    stories:      `Break this Jira ticket into individual user stories. Each story must follow the format: "As a [user], I want to [action] so that [benefit]." Each story must be independently deliverable and testable. Include 2-3 AC per story.`,
+    risks:        `Identify all risks in this Jira ticket. Format as a risk register table: Risk | Category (Technical/Business/Dependency/UX) | Likelihood (H/M/L) | Impact (H/M/L) | Mitigation. Cover technical risks, dependency risks, business risks, and delivery risks.`,
+    questions:    `List all open questions and assumptions that need to be resolved before this ticket can be developed. Format: numbered list with category (Business/Technical/UX/Data) and who should answer each question.`,
+    acceptance:   `Write comprehensive BDD acceptance criteria for this ticket. Use Given/When/Then format. Cover: happy path, edge cases, error states, permissions/roles, and non-functional requirements. Be specific and testable.`,
+    brd:          `Write a Business Requirements Document (BRD) based on this Jira ticket. Include: executive summary, business objectives, scope (in/out), stakeholders, functional requirements, non-functional requirements, assumptions, and constraints.`,
+    usecase:      `Write formal use cases based on this Jira ticket. For each use case: Use Case ID, Name, Actor, Preconditions, Main Flow (numbered steps), Alternative Flows, Postconditions, and Business Rules.`,
+    testplan:     `Write a test plan for this Jira ticket. Include: test scope, test types (functional/regression/UAT/performance), test scenarios with steps and expected results, edge cases, out of scope, entry/exit criteria, and risk-based test prioritisation.`,
+    dependencies: `Identify all dependencies for this Jira ticket. Cover: upstream dependencies (what this needs from other teams/systems), downstream dependencies (what depends on this), technical dependencies (APIs, services, data), and timeline dependencies. Flag any that are at risk.`,
+    impact:       `Perform an impact analysis for this Jira ticket. Cover: user impact, business impact, technical impact (systems/APIs/data affected), security/compliance impact, performance impact, and any rollback considerations.`,
+    dor:          `Perform a Definition of Ready (DoR) check on this Jira ticket. Assess each criterion: Clear business value (Y/N) | User story format (Y/N) | Acceptance criteria defined (Y/N) | Dependencies identified (Y/N) | Sized/estimated (Y/N) | Testable (Y/N) | No blockers (Y/N) | UI/UX ready if needed (Y/N). Give an overall DoR score (0-8) and list exactly what needs to be done before it is sprint-ready.`,
+  };
+
+  const label  = modeLabels[mode] || mode;
+  const prompt = modePrompts[mode] ? modePrompts[mode] + '\n\n' : `Perform a ${label} on this document.\n\n`;
   await _rpStream({
-    system: 'You are a senior product consultant. Analyse the document and produce exactly what is requested. Be specific and structured.',
-    userMsg: `Perform a ${label} on the documents in my knowledge base.\n\n${kbCtx}`,
+    system: 'You are a senior product consultant with 15+ years experience. Analyse the document and produce exactly what is requested. Be specific, structured, and actionable. Reference specific details from the document — never be generic.',
+    userMsg: prompt + kbCtx,
     title: label,
-    maxTokens: 1400
+    maxTokens: 1600
   });
 }
 
@@ -25222,172 +25283,103 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
 <!-- ══ JIRA PAGE ═══════════════════════════════════════════════ -->
 <div class="page" id="page-jira">
   <div class="tab-page">
-    <div class="tb" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+
+    <!-- Header -->
+    <div class="tb" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:0">
       <div>
-        <h2>🔗 Jira Integration <span style="font-size:11px;font-weight:400;background:rgba(0,200,150,0.12);color:#00C896;border:0.5px solid rgba(0,200,150,0.3);border-radius:4px;padding:2px 8px;margin-left:6px;vertical-align:middle">📖 Read-Only Mode</span></h2>
-        <span style="font-size:11px;color:var(--muted2)">Browse and analyse your Harbour Platform Jira issues — write mode available after demo</span>
+        <h2 style="display:flex;align-items:center;gap:10px">🔗 Jira
+          <span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px;background:rgba(0,200,150,0.12);color:#00C896;border:0.5px solid rgba(0,200,150,0.3)">📖 READ-ONLY</span>
+        </h2>
+        <span style="font-size:11px;color:var(--muted2)">Browse and analyse your Harbour Platform issues — write mode after demo</span>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <button onclick="openJiraConnectModal()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit" id="jira-connect-btn">⚙ Configure</button>
-      </div>
+      <button onclick="openJiraConnectModal()" id="jira-connect-btn" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">⚙ Configure</button>
     </div>
 
-    <!-- ── CONNECTION STATUS BANNER ─────────────────────────── -->
-    <div id="jira-status-banner" style="border-radius:10px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;transition:all .3s">
-      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:200px">
-        <div id="jira-status-dot" style="width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0;transition:all .3s"></div>
-        <span id="jira-status-text" style="font-size:12px;font-weight:600;color:var(--muted2)">Not connected — click ⚙ Configure to connect</span>
+    <!-- ── CONNECTION STATUS BANNER ───────────────────────── -->
+    <div id="jira-status-banner" style="margin:14px 0;border-radius:10px;padding:12px 16px;background:var(--bg2);border:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <div id="jira-status-dot" style="width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0"></div>
+      <div style="flex:1;min-width:200px">
+        <div id="jira-status-text" style="font-size:12px;font-weight:600;color:var(--muted2)">Not connected — click ⚙ Configure</div>
+        <div id="jira-status-sub" style="font-size:10px;color:var(--muted);margin-top:2px"></div>
       </div>
-      <div id="jira-conn-detail" style="display:none;font-size:10px;color:var(--muted2);gap:16px;flex-wrap:wrap"></div>
-      <button id="jira-test-btn" onclick="testJiraConnection()" style="display:none;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">↻ Test</button>
+      <button id="jira-test-btn" onclick="testJiraConnection()" style="display:none;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 12px;font-size:10px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">↻ Test Connection</button>
     </div>
 
-    <!-- Sub-nav -->
-    <div style="display:flex;gap:3px;margin-bottom:16px;border-bottom:0.5px solid var(--border);padding-bottom:0">
-      <button class="jira-sub-tab active" onclick="showJiraSubTab('board',this)" id="jst-board">🗂 Sprint Board</button>
-      <button class="jira-sub-tab" onclick="showJiraSubTab('backlog',this)" id="jst-backlog">📋 Backlog</button>
-      <!-- Create Issue tab hidden — read-only mode for demo -->
-      <button class="jira-sub-tab" onclick="showJiraSubTab('search',this)" id="jst-search">🔍 JQL Search</button>
+    <!-- ── SUB-TABS (read-only: Board / Backlog / Search) ──── -->
+    <div style="display:flex;gap:2px;border-bottom:0.5px solid var(--border);margin-bottom:16px">
+      <button class="jira-sub-tab active" onclick="showJiraSubTab('board',this)">🗂 Sprint Board</button>
+      <button class="jira-sub-tab" onclick="showJiraSubTab('backlog',this)">📋 Backlog</button>
+      <button class="jira-sub-tab" onclick="showJiraSubTab('search',this)">🔍 JQL Search</button>
     </div>
 
-    <!-- BOARD SUB-PANEL -->
-    <div id="jsub-board" class="jira-sub-panel" style="display:block">
+    <!-- ── BOARD ─────────────────────────────────────────── -->
+    <div id="jsub-board" class="jira-sub-panel">
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
-        <select id="jira-project-sel" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
+        <select id="jira-project-sel" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
           <option value="">Select project…</option>
           <option value="HRB">Digital Futures Harbour (HRB)</option>
           <option value="HIP">Harbour - Linkon (HIP)</option>
           <option value="HUP">Harbour - Mirros (HUP)</option>
-          <option value="MIN">Harbour - Mindra (MIN)</option>
           <option value="SHL">Harbour - Shellix (SHL)</option>
         </select>
-        <select id="jira-type-filter" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
+        <select id="jira-type-filter" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
           <option value="">All types</option>
           <option value="Story">Story</option>
           <option value="Bug">Bug</option>
           <option value="Task">Task</option>
-          <option value="Epic">Epic</option>
         </select>
-        <input id="jira-board-search" placeholder="Filter…" oninput="filterJiraBoard(this.value)" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;max-width:180px"/>
+        <input id="jira-board-search" placeholder="Filter issues…" oninput="filterJiraBoard(this.value)" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;max-width:160px"/>
         <button class="gbtn" onclick="loadJiraBoard()" style="font-size:10px;padding:4px 10px">🔄 Refresh</button>
         <button class="gbtn" onclick="aiJiraReview()" style="font-size:10px;padding:4px 10px;background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)">🧠 AI Sprint Review</button>
       </div>
-      <div id="jira-board-cols" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;min-height:300px">
-        <div style="grid-column:1/-1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px;color:var(--muted2);gap:8px">
-          <span style="font-size:28px;opacity:.4">🔗</span>
-          <span style="font-size:12px;font-weight:500">Configure Jira connection to load board</span>
-          <button onclick="openJiraConnectModal()" style="background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit;margin-top:4px">⚙ Connect now →</button>
+      <div id="jira-board-cols" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;min-height:200px">
+        <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted2)">
+          <div style="font-size:24px;opacity:.4;margin-bottom:8px">🗂</div>
+          <div style="font-size:12px;font-weight:500;margin-bottom:12px">Select a project and configure Jira to load board</div>
+          <button onclick="openJiraConnectModal()" style="background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit">⚙ Connect now →</button>
         </div>
       </div>
       <div id="jira-ai-review-out" style="display:none;margin-top:14px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:10px;padding:14px">
         <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🧠 AI Sprint Review</div>
-        <div id="jira-ai-review-text" style="font-size:12px;color:var(--text);line-height:1.65"></div>
+        <div id="jira-ai-review-text" style="font-size:12px;line-height:1.65;color:var(--text)"></div>
       </div>
     </div>
 
-    <!-- BACKLOG SUB-PANEL -->
+    <!-- ── BACKLOG ─────────────────────────────────────────── -->
     <div id="jsub-backlog" class="jira-sub-panel" style="display:none">
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
-        <select id="jira-bl-project" onchange="loadJiraBacklog()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
+        <select id="jira-bl-project" onchange="loadJiraBacklog()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
           <option value="">Select project…</option>
           <option value="HRB">Digital Futures Harbour (HRB)</option>
           <option value="HIP">Harbour - Linkon (HIP)</option>
           <option value="HUP">Harbour - Mirros (HUP)</option>
-          <option value="MIN">Harbour - Mindra (MIN)</option>
           <option value="SHL">Harbour - Shellix (SHL)</option>
         </select>
         <button class="gbtn" onclick="loadJiraBacklog()" style="font-size:10px;padding:4px 10px">🔄 Refresh</button>
         <button class="gbtn" onclick="aiRiceBacklog()" style="font-size:10px;padding:4px 10px;background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)">⚡ AI RICE Score</button>
-        <button class="gbtn" onclick="showJiraSubTab('create',document.getElementById('jst-create'))" style="font-size:10px;padding:4px 10px;background:var(--green-l);color:var(--green);border-color:rgba(0,200,150,0.3)">+ Create Issue</button>
       </div>
-      <div id="jira-backlog-table">
-        <div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Select a project to load backlog</div>
-      </div>
+      <div id="jira-backlog-table"><div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Select a project to load backlog</div></div>
       <div id="jira-rice-out" style="display:none;margin-top:14px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:10px;padding:14px">
-        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">⚡ AI RICE Prioritisation</div>
-        <div id="jira-rice-text" style="font-size:12px;color:var(--text);line-height:1.65"></div>
+        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">⚡ AI RICE</div>
+        <div id="jira-rice-text" style="font-size:12px;line-height:1.65;color:var(--text)"></div>
       </div>
     </div>
 
-    <!-- CREATE SUB-PANEL -->
-    <div id="jsub-create" class="jira-sub-panel" style="display:none">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">Issue Details</div>
-          <div class="cf"><label>Project</label>
-            <select id="jira-create-proj" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text);font-family:inherit;outline:none">
-              <option value="HRB">Digital Futures Harbour (HRB)</option>
-              <option value="HIP">Harbour - Linkon (HIP)</option>
-              <option value="HUP">Harbour - Mirros (HUP)</option>
-              <option value="MIN">Harbour - Mindra (MIN)</option>
-              <option value="SHL">Harbour - Shellix (SHL)</option>
-            </select>
-          </div>
-          <div class="cf"><label>Issue type</label>
-            <select id="jira-create-type" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text);font-family:inherit;outline:none">
-              <option>Story</option><option>Bug</option><option>Task</option><option>Epic</option>
-            </select>
-          </div>
-          <div class="cf"><label>Summary *</label>
-            <input id="jira-create-summary" placeholder="As a [user], I want to [action]…"/>
-          </div>
-          <div class="cf"><label>Description / Acceptance Criteria</label>
-            <textarea id="jira-create-desc" style="height:100px;resize:vertical" placeholder="AC, context, notes…"></textarea>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-            <div class="cf"><label>Priority</label>
-              <select id="jira-create-priority" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:12px;color:var(--text);font-family:inherit;outline:none">
-                <option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option><option>Lowest</option>
-              </select>
-            </div>
-            <div class="cf"><label>Story Points</label>
-              <input id="jira-create-sp" type="number" placeholder="3" style="max-width:100%"/>
-            </div>
-          </div>
-          <div class="cf"><label>Labels (comma separated)</label>
-            <input id="jira-create-labels" placeholder="g0-gate, harbour-platform"/>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:8px">
-            <button class="btn" id="jira-push-btn" onclick="jiraCreateIssue()" style="background:#0052CC;border-color:#0052CC;flex:1">🚀 Push to Jira</button>
-            <button class="gbtn" onclick="jiraAiWriteStory()">🧠 AI Write</button>
-          </div>
-          <div id="jira-created-result" style="display:none;margin-top:10px;background:var(--green-l);border:0.5px solid rgba(0,200,150,0.3);border-radius:8px;padding:10px">
-            <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">✅ Issue created!</div>
-            <a id="jira-created-key" href="#" target="_blank" style="font-size:13px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#4C9AFF;text-decoration:none"></a>
-          </div>
-        </div>
-        <div>
-          <div style="font-size:11px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px">🧠 AI Story Writer</div>
-          <div style="font-size:10px;color:var(--muted2);margin-bottom:8px">Describe what you need — AI writes the full story with AC</div>
-          <textarea id="jira-ai-input" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:8px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;resize:none;min-height:80px" placeholder="e.g. Users need to save G0 gate progress and resume without losing data…"></textarea>
-          <div style="display:flex;gap:6px;margin:8px 0">
-            <button class="gbtn" onclick="jiraAiWriteStory()" style="flex:1;font-size:10px">✨ Write Story</button>
-            <button class="gbtn" onclick="jiraAiWriteAC()" style="flex:1;font-size:10px">📋 Write AC</button>
-            <button class="gbtn" onclick="jiraAiBulkCreate()" style="flex:1;font-size:10px">⚡ Bulk Create</button>
-          </div>
-          <div id="jira-ai-write-out" style="display:none;background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;padding:10px;font-size:11px;line-height:1.65;color:var(--text);max-height:250px;overflow-y:auto"></div>
-          <button id="jira-ai-fill-btn" onclick="jiraFillFromAI()" style="display:none;width:100%;margin-top:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:7px;padding:6px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit">↑ Fill form from AI output</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- SEARCH SUB-PANEL -->
+    <!-- ── SEARCH ─────────────────────────────────────────── -->
     <div id="jsub-search" class="jira-sub-panel" style="display:none">
       <div style="display:flex;gap:8px;margin-bottom:10px">
-        <input id="jira-jql-input" placeholder="project = HRB AND sprint in openSprints() ORDER BY priority DESC" style="flex:1;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:8px 11px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none" onkeydown="if(event.key==='Enter')runJiraJQL()"/>
-        <button class="btn" onclick="runJiraJQL()" style="background:#0052CC;border-color:#0052CC;white-space:nowrap">Run JQL</button>
+        <input id="jira-jql-input" placeholder="project = HIP AND status != Done ORDER BY priority DESC" onkeydown="if(event.key==='Enter')runJiraJQL()" style="flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:7px 11px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none"/>
+        <button class="btn" onclick="runJiraJQL()" style="background:#0052CC;border-color:#0052CC;white-space:nowrap;font-size:11px">Run JQL</button>
       </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px">
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND sprint in openSprints() ORDER BY priority DESC')">🏃 Open Sprint</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND issuetype = Bug AND status != Done ORDER BY priority DESC')">🐛 Open Bugs</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND issuetype = Story AND status = "To Do" ORDER BY created DESC')">📗 Stories</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND priority in (Highest,High) AND status != Done')">🔴 High Priority</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND updated >= -7d ORDER BY updated DESC')">🕐 Last 7 days</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HRB AND labels = "g0-gate" ORDER BY priority DESC')">🏷 g0-gate</button>
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND sprint in openSprints() ORDER BY priority DESC')">🏃 Open Sprint</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND issuetype = Bug AND status != Done ORDER BY priority DESC')">🐛 Open Bugs</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND issuetype = Story AND status = "To Do" ORDER BY created DESC')">📗 Stories</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND priority in (Highest,High) AND status != Done')">🔴 High Priority</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND updated >= -7d ORDER BY updated DESC')">🕐 Last 7 days</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQL('project = HIP AND labels = "g0-gate" ORDER BY priority DESC')">🏷 g0-gate</button>
       </div>
-      <div id="jira-search-results">
-        <div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Run a JQL query to see results</div>
-      </div>
+      <div id="jira-search-results"><div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Run a JQL query to see results</div></div>
     </div>
 
   </div>
@@ -25721,916 +25713,450 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
 
 
 <!-- ══ JIRA CONNECT MODAL ══════════════════════════════════════ -->
-<div id="jira-modal">
-  <div id="jira-modal-inner">
+<div id="jira-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:3000;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;width:420px;max-width:95vw;box-shadow:0 8px 40px rgba(0,0,0,.6)">
     <div style="padding:16px 20px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;justify-content:space-between">
       <div style="font-size:13px;font-weight:700">🔗 Connect to Jira</div>
       <button onclick="closeJiraConnectModal()" style="background:var(--bg3);border:none;border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted2);cursor:pointer">✕</button>
     </div>
     <div style="padding:18px 20px;display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:11px;color:var(--muted2);line-height:1.5">Enter your Atlassian credentials. Your API token is stored only in localStorage — never sent anywhere except directly to Jira.</div>
-      <div class="cf"><label>Atlassian Domain</label><input id="jm-domain" value="ebdae.atlassian.net" placeholder="yourcompany.atlassian.net"/></div>
+      <div style="font-size:11px;color:var(--muted2);background:var(--bg3);border-radius:7px;padding:8px 10px">
+        📖 <strong>Read-only mode</strong> — credentials stored in localStorage only. Proxy URL not required for read operations.
+      </div>
+      <div class="cf"><label>Atlassian Domain</label><input id="jm-domain" placeholder="yourcompany.atlassian.net" value="ebdae.atlassian.net"/></div>
       <div class="cf"><label>Email</label><input id="jm-email" type="email" placeholder="you@company.com"/></div>
-      <div class="cf" style="position:relative">
-        <label>API Token <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" style="color:#4C9AFF;font-size:9px;text-decoration:none">Get token ↗</a></label>
+      <div class="cf"><label>API Token <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" style="color:#4C9AFF;font-size:9px;text-decoration:none">Get token ↗</a></label>
         <input id="jm-token" type="password" placeholder="ATATT3xFfGF0…"/>
       </div>
-      <div class="cf" style="position:relative">
-        <label>Vercel Proxy URL <span style="font-size:9px;color:var(--muted2)">(after deploying — fixes CORS)</span></label>
-        <input id="jm-proxy" placeholder="https://prodmind-jira-proxy.vercel.app"/>
-      </div>
-      <button onclick="saveJiraConfig()" style="background:#0052CC;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s" onmouseover="this.style.opacity='.88'" onmouseout="this.style.opacity='1'">Save & Connect</button>
-      <div id="jm-status" style="font-size:10px;color:var(--muted2);text-align:center;min-height:14px"></div>
+      <button onclick="saveJiraConfig()" style="background:#0052CC;color:#fff;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Save & Test Connection</button>
+      <div id="jm-status" style="font-size:11px;text-align:center;min-height:16px;font-weight:500"></div>
     </div>
   </div>
 </div>
 
-<!-- ══ JIRA PUSH MODAL ═════════════════════════════════════════ -->
-<div id="jira-push-modal">
-  <div id="jira-push-inner">
-    <div style="padding:14px 18px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:10px;position:sticky;top:0;background:var(--bg2);z-index:1">
-      <span style="font-size:13px;font-weight:700">🔗 Push to Jira</span>
-      <span id="jpm-auto-type" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:4px;background:var(--accent-l);color:var(--accent);border:0.5px solid var(--accent-m)"></span>
-      <button onclick="closeJiraPushModal()" style="margin-left:auto;background:var(--bg3);border:none;border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted2);cursor:pointer">✕</button>
+<!-- ══ JIRA ISSUE DETAIL MODAL ══════════════════════════════════ -->
+<div id="jira-issue-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:3500;display:none;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;width:700px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 48px rgba(0,0,0,.7)">
+    <div style="padding:14px 18px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px;position:sticky;top:0;background:var(--bg2);z-index:1">
+      <span id="jim-key" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#4C9AFF;font-weight:700"></span>
+      <span id="jim-type"></span>
+      <span id="jim-status-badge"></span>
+      <a id="jim-open-jira-btn" href="#" target="_blank" style="font-size:10px;color:#4C9AFF;text-decoration:none">↗ Open in Jira</a>
+      <button onclick="closeIssueModal()" style="margin-left:auto;background:var(--bg3);border:none;border-radius:6px;padding:5px 11px;font-size:11px;color:var(--muted2);cursor:pointer">✕</button>
     </div>
-    <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
-      <!-- Content preview -->
-      <div>
-        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);margin-bottom:5px">Content to push</div>
-        <div id="jpm-preview" style="background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;padding:10px;font-size:11px;color:var(--text);max-height:160px;overflow-y:auto;line-height:1.55;white-space:pre-wrap"></div>
+    <div style="padding:18px 20px">
+      <div id="jim-title" style="font-size:16px;font-weight:700;margin-bottom:14px;line-height:1.4;color:var(--text)"></div>
+      <div id="jim-meta" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px"></div>
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Description</div>
+      <div id="jim-desc" style="background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;color:var(--muted2);line-height:1.65;white-space:pre-wrap;max-height:180px;overflow-y:auto;margin-bottom:14px"></div>
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">🧠 Run any ProdMind Brain on this issue</div>
+      <div id="jim-brain-btns" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px"></div>
+      <!-- Doc Analysis quick buttons -->
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:10px 0 6px">📄 Doc Analyser — load ticket then run</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px">
+        <button onclick="loadAndAnalyse('summary')"   style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">📋 Summary</button>
+        <button onclick="loadAndAnalyse('acceptance')" style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">✅ AC</button>
+        <button onclick="loadAndAnalyse('gaps')"      style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">🔍 Gaps</button>
+        <button onclick="loadAndAnalyse('stories')"   style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">✍️ Stories</button>
+        <button onclick="loadAndAnalyse('risks')"     style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">⚠️ Risks</button>
+        <button onclick="loadAndAnalyse('brd')"       style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">📘 BRD</button>
+        <button onclick="loadAndAnalyse('testplan')"  style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">🧪 Test Plan</button>
+        <button onclick="loadAndAnalyse('usecase')"   style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">🎭 Use Cases</button>
+        <button onclick="loadAndAnalyse('dor')"       style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">✔️ DoR Check</button>
+        <button onclick="loadAndAnalyse('dependencies')" style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">🔗 Dependencies</button>
+        <button onclick="loadAndAnalyse('impact')"    style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">💥 Impact</button>
+        <button onclick="loadAndAnalyse('questions')" style="font-size:9px;padding:3px 8px;border-radius:5px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);cursor:pointer;font-family:inherit">❓ Open Qs</button>
       </div>
-      <!-- Smart detection notice -->
-      <div id="jpm-detection" style="font-size:10px;color:var(--muted2);background:var(--bg3);border-radius:6px;padding:7px 10px;display:none"></div>
-      <!-- Push options -->
+      <div id="jim-ai-out" style="display:none;background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:12px;font-size:12px;line-height:1.65;color:var(--text);max-height:340px;overflow-y:auto;margin-bottom:12px"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        <div class="cf"><label>Project</label>
-          <select id="jpm-project" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
-            <option value="HRB">Digital Futures Harbour (HRB)</option>
-            <option value="HIP">Harbour - Linkon (HIP)</option>
-            <option value="HUP">Harbour - Mirros (HUP)</option>
-            <option value="MIN">Harbour - Mindra (MIN)</option>
-            <option value="SHL">Harbour - Shellix (SHL)</option>
-          </select>
-        </div>
-        <div class="cf"><label>Issue Type</label>
-          <select id="jpm-type" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
-            <option>Story</option><option>Bug</option><option>Task</option><option>Epic</option>
-          </select>
-        </div>
-        <div class="cf" style="grid-column:1/-1"><label>Summary (Title)</label>
-          <input id="jpm-summary" placeholder="Issue title…" style="font-size:12px"/>
-        </div>
-        <div class="cf"><label>Priority</label>
-          <select id="jpm-priority" style="width:100%;background:var(--input-bg);border:0.5px solid var(--border2);border-radius:7px;padding:7px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
-            <option>Highest</option><option>High</option><option selected>Medium</option><option>Low</option>
-          </select>
-        </div>
-        <div class="cf"><label>Story Points</label>
-          <input id="jpm-sp" type="number" placeholder="e.g. 3"/>
-        </div>
-        <div class="cf" style="grid-column:1/-1"><label>Labels</label>
-          <input id="jpm-labels" placeholder="prodmind, g0-gate, harbour-platform"/>
-        </div>
+        <button id="jim-chat-btn" style="background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:8px;padding:9px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit">💬 Open in AI Chat</button>
+        <button onclick="loadIssueIntoDocAnalyser()" style="background:rgba(0,200,150,0.1);border:0.5px solid rgba(0,200,150,0.3);border-radius:8px;padding:9px;font-size:11px;font-weight:600;color:#00C896;cursor:pointer;font-family:inherit">📄 Load into Doc Analyser</button>
       </div>
-      <!-- Push options: single or bulk -->
-      <div id="jpm-bulk-section" style="display:none">
-        <div style="font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">⚡ Bulk push detected — create as separate issues?</div>
-        <div id="jpm-bulk-list" style="background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;padding:8px;font-size:11px;color:var(--text);max-height:120px;overflow-y:auto"></div>
-      </div>
-      <!-- Actions -->
-      <div style="display:flex;gap:8px">
-        <button id="jpm-push-btn" onclick="executePushToJira()" style="flex:1;background:#0052CC;color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px">🚀 Push to Jira</button>
-        <button id="jpm-bulk-btn" onclick="executeBulkPushToJira()" style="flex:1;display:none;background:var(--green);color:#fff;border:none;border-radius:8px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Bulk Create All</button>
-        <button onclick="closeJiraPushModal()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:9px 14px;font-size:12px;color:var(--muted2);cursor:pointer;font-family:inherit">Cancel</button>
-      </div>
-      <!-- Result -->
-      <div id="jpm-result" style="display:none;background:var(--green-l);border:0.5px solid rgba(0,200,150,0.3);border-radius:8px;padding:10px">
-        <div style="font-size:11px;font-weight:700;color:var(--green);margin-bottom:4px">✅ Created!</div>
-        <a id="jpm-result-key" href="#" target="_blank" style="font-size:13px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#4C9AFF;text-decoration:none"></a>
-      </div>
+      <div id="jim-doc-status" style="display:none;font-size:10px;text-align:center;padding:6px;border-radius:6px;font-weight:600;margin-top:4px"></div>
     </div>
   </div>
 </div>
 
 <script>
 // ══════════════════════════════════════════════════════════════
-//  PRODMIND × JIRA INTEGRATION ENGINE
+//  JIRA READ-ONLY ENGINE — ProdMind
+//  Read: board, backlog, search, issue detail + AI analysis
+//  Write: disabled until post-demo
 // ══════════════════════════════════════════════════════════════
 
-// ── Config ────────────────────────────────────────────────────
 let jiraConfig = null;
-let _jiraPushPayload = { rawText:'', sourceType:'auto' };
+let _jiraContextIssue = null;
+let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
 
-(function initJira(){
+// ── Init: restore saved config ────────────────────────────────
+(function(){
   const saved = localStorage.getItem('pm_jira_config');
-  if(saved){ jiraConfig = JSON.parse(saved); updateJiraStatusUI(); }
-  // Restore email from localStorage if present
-  const email = localStorage.getItem('pm_jira_email');
-  if(email) { const el = document.getElementById('jm-email'); if(el) el.value = email; }
+  if(saved){
+    try { jiraConfig = JSON.parse(saved); } catch(_){}
+  }
+  // Pre-fill modal fields if saved
+  if(jiraConfig){
+    const d=document.getElementById('jm-domain'); if(d) d.value=jiraConfig.domain||'';
+    const e=document.getElementById('jm-email');  if(e) e.value=jiraConfig.email||'';
+  }
 })();
 
-function updateJiraStatusUI(testResult){
-  try {
-    const dot    = document.getElementById('jira-status-dot');
-    const txt    = document.getElementById('jira-status-text');
-    const btn    = document.getElementById('jira-connect-btn');
-    const banner = document.getElementById('jira-status-banner');
-    const detail = document.getElementById('jira-conn-detail');
-    const testBtn= document.getElementById('jira-test-btn');
-    if(!dot || !txt) return;
+// ── Connect modal ─────────────────────────────────────────────
+function openJiraConnectModal(){
+  const el = document.getElementById('jira-modal');
+  if(!el) return;
+  if(jiraConfig){
+    const d=document.getElementById('jm-domain'); if(d) d.value=jiraConfig.domain||'ebdae.atlassian.net';
+    const e=document.getElementById('jm-email');  if(e) e.value=jiraConfig.email||'';
+  }
+  el.style.display='flex';
+}
+function closeJiraConnectModal(){
+  const el=document.getElementById('jira-modal');
+  if(el) el.style.display='none';
+}
 
-    if(!jiraConfig){
-      dot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#666;transition:all .3s';
-      txt.style.color = 'var(--muted2)';
-      txt.textContent = 'Not connected — click ⚙ Configure to connect';
-      if(banner) banner.style.background = 'var(--bg2)';
-      return;
+// ── Save config and test ──────────────────────────────────────
+async function saveJiraConfig(){
+  const domain = document.getElementById('jm-domain').value.trim().replace(/^https?:\/\//,'');
+  const email  = document.getElementById('jm-email').value.trim();
+  const token  = document.getElementById('jm-token').value.trim();
+  const st     = document.getElementById('jm-status');
+
+  if(!domain||!email||!token){
+    if(st){st.textContent='⚠ Fill in all three fields';st.style.color='var(--red)';}
+    return;
+  }
+
+  jiraConfig = { domain, email, token };
+  localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
+
+  if(st){ st.textContent='Testing connection…'; st.style.color='var(--muted2)'; }
+
+  try{
+    const res = await jiraFetch('/myself');
+    if(res.ok){
+      const data = await res.json();
+      const name = data.displayName||data.name||email;
+      if(st){ st.textContent='✅ Connected as '+name; st.style.color='#00C896'; }
+      setTimeout(closeJiraConnectModal, 1200);
+      setJiraStatusConnected(name, domain);
+      toast('✅ Jira connected as '+name,'success');
+    } else {
+      if(st){ st.textContent='⚠ Saved but test failed (HTTP '+res.status+') — check API token'; st.style.color='var(--yellow)'; }
+      setJiraStatusCredentialsSaved(domain, email);
     }
+  } catch(e){
+    if(st){ st.textContent='⚠ Saved — CORS blocked direct call. Board will still work via API.'; st.style.color='var(--yellow)'; }
+    setJiraStatusCredentialsSaved(domain, email);
+    setTimeout(closeJiraConnectModal, 2000);
+  }
+}
 
-    // Connected — show credentials loaded
-    const domain = (jiraConfig.domain||'ebdae').replace('.atlassian.net','');
-    dot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#F5A623;box-shadow:0 0 6px #F5A623;transition:all .3s';
-    txt.style.color = '#F5A623';
-    txt.textContent = 'Credentials loaded — ' + domain + ' · ' + jiraConfig.email;
-    if(banner) banner.style.background = 'rgba(245,166,35,0.06)';
-    if(btn){ btn.textContent = '⚙ Reconfigure'; btn.style.color='#F5A623'; }
-    if(testBtn) testBtn.style.display = 'block';
+// ── Status banner helpers ─────────────────────────────────────
+function setJiraStatusDisconnected(){
+  const dot=document.getElementById('jira-status-dot');
+  const txt=document.getElementById('jira-status-text');
+  const sub=document.getElementById('jira-status-sub');
+  const banner=document.getElementById('jira-status-banner');
+  const btn=document.getElementById('jira-connect-btn');
+  const testBtn=document.getElementById('jira-test-btn');
+  if(dot){ dot.style.cssText='width:10px;height:10px;border-radius:50%;background:#666;flex-shrink:0'; }
+  if(txt){ txt.textContent='Not connected — click ⚙ Configure to connect'; txt.style.color='var(--muted2)'; }
+  if(sub){ sub.textContent=''; }
+  if(banner){ banner.style.background='var(--bg2)'; banner.style.borderColor='var(--border)'; }
+  if(btn){ btn.textContent='⚙ Configure'; btn.style.color='var(--muted2)'; }
+  if(testBtn) testBtn.style.display='none';
+}
 
-    // If test result passed in
-    if(testResult === 'ok'){
-      dot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#00C896;box-shadow:0 0 8px #00C896;transition:all .3s';
-      txt.style.color = '#00C896';
-      txt.textContent = '✅ Connected · ' + domain + ' · ' + jiraConfig.email + ' · Read-Only';
-      if(banner) banner.style.background = 'rgba(0,200,150,0.06)';
-      if(btn){ btn.textContent = '⚙ Reconfigure'; btn.style.color='#00C896'; }
-      if(detail){
-        detail.style.display = 'flex';
-        detail.innerHTML = '<span style="background:rgba(0,200,150,0.1);border:0.5px solid rgba(0,200,150,0.3);border-radius:4px;padding:2px 8px;color:#00C896">📖 Read-Only</span>' +
-          '<span>Cloud: fd834394</span><span>Projects: HRB · HIP · HUP · MIN · SHL</span><span>API: Atlassian Cloud v3</span>';
-      }
-    } else if(testResult === 'fail'){
-      dot.style.cssText = 'width:10px;height:10px;border-radius:50%;background:#FF4757;box-shadow:0 0 6px #FF4757;transition:all .3s';
-      txt.style.color = '#FF4757';
-      txt.textContent = '⚠ Credentials saved but connection test failed — check API token or proxy URL';
-      if(banner) banner.style.background = 'rgba(255,71,87,0.06)';
-    }
-  } catch(e) { /* element not in DOM yet */ }
+function setJiraStatusCredentialsSaved(domain, email){
+  const dot=document.getElementById('jira-status-dot');
+  const txt=document.getElementById('jira-status-text');
+  const sub=document.getElementById('jira-status-sub');
+  const banner=document.getElementById('jira-status-banner');
+  const btn=document.getElementById('jira-connect-btn');
+  const testBtn=document.getElementById('jira-test-btn');
+  if(dot){ dot.style.cssText='width:10px;height:10px;border-radius:50%;background:#F5A623;box-shadow:0 0 6px #F5A623;flex-shrink:0'; }
+  if(txt){ txt.textContent='Credentials saved — testing…'; txt.style.color='#F5A623'; }
+  if(sub){ sub.textContent=domain+' · '+email; }
+  if(banner){ banner.style.background='rgba(245,166,35,0.06)'; banner.style.borderColor='rgba(245,166,35,0.3)'; }
+  if(btn){ btn.textContent='⚙ Reconfigure'; btn.style.color='#F5A623'; }
+  if(testBtn) testBtn.style.display='block';
+}
+
+function setJiraStatusConnected(name, domain){
+  const dot=document.getElementById('jira-status-dot');
+  const txt=document.getElementById('jira-status-text');
+  const sub=document.getElementById('jira-status-sub');
+  const banner=document.getElementById('jira-status-banner');
+  const btn=document.getElementById('jira-connect-btn');
+  const testBtn=document.getElementById('jira-test-btn');
+  if(dot){ dot.style.cssText='width:10px;height:10px;border-radius:50%;background:#00C896;box-shadow:0 0 8px #00C896;flex-shrink:0'; }
+  if(txt){ txt.textContent='✅ Connected · '+name+' · Read-Only'; txt.style.color='#00C896'; }
+  if(sub){ sub.textContent='Instance: '+domain+' · Projects: HRB · HIP · HUP · SHL · API: Atlassian Cloud v3'; }
+  if(banner){ banner.style.background='rgba(0,200,150,0.05)'; banner.style.borderColor='rgba(0,200,150,0.3)'; }
+  if(btn){ btn.textContent='⚙ Reconfigure'; btn.style.color='#00C896'; }
+  if(testBtn) testBtn.style.display='block';
 }
 
 // ── Live connection test ──────────────────────────────────────
 async function testJiraConnection(){
   if(!jiraConfig){ toast('Configure Jira first','warning'); return; }
-  const testBtn = document.getElementById('jira-test-btn');
-  const txt     = document.getElementById('jira-status-text');
-  if(testBtn){ testBtn.textContent = '↻ Testing…'; testBtn.disabled = true; }
-  if(txt){ txt.textContent = 'Testing connection…'; txt.style.color = 'var(--muted2)'; }
-  try {
+  const testBtn=document.getElementById('jira-test-btn');
+  const txt=document.getElementById('jira-status-text');
+  if(testBtn){ testBtn.textContent='Testing…'; testBtn.disabled=true; }
+  if(txt){ txt.textContent='Testing connection…'; txt.style.color='var(--muted2)'; }
+  try{
     const res = await jiraFetch('/myself');
     if(res.ok){
       const data = await res.json();
-      const name = data.displayName || data.name || jiraConfig.email;
-      updateJiraStatusUI('ok');
-      // Update text with real user name
-      const txt2 = document.getElementById('jira-status-text');
-      if(txt2) txt2.textContent = '✅ Connected · ' + name + ' · ebdae · Read-Only';
-      toast('✅ Jira connected as ' + name, 'success');
+      const name = data.displayName||data.name||jiraConfig.email;
+      setJiraStatusConnected(name, jiraConfig.domain);
+      toast('✅ Jira connected as '+name,'success');
     } else {
-      updateJiraStatusUI('fail');
-      toast('⚠ Connection test failed: HTTP ' + res.status, 'warning');
+      document.getElementById('jira-status-text').textContent='⚠ HTTP '+res.status+' — check API token';
+      document.getElementById('jira-status-text').style.color='var(--red)';
     }
   } catch(e){
-    updateJiraStatusUI('fail');
-    toast('⚠ Connection error: ' + e.message, 'warning');
+    document.getElementById('jira-status-text').textContent='⚠ '+e.message;
+    document.getElementById('jira-status-text').style.color='var(--red)';
   }
-  if(testBtn){ testBtn.textContent = '↻ Test'; testBtn.disabled = false; }
+  if(testBtn){ testBtn.textContent='↻ Test Connection'; testBtn.disabled=false; }
 }
 
-// ── Connect modal ─────────────────────────────────────────────
-function openJiraConnectModal(){
-  document.getElementById('jira-modal').classList.add('show');
-  if(jiraConfig){
-    const d=document.getElementById('jm-domain'); if(d) d.value=jiraConfig.domain;
-    const e=document.getElementById('jm-email'); if(e) e.value=jiraConfig.email;
-    const t=document.getElementById('jm-token'); if(t) t.value=jiraConfig.token;
-  }
-}
-function closeJiraConnectModal(){ document.getElementById('jira-modal').classList.remove('show'); }
-
-function saveJiraConfig(){
-  const domain = document.getElementById('jm-domain').value.trim().replace(/^https?:\/\//,'');
-  const email  = document.getElementById('jm-email').value.trim();
-  const token  = document.getElementById('jm-token').value.trim();
-  const proxy  = (document.getElementById('jm-proxy')?.value||'').trim().replace(/\/+$/,'');
-  const st     = document.getElementById('jm-status');
-  if(!domain||!email||!token){ if(st){st.textContent='Fill in all fields'; st.style.color='var(--red)';} return; }
-
-  // Save immediately — don't block on test call
-  jiraConfig = { domain, email, token };
-  localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
-  localStorage.setItem('pm_jira_email', email);
-  if(proxy){ localStorage.setItem('pm_jira_proxy', proxy); jiraProxyUrl = proxy; }
-
-  if(st){ st.textContent='✅ Saved!'; st.style.color='var(--green)'; }
-  updateJiraStatusUI();
-
-  // Close modal immediately
-  setTimeout(closeJiraConnectModal, 600);
-
-  // Auto-run connection test in background
-  jiraFetch('/myself').then(r=>{
-    if(r.ok){
-      r.json().then(data => {
-        const name = data.displayName || data.name || email;
-        updateJiraStatusUI('ok');
-        const txt2 = document.getElementById('jira-status-text');
-        if(txt2) txt2.textContent = '✅ Connected · ' + name + ' · ' + domain.replace('.atlassian.net','') + ' · Read-Only';
-        toast('✅ Jira connected as ' + name, 'success');
-      }).catch(()=>{ updateJiraStatusUI('ok'); toast('✅ Jira connected!', 'success'); });
-    } else {
-      updateJiraStatusUI('fail');
-      toast('⚠ Credentials saved but test failed: HTTP ' + r.status, 'warning');
-    }
-  }).catch(e=>{
-    updateJiraStatusUI('fail');
-    toast('⚠ Credentials saved. Test error: ' + e.message, 'warning');
-  });
-}
-
-// ── Jira fetch helper ─────────────────────────────────────────
-// ── Jira Cloud ID (Abhinav's instance) ──────────────────────
+// ── Jira API fetch (direct to Atlassian Cloud) ────────────────
 const JIRA_CLOUD_ID = 'fd834394-ca79-4414-b7b9-86c7a47cf3e1';
-
-let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
-
-function setJiraProxy(url){
-  localStorage.setItem('pm_jira_proxy', url.trim().replace(/\/+$/, ''));
-  jiraProxyUrl = url.trim().replace(/\/+$/, '');
-  toast('✅ Proxy URL saved!', 'success');
-}
 
 async function jiraFetch(path, opts={}){
   if(!jiraConfig) throw new Error('Jira not configured');
-
-  // Atlassian Cloud REST API — correct base URL for cloud instances
-  // Uses: https://api.atlassian.com/ex/jira/{cloudId}/rest/api/3{path}
-  const jiraBase = '/rest/api/3' + path;
-
-  // ── Via proxy (no CORS) ────────────────────────────────────
-  if(jiraProxyUrl){
-    const proxyUrl = jiraProxyUrl + '/api/jira?path=' + encodeURIComponent(jiraBase);
-    return fetch(proxyUrl, {
-      ...opts,
-      headers:{
-        'Content-Type':'application/json',
-        'Accept':'application/json',
-        'X-Jira-Domain': 'api.atlassian.com',
-        'X-Jira-Cloudid': JIRA_CLOUD_ID,
-        'X-Jira-Email': jiraConfig.email,
-        'X-Jira-Token': jiraConfig.token,
-        ...(opts.headers||{})
-      }
-    });
-  }
-
-  // ── Direct call (Atlassian Cloud API with OAuth token) ─────
-  // Atlassian cloud REST v3 — uses api.atlassian.com not instance domain
-  const creds = btoa(jiraConfig.email + ':' + jiraConfig.token);
-  const url = 'https://api.atlassian.com/ex/jira/' + JIRA_CLOUD_ID + jiraBase;
+  const creds = btoa(jiraConfig.email+':'+jiraConfig.token);
+  const url = 'https://api.atlassian.com/ex/jira/'+JIRA_CLOUD_ID+'/rest/api/3'+path;
   return fetch(url, {
     ...opts,
     headers:{
-      'Authorization': 'Basic ' + creds,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
+      'Authorization':'Basic '+creds,
+      'Content-Type':'application/json',
+      'Accept':'application/json',
       ...(opts.headers||{})
-    },
-    mode: 'cors'
+    }
   });
 }
 
-function jiraADFBody(text){
-  if(!text) return undefined;
-  return { type:'doc', version:1, content:[{ type:'paragraph', content:[{ type:'text', text }] }] };
+// ── ADF text extractor ────────────────────────────────────────
+function _adfToText(node){
+  if(!node) return '';
+  if(typeof node==='string') return node;
+  if(node.type==='text') return node.text||'';
+  if(node.type==='hardBreak') return '\n';
+  if(node.content) return node.content.map(_adfToText).join('');
+  return '';
 }
 
-// ── Project-specific required fields (discovered from Jira metadata) ──
-// HIP/HUP/SHL = Story Points field is customfield_10028
-// Task type in HIP requires customfield_11754 (Task Category)
-// Default issue type to Story to avoid required field issues with Task
-function buildJiraCreateBody(project, type, summary, desc, priority, sp, labels){
-  // Always default Task → Story to avoid customfield_11754 requirement
-  const safeType = (type === 'Task') ? 'Story' : type;
-
-  const fields = {
-    project: { key: project },
-    summary,
-    issuetype: { name: safeType },
-    priority: { name: priority || 'Medium' },
-  };
-
-  if(desc) fields.description = jiraADFBody(desc);
-  if(labels && labels.length) fields.labels = labels;
-
-  // Story Points — HIP/HUP/SHL use customfield_10028
-  if(sp){
-    fields.customfield_10028 = parseFloat(sp); // Harbour projects
-    fields.customfield_10016 = parseFloat(sp); // fallback for other projects
-  }
-
-  return { fields };
+function escapeHtml(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// ── Smart content detection ───────────────────────────────────
-function detectContentType(text){
-  const t = text.toLowerCase();
-  // Bug list detection
-  if((t.match(/bug|fix|broken|error|crash|fails?|issue/g)||[]).length > 2) return { type:'Bug', confidence:'high', reason:'Multiple bug-related terms detected' };
-  // User story detection
-  if(t.includes('as a') && (t.includes('i want') || t.includes('so that'))) return { type:'Story', confidence:'high', reason:'User story format detected' };
-  // Acceptance criteria
-  if(t.includes('acceptance criteria') || t.includes('given') && t.includes('when') && t.includes('then')) return { type:'Story', confidence:'medium', reason:'AC/BDD format detected' };
-  // Sprint goal / planning
-  if(t.includes('sprint goal') || t.includes('sprint planning')) return { type:'Task', confidence:'medium', reason:'Sprint planning content' };
-  // Epic / roadmap
-  if(t.includes('epic') || t.includes('initiative') || t.includes('roadmap')) return { type:'Epic', confidence:'medium', reason:'Epic/initiative scope detected' };
-  // Multi-line list = potential bulk
-  const lines = text.split('
-').filter(l => l.trim().match(/^(\d+\.|-|\*|\[)/));
-  if(lines.length > 3) return { type:'Story', confidence:'medium', reason:`${lines.length} items detected — consider bulk create`, bulk:lines };
-  return { type:'Story', confidence:'low', reason:'Defaulting to Story' };
-}
-
-function extractSummary(text){
-  // Try to get first line or SUMMARY: line
-  const sumLine = text.match(/SUMMARY:\s*(.+)/i);
-  if(sumLine) return sumLine[1].trim().slice(0,200);
-  // First non-empty line under 200 chars
-  const firstLine = text.split('
-').find(l => l.trim() && l.trim().length < 200);
-  if(firstLine) return firstLine.replace(/^[#\-\*\d\.>\s]+/,'').trim().slice(0,200);
-  return text.slice(0,120).trim();
-}
-
-// ── Open push modal from chat msg ────────────────────────────
-function openJiraPush(msgId){
-  const el = document.getElementById(msgId);
-  if(!el) return;
-  const text = el.innerText || el.textContent || '';
-  openJiraPushText(null, 'auto', text);
-}
-
-function openJiraPushText(elemId, sourceType, overrideText){
-  let text = overrideText || '';
-  if(!text && elemId){
-    const el = document.getElementById(elemId);
-    text = el ? (el.innerText || el.textContent || '') : '';
-  }
-  if(!text){ toast('No content to push','warning'); return; }
-  if(!jiraConfig){ openJiraConnectModal(); toast('Configure Jira connection first','warning'); return; }
-
-  _jiraPushPayload = { rawText: text, sourceType };
-
-  const detected = detectContentType(text);
-  const modal = document.getElementById('jira-push-modal');
-  const preview = document.getElementById('jpm-preview');
-  const detection = document.getElementById('jpm-detection');
-  const typeTag = document.getElementById('jpm-auto-type');
-  const bulkSection = document.getElementById('jpm-bulk-section');
-  const bulkBtn = document.getElementById('jpm-bulk-btn');
-  const pushBtn = document.getElementById('jpm-push-btn');
-
-  // Fill preview
-  preview.textContent = text.slice(0,800) + (text.length > 800 ? '
-…' : '');
-
-  // Auto-fill type
-  document.getElementById('jpm-type').value = detected.type;
-  typeTag.textContent = detected.type;
-
-  // Auto-fill summary
-  document.getElementById('jpm-summary').value = extractSummary(text);
-
-  // Auto-fill labels based on source
-  const autoLabels = { 'doc':'prodmind-doc', 'mom':'mom-action', 'sprint-health':'sprint-health', 'auto':'prodmind' };
-  document.getElementById('jpm-labels').value = autoLabels[sourceType] || 'prodmind';
-
-  // Show detection reason
-  detection.style.display = 'block';
-  detection.textContent = '🧠 Detected: ' + detected.reason;
-
-  // Bulk handling
-  if(detected.bulk && detected.bulk.length > 2){
-    bulkSection.style.display = 'block';
-    document.getElementById('jpm-bulk-list').innerHTML = detected.bulk.slice(0,10).map((l,i) =>
-      `<div style="padding:3px 0;border-bottom:0.5px solid var(--border)">${i+1}. ${l.replace(/^[\d\.\-\*\s]+/,'').slice(0,120)}</div>`
-    ).join('');
-    bulkBtn.style.display = 'flex';
-    _jiraPushPayload.bulkItems = detected.bulk;
-  } else {
-    bulkSection.style.display = 'none';
-    bulkBtn.style.display = 'none';
-  }
-
-  document.getElementById('jpm-result').style.display = 'none';
-  pushBtn.disabled = false;
-  pushBtn.innerHTML = '🚀 Push to Jira';
-  modal.classList.add('show');
-}
-
-function closeJiraPushModal(){ document.getElementById('jira-push-modal').classList.remove('show'); }
-
-// ── Execute push ──────────────────────────────────────────────
-async function executePushToJira(){
-  if(!jiraConfig){ toast('Configure Jira first','error'); return; }
-  const btn = document.getElementById('jpm-push-btn');
-  btn.disabled = true; btn.innerHTML = '⏳ Creating…';
-
-  const project  = document.getElementById('jpm-project').value;
-  const type     = document.getElementById('jpm-type').value;
-  const summary  = document.getElementById('jpm-summary').value.trim();
-  const priority = document.getElementById('jpm-priority').value;
-  const sp       = document.getElementById('jpm-sp').value;
-  const labelsRaw= document.getElementById('jpm-labels').value;
-  const labels   = labelsRaw ? labelsRaw.split(',').map(l=>l.trim()).filter(Boolean) : [];
-
-  if(!summary){ toast('Summary required','error'); btn.disabled=false; btn.innerHTML='🚀 Push to Jira'; return; }
-
-  const body = buildJiraCreateBody(
-    project, type, summary,
-    _jiraPushPayload.rawText.slice(0, 5000),
-    priority, sp, labels
-  );
-
-  try{
-    const res = await jiraFetch('/issue',{ method:'POST', body:JSON.stringify(body) });
-    if(res.ok){
-      const data = await res.json();
-      const key = data.key;
-      const link = `https://${jiraConfig.domain}/browse/${key}`;
-      const resultEl = document.getElementById('jpm-result');
-      const keyEl = document.getElementById('jpm-result-key');
-      resultEl.style.display = 'block';
-      keyEl.textContent = `${key} — Open in Jira ↗`;
-      keyEl.href = link;
-      btn.innerHTML = '✅ Created';
-      toast(`✅ ${key} created in ${project}!`,'success');
-    } else {
-      const err = await res.json().catch(()=>({}));
-      const msg = err.errors ? Object.values(err.errors).join(', ') : err.errorMessages?.join(', ')||`HTTP ${res.status}`;
-      toast('Jira error: '+msg,'error');
-      btn.disabled=false; btn.innerHTML='🚀 Push to Jira';
-    }
-  }catch(e){
-    toast('Error: '+e.message,'error');
-    btn.disabled=false; btn.innerHTML='🚀 Push to Jira';
-  }
-}
-
-// ── Bulk push ────────────────────────────────────────────────
-async function executeBulkPushToJira(){
-  if(!jiraConfig || !_jiraPushPayload.bulkItems) return;
-  const project  = document.getElementById('jpm-project').value;
-  const type     = document.getElementById('jpm-type').value;
-  const priority = document.getElementById('jpm-priority').value;
-  const labelsRaw= document.getElementById('jpm-labels').value;
-  const labels   = labelsRaw ? labelsRaw.split(',').map(l=>l.trim()).filter(Boolean) : [];
-
-  const btn = document.getElementById('jpm-bulk-btn');
-  btn.disabled = true;
-  let created=0, failed=0;
-
-  for(const item of _jiraPushPayload.bulkItems){
-    const summary = item.replace(/^[\d\.\-\*\[\]\s]+/,'').trim().slice(0,200);
-    if(!summary) continue;
-    btn.textContent = `Creating ${created+1} of ${_jiraPushPayload.bulkItems.length}…`;
-    try{
-      const body = { fields:{ project:{key:project}, summary, issuetype:{name:type}, priority:{name:priority}, ...(labels.length&&{labels}) }};
-      const r = await jiraFetch('/issue',{method:'POST',body:JSON.stringify(body)});
-      if(r.ok) created++; else failed++;
-      await new Promise(r=>setTimeout(r,250));
-    }catch(e){ failed++; }
-  }
-
-  toast(`✅ Created ${created} issues${failed?`, ${failed} failed`:''} in ${project}!`,'success');
-  btn.textContent = `✅ Created ${created}`;
-  document.getElementById('jpm-result').style.display = 'block';
-  document.getElementById('jpm-result-key').textContent = `${created} issues created in ${project}`;
-  document.getElementById('jpm-result-key').href = `https://${jiraConfig.domain}/browse/${project}`;
-}
-
-// ── Jira Tab: Sub-tab switching ───────────────────────────────
+// ── Sub-tab switching ─────────────────────────────────────────
 function showJiraSubTab(id, el){
   document.querySelectorAll('.jira-sub-panel').forEach(p=>p.style.display='none');
   document.querySelectorAll('.jira-sub-tab').forEach(t=>t.classList.remove('active'));
-  const panel = document.getElementById('jsub-'+id);
+  const panel=document.getElementById('jsub-'+id);
   if(panel) panel.style.display='block';
   if(el) el.classList.add('active');
 }
 
+// ── switchTab hook ────────────────────────────────────────────
+(function(){
+  const _orig = window.switchTab;
+  window.switchTab = function(tab, el){
+    _orig(tab, el);
+    if(tab==='jira'){
+      if(jiraConfig){
+        setJiraStatusCredentialsSaved(jiraConfig.domain, jiraConfig.email);
+        setTimeout(testJiraConnection, 300);
+      } else {
+        setJiraStatusDisconnected();
+      }
+    }
+  };
+})();
+
 // ── Board ─────────────────────────────────────────────────────
 async function loadJiraBoard(){
-  const project = document.getElementById('jira-project-sel').value;
-  const typeFilter = document.getElementById('jira-type-filter').value;
+  const project=document.getElementById('jira-project-sel').value;
+  const typeFilter=document.getElementById('jira-type-filter').value;
   if(!project) return;
   if(!jiraConfig){ openJiraConnectModal(); return; }
-
-  const boardEl = document.getElementById('jira-board-cols');
-  boardEl.innerHTML = `<div style="grid-column:1/-1;display:flex;justify-content:center;padding:32px"><div class="loading"></div></div>`;
-
-  const typeJQL = typeFilter ? ` AND issuetype = "${typeFilter}"` : '';
-  const jql = `project = ${project}${typeJQL} ORDER BY status ASC, priority DESC`;
-
+  const boardEl=document.getElementById('jira-board-cols');
+  boardEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)"><div class="loading"></div></div>';
+  const typeJQL=typeFilter?' AND issuetype = "'+typeFilter+'"':'';
+  const jql='project = '+project+typeJQL+' ORDER BY status ASC, priority DESC';
   try{
-    const res = await jiraFetch(`/search?jql=${encodeURIComponent(jql)}&maxResults=80&fields=summary,status,issuetype,priority,assignee,customfield_10016`);
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
+    const res=await jiraFetch('/search?jql='+encodeURIComponent(jql)+'&maxResults=80&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
     renderJiraBoard(data.issues||[]);
-  }catch(e){
-    boardEl.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)">⚠ ${e.message}<br><span style="font-size:10px">CORS may be blocking — try a browser extension or proxy</span></div>`;
+  } catch(e){
+    boardEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)">⚠ '+e.message+'</div>';
   }
 }
 
 function renderJiraBoard(issues){
-  const COLS = {'To Do':[],'In Progress':[],'In Review':[],'Done':[]};
-  const SCOL = {'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896'};
-  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
-  const PEMU = {'Highest':'🔴','High':'🟠','Medium':'🟡','Low':'🟢','Lowest':'⚪'};
-
+  const SCOL={'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896','READY FOR DEVELOPMENT':'#3B82F6','In Development':'#6C47FF','IN SIT':'#F5A623','SIT DONE':'#00C896','Released to Prod':'#00C896'};
+  const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+  const PEMU={'Highest':'🔴','High':'🟠','Medium':'🟡','Low':'🟢','Lowest':'⚪'};
+  // Group by status category
+  const COLS={'To Do':[],'In Progress':[],'In Review':[],'Done':[]};
   issues.forEach(issue=>{
-    const s = issue.fields.status?.name||'To Do';
-    const col = Object.keys(COLS).find(k=>s.toLowerCase().includes(k.toLowerCase().replace(' ','')))
-      || (s==='Done'?'Done':s.includes('Progress')?'In Progress':s.includes('Review')?'In Review':'To Do');
+    const cat=issue.fields.status?.statusCategory?.name||'To Do';
+    const col=cat==='Done'?'Done':cat==='In Progress'?'In Progress':'To Do';
     if(COLS[col]) COLS[col].push(issue);
-    else COLS['To Do'].push(issue);
   });
-
-  document.getElementById('jira-board-cols').innerHTML = Object.entries(COLS).map(([col,items])=>`
+  document.getElementById('jira-board-cols').innerHTML=Object.entries(COLS).map(([col,items])=>`
     <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:10px">
-      <div class="jira-col-header">
-        <span style="color:${SCOL[col]}">${col}</span>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px 8px;border-bottom:0.5px solid var(--border);margin-bottom:6px">
+        <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${SCOL[col]||'#7a7a90'}">${col}</span>
         <span style="font-size:9px;background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1px 7px;color:var(--muted2)">${items.length}</span>
       </div>
-      ${items.length===0 ? '<div style="font-size:10px;color:var(--muted);text-align:center;padding:12px">No issues</div>' :
+      ${items.length===0?'<div style="font-size:10px;color:var(--muted);text-align:center;padding:12px 0">No issues</div>':
         items.map(issue=>{
           const f=issue.fields;
           const tc=TCOL[f.issuetype?.name]||'#7a7a90';
-          return `<div class="jira-issue-card" style="--jic:${tc}" onclick="openJiraIssueDetail('${issue.key}')">
+          return `<div class="jira-issue-card" style="--jic:${tc}" onclick="loadIssueIntoContext('${issue.key}')">
             <div class="jira-issue-key">${issue.key}</div>
             <div class="jira-issue-title">${escapeHtml(f.summary)}</div>
             <div class="jira-issue-meta">
-              <span class="jira-type-badge" style="background:${tc}18;color:${tc}">${f.issuetype?.name||'Story'}</span>
+              <span class="jira-type-badge" style="background:${tc}18;color:${tc}">${f.issuetype?.name||'?'}</span>
               <span>${PEMU[f.priority?.name]||'⚪'}</span>
               ${f.assignee?`<span style="font-size:9px;color:var(--muted2);margin-left:auto">👤 ${f.assignee.displayName.split(' ')[0]}</span>`:''}
             </div>
           </div>`;
-        }).join('')
-      }
+        }).join('')}
     </div>`).join('');
 }
 
 function filterJiraBoard(q){
   document.querySelectorAll('.jira-issue-card').forEach(c=>{
-    c.style.display = c.textContent.toLowerCase().includes(q.toLowerCase()) ? '' : 'none';
+    c.style.display=c.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';
   });
 }
 
-// ── AI Sprint Review ─────────────────────────────────────────
+// ── AI Sprint Review ──────────────────────────────────────────
 async function aiJiraReview(){
   if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
-  const cards = document.querySelectorAll('.jira-issue-card');
+  const cards=document.querySelectorAll('.jira-issue-card');
   if(!cards.length){ toast('Load board first','warning'); return; }
-  const items = [...cards].map(c=>{
-    const key = c.querySelector('.jira-issue-key')?.textContent||'';
-    const title = c.querySelector('.jira-issue-title')?.textContent||'';
-    const col = c.closest('[style*="background"]')?.querySelector('.jira-col-header span')?.textContent||'';
-    return `[${col}] ${key}: ${title}`;
-  }).join('
-');
-
-  const outEl = document.getElementById('jira-ai-review-out');
-  const textEl = document.getElementById('jira-ai-review-text');
-  outEl.style.display = 'block';
-  textEl.innerHTML = '<div class="loading"></div>';
-
-  const brain = ALL_BRAINS.find(b=>b.id===activeBrain)||{label:'Senior PO'};
+  const items=[...cards].map(c=>{
+    const key=c.querySelector('.jira-issue-key')?.textContent||'';
+    const title=c.querySelector('.jira-issue-title')?.textContent||'';
+    return key+': '+title;
+  }).join('\n');
+  const outEl=document.getElementById('jira-ai-review-out');
+  const textEl=document.getElementById('jira-ai-review-text');
+  outEl.style.display='block';
+  textEl.innerHTML='<div class="loading"></div>';
   try{
-    const res = await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,stream:true,
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,stream:true,
         system:BRAIN_SYSTEM_PROMPTS[activeBrain]||BRAIN_SYSTEM_PROMPTS.po,
-        messages:[{role:'user',content:`Review this sprint board snapshot for ${document.getElementById('jira-project-sel').value}:
-
-${items}
-
-Produce:
-## Sprint Health — RAG status + one honest sentence
-## Blockers & risks — what concerns you?
-## Velocity signal — what does the distribution tell you?
-## Top 3 actions this week`}]})
+        messages:[{role:'user',content:'Review this sprint board:\n\n'+items+'\n\nProduce:\n## Sprint Health (RAG + one honest sentence)\n## Top 3 blockers or risks\n## Velocity signal\n## Recommended actions this week'}]})
     });
-    const reader=res.body.getReader(); const decoder=new TextDecoder(); let buf='',full='';
+    const reader=res.body.getReader();const decoder=new TextDecoder();let buf='',full='';
     textEl.innerHTML='<span class="stream-cursor"></span>';
     while(true){
-      const {done,value}=await reader.read(); if(done)break;
+      const{done,value}=await reader.read();if(done)break;
       buf+=decoder.decode(value,{stream:true});
-      const lines=buf.split('
-'); buf=lines.pop();
+      const lines=buf.split('\n');buf=lines.pop();
       for(const line of lines){
         if(!line.startsWith('data: '))continue;
-        const d=line.slice(6).trim(); if(d==='[DONE]'||!d)continue;
-        try{ const ev=JSON.parse(d); if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){ full+=ev.delta.text; textEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>'; } }catch(_){}
+        const d=line.slice(6).trim();if(d==='[DONE]'||!d)continue;
+        try{const ev=JSON.parse(d);if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){full+=ev.delta.text;textEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>';}}catch(_){}
       }
     }
     textEl.innerHTML=formatMsg(full);
-  }catch(e){ textEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
+  }catch(e){textEl.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';}
 }
 
-// ── Backlog ───────────────────────────────────────────────────
+// ── Backlog ────────────────────────────────────────────────────
 async function loadJiraBacklog(){
-  const project = document.getElementById('jira-bl-project').value;
+  const project=document.getElementById('jira-bl-project').value;
   if(!project) return;
   if(!jiraConfig){ openJiraConnectModal(); return; }
-  const el = document.getElementById('jira-backlog-table');
+  const el=document.getElementById('jira-backlog-table');
   el.innerHTML='<div style="text-align:center;padding:30px"><div class="loading"></div></div>';
   try{
-    const jql=`project = ${project} AND status = "To Do" ORDER BY priority DESC, created DESC`;
-    const res=await jiraFetch(`/search?jql=${encodeURIComponent(jql)}&maxResults=60&fields=summary,issuetype,priority,customfield_10016,assignee`);
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const jql='project = '+project+' AND status = "To Do" ORDER BY priority DESC, created DESC';
+    const res=await jiraFetch('/search?jql='+encodeURIComponent(jql)+'&maxResults=50&fields=summary,issuetype,priority,customfield_10028,assignee,status');
+    if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
-    renderJiraBacklog(data.issues||[], data.total||0);
+    renderJiraBacklog(data.issues||[],data.total||0);
   }catch(e){
-    el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted2)">⚠ ${e.message}</div>`;
+    el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">⚠ '+e.message+'</div>';
   }
 }
 
-function renderJiraBacklog(issues, total){
+function renderJiraBacklog(issues,total){
   const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
   const el=document.getElementById('jira-backlog-table');
-  if(!issues.length){ el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">No backlog items</div>'; return; }
-  el.innerHTML=`
-    <div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total} items</div>
-    <table style="width:100%;border-collapse:collapse">
-      <thead><tr>
-        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Key</th>
-        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Summary</th>
-        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Type</th>
-        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Priority</th>
-        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">SP</th>
-        <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Action</th>
-      </tr></thead>
-      <tbody>
-        ${issues.map(issue=>{
-          const f=issue.fields; const tc=TCOL[f.issuetype?.name]||'#7a7a90';
-          const sp=f.customfield_10016||'-';
-          return `<tr style="cursor:pointer" onclick="openJiraIssueDetail('${issue.key}')">
-            <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)">${issue.key}</td>
-            <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:320px">${escapeHtml(f.summary)}</td>
-            <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'-'}</span></td>
-            <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border)">${f.priority?.name||'-'}</td>
-            <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--accent);border-bottom:0.5px solid var(--border)">${sp}</td>
-            <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)" onclick="event.stopPropagation()">
-              <button onclick="openJiraPushText(null,'auto','${escapeHtml(issue.key)}: '+${JSON.stringify(f.summary)})" style="font-size:9px;padding:2px 7px;border:0.5px solid rgba(0,82,204,0.3);background:rgba(0,82,204,0.08);color:#4C9AFF;border-radius:4px;cursor:pointer;font-family:inherit">🔗</button>
-            </td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>`;
+  if(!issues.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">No backlog items</div>';return;}
+  el.innerHTML=`<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total} items — click any row to analyse with AI</div>
+  <table style="width:100%;border-collapse:collapse">
+    <thead><tr>${['Key','Summary','Type','Priority','SP'].map(h=>`<th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">${h}</th>`).join('')}</tr></thead>
+    <tbody>${issues.map(issue=>{
+      const f=issue.fields;const tc=TCOL[f.issuetype?.name]||'#7a7a90';
+      const sp=f.customfield_10028||'—';
+      return `<tr style="cursor:pointer" onclick="loadIssueIntoContext('${issue.key}')">
+        <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)">${issue.key}</td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:300px">${escapeHtml(f.summary)}</td>
+        <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'—'}</span></td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border)">${f.priority?.name||'—'}</td>
+        <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--accent);border-bottom:0.5px solid var(--border)">${sp}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
 }
 
-// ── AI RICE Backlog ───────────────────────────────────────────
+// ── AI RICE ───────────────────────────────────────────────────
 async function aiRiceBacklog(){
-  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
-  const table = document.querySelector('#jira-backlog-table table');
-  if(!table){ toast('Load backlog first','warning'); return; }
-  const items = [...table.querySelectorAll('tbody tr')].map(r=>{
+  if(!apiKey){toast('Add Anthropic API key','warning');return;}
+  const table=document.querySelector('#jira-backlog-table table');
+  if(!table){toast('Load backlog first','warning');return;}
+  const items=[...table.querySelectorAll('tbody tr')].map(r=>{
     const cells=r.querySelectorAll('td');
-    return `${cells[0]?.textContent}: ${cells[1]?.textContent} [${cells[2]?.textContent}/${cells[3]?.textContent}]`;
-  }).join('
-');
-
+    return cells[0]?.textContent+': '+cells[1]?.textContent+' ['+cells[2]?.textContent+'/'+cells[3]?.textContent+'/SP:'+cells[4]?.textContent+']';
+  }).join('\n');
   const outEl=document.getElementById('jira-rice-out');
   const textEl=document.getElementById('jira-rice-text');
   outEl.style.display='block';
   textEl.innerHTML='<div class="loading"></div>';
-
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,stream:true,
         system:BRAIN_SYSTEM_PROMPTS[activeBrain]||BRAIN_SYSTEM_PROMPTS.po,
-        messages:[{role:'user',content:`RICE score and prioritise this Jira backlog:
-
-${items}
-
-## RICE Table
-| Key | Summary | Reach | Impact | Confidence | Effort | RICE |
-
-## Top 5 to pull into next sprint — with rationale
-
-## What to defer and why`}]})
+        messages:[{role:'user',content:'RICE score this Jira backlog:\n\n'+items+'\n\n## RICE Table\n| Key | Summary | Reach | Impact | Confidence | Effort | RICE |\n\n## Top 5 for next sprint with rationale\n\n## Defer list'}]})
     });
-    const reader=res.body.getReader(); const decoder=new TextDecoder(); let buf='',full='';
+    const reader=res.body.getReader();const decoder=new TextDecoder();let buf='',full='';
     textEl.innerHTML='<span class="stream-cursor"></span>';
     while(true){
-      const {done,value}=await reader.read(); if(done)break;
+      const{done,value}=await reader.read();if(done)break;
       buf+=decoder.decode(value,{stream:true});
-      const lines=buf.split('
-'); buf=lines.pop();
+      const lines=buf.split('\n');buf=lines.pop();
       for(const line of lines){
         if(!line.startsWith('data: '))continue;
-        const d=line.slice(6).trim(); if(d==='[DONE]'||!d)continue;
-        try{ const ev=JSON.parse(d); if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){ full+=ev.delta.text; textEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>'; } }catch(_){}
+        const d=line.slice(6).trim();if(d==='[DONE]'||!d)continue;
+        try{const ev=JSON.parse(d);if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){full+=ev.delta.text;textEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>';}}catch(_){}
       }
     }
     textEl.innerHTML=formatMsg(full);
-  }catch(e){ textEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
-}
-
-// ── Create Issue in Jira Tab ──────────────────────────────────
-async function jiraCreateIssue(){
-  if(!jiraConfig){ openJiraConnectModal(); return; }
-  const project  = document.getElementById('jira-create-proj').value;
-  const type     = document.getElementById('jira-create-type').value;
-  const summary  = document.getElementById('jira-create-summary').value.trim();
-  const desc     = document.getElementById('jira-create-desc').value.trim();
-  const priority = document.getElementById('jira-create-priority').value;
-  const sp       = document.getElementById('jira-create-sp').value;
-  const labelsRaw= document.getElementById('jira-create-labels').value;
-  const labels   = labelsRaw ? labelsRaw.split(',').map(l=>l.trim()).filter(Boolean) : [];
-
-  if(!summary){ toast('Summary required','error'); return; }
-  const btn=document.getElementById('jira-push-btn');
-  btn.disabled=true; btn.textContent='⏳ Creating…';
-
-  const body = buildJiraCreateBody(project, type, summary, desc, priority, sp, labels);
-
-  try{
-    const res=await jiraFetch('/issue',{method:'POST',body:JSON.stringify(body)});
-    if(res.ok){
-      const data=await res.json();
-      const key=data.key;
-      const resEl=document.getElementById('jira-created-result');
-      const keyEl=document.getElementById('jira-created-key');
-      resEl.style.display='block';
-      keyEl.textContent=`${key} — Open in Jira ↗`;
-      keyEl.href=`https://${jiraConfig.domain}/browse/${key}`;
-      toast(`✅ ${key} created!`,'success');
-    } else {
-      const err=await res.json().catch(()=>({}));
-      toast('Error: '+(err.errorMessages?.join(', ')||`HTTP ${res.status}`),'error');
-    }
-  }catch(e){ toast('Error: '+e.message,'error'); }
-  btn.disabled=false; btn.textContent='🚀 Push to Jira';
-}
-
-// ── AI Write Story in Jira Tab ────────────────────────────────
-async function jiraAiWriteStory(){
-  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
-  const prompt = document.getElementById('jira-ai-input').value.trim()
-    || document.getElementById('jira-create-summary').value.trim();
-  if(!prompt){ toast('Describe what you need','warning'); return; }
-
-  const outEl=document.getElementById('jira-ai-write-out');
-  const fillBtn=document.getElementById('jira-ai-fill-btn');
-  outEl.style.display='block';
-  outEl.innerHTML='<div class="loading"></div>';
-  let full='';
-
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,stream:true,
-        system:'You are a senior PO writing Jira stories. Format:
-SUMMARY: [story title]
-DESCRIPTION:
-## Acceptance Criteria
-- [ ] ...
-TYPE: Story
-PRIORITY: Medium
-POINTS: 3',
-        messages:[{role:'user',content:'Write a Jira story for: '+prompt}]})
-    });
-    const reader=res.body.getReader(); const decoder=new TextDecoder(); let buf='';
-    outEl.innerHTML='<span class="stream-cursor"></span>';
-    while(true){
-      const {done,value}=await reader.read(); if(done)break;
-      buf+=decoder.decode(value,{stream:true});
-      const lines=buf.split('
-'); buf=lines.pop();
-      for(const line of lines){
-        if(!line.startsWith('data: '))continue;
-        const d=line.slice(6).trim(); if(d==='[DONE]'||!d)continue;
-        try{ const ev=JSON.parse(d); if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){ full+=ev.delta.text; outEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>'; } }catch(_){}
-      }
-    }
-    outEl.innerHTML=formatMsg(full);
-    outEl._rawText=full;
-    fillBtn.style.display='block';
-  }catch(e){ outEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
-}
-
-async function jiraAiWriteAC(){
-  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
-  const summary=document.getElementById('jira-create-summary').value.trim()||document.getElementById('jira-ai-input').value.trim();
-  if(!summary){ toast('Enter a story title first','warning'); return; }
-  const outEl=document.getElementById('jira-ai-write-out');
-  outEl.style.display='block'; outEl.innerHTML='<div class="loading"></div>';
-  let full='';
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,stream:true,
-        system:'You are a senior BA writing BDD acceptance criteria. Be specific and testable.',
-        messages:[{role:'user',content:`Write 5-8 BDD acceptance criteria for: "${summary}"
-
-Format: - [ ] Given [context] When [action] Then [outcome]`}]})
-    });
-    const reader=res.body.getReader(); const decoder=new TextDecoder(); let buf='';
-    outEl.innerHTML='<span class="stream-cursor"></span>';
-    while(true){
-      const {done,value}=await reader.read(); if(done)break;
-      buf+=decoder.decode(value,{stream:true});
-      const lines=buf.split('
-'); buf=lines.pop();
-      for(const line of lines){
-        if(!line.startsWith('data: '))continue;
-        const d=line.slice(6).trim(); if(d==='[DONE]'||!d)continue;
-        try{ const ev=JSON.parse(d); if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){ full+=ev.delta.text; outEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>'; } }catch(_){}
-      }
-    }
-    outEl.innerHTML=formatMsg(full);
-    outEl._rawText=full;
-    document.getElementById('jira-ai-fill-btn').style.display='block';
-  }catch(e){ outEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
-}
-
-async function jiraAiBulkCreate(){
-  if(!jiraConfig||!apiKey){ toast('Configure Jira + Anthropic key first','error'); return; }
-  const raw=document.getElementById('jira-ai-input').value.trim();
-  if(!raw){ toast('Enter items to bulk create','warning'); return; }
-  const project=document.getElementById('jira-create-proj').value;
-  const priority=document.getElementById('jira-create-priority').value;
-  const outEl=document.getElementById('jira-ai-write-out');
-  outEl.style.display='block'; outEl.innerHTML='🧠 AI structuring…';
-
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,
-        system:'Return ONLY valid JSON array. No markdown.',
-        messages:[{role:'user',content:`Structure these as Jira issues. JSON array of {summary, issuetype, priority}:
-
-${raw}`}]})
-    });
-    const data=await res.json();
-    const text=data.content?.map(c=>c.text||'').join('')||'[]';
-    const issues=JSON.parse(text.replace(/```json|```/g,'').trim());
-    let created=0;
-    for(const issue of issues){
-      outEl.innerHTML=`Creating ${created+1} of ${issues.length}: ${issue.summary?.slice(0,50)}…`;
-      try{
-        const body={fields:{project:{key:project},summary:issue.summary,issuetype:{name:issue.issuetype||'Story'},priority:{name:issue.priority||priority}}};
-        const r=await jiraFetch('/issue',{method:'POST',body:JSON.stringify(body)});
-        if(r.ok) created++;
-        await new Promise(r=>setTimeout(r,280));
-      }catch(_){}
-    }
-    outEl.innerHTML=formatMsg(`✅ **${created} issues created** in ${project}!`);
-    toast(`Created ${created} issues!`,'success');
-  }catch(e){ outEl.innerHTML=`<span style="color:var(--red)">Error: ${e.message}</span>`; }
-}
-
-function jiraFillFromAI(){
-  const outEl=document.getElementById('jira-ai-write-out');
-  const raw=outEl._rawText||outEl.innerText||'';
-  if(!raw) return;
-  const sum=raw.match(/SUMMARY:\s*(.+)/i);
-  if(sum) document.getElementById('jira-create-summary').value=sum[1].trim();
-  const typ=raw.match(/TYPE:\s*(Story|Bug|Task|Epic)/i);
-  if(typ) document.getElementById('jira-create-type').value=typ[1];
-  const pri=raw.match(/PRIORITY:\s*(Highest|High|Medium|Low|Lowest)/i);
-  if(pri) document.getElementById('jira-create-priority').value=pri[1];
-  const pt=raw.match(/POINTS:\s*(\d+)/i);
-  if(pt) document.getElementById('jira-create-sp').value=pt[1];
-  const desc=raw.replace(/SUMMARY:.+
-?/gi,'').replace(/TYPE:.+
-?/gi,'').replace(/PRIORITY:.+
-?/gi,'').replace(/POINTS:.+
-?/gi,'').trim();
-  document.getElementById('jira-create-desc').value=desc;
-  toast('✅ Form filled!','success');
+  }catch(e){textEl.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';}
 }
 
 // ── JQL Search ────────────────────────────────────────────────
-function setJiraJQL(jql){
-  document.getElementById('jira-jql-input').value=jql;
-  runJiraJQL();
-}
+function setJiraJQL(jql){ document.getElementById('jira-jql-input').value=jql; runJiraJQL(); }
 
 async function runJiraJQL(){
   if(!jiraConfig){ openJiraConnectModal(); return; }
@@ -26639,550 +26165,383 @@ async function runJiraJQL(){
   const el=document.getElementById('jira-search-results');
   el.innerHTML='<div style="text-align:center;padding:30px"><div class="loading"></div></div>';
   try{
-    const res=await jiraFetch(`/search?jql=${encodeURIComponent(jql)}&maxResults=50&fields=summary,status,issuetype,priority,assignee`);
-    if(!res.ok){ const err=await res.json().catch(()=>({})); throw new Error(err.errorMessages?.join(', ')||`HTTP ${res.status}`); }
+    const res=await jiraFetch('/search?jql='+encodeURIComponent(jql)+'&maxResults=50&fields=summary,status,issuetype,priority,assignee');
+    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.errorMessages?.join(', ')||'HTTP '+res.status);}
     const data=await res.json();
-    renderJiraSearchResults(data.issues||[], data.total||0);
-  }catch(e){ el.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted2)">⚠ ${e.message}</div>`; }
+    renderJiraSearchResults(data.issues||[],data.total||0);
+  }catch(e){
+    el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">⚠ '+e.message+'</div>';
+  }
 }
 
-function renderJiraSearchResults(issues, total){
-  const el=document.getElementById('jira-search-results');
+function renderJiraSearchResults(issues,total){
   const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
-  const SCOL={'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896','Closed':'#00C896'};
-  if(!issues.length){ el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">No results</div>'; return; }
-  el.innerHTML=`<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total}</div>
+  const SCOL={'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896','SIT DONE':'#00C896','Released to Prod':'#00C896','READY FOR DEVELOPMENT':'#3B82F6','In Development':'#6C47FF','IN SIT':'#F5A623'};
+  const el=document.getElementById('jira-search-results');
+  if(!issues.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">No results</div>';return;}
+  el.innerHTML=`<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total} — click any row to run AI analysis</div>
   <table style="width:100%;border-collapse:collapse">
-    <thead><tr>
-      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Key</th>
-      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Summary</th>
-      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Type</th>
-      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Status</th>
-      <th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">Action</th>
-    </tr></thead>
-    <tbody>
-      ${issues.map(issue=>{
-        const f=issue.fields; const tc=TCOL[f.issuetype?.name]||'#7a7a90'; const sc=SCOL[f.status?.name]||'#7a7a90';
-        return `<tr style="cursor:pointer">
-          <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)" onclick="openJiraIssueDetail('${issue.key}')">${issue.key}</td>
-          <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:300px" onclick="openJiraIssueDetail('${issue.key}')">${escapeHtml(f.summary)}</td>
-          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'-'}</span></td>
-          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;background:${sc}18;color:${sc}">${f.status?.name||'-'}</span></td>
-          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)">
-            
-          </td>
-        </tr>`;
-      }).join('')}
-    </tbody>
+    <thead><tr>${['Key','Summary','Type','Status','Priority'].map(h=>`<th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">${h}</th>`).join('')}</tr></thead>
+    <tbody>${issues.map(issue=>{
+      const f=issue.fields;
+      const tc=TCOL[f.issuetype?.name]||'#7a7a90';
+      const sc=SCOL[f.status?.name]||'#7a7a90';
+      return `<tr style="cursor:pointer" onclick="loadIssueIntoContext('${issue.key}')">
+        <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)">${issue.key}</td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:280px">${escapeHtml(f.summary)}</td>
+        <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'—'}</span></td>
+        <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;background:${sc}18;color:${sc}">${f.status?.name||'—'}</span></td>
+        <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border)">${f.priority?.name||'—'}</td>
+      </tr>`;
+    }).join('')}</tbody>
   </table>`;
 }
 
-// ── Issue Detail (mini modal via toast-like overlay) ─────────
-async function openJiraIssueDetail(key){
-  // Use existing chat to analyse — switch to chat, load issue context
-  if(!jiraConfig) return;
-  try{
-    const res=await jiraFetch(`/issue/${key}?fields=summary,description,status,issuetype,priority,assignee,customfield_10016,labels`);
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data=await res.json(); const f=data.fields;
-    const desc=extractJiraADFText(f.description);
-    const context=`Jira Issue ${key}:
-Type: ${f.issuetype?.name}
-Summary: ${f.summary}
-Status: ${f.status?.name}
-Priority: ${f.priority?.name}
-SP: ${f.customfield_10016||'?'}
-Assignee: ${f.assignee?.displayName||'Unassigned'}
-Labels: ${f.labels?.join(', ')||'none'}
-Description: ${desc||'(none)'}`;
-    switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
-    setTimeout(()=>{
-      const inp=document.getElementById('chat-input');
-      if(inp){ inp.value=`Analyse this Jira issue and tell me: (1) is it ready to develop? (2) what is missing? (3) suggested AC if none exist.
-
-${context}`; autoResize(inp); inp.focus(); }
-      toast(`${key} loaded in AI Chat — press Send to analyse`,'success');
-    }, 150);
-  }catch(e){ toast('Could not load issue: '+e.message,'error'); }
-}
-
-function extractJiraADFText(adf){
-  if(!adf) return '';
-  if(typeof adf==='string') return adf;
-  const texts=[];
-  const walk=(node)=>{ if(node.type==='text') texts.push(node.text); if(node.content) node.content.forEach(walk); };
-  if(adf.content) adf.content.forEach(walk);
-  return texts.join(' ');
-}
-
-// ── Update switchTab to know about jira ───────────────────────
-(function patchSwitchTab(){
-  const _orig = window.switchTab;
-  window.switchTab = function(tab, el){
-    _orig(tab, el);
-    if(tab === 'jira'){
-      // Restore proxy URL in modal
-      const proxyEl = document.getElementById('jm-proxy');
-      if(proxyEl && jiraProxyUrl) proxyEl.value = jiraProxyUrl;
-      // Show current status, then auto-test if credentials exist
-      updateJiraStatusUI();
-      if(jiraConfig){
-        setTimeout(testJiraConnection, 400);
-      }
-    }
-  };
-})();
-
-// ══════════════════════════════════════════════════════════════
-//  JIRA CONTEXT MODE — Load any issue into ANY ProdMind brain
-//  The issue becomes the context for every brain call
-// ══════════════════════════════════════════════════════════════
-
-let _jiraContextIssue = null; // Currently loaded Jira issue
-
-// ── Load issue into Jira Context Mode ─────────────────────────
-async function loadIssueIntoContext(key) {
+// ── Issue Detail (all brains) ─────────────────────────────────
+async function loadIssueIntoContext(key){
   if(!jiraConfig){ openJiraConnectModal(); return; }
-  toast('⏳ Loading ' + key + '…');
-  try {
-    const res = await jiraFetch(`/issue/${key}?fields=summary,description,status,issuetype,priority,assignee,reporter,customfield_10016,labels,comment,subtasks,parent`);
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    _jiraContextIssue = data;
-    openIssueDetailPanel(data);
-  } catch(e) {
-    toast('Error loading issue: ' + e.message, 'error');
-  }
-}
-
-// ── Extract ADF text ─────────────────────────────────────────
-function _adfToText(node) {
-  if(!node) return '';
-  if(typeof node === 'string') return node;
-  if(node.type === 'text') return node.text || '';
-  if(node.type === 'hardBreak') return '\n';
-  if(node.content) return node.content.map(_adfToText).join('');
-  return '';
-}
-
-function buildIssueContext(issue) {
-  const f = issue.fields;
-  const desc = _adfToText(f.description);
-  return `JIRA ISSUE CONTEXT:
-Key: ${issue.key}
-Type: ${f.issuetype?.name}
-Summary: ${f.summary}
-Status: ${f.status?.name}
-Priority: ${f.priority?.name}
-Assignee: ${f.assignee?.displayName || 'Unassigned'}
-Reporter: ${f.reporter?.displayName || 'Unknown'}
-Story Points: ${f.customfield_10016 || 'Not estimated'}
-Labels: ${f.labels?.join(', ') || 'None'}
-Description:
-${desc || '(No description)'}`;
-}
-
-// ── Open Issue Detail Panel ────────────────────────────────────
-function openIssueDetailPanel(issue) {
-  const f = issue.fields;
-  const desc = _adfToText(f.description);
-  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
-  const SCOL = {'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896','Ready For QA':'#F5A623','In Development':'#6C47FF','Ready For Release':'#00C896','SIT DONE':'#00C896'};
-  const tc = TCOL[f.issuetype?.name] || '#7a7a90';
-  const sc = SCOL[f.status?.name] || '#7a7a90';
-
-  // Build brain action buttons — ALL 15 brains
-  const ALL_BRAIN_ACTIONS = [
-    { id:'po',    icon:'🧠', label:'PO Review',      prompt:`You are reviewing this Jira issue as a Principal PO. Assess: (1) Is it ready to develop? What is missing? (2) Is the business value clear? (3) Is priority justified? (4) Suggest 3 AC if none exist.` },
-    { id:'ba',    icon:'🔎', label:'Write BRD/AC',   prompt:`You are a BA reviewing this Jira issue. Write: (1) Full BDD acceptance criteria (Given/When/Then) (2) Non-functional requirements (3) Out of scope (4) Assumptions` },
-    { id:'qa',    icon:'🧪', label:'Test Cases',     prompt:`You are a QA Lead reviewing this issue. Write: (1) 5-8 UAT test cases covering happy path and edge cases (2) Risk assessment (3) What could go wrong in production` },
-    { id:'cto',   icon:'🧑‍💻', label:'Tech Review',  prompt:`You are a CTO reviewing this issue. Assess: (1) Technical complexity (2) Architecture risks (3) Performance/security concerns (4) Implementation approach recommendation (5) Story point validation` },
-    { id:'rm',    icon:'🚀', label:'Release Risk',   prompt:`You are a Release Manager reviewing this issue. Assess: (1) Release risk (High/Medium/Low) with rationale (2) Rollback risk if this fails in production (3) Pre-release checklist for this specific change (4) Go/No-Go recommendation` },
-    { id:'dm',    icon:'📦', label:'Delivery Risk',  prompt:`You are a Delivery Manager reviewing this issue. Assess: (1) Delivery risk and blockers (2) Dependencies that need resolving (3) Realistic story point estimate (4) Sprint readiness (is this DoR-compliant?)` },
-    { id:'ux',    icon:'🎨', label:'UX Review',      prompt:`You are a UX Lead reviewing this issue. Assess: (1) User experience impact (2) What user research is needed (3) Accessibility concerns (4) Success metrics for UX quality` },
-    { id:'scrum', icon:'🏃', label:'Sprint Ready?',  prompt:`You are a Scrum Master reviewing this issue. Assess: (1) Is this story sprint-ready? Apply INVEST criteria. (2) What needs refinement before sprint planning (3) Dependencies that block sprint commitment (4) Recommended story points` },
-    { id:'dev',   icon:'💻', label:'Dev Complexity', prompt:`You are a Senior Developer reviewing this issue. Assess: (1) Technical complexity (2) Implementation approach (3) Code areas affected (4) Technical debt risk (5) Realistic SP estimate with confidence %` },
-  ];
-
-  const brainBtns = ALL_BRAIN_ACTIONS.map(b => {
-    const safePrompt = encodeURIComponent(b.prompt);
-    return `<button onclick="runBrainOnIssueByKey('${issue.key}','${b.id}','${encodeURIComponent(b.prompt)}')" style="display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:inherit;transition:all .15s;white-space:nowrap" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='var(--bg3)'">${b.icon} ${b.label}</button>`;
-  }).join('');
-
-  const modal = document.getElementById('jira-issue-modal');
-  if(!modal) { buildIssueModal(); return openIssueDetailPanel(issue); }
-
-  document.getElementById('jim-key').textContent = issue.key;
-  document.getElementById('jim-type').textContent = f.issuetype?.name || '';
-  document.getElementById('jim-type').style.cssText = `font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:${tc}18;color:${tc};border:0.5px solid ${tc}40`;
-  document.getElementById('jim-status').textContent = f.status?.name || '';
-  document.getElementById('jim-status').style.cssText = `font-size:9px;font-weight:600;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:${sc}18;color:${sc}`;
-  document.getElementById('jim-title').textContent = f.summary;
-  document.getElementById('jim-meta').innerHTML = [
-    {l:'Priority', v:f.priority?.name||'-'},
-    {l:'Assignee', v:f.assignee?.displayName||'Unassigned'},
-    {l:'Reporter', v:f.reporter?.displayName||'-'},
-    {l:'Story Points', v:f.customfield_10016||'—'},
-    {l:'Labels', v:f.labels?.length ? f.labels.join(', ') : 'None'},
-    {l:'Type', v:f.issuetype?.name||'-'},
-  ].map(m=>`<div style="background:var(--bg3);border-radius:7px;padding:8px 10px"><div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:2px">${m.l}</div><div style="font-size:11px;color:var(--text);font-weight:500">${m.v}</div></div>`).join('');
-  document.getElementById('jim-desc').textContent = desc || 'No description.';
-  document.getElementById('jim-brain-btns').innerHTML = brainBtns;
-  document.getElementById('jim-ai-out').style.display = 'none';
-  document.getElementById('jim-ai-out').innerHTML = '';
-  document.getElementById('jim-push-chat-btn').onclick = () => {
-    closeIssueModal();
-    setTimeout(() => {
-      switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
-      setTimeout(() => {
-        const inp = document.getElementById('chat-input');
-        if(inp) { inp.value = 'Analyse this Jira issue:\n\n' + buildIssueContext(issue); autoResize(inp); inp.focus(); }
-      }, 150);
-    }, 100);
-  };
-  document.getElementById('jim-open-jira-btn').href = `https://${jiraConfig?.domain||'ebdae.atlassian.net'}/browse/${issue.key}`;
-
-  modal.classList.add('show');
-}
-
-function buildIssueModal() {
-  const div = document.createElement('div');
-  div.id = 'jira-issue-modal';
-  div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:3500;display:none;align-items:center;justify-content:center';
-  div.innerHTML = `
-    <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;width:700px;max-width:96vw;max-height:90vh;overflow-y:auto;box-shadow:0 8px 48px rgba(0,0,0,.7)">
-      <div style="padding:14px 18px;border-bottom:0.5px solid var(--border);display:flex;align-items:center;gap:8px;position:sticky;top:0;background:var(--bg2);z-index:1">
-        <span id="jim-key" style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#4C9AFF;font-weight:700"></span>
-        <span id="jim-type"></span>
-        <span id="jim-status"></span>
-        <a id="jim-open-jira-btn" href="#" target="_blank" style="font-size:10px;color:#4C9AFF;text-decoration:none;margin-left:4px">↗ Open in Jira</a>
-        <button onclick="closeIssueModal()" style="margin-left:auto;background:var(--bg3);border:none;border-radius:6px;padding:5px 11px;font-size:11px;color:var(--muted2);cursor:pointer">✕</button>
-      </div>
-      <div style="padding:18px 20px">
-        <div id="jim-title" style="font-size:16px;font-weight:700;margin-bottom:14px;line-height:1.4;color:var(--text)"></div>
-        <div id="jim-meta" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px"></div>
-        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px">Description</div>
-        <div id="jim-desc" style="background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;color:var(--muted2);line-height:1.65;white-space:pre-wrap;max-height:180px;overflow-y:auto;margin-bottom:16px"></div>
-        <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:8px">🧠 Run any ProdMind Brain on this issue</div>
-        <div id="jim-brain-btns" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px"></div>
-        <div id="jim-ai-out" style="display:none;background:var(--bg3);border:0.5px solid var(--border);border-radius:8px;padding:12px;font-size:12px;color:var(--text);line-height:1.65;max-height:340px;overflow-y:auto;margin-bottom:12px"></div>
-        <div style="display:flex;gap:8px">
-          <button id="jim-push-chat-btn" style="flex:1;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:8px;padding:8px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit">💬 Open in AI Chat</button>
-          <button onclick="loadIssueIntoContextChat()" style="flex:1;background:rgba(0,82,204,0.12);border:0.5px solid rgba(0,82,204,0.3);border-radius:8px;padding:8px;font-size:11px;font-weight:600;color:#4C9AFF;cursor:pointer;font-family:inherit">🔗 Set as Chat Context</button>
-        </div>
-      </div>
-    </div>`;
-  div.addEventListener('click', e => { if(e.target===div) closeIssueModal(); });
-  document.body.appendChild(div);
-}
-
-function closeIssueModal() {
-  const m = document.getElementById('jira-issue-modal');
-  if(m) m.classList.remove('show');
-}
-
-// ── Wrapper: decode prompt from encodeURIComponent ───────────
-async function runBrainOnIssueByKey(key, brainId, encodedPrompt) {
-  const brainPrompt = decodeURIComponent(encodedPrompt);
-  await runBrainOnIssue(key, brainId, brainPrompt);
-}
-
-// ── Run a specific brain on a loaded issue ────────────────────
-async function runBrainOnIssue(key, brainId, brainPrompt) {
-  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
-  if(!_jiraContextIssue) return;
-
-  const outEl = document.getElementById('jim-ai-out');
-  outEl.style.display = 'block';
-  outEl.innerHTML = '<div class="loading"></div>';
-
-  const issueCtx = buildIssueContext(_jiraContextIssue);
-  const sys = BRAIN_SYSTEM_PROMPTS[brainId] || BRAIN_SYSTEM_PROMPTS.po;
-  const fullPrompt = `${brainPrompt}\n\n---\n${issueCtx}`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        stream: true,
-        system: sys,
-        messages: [{ role:'user', content: fullPrompt }]
-      })
-    });
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '', fullText = '';
-    outEl.innerHTML = '<span class="stream-cursor"></span>';
-
-    while(true) {
-      const {done, value} = await reader.read();
-      if(done) break;
-      buffer += decoder.decode(value, {stream:true});
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-      for(const line of lines) {
-        if(!line.startsWith('data: ')) continue;
-        const d = line.slice(6).trim();
-        if(d==='[DONE]'||!d) continue;
-        try {
-          const ev = JSON.parse(d);
-          if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta') {
-            fullText += ev.delta.text;
-            outEl.innerHTML = formatMsg(fullText) + '<span class="stream-cursor"></span>';
-            outEl.scrollTop = outEl.scrollHeight;
-          }
-        } catch(_) {}
-      }
-    }
-    outEl.innerHTML = formatMsg(fullText);
-
-    // Also offer to push result back to Jira as comment or update
-    const pushBar = document.createElement('div');
-    pushBar.style.cssText = 'display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:0.5px solid var(--border)';
-    pushBar.innerHTML = `
-      <!-- Add comment disabled — read-only demo mode -->
-      <button onclick="copyText(this.closest('div').previousSibling.innerText)" style="font-size:10px;padding:4px 10px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--muted2);border-radius:5px;cursor:pointer;font-family:inherit">📋 Copy</button>`;
-    outEl.after(pushBar);
-
-  } catch(e) {
-    outEl.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
-  }
-}
-
-// ── Set issue as persistent chat context ──────────────────────
-function loadIssueIntoContextChat() {
-  if(!_jiraContextIssue) return;
-  const ctx = buildIssueContext(_jiraContextIssue);
-  // Inject into Knowledge Base context so it persists across all chat messages
-  const kbKey = 'jira_context_' + _jiraContextIssue.key;
-  try {
-    localStorage.setItem(kbKey, ctx);
-  } catch(e) {}
-  // Load into chat input
-  closeIssueModal();
-  switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
-  setTimeout(() => {
-    const inp = document.getElementById('chat-input');
-    if(inp) {
-      inp.value = `/context\n\n${ctx}`;
-      autoResize(inp);
-      inp.focus();
-      toast(`✅ ${_jiraContextIssue.key} loaded as context — every brain call now knows this issue`, 'success');
-    }
-  }, 200);
-}
-
-// ── Add comment to Jira issue ─────────────────────────────────
-async function addJiraComment(key, text) {
-  if(!jiraConfig){ toast('Configure Jira first','error'); return; }
-  if(!text){ toast('No content to add','warning'); return; }
-  try {
-    const body = {
-      body: {
-        type: 'doc', version: 1,
-        content: [{
-          type: 'paragraph',
-          content: [{ type: 'text', text: '🧠 ProdMind AI Analysis:\n\n' + text.slice(0, 5000) }]
-        }]
-      }
+  toast('Loading '+key+'…');
+  try{
+    const res=await jiraFetch('/issue/'+key+'?fields=summary,description,status,issuetype,priority,assignee,reporter,customfield_10028,labels');
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    _jiraContextIssue=data;
+    const modal=document.getElementById('jira-issue-modal');
+    if(!modal){ toast('Modal not ready — try again','warning'); return; }
+    const f=data.fields;
+    const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+    const SCOL={'To Do':'#7a7a90','In Progress':'#6C47FF','Done':'#00C896','READY FOR DEVELOPMENT':'#3B82F6','In Development':'#6C47FF','IN SIT':'#F5A623','SIT DONE':'#00C896'};
+    const tc=TCOL[f.issuetype?.name]||'#7a7a90';
+    const sc=SCOL[f.status?.name]||SCOL[f.status?.statusCategory?.name]||'#7a7a90';
+    document.getElementById('jim-key').textContent=key;
+    document.getElementById('jim-type').innerHTML=`<span style="font-size:9px;font-weight:700;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:${tc}18;color:${tc};border:0.5px solid ${tc}40">${f.issuetype?.name||''}</span>`;
+    document.getElementById('jim-status-badge').innerHTML=`<span style="font-size:9px;font-weight:600;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:${sc}18;color:${sc}">${f.status?.name||''}</span>`;
+    document.getElementById('jim-title').textContent=f.summary;
+    document.getElementById('jim-meta').innerHTML=[
+      {l:'Priority',v:f.priority?.name||'—'},
+      {l:'Assignee',v:f.assignee?.displayName||'Unassigned'},
+      {l:'Reporter',v:f.reporter?.displayName||'—'},
+      {l:'Story Points',v:f.customfield_10028||'—'},
+      {l:'Labels',v:f.labels?.join(', ')||'None'},
+      {l:'Status',v:f.status?.name||'—'},
+    ].map(m=>`<div style="background:var(--bg3);border-radius:7px;padding:8px 10px"><div style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:2px">${m.l}</div><div style="font-size:11px;color:var(--text);font-weight:500">${m.v}</div></div>`).join('');
+    document.getElementById('jim-desc').textContent=_adfToText(f.description)||'No description.';
+    document.getElementById('jim-open-jira-btn').href='https://ebdae.atlassian.net/browse/'+key;
+    // Brain buttons
+    const BRAINS=[
+      {id:'po',  icon:'🧠',label:'PO Review',    prompt:'Review this Jira issue as a Principal PO. Is it ready to develop? What is missing? Are AC defined? Justify the priority. Suggest 3 AC if none exist.'},
+      {id:'ba',  icon:'🔎',label:'Write AC',      prompt:'As a BA, write full BDD acceptance criteria (Given/When/Then) for this issue. Include: happy path, edge cases, error states, NFRs.'},
+      {id:'qa',  icon:'🧪',label:'Test Cases',    prompt:'As a QA Lead, write 5-8 UAT test cases for this issue covering happy path and edge cases. Include risk assessment.'},
+      {id:'cto', icon:'🧑‍💻',label:'Tech Review',  prompt:'As CTO, assess: technical complexity, architecture risks, security concerns, implementation approach, story point validation.'},
+      {id:'rm',  icon:'🚀',label:'Release Risk',  prompt:'As Release Manager, assess: release risk (High/Medium/Low), rollback risk, pre-release checklist, go/no-go recommendation.'},
+      {id:'dm',  icon:'📦',label:'Delivery Risk', prompt:'As Delivery Manager, assess: delivery risk, blockers, dependencies, sprint readiness (INVEST check), realistic SP estimate.'},
+      {id:'scrum',icon:'🏃',label:'Sprint Ready?', prompt:'As Scrum Master, apply INVEST criteria. Is this sprint-ready? What needs refinement? What are the blockers? Recommend SP.'},
+      {id:'dev', icon:'💻',label:'Dev Complexity',prompt:'As Senior Developer, assess: technical complexity, implementation approach, code areas affected, tech debt risk, SP estimate with confidence %.'},
+    ];
+    document.getElementById('jim-brain-btns').innerHTML=BRAINS.map(b=>
+      `<button data-brain="${b.id}" onclick="runBrainOnIssue('${key}','${b.id}',decodeURIComponent('${encodeURIComponent(b.prompt)}'))" style="display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:7px;font-size:10px;font-weight:600;cursor:pointer;border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:inherit">${b.icon} ${b.label}</button>`
+    ).join('');
+    document.getElementById('jim-ai-out').style.display='none';
+    document.getElementById('jim-ai-out').innerHTML='';
+    // Chat button
+    document.getElementById('jim-chat-btn').onclick=()=>{
+      closeIssueModal();
+      setTimeout(()=>{
+        switchTab('chat',document.querySelectorAll('.nav-tab')[1]);
+        setTimeout(()=>{
+          const ctx=`JIRA ISSUE: ${key}\nType: ${f.issuetype?.name}\nSummary: ${f.summary}\nStatus: ${f.status?.name}\nPriority: ${f.priority?.name}\nSP: ${f.customfield_10028||'?'}\nDescription: ${_adfToText(f.description)||'(none)'}`;
+          const inp=document.getElementById('chat-input');
+          if(inp){inp.value='Analyse this Jira issue:\n\n'+ctx;autoResize(inp);inp.focus();}
+        },150);
+      },100);
     };
-    const res = await jiraFetch(`/issue/${key}/comment`, { method:'POST', body: JSON.stringify(body) });
-    if(res.ok) { toast(`✅ Comment added to ${key}!`, 'success'); }
-    else { const err=await res.json().catch(()=>({})); toast('Comment failed: '+(err.errorMessages?.join(',')||`HTTP ${res.status}`),'error'); }
-  } catch(e) { toast('Error: '+e.message,'error'); }
+    modal.style.display='flex';
+  }catch(e){ toast('Error loading '+key+': '+e.message,'error'); }
 }
 
-// ── Upgrade board cards to use full Issue Detail panel ────────
-function renderJiraBoard(issues){
-  const COLS = {'To Do':[],'In Progress':[],'In Review':[],'Done':[]};
-  const SCOL = {'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896'};
-  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
-  const PEMU = {'Highest':'🔴','High':'🟠','Medium':'🟡','Low':'🟢','Lowest':'⚪'};
-
-  issues.forEach(issue => {
-    const s = issue.fields.status?.name || 'To Do';
-    const col = s==='Done'?'Done':s.includes('Progress')?'In Progress':s.includes('Review')?'In Review':'To Do';
-    if(COLS[col]) COLS[col].push(issue);
-    else COLS['To Do'].push(issue);
-  });
-
-  document.getElementById('jira-board-cols').innerHTML = Object.entries(COLS).map(([col,items]) => `
-    <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:10px">
-      <div class="jira-col-header">
-        <span style="color:${SCOL[col]}">${col}</span>
-        <span style="font-size:9px;background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1px 7px;color:var(--muted2)">${items.length}</span>
-      </div>
-      ${items.length===0 ? '<div style="font-size:10px;color:var(--muted);text-align:center;padding:12px">No issues</div>' :
-        items.map(issue => {
-          const f = issue.fields;
-          const tc = TCOL[f.issuetype?.name] || '#7a7a90';
-          return `<div class="jira-issue-card" style="--jic:${tc}" onclick="loadIssueIntoContext('${issue.key}')">
-            <div class="jira-issue-key">${issue.key}</div>
-            <div class="jira-issue-title">${escapeHtml(f.summary)}</div>
-            <div class="jira-issue-meta">
-              <span class="jira-type-badge" style="background:${tc}18;color:${tc}">${f.issuetype?.name||'Story'}</span>
-              <span>${PEMU[f.priority?.name]||'⚪'}</span>
-              ${f.assignee ? `<span style="font-size:9px;color:var(--muted2);margin-left:auto">👤 ${f.assignee.displayName.split(' ')[0]}</span>` : ''}
-            </div>
-          </div>`;
-        }).join('')
-      }
-    </div>`).join('');
+function closeIssueModal(){
+  const m=document.getElementById('jira-issue-modal');
+  if(m) m.style.display='none';
 }
 
-// ── RICE on live backlog with Jira data ───────────────────────
-async function aiRiceBacklog(){
-  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
-  const table = document.querySelector('#jira-backlog-table table');
-  if(!table){ toast('Load backlog first','warning'); return; }
+// ── Run brain on issue ────────────────────────────────────────
+// ── Load Jira issue into Doc Analyser (KB) ───────────────────
+function loadIssueIntoDocAnalyser(){
+  if(!_jiraContextIssue){
+    toast('Load an issue first','warning');
+    return;
+  }
+  const issue = _jiraContextIssue;
+  const f = issue.fields;
 
-  const items = [...table.querySelectorAll('tbody tr')].map(r => {
-    const cells = r.querySelectorAll('td');
-    return `${cells[0]?.textContent}: ${cells[1]?.textContent} [${cells[2]?.textContent} / ${cells[3]?.textContent} / SP:${cells[4]?.textContent}]`;
-  }).join('\n');
+  // Build AC text from ADF
+  function adfToPlain(node, depth){
+    if(!node) return '';
+    if(typeof node === 'string') return node;
+    if(node.type === 'text') return node.text || '';
+    if(node.type === 'hardBreak') return '
+';
+    if(node.type === 'paragraph') return (node.content||[]).map(n=>adfToPlain(n,depth)).join('') + '
+';
+    if(node.type === 'heading') return '
+' + '#'.repeat(node.attrs?.level||2) + ' ' + (node.content||[]).map(n=>adfToPlain(n,depth)).join('') + '
+';
+    if(node.type === 'bulletList'||node.type === 'orderedList') return (node.content||[]).map(n=>adfToPlain(n,depth)).join('');
+    if(node.type === 'listItem') return '  - ' + (node.content||[]).map(n=>adfToPlain(n,depth)).join('').trim() + '
+';
+    if(node.type === 'rule') return '
+---
+';
+    if(node.type === 'strong'||node.type === 'em') return (node.content||[]).map(n=>adfToPlain(n,depth)).join('');
+    if(node.content) return node.content.map(n=>adfToPlain(n,depth)).join('');
+    return '';
+  }
 
-  const outEl = document.getElementById('jira-rice-out');
-  const textEl = document.getElementById('jira-rice-text');
-  outEl.style.display = 'block';
-  textEl.innerHTML = '<div class="loading"></div>';
+  const desc   = _adfToText(f.description) || '(No description)';
+  const acText = f.customfield_10657 ? adfToPlain(f.customfield_10657, 0) : '';
+  const sprint = f.customfield_10020?.[0]?.name || '';
+  const sp     = f.customfield_10028 || '—';
 
-  const project = document.getElementById('jira-bl-project').value;
+  // Build rich document text
+  const docContent = [
+    '# ' + issue.key + ': ' + f.summary,
+    '',
+    '## Metadata',
+    'Type: ' + (f.issuetype?.name || '—'),
+    'Status: ' + (f.status?.name || '—'),
+    'Priority: ' + (f.priority?.name || '—'),
+    'Story Points: ' + sp,
+    'Assignee: ' + (f.assignee?.displayName || 'Unassigned'),
+    'Reporter: ' + (f.reporter?.displayName || '—'),
+    'Sprint: ' + (sprint || '—'),
+    'Labels: ' + (f.labels?.join(', ') || 'None'),
+    'Project: ' + (f.fields?.project?.name || issue.key.split('-')[0]),
+    '',
+    '## Description',
+    desc,
+    '',
+    acText ? '## Acceptance Criteria
+' + acText : '',
+  ].filter(Boolean).join('
+');
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1200,
-        stream: true,
-        system: BRAIN_SYSTEM_PROMPTS[activeBrain] || BRAIN_SYSTEM_PROMPTS.po,
-        messages: [{role:'user', content:
-          `RICE score and prioritise this live Jira backlog from ${project}. Each item shows: KEY: SUMMARY [TYPE / PRIORITY / SP]\n\nBacklog:\n${items}\n\nProduce:\n## RICE Scoring Table\n| Key | Summary | Reach (0-10) | Impact (0.25-3) | Confidence % | Effort (SP) | RICE Score |\n\n## Top 5 to pull into next sprint\nFor each: key, summary, why it scores highest, recommended SP if not set.\n\n## Defer list — with rationale\n\n## Sprint recommendation\nGiven this data, what is a realistic sprint commitment range?`
-        }]
-      })
+  const docName = issue.key + ' — ' + f.summary.substring(0, 60) + (f.summary.length > 60 ? '…' : '');
+  const sizeKb  = Math.round(docContent.length / 1024 * 10) / 10 || 1;
+
+  // Remove any existing entry for this ticket to avoid duplicates
+  if(typeof knowledgeBase !== 'undefined'){
+    const existing = knowledgeBase.findIndex(d => d.name.startsWith(issue.key + ' —'));
+    if(existing >= 0) knowledgeBase.splice(existing, 1);
+
+    // Add to KB
+    knowledgeBase.push({
+      id: Date.now() + Math.random(),
+      name: docName,
+      type: 'text',
+      ext: 'jira',
+      size: sizeKb,
+      content: docContent
     });
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = '', fullText = '';
-    textEl.innerHTML = '<span class="stream-cursor"></span>';
+    if(typeof updateKbStatus === 'function') updateKbStatus();
+    if(typeof renderKbList   === 'function') renderKbList();
+  }
 
-    while(true) {
-      const {done, value} = await reader.read();
-      if(done) break;
-      buffer += decoder.decode(value, {stream:true});
-      const lines = buffer.split('\n');
-      buffer = lines.pop();
-      for(const line of lines) {
-        if(!line.startsWith('data: ')) continue;
-        const d = line.slice(6).trim();
-        if(d==='[DONE]'||!d) continue;
-        try {
-          const ev = JSON.parse(d);
-          if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta') {
-            fullText += ev.delta.text;
-            textEl.innerHTML = formatMsg(fullText) + '<span class="stream-cursor"></span>';
-          }
-        } catch(_) {}
+  // Show status in modal
+  const statusEl = document.getElementById('jim-doc-status');
+  if(statusEl){
+    statusEl.style.display = 'block';
+    statusEl.style.background = 'rgba(0,200,150,0.08)';
+    statusEl.style.color = '#00C896';
+    statusEl.textContent = '✅ ' + issue.key + ' loaded into Doc Analyser — go to right panel → Docs to analyse';
+  }
+
+  // Navigate: close modal → switch to right panel docs
+  setTimeout(() => {
+    closeIssueModal();
+
+    // Open the right panel to the Docs tab
+    const docsTab = document.querySelector('.rp-tab[onclick*="docs"]') ||
+                    [...document.querySelectorAll('.rp-tab')].find(t => t.textContent.includes('Docs'));
+    if(docsTab){
+      docsTab.click();
+    } else {
+      // fallback: open KB tab so user can see the loaded doc
+      switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+    }
+
+    toast('✅ ' + issue.key + ' loaded — click any Doc Analyser option to run', 'success');
+  }, 800);
+}
+
+async function runBrainOnIssue(key, brainId, prompt){
+  if(!apiKey){toast('Add Anthropic API key','warning');return;}
+  if(!_jiraContextIssue) return;
+  const f=_jiraContextIssue.fields;
+  const outEl=document.getElementById('jim-ai-out');
+  outEl.style.display='block';
+  outEl.innerHTML='<div class="loading"></div>';
+  // Highlight active brain button
+  document.querySelectorAll('#jim-brain-btns button').forEach(b=>{
+    b.style.background = b.dataset.brain===brainId ? 'var(--accent-l)' : 'var(--bg3)';
+    b.style.color = b.dataset.brain===brainId ? 'var(--accent)' : 'var(--text)';
+    b.style.borderColor = b.dataset.brain===brainId ? 'var(--accent-m)' : 'var(--border2)';
+  });
+  const issueCtx=`\n\n---\nJIRA ISSUE: ${key}\nType: ${f.issuetype?.name}\nSummary: ${f.summary}\nStatus: ${f.status?.name}\nPriority: ${f.priority?.name}\nSP: ${f.customfield_10028||'?'}\nAssignee: ${f.assignee?.displayName||'Unassigned'}\nLabels: ${f.labels?.join(', ')||'none'}\nDescription: ${_adfToText(f.description)||'(none)'}`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,stream:true,
+        system:BRAIN_SYSTEM_PROMPTS[brainId]||BRAIN_SYSTEM_PROMPTS.po,
+        messages:[{role:'user',content:prompt+issueCtx}]})
+    });
+    const reader=res.body.getReader();const decoder=new TextDecoder();let buf='',full='';
+    outEl.innerHTML='<span class="stream-cursor"></span>';
+    while(true){
+      const{done,value}=await reader.read();if(done)break;
+      buf+=decoder.decode(value,{stream:true});
+      const lines=buf.split('\n');buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: '))continue;
+        const d=line.slice(6).trim();if(d==='[DONE]'||!d)continue;
+        try{const ev=JSON.parse(d);if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){full+=ev.delta.text;outEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>';outEl.scrollTop=outEl.scrollHeight;}}catch(_){}
       }
     }
-    textEl.innerHTML = formatMsg(fullText);
-  } catch(e) {
-    textEl.innerHTML = `<span style="color:var(--red)">Error: ${e.message}</span>`;
+    outEl.innerHTML=formatMsg(full);
+  }catch(e){outEl.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';}
+}
+
+// ── Load issue into KB then immediately run doc analysis ─────
+async function loadAndAnalyse(mode){
+  if(!_jiraContextIssue){ toast('No issue loaded','warning'); return; }
+  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
+
+  // Load into KB first
+  loadIssueIntoDocAnalyser();
+
+  // Wait a tick for KB to update, then run analysis in the right panel
+  setTimeout(async () => {
+    // Switch right panel to docs
+    const docsTab = [...document.querySelectorAll('.rp-tab')].find(t => t.textContent.includes('Docs'));
+    if(docsTab) docsTab.click();
+
+    // Run the analysis — show result in right panel output
+    await rpAnalyseDoc(mode);
+  }, 300);
+}
+
+// ── Load ticket by key directly into Doc Analyser ────────────
+async function loadTicketIntoDocAnalyser(){
+  const input = document.getElementById('jira-ticket-input');
+  const statusEl = document.getElementById('jira-load-status');
+  const key = (input?.value || '').trim().toUpperCase();
+
+  if(!key){
+    toast('Enter a ticket key e.g. HIP-2336', 'warning');
+    return;
+  }
+  if(!jiraConfig){
+    openJiraConnectModal();
+    toast('Configure Jira first', 'warning');
+    return;
+  }
+
+  if(statusEl){
+    statusEl.style.display = 'block';
+    statusEl.style.background = 'rgba(245,166,35,0.08)';
+    statusEl.style.color = '#F5A623';
+    statusEl.textContent = '⏳ Loading ' + key + ' from Jira…';
+  }
+
+  try{
+    const res = await jiraFetch('/issue/' + key + '?fields=summary,description,status,issuetype,priority,assignee,reporter,customfield_10028,customfield_10657,customfield_10020,labels');
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      throw new Error(err.errorMessages?.[0] || 'HTTP ' + res.status);
+    }
+    const data = await res.json();
+
+    // Store as context issue and call the KB loader
+    _jiraContextIssue = data;
+    const f = data.fields;
+
+    // Build full document content
+    function adfToPlain(node){
+      if(!node) return '';
+      if(typeof node === 'string') return node;
+      if(node.type === 'text') return node.text || '';
+      if(node.type === 'hardBreak') return '
+';
+      if(node.type === 'paragraph') return (node.content||[]).map(adfToPlain).join('') + '
+';
+      if(node.type === 'heading') return '
+' + '#'.repeat(node.attrs?.level||2) + ' ' + (node.content||[]).map(adfToPlain).join('') + '
+';
+      if(node.type === 'bulletList'||node.type === 'orderedList') return (node.content||[]).map(adfToPlain).join('');
+      if(node.type === 'listItem') return '  - ' + (node.content||[]).map(adfToPlain).join('').trim() + '
+';
+      if(node.type === 'rule') return '
+---
+';
+      if(node.content) return node.content.map(adfToPlain).join('');
+      return '';
+    }
+
+    const desc   = _adfToText(f.description) || '(No description)';
+    const acText = f.customfield_10657 ? adfToPlain(f.customfield_10657) : '';
+    const sprint = f.customfield_10020?.[0]?.name || '—';
+
+    const docContent = [
+      '# ' + key + ': ' + f.summary,
+      '',
+      '## Metadata',
+      'Type: ' + (f.issuetype?.name || '—'),
+      'Status: ' + (f.status?.name || '—'),
+      'Priority: ' + (f.priority?.name || '—'),
+      'Story Points: ' + (f.customfield_10028 || '—'),
+      'Assignee: ' + (f.assignee?.displayName || 'Unassigned'),
+      'Reporter: ' + (f.reporter?.displayName || '—'),
+      'Sprint: ' + sprint,
+      'Labels: ' + (f.labels?.join(', ') || 'None'),
+      '',
+      '## Description',
+      desc,
+      '',
+      acText ? '## Acceptance Criteria
+' + acText : '',
+    ].filter(Boolean).join('
+');
+
+    const docName = key + ' — ' + f.summary.substring(0, 60) + (f.summary.length > 60 ? '…' : '');
+    const sizeKb  = Math.round(docContent.length / 1024 * 10) / 10 || 1;
+
+    // Remove existing entry for same ticket
+    if(typeof knowledgeBase !== 'undefined'){
+      const existing = knowledgeBase.findIndex(d => d.name.startsWith(key + ' —'));
+      if(existing >= 0) knowledgeBase.splice(existing, 1);
+      knowledgeBase.push({ id: Date.now() + Math.random(), name: docName, type: 'text', ext: 'jira', size: sizeKb, content: docContent });
+      if(typeof updateKbStatus === 'function') updateKbStatus();
+      if(typeof renderKbList   === 'function') renderKbList();
+    }
+
+    if(statusEl){
+      statusEl.style.background = 'rgba(0,200,150,0.08)';
+      statusEl.style.color = '#00C896';
+      statusEl.textContent = '✅ ' + key + ' loaded — click any analysis option below';
+    }
+    if(input) input.value = '';
+    toast('✅ ' + key + ': ' + f.summary.substring(0,40) + '… ready to analyse', 'success');
+
+  } catch(e){
+    if(statusEl){
+      statusEl.style.background = 'rgba(255,71,87,0.08)';
+      statusEl.style.color = '#FF4757';
+      statusEl.textContent = '⚠ ' + e.message;
+    }
+    toast('Error loading ' + key + ': ' + e.message, 'error');
   }
 }
-
-// ── Upgrade backlog rows to use Issue Detail panel ────────────
-function renderJiraBacklog(issues, total) {
-  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
-  const el = document.getElementById('jira-backlog-table');
-  if(!issues.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted2)">No backlog items</div>'; return; }
-
-  el.innerHTML = `
-    <div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total} backlog items — click any row to analyse</div>
-    <table style="width:100%;border-collapse:collapse">
-      <thead><tr>
-        ${['Key','Summary','Type','Priority','SP','Actions'].map(h =>
-          `<th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">${h}</th>`
-        ).join('')}
-      </tr></thead>
-      <tbody>
-        ${issues.map(issue => {
-          const f = issue.fields;
-          const tc = TCOL[f.issuetype?.name] || '#7a7a90';
-          const sp = f.customfield_10016 || '—';
-          return `<tr style="cursor:pointer" onclick="loadIssueIntoContext('${issue.key}')">
-            <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)">${issue.key}</td>
-            <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:300px">${escapeHtml(f.summary)}</td>
-            <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'-'}</span></td>
-            <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border)">${f.priority?.name||'-'}</td>
-            <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--accent);border-bottom:0.5px solid var(--border)">${sp}</td>
-            <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)" onclick="event.stopPropagation()">
-              <div style="display:flex;gap:4px">
-                <button onclick="loadIssueIntoContext('${issue.key}')" style="font-size:9px;padding:2px 7px;border:0.5px solid var(--accent-m);background:var(--accent-l);color:var(--accent);border-radius:4px;cursor:pointer;font-family:inherit">🧠 Analyse</button>
-                
-              </div>
-            </td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>`;
-}
-
-// ── Upgrade search results to use Issue Detail panel ──────────
-function renderJiraSearchResults(issues, total) {
-  const el = document.getElementById('jira-search-results');
-  const TCOL = {'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
-  const SCOL = {'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896','Closed':'#00C896','Ready For QA':'#F5A623','In Development':'#6C47FF','Ready For Release':'#00C896','SIT DONE':'#00C896'};
-  if(!issues.length) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted2)">No results</div>'; return; }
-  el.innerHTML = `<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total} — click any row to run all ProdMind brains on it</div>
-  <table style="width:100%;border-collapse:collapse">
-    <thead><tr>
-      ${['Key','Summary','Type','Status','Priority','Actions'].map(h =>
-        `<th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">${h}</th>`
-      ).join('')}
-    </tr></thead>
-    <tbody>
-      ${issues.map(issue => {
-        const f = issue.fields;
-        const tc = TCOL[f.issuetype?.name]||'#7a7a90';
-        const sc = SCOL[f.status?.name]||'#7a7a90';
-        return `<tr style="cursor:pointer" onclick="loadIssueIntoContext('${issue.key}')">
-          <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)">${issue.key}</td>
-          <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:280px">${escapeHtml(f.summary)}</td>
-          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'-'}</span></td>
-          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;text-transform:uppercase;background:${sc}18;color:${sc}">${f.status?.name||'-'}</span></td>
-          <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border)">${f.priority?.name||'-'}</td>
-          <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)" onclick="event.stopPropagation()">
-            <button onclick="loadIssueIntoContext('${issue.key}')" style="font-size:9px;padding:2px 8px;border:0.5px solid var(--accent-m);background:var(--accent-l);color:var(--accent);border-radius:4px;cursor:pointer;font-family:inherit">🧠 All Brains</button>
-          </td>
-        </tr>`;
-      }).join('')}
-    </tbody>
-  </table>`;
-}
-
-// ── Copy text helper ──────────────────────────────────────────
-function copyText(text) {
-  navigator.clipboard.writeText(text).catch(()=>{});
-  toast('📋 Copied!', 'success');
-}
-
-// ── Build issue modal on page load ────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  buildIssueModal();
-  const m = document.getElementById('jira-issue-modal');
-  if(m) m.classList.add('show') || m.classList.remove('show');
-});
-// Also build immediately in case DOMContentLoaded already fired
-setTimeout(buildIssueModal, 500);
-
 </script>
-
 </body>
 </html>
