@@ -25980,13 +25980,16 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
       <button onclick="closeJiraConnectModal()" style="background:var(--bg3);border:none;border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted2);cursor:pointer">✕</button>
     </div>
     <div style="padding:18px 20px;display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:11px;color:var(--muted2);background:var(--bg3);border-radius:7px;padding:8px 10px">
-        📖 <strong>Read-only mode</strong> — credentials stored in localStorage only. Proxy URL not required for read operations.
+      <div style="font-size:11px;background:var(--bg3);border-radius:7px;padding:8px 12px;color:var(--muted2);line-height:1.6">
+        📖 <strong>Read-only via Vercel proxy</strong> — no credentials stored on any server. Your API token stays in this browser only.
       </div>
-      <div class="cf"><label>Atlassian Domain</label><input id="jm-domain" placeholder="yourcompany.atlassian.net" value="ebdae.atlassian.net"/></div>
-      <div class="cf"><label>Email</label><input id="jm-email" type="email" placeholder="you@company.com"/></div>
-      <div class="cf"><label>API Token <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" style="color:#4C9AFF;font-size:9px;text-decoration:none">Get token ↗</a></label>
-        <input id="jm-token" type="password" placeholder="ATATT3xFfGF0…"/>
+      <div class="cf"><label>Atlassian Domain</label><input id="jm-domain" placeholder="ebdae.atlassian.net" value="ebdae.atlassian.net"/></div>
+      <div class="cf"><label>Email</label><input id="jm-email" type="email" placeholder="you@aldar.com" value="abilla@aldar.com"/></div>
+      <div class="cf"><label>API Token <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" style="color:#4C9AFF;font-size:9px">Get token ↗</a></label>
+        <input id="jm-token" type="password" placeholder="ATATT3x…"/>
+      </div>
+      <div class="cf"><label>Proxy URL <span style="font-size:9px;color:var(--muted2)">(your Vercel deployment)</span></label>
+        <input id="jm-proxy" placeholder="https://prodmind-jira-proxy.vercel.app"/>
       </div>
       <button onclick="saveJiraConfig()" style="background:#0052CC;color:#fff;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Save & Test Connection</button>
       <div id="jm-status" style="font-size:11px;text-align:center;min-height:16px;font-weight:500"></div>
@@ -26050,49 +26053,23 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
 
 // ── Init: restore saved config ────────────────────────────────
 (function(){
-  // ── Auto-connect: Harbour Platform Jira (ebdae.atlassian.net) ──
-  // Credentials pre-loaded — no manual config needed
-  const PRESET = {
-    domain: 'ebdae.atlassian.net',
-    email:  'abilla@aldar.com',
-    token:  ''  // User must paste their API token once — stored in localStorage
-  };
+  // Restore saved config
+  try {
+    const saved = localStorage.getItem('pm_jira_config');
+    if (saved) jiraConfig = JSON.parse(saved);
+  } catch(_) {}
 
-  // Try localStorage first (persists across sessions)
-  const saved = localStorage.getItem('pm_jira_config');
-  if(saved){
-    try {
-      jiraConfig = JSON.parse(saved);
-      // Always ensure domain + email are correct even if token was saved
-      jiraConfig.domain = PRESET.domain;
-      jiraConfig.email  = PRESET.email;
-    } catch(_){ jiraConfig = null; }
-  }
+  // Restore proxy URL
+  const savedProxy = localStorage.getItem('pm_jira_proxy');
+  if (savedProxy) jiraProxyUrl = savedProxy;
 
-  // Pre-fill modal with known values
-  const d=document.getElementById('jm-domain'); if(d) d.value=PRESET.domain;
-  const e=document.getElementById('jm-email');  if(e) e.value=PRESET.email;
-  if(jiraConfig && jiraConfig.token){
-    // Already have token — show connected state
-    setJiraStatusCredentialsSaved(PRESET.domain, PRESET.email);
-    // Auto-test in background
-    setTimeout(()=>{
-      jiraFetch('/myself').then(r=>{
-        if(r.ok) r.json().then(data=>{
-          setJiraStatusConnected(data.displayName||PRESET.email, PRESET.domain);
-        });
-      }).catch(()=>{});
-    }, 800);
+  // Show status
+  if (jiraConfig && jiraConfig.email && jiraConfig.token && jiraProxyUrl) {
+    setJiraStatusConnected(jiraConfig.email.split('@')[0], jiraConfig.domain || 'ebdae.atlassian.net');
+  } else if (jiraConfig && jiraConfig.email) {
+    setJiraStatusCredentialsSaved(jiraConfig.domain || 'ebdae.atlassian.net', jiraConfig.email);
   } else {
-    // No token yet — prompt user
     setJiraStatusDisconnected();
-    // Auto-open config modal after 1s if on Jira tab
-    setTimeout(()=>{
-      const activePage = document.querySelector('.page.active');
-      if(activePage && activePage.id==='page-jira'){
-        openJiraConnectModal();
-      }
-    }, 1000);
   }
 })();
 
@@ -26118,18 +26095,21 @@ function closeJiraConnectModal(){
 
 // ── Save config and test ──────────────────────────────────────
 async function saveJiraConfig(){
-  const domain = document.getElementById('jm-domain').value.trim().replace(/^https?:\/\//,'');
-  const email  = document.getElementById('jm-email').value.trim();
-  const token  = document.getElementById('jm-token').value.trim();
+  const domain = (document.getElementById('jm-domain')?.value||'ebdae.atlassian.net').trim().replace(/^https?:\/\//,'');
+  const email  = (document.getElementById('jm-email')?.value||'').trim();
+  const token  = (document.getElementById('jm-token')?.value||'').trim();
+  const proxy  = (document.getElementById('jm-proxy')?.value||'').trim().replace(/\/+$/,'');
   const st     = document.getElementById('jm-status');
 
-  if(!domain||!email||!token){
-    if(st){st.textContent='⚠ Fill in all three fields';st.style.color='var(--red)';}
+  if (!email || !token || !proxy) {
+    if (st) { st.textContent = '⚠ Fill in email, API token and proxy URL'; st.style.color = 'var(--red)'; }
     return;
   }
 
   jiraConfig = { domain, email, token };
   localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
+  jiraProxyUrl = proxy;
+  localStorage.setItem('pm_jira_proxy', proxy);
 
   if(st){ st.textContent='Testing connection…'; st.style.color='var(--muted2)'; }
 
@@ -26201,47 +26181,68 @@ function setJiraStatusConnected(name, domain){
 
 // ── Live connection test ──────────────────────────────────────
 async function testJiraConnection(){
-  if(!jiraConfig){ toast('Configure Jira first','warning'); return; }
-  const testBtn=document.getElementById('jira-test-btn');
-  const txt=document.getElementById('jira-status-text');
-  if(testBtn){ testBtn.textContent='Testing…'; testBtn.disabled=true; }
-  if(txt){ txt.textContent='Testing connection…'; txt.style.color='var(--muted2)'; }
-  try{
+  const testBtn = document.getElementById('jira-test-btn');
+  const st      = document.getElementById('jm-status');
+  if (testBtn) { testBtn.textContent = 'Testing…'; testBtn.disabled = true; }
+  if (st) { st.textContent = 'Testing connection…'; st.style.color = 'var(--muted2)'; }
+
+  try {
     const res = await jiraFetch('/myself');
-    if(res.ok){
+    if (res.ok) {
       const data = await res.json();
-      const name = data.displayName||data.name||jiraConfig.email;
-      setJiraStatusConnected(name, jiraConfig.domain);
-      toast('✅ Jira connected as '+name,'success');
+      const name = data.displayName || data.name || jiraConfig.email;
+      const domain = jiraConfig.domain || 'ebdae.atlassian.net';
+      setJiraStatusConnected(name, domain);
+      if (st) { st.textContent = '✅ Connected as ' + name; st.style.color = '#00C896'; }
+      setTimeout(closeJiraConnectModal, 1000);
+      toast('✅ Jira connected as ' + name, 'success');
     } else {
-      document.getElementById('jira-status-text').textContent='⚠ HTTP '+res.status+' — check API token';
-      document.getElementById('jira-status-text').style.color='var(--red)';
+      const err = await res.json().catch(() => ({}));
+      const msg = err.message || 'HTTP ' + res.status;
+      if (st) { st.textContent = '⚠ ' + msg; st.style.color = 'var(--red)'; }
+      toast('Jira test failed: ' + msg, 'error');
     }
-  } catch(e){
-    document.getElementById('jira-status-text').textContent='⚠ '+e.message;
-    document.getElementById('jira-status-text').style.color='var(--red)';
+  } catch (e) {
+    if (st) { st.textContent = '⚠ ' + e.message; st.style.color = 'var(--red)'; }
+    toast('Connection error: ' + e.message, 'error');
   }
-  if(testBtn){ testBtn.textContent='↻ Test Connection'; testBtn.disabled=false; }
+  if (testBtn) { testBtn.textContent = '↻ Test Connection'; testBtn.disabled = false; }
 }
 
 // ── Jira API fetch (direct to Atlassian Cloud) ────────────────
+// ── JIRA FETCH — routes through Vercel proxy (no CORS) ─────
+// Proxy repo: github.com/Billaabhi/prodmind-jira-proxy
+// Set proxy URL in Jira ⚙ Configure modal
+
 const JIRA_CLOUD_ID = 'fd834394-ca79-4414-b7b9-86c7a47cf3e1';
 
-async function jiraFetch(path, opts={}){
-  if(!jiraConfig) throw new Error('Jira not configured');
-  const creds = btoa(jiraConfig.email+':'+jiraConfig.token);
-  const url = 'https://api.atlassian.com/ex/jira/'+JIRA_CLOUD_ID+'/rest/api/3'+path;
-  return fetch(url, {
-    ...opts,
-    headers:{
-      'Authorization':'Basic '+creds,
-      'Content-Type':'application/json',
-      'Accept':'application/json',
-      ...(opts.headers||{})
-    }
-  });
-}
+async function jiraFetch(path, opts) {
+  opts = opts || {};
 
+  if (!jiraProxyUrl) {
+    throw new Error('Proxy URL not set — click ⚙ Configure in the Jira tab and add your proxy URL');
+  }
+
+  if (!jiraConfig || !jiraConfig.email || !jiraConfig.token) {
+    throw new Error('Jira credentials not set — click ⚙ Configure');
+  }
+
+  const url = jiraProxyUrl.replace(/\/+$/, '') + '/api/jira?path=' + encodeURIComponent(path);
+
+  const fetchOpts = {
+    method: opts.method || 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'X-Jira-Email': jiraConfig.email,
+      'X-Jira-Token': jiraConfig.token
+    }
+  };
+
+  if (opts.body) fetchOpts.body = opts.body;
+
+  return fetch(url, fetchOpts);
+}
 // ── ADF text extractor ────────────────────────────────────────
 function _adfToText(node){
   if(!node) return '';
@@ -26271,9 +26272,12 @@ function showJiraSubTab(id, el){
   window.switchTab = function(tab, el){
     _orig(tab, el);
     if(tab==='jira'){
-      if(jiraConfig){
-        setJiraStatusCredentialsSaved(jiraConfig.domain, jiraConfig.email);
-        setTimeout(testJiraConnection, 300);
+      if (jiraConfig && jiraConfig.email && jiraConfig.token && jiraProxyUrl) {
+        setJiraStatusConnected(jiraConfig.email.split('@')[0], jiraConfig.domain||'ebdae.atlassian.net');
+        // Pre-fill modal
+        const mp = document.getElementById('jm-proxy'); if(mp) mp.value = jiraProxyUrl;
+        const md = document.getElementById('jm-domain'); if(md) md.value = jiraConfig.domain||'ebdae.atlassian.net';
+        const me = document.getElementById('jm-email'); if(me) me.value = jiraConfig.email||'';
       } else {
         setJiraStatusDisconnected();
       }
@@ -26302,15 +26306,16 @@ async function loadJiraBoard(){
 }
 
 function renderJiraBoard(issues){
-  const SCOL={'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896','READY FOR DEVELOPMENT':'#3B82F6','In Development':'#6C47FF','IN SIT':'#F5A623','SIT DONE':'#00C896','Released to Prod':'#00C896'};
-  const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
+  const SCOL={'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896'};
+  const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF','Sub-task':'#9b59b6','Initiative':'#e67e22'};
   const PEMU={'Highest':'🔴','High':'🟠','Medium':'🟡','Low':'🟢','Lowest':'⚪'};
-  // Group by status category
-  const COLS={'To Do':[],'In Progress':[],'In Review':[],'Done':[]};
+  // Group by statusCategory key — works with ALL custom statuses
+  const COLS={'To Do':[],'In Progress':[],'Done':[]};
   issues.forEach(issue=>{
-    const cat=issue.fields.status?.statusCategory?.name||'To Do';
-    const col=cat==='Done'?'Done':cat==='In Progress'?'In Progress':'To Do';
-    if(COLS[col]) COLS[col].push(issue);
+    const cat = issue.fields.status?.statusCategory?.key || 'new';
+    if(cat === 'done') COLS['Done'].push(issue);
+    else if(cat === 'indeterminate' || cat === 'in-progress') COLS['In Progress'].push(issue);
+    else COLS['To Do'].push(issue);
   });
   document.getElementById('jira-board-cols').innerHTML=Object.entries(COLS).map(([col,items])=>`
     <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:10px">
