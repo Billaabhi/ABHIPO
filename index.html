@@ -25638,6 +25638,8 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
         <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;Ready For QA&quot; ORDER BY priority DESC')">🧪 Ready for QA</button>
         <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;SIT DONE&quot; ORDER BY updated DESC')">✅ SIT Done</button>
         <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND issuetype = Bug AND priority = Highest ORDER BY created DESC')">🚨 Critical Bugs</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;CODE REVIEW&quot; ORDER BY updated DESC')">🔍 Code Review</button>
+        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;READY FOR DEVELOPMENT&quot; ORDER BY priority DESC')">🟦 Ready for Dev</button>
       </div>
       <div id="jira-search-results"><div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Run a JQL query to see results</div></div>
     </div>
@@ -25980,19 +25982,27 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
       <button onclick="closeJiraConnectModal()" style="background:var(--bg3);border:none;border-radius:6px;padding:4px 10px;font-size:11px;color:var(--muted2);cursor:pointer">✕</button>
     </div>
     <div style="padding:18px 20px;display:flex;flex-direction:column;gap:10px">
-      <div style="font-size:11px;background:var(--bg3);border-radius:7px;padding:8px 12px;color:var(--muted2);line-height:1.6">
-        📖 <strong>Read-only via Vercel proxy</strong> — no credentials stored on any server. Your API token stays in this browser only.
+      <div style="font-size:11px;background:rgba(0,82,204,0.06);border:0.5px solid rgba(0,82,204,0.2);border-radius:8px;padding:10px 12px;line-height:1.6;color:var(--muted2)">
+        🔗 <strong style="color:var(--text)">Jira via Rovo MCP</strong> — your Atlassian API token authenticates the connection. No proxy needed.
       </div>
-      <div class="cf"><label>Atlassian Domain</label><input id="jm-domain" placeholder="ebdae.atlassian.net" value="ebdae.atlassian.net"/></div>
-      <div class="cf"><label>Email</label><input id="jm-email" type="email" placeholder="you@aldar.com" value="abilla@aldar.com"/></div>
-      <div class="cf"><label>API Token <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" style="color:#4C9AFF;font-size:9px">Get token ↗</a></label>
-        <input id="jm-token" type="password" placeholder="ATATT3x…"/>
+      <div class="cf">
+        <label>Atlassian Domain</label>
+        <input id="jm-domain" value="ebdae.atlassian.net" placeholder="yourcompany.atlassian.net"/>
       </div>
-      <div class="cf"><label>Proxy URL <span style="font-size:9px;color:var(--muted2)">(your Vercel deployment)</span></label>
-        <input id="jm-proxy" placeholder="https://prodmind-jira-proxy.vercel.app"/>
+      <div class="cf">
+        <label>Email</label>
+        <input id="jm-email" type="email" value="abilla@aldar.com" placeholder="you@company.com"/>
       </div>
-      <button onclick="saveJiraConfig()" style="background:#0052CC;color:#fff;border:none;border-radius:8px;padding:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">Save & Test Connection</button>
-      <div id="jm-status" style="font-size:11px;text-align:center;min-height:16px;font-weight:500"></div>
+      <div class="cf">
+        <label>Atlassian API Token
+          <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank"
+             style="color:#4C9AFF;font-size:9px;font-weight:400;margin-left:6px;text-decoration:none">Get token ↗</a>
+        </label>
+        <input id="jm-token" type="password" placeholder="ATATT3xFfGF0…"
+               style="font-family:monospace;letter-spacing:.05em"/>
+      </div>
+      <button onclick="saveJiraConfig()" style="background:#0052CC;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Save & Test Connection</button>
+      <div id="jm-status" style="font-size:11px;text-align:center;min-height:16px;font-weight:500;margin-top:6px"></div>
     </div>
   </div>
 </div>
@@ -26053,21 +26063,27 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
 
 // ── Init: restore saved config ────────────────────────────────
 (function(){
-  // Restore saved config
+  // Restore saved Jira config (domain + email + Atlassian API token)
   try {
     const saved = localStorage.getItem('pm_jira_config');
-    if (saved) jiraConfig = JSON.parse(saved);
-  } catch(_) {}
+    if(saved) jiraConfig = JSON.parse(saved);
+  } catch(_){}
 
-  // Restore proxy URL
-  const savedProxy = localStorage.getItem('pm_jira_proxy');
-  if (savedProxy) jiraProxyUrl = savedProxy;
+  // Pre-fill modal with known values
+  const dm = document.getElementById('jm-domain');
+  const em = document.getElementById('jm-email');
+  if(dm) dm.value = (jiraConfig && jiraConfig.domain) || 'ebdae.atlassian.net';
+  if(em) em.value = (jiraConfig && jiraConfig.email)  || 'abilla@aldar.com';
 
-  // Show status
-  if (jiraConfig && jiraConfig.email && jiraConfig.token && jiraProxyUrl) {
-    setJiraStatusConnected(jiraConfig.email.split('@')[0], jiraConfig.domain || 'ebdae.atlassian.net');
-  } else if (jiraConfig && jiraConfig.email) {
+  // Show status based on saved config
+  if(jiraConfig && jiraConfig.email && jiraConfig.token && jiraConfig.token !== 'mcp'){
     setJiraStatusCredentialsSaved(jiraConfig.domain || 'ebdae.atlassian.net', jiraConfig.email);
+    // Auto-test in background
+    if(apiKey){
+      setTimeout(function(){
+        testJiraConnection();
+      }, 1200);
+    }
   } else {
     setJiraStatusDisconnected();
   }
@@ -26098,18 +26114,13 @@ async function saveJiraConfig(){
   const domain = (document.getElementById('jm-domain')?.value||'ebdae.atlassian.net').trim().replace(/^https?:\/\//,'');
   const email  = (document.getElementById('jm-email')?.value||'').trim();
   const token  = (document.getElementById('jm-token')?.value||'').trim();
-  const proxy  = (document.getElementById('jm-proxy')?.value||'').trim().replace(/\/+$/,'');
   const st     = document.getElementById('jm-status');
-
-  if (!email || !token || !proxy) {
-    if (st) { st.textContent = '⚠ Fill in email, API token and proxy URL'; st.style.color = 'var(--red)'; }
+  if(!email || !token){
+    if(st){ st.textContent='Enter email and API token'; st.style.color='var(--red)'; }
     return;
   }
-
   jiraConfig = { domain, email, token };
   localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
-  jiraProxyUrl = proxy;
-  localStorage.setItem('pm_jira_proxy', proxy);
 
   if(st){ st.textContent='Testing connection…'; st.style.color='var(--muted2)'; }
 
@@ -26184,8 +26195,12 @@ async function testJiraConnection(){
   const testBtn = document.getElementById('jira-test-btn');
   const st      = document.getElementById('jm-status');
   if (testBtn) { testBtn.textContent = 'Testing…'; testBtn.disabled = true; }
-  if (st) { st.textContent = 'Testing connection…'; st.style.color = 'var(--muted2)'; }
-
+  if (st) { st.textContent = 'Connecting via Rovo MCP…'; st.style.color = 'var(--muted2)'; }
+  if (!apiKey) {
+    if (st) { st.textContent = '⚠ Add Anthropic API key first'; st.style.color = 'var(--red)'; }
+    if (testBtn) { testBtn.textContent = '↻ Test Connection'; testBtn.disabled = false; }
+    return;
+  }
   try {
     const res = await jiraFetch('/myself');
     if (res.ok) {
@@ -26210,38 +26225,92 @@ async function testJiraConnection(){
 }
 
 // ── Jira API fetch (direct to Atlassian Cloud) ────────────────
-// ── JIRA FETCH — routes through Vercel proxy (no CORS) ─────
-// Proxy repo: github.com/Billaabhi/prodmind-jira-proxy
-// Set proxy URL in Jira ⚙ Configure modal
+// ── JIRA FETCH — Anthropic API + Rovo MCP with Atlassian token ──
+// The MCP server at mcp.atlassian.com accepts Basic Auth via the
+// authorization header in the mcp_servers config. This lets ProdMind
+// authenticate as the user without CORS issues.
 
 const JIRA_CLOUD_ID = 'fd834394-ca79-4414-b7b9-86c7a47cf3e1';
+const JIRA_MCP_SERVER = 'https://mcp.atlassian.com/v1/mcp';
+const _jiraCache = {};
 
-async function jiraFetch(path, opts) {
+// Build Basic Auth token from stored Jira credentials
+function _getJiraAuthHeader(){
+  if(!jiraConfig || !jiraConfig.email || !jiraConfig.token) return null;
+  return 'Basic ' + btoa(jiraConfig.email + ':' + jiraConfig.token);
+}
+
+async function jiraFetch(path, opts){
   opts = opts || {};
+  if(!apiKey) throw new Error('Add your Anthropic API key first');
 
-  if (!jiraProxyUrl) {
-    throw new Error('Proxy URL not set — click ⚙ Configure in the Jira tab and add your proxy URL');
+  const method = (opts.method || 'GET').toUpperCase();
+  const cacheKey = method + path;
+  if(method === 'GET' && _jiraCache[cacheKey]){
+    return { ok:true, status:200, json: async()=>_jiraCache[cacheKey] };
   }
 
-  if (!jiraConfig || !jiraConfig.email || !jiraConfig.token) {
-    throw new Error('Jira credentials not set — click ⚙ Configure');
+  const jiraPath = '/rest/api/3' + path;
+  const authHeader = _getJiraAuthHeader();
+
+  // Build MCP server config — include Atlassian token so Rovo can auth
+  const mcpServer = { type:'url', url: JIRA_MCP_SERVER, name:'atlassian-rovo' };
+  if(authHeader){
+    mcpServer.authorization_token = authHeader;
   }
 
-  const url = jiraProxyUrl.replace(/\/+$/, '') + '/api/jira?path=' + encodeURIComponent(path);
+  var _n='\\n';
+  var prompt = 'Use the atlassian-rovo MCP tool to fetch this Jira REST API and return ONLY the raw JSON:'+_n+'Cloud ID: '+JIRA_CLOUD_ID+_n+'Endpoint: '+jiraPath+_n+'Method: '+method+(opts.body?_n+'Body: '+opts.body:'')+_n+'Return ONLY valid JSON.';
 
-  const fetchOpts = {
-    method: opts.method || 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'X-Jira-Email': jiraConfig.email,
-      'X-Jira-Token': jiraConfig.token
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'anthropic-beta': 'mcp-client-2025-04-04'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 4096,
+        system: 'You are a Jira data relay. Use the atlassian-rovo MCP tool to fetch the requested Jira endpoint. Return ONLY the raw JSON from Jira — no text, no markdown, no explanation.',
+        messages: [{ role:'user', content: prompt }],
+        mcp_servers: [mcpServer]
+      })
+    });
+
+    if(!res.ok){
+      const err = await res.json().catch(()=>({}));
+      throw new Error('Anthropic API error ' + res.status + ': ' + (err.error?.message||'unknown'));
     }
-  };
 
-  if (opts.body) fetchOpts.body = opts.body;
+    const data = await res.json();
 
-  return fetch(url, fetchOpts);
+    // Extract text from response — could be text block or tool result
+    let jsonText = '';
+    for(const block of (data.content||[])){
+      if(block.type === 'text' && block.text){
+        jsonText = block.text.trim();
+        break;
+      }
+    }
+
+    if(!jsonText) throw new Error('No JSON returned from Jira relay');
+
+    // Strip any markdown fences
+    jsonText = jsonText.replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/,'').trim();
+
+    const parsed = JSON.parse(jsonText);
+    if(method === 'GET') _jiraCache[cacheKey] = parsed;
+
+    return { ok:true, status:200, json: async()=>parsed };
+
+  }catch(e){
+    console.error('jiraFetch error:', e.message);
+    return { ok:false, status:500, json: async()=>({error:e.message}), text: async()=>e.message };
+  }
 }
 // ── ADF text extractor ────────────────────────────────────────
 function _adfToText(node){
@@ -26272,15 +26341,17 @@ function showJiraSubTab(id, el){
   window.switchTab = function(tab, el){
     _orig(tab, el);
     if(tab==='jira'){
-      if (jiraConfig && jiraConfig.email && jiraConfig.token && jiraProxyUrl) {
-        setJiraStatusConnected(jiraConfig.email.split('@')[0], jiraConfig.domain||'ebdae.atlassian.net');
-        // Pre-fill modal
-        const mp = document.getElementById('jm-proxy'); if(mp) mp.value = jiraProxyUrl;
-        const md = document.getElementById('jm-domain'); if(md) md.value = jiraConfig.domain||'ebdae.atlassian.net';
-        const me = document.getElementById('jm-email'); if(me) me.value = jiraConfig.email||'';
+      if (apiKey) {
+        setJiraStatusConnected('Abhinav Reddy billa', 'ebdae.atlassian.net');
       } else {
-        setJiraStatusDisconnected();
+        const txt = document.getElementById('jira-status-text');
+        if (txt) { txt.textContent = 'Add Anthropic API key to activate Jira'; txt.style.color = '#F5A623'; }
       }
+    }
+    // Show Jira context banner for Jira-aware features
+    const JIRA_TABS = ['sprint-health','monte-carlo','backlog','roadmap','mom','docs','metrics','week-planner','strategy','decision-log'];
+    if(JIRA_TABS.includes(tab)){
+      showJiraContextBanner(tab);
     }
   };
 })();
@@ -26685,6 +26756,12 @@ function loadIssueIntoDocAnalyser(){
   }, 800);
 }
 
+// ── Decode URI-encoded prompt from onclick attributes ─────────
+async function runBrainOnIssueByKey(key, brainId, encodedPrompt){
+  const prompt = decodeURIComponent(encodedPrompt);
+  await runBrainOnIssue(key, brainId, prompt);
+}
+
 async function runBrainOnIssue(key, brainId, prompt){
   if(!apiKey){toast('Add Anthropic API key','warning');return;}
   if(!_jiraContextIssue) return;
@@ -26994,5 +27071,1248 @@ async function loadTicketIntoDocAnalyser(){
   }
 }
 </script>
+
+<!-- ══ UNIVERSAL JIRA CONTEXT SYSTEM ══════════════════════════ -->
+<!-- Appears on Sprint Health, Forecast, Backlog, Roadmap,       -->
+<!-- MOM, Docs, Metrics, Week Planner, Strategy, Decision Log    -->
+
+<!-- Jira Context Popup -->
+<div id="jira-ctx-popup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9000;align-items:center;justify-content:center">
+  <div style="background:var(--bg2);border:0.5px solid var(--border2);border-radius:14px;width:440px;max-width:94vw;box-shadow:0 16px 60px rgba(0,0,0,.6);overflow:hidden">
+    <div style="background:linear-gradient(135deg,#0052CC,#4C9AFF);padding:20px 22px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.6);margin-bottom:4px">JIRA INTEGRATION</div>
+      <div id="jira-ctx-title" style="font-size:18px;font-weight:700;color:#fff"></div>
+      <div id="jira-ctx-sub" style="font-size:12px;color:rgba(255,255,255,.7);margin-top:3px"></div>
+    </div>
+    <div style="padding:20px 22px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--muted2);margin-bottom:10px">Select Project / POD</div>
+      <select id="jira-ctx-select" onchange="if(this.value)selectJiraCtxProject(this.value,null)" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--text);font-family:inherit;outline:none;cursor:pointer;margin-bottom:10px">
+  <option value="">-- Select a POD / Project --</option>
+  <optgroup label="Harbour Platform">
+    <option value="HIP">HIP - Harbour Linkon</option>
+    <option value="HUP">HUP - Harbour Mirros</option>
+    <option value="MIN">MIN - Harbour Mindra</option>
+    <option value="SHL">SHL - Harbour Shellix</option>
+    <option value="HD">HD - Harbour Discovery</option>
+  </optgroup>
+  <optgroup label="GDF / Digital Futures">
+    <option value="DFG">DFG - GDF Initiative Gates</option>
+    <option value="CAP">CAP - Digital Futures Magnet</option>
+    <option value="DFIB">DFIB - DF Idea Board</option>
+    <option value="RDM2026">RDM2026 - 2026 GDF Roadmap</option>
+    <option value="ATD">ATD - Aldar Tech Debt</option>
+    <option value="DEMO">DEMO - GDF Demos</option>
+    <option value="AILAB">AILAB - AI Experience Lab</option>
+    <option value="GH">GH - GDF Hiring</option>
+    <option value="APG">APG - Aldar Projects Gateways</option>
+  </optgroup>
+  <optgroup label="Digital Products">
+    <option value="HEA">HEA - Hello Aldar</option>
+    <option value="BRP">BRP - Broker Portal</option>
+    <option value="PAY">PAY - Aldar Payments</option>
+    <option value="LAV">LAV - Live Aldar Abu Dhabi</option>
+    <option value="LIA">LIA - Living-in Bridge</option>
+    <option value="OB">OB - Marketplace</option>
+    <option value="GD">GD - Darna</option>
+    <option value="PIN">PIN - Pinnacle</option>
+    <option value="SG">SG - Saadiyat Grove</option>
+    <option value="AHM">AHM - GDF Aldar Home</option>
+  </optgroup>
+  <optgroup label="Education">
+    <option value="ADP">ADP - Aldar Education Digital</option>
+    <option value="M2">M2 - Aldar Education Mobile</option>
+  </optgroup>
+  <optgroup label="Estates and Retail">
+    <option value="ESMRP">ESMRP - Estates Super Roadmap</option>
+    <option value="RCM">RCM - Retail CRM</option>
+    <option value="RET">RET - Retail Strategy</option>
+    <option value="LSQD">LSQD - LSQ Digital</option>
+    <option value="CRL">CRL - Landlord</option>
+    <option value="SSC">SSC - Deal Prime</option>
+    <option value="SSR">SSR - Service Prime</option>
+  </optgroup>
+  <optgroup label="Mobile and Native">
+    <option value="ANM">ANM - AE Native Mobile</option>
+    <option value="MAFP">MAFP - MAFP</option>
+    <option value="DSIR">DSIR - Digital Sales Issue Reporting</option>
+    <option value="LSUP">LSUP - Launch Support</option>
+  </optgroup>
+  <optgroup label="Platform and Operations">
+    <option value="AEPMO">AEPMO - AE EPMO</option>
+    <option value="SMPI">SMPI - SFMCI</option>
+    <option value="TCSS">TCSS - Cloud Solutions Suite</option>
+    <option value="GTMS">GTMS - Go to Market Sample</option>
+  </optgroup>
+</select>
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <input id="jira-ctx-custom" placeholder="Or type any project key e.g. PAY" style="flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:8px 11px;font-size:12px;color:var(--text);font-family:inherit;outline:none" onkeydown="if(event.key==='Enter'){var v=this.value.trim().toUpperCase();if(v)selectJiraCtxProject(v,null);}"/>
+        <button onclick="var v=document.getElementById('jira-ctx-custom').value.trim().toUpperCase();if(v)selectJiraCtxProject(v,null);" style="background:#0052CC;color:#fff;border:none;border-radius:7px;padding:8px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Use →</button>
+      </div>
+      <button onclick="closeJiraCtxPopup()" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:8px;font-size:11px;color:var(--muted2);cursor:pointer;font-family:inherit">Skip — I'll enter data manually</button>
+    </div>
+  </div>
+</div>
+
+<!-- Jira Context Banner (shown at top of Jira-aware tabs) -->
+<style>
+.jira-ctx-proj {
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  background:var(--bg3);border:0.5px solid var(--border2);border-radius:9px;
+  cursor:pointer;font-family:inherit;color:var(--text);text-align:left;
+  transition:all .15s;
+}
+.jira-ctx-proj:hover { border-color:#4C9AFF;background:rgba(0,82,204,0.08); }
+.jira-ctx-proj.selected { border-color:#0052CC;background:rgba(0,82,204,0.12);color:#4C9AFF; }
+.jira-feature-banner {
+  display:flex;align-items:center;gap:10px;padding:8px 14px;
+  background:rgba(0,82,204,0.06);border:0.5px solid rgba(0,82,204,0.2);
+  border-radius:8px;margin-bottom:14px;font-size:11px;
+}
+</style>
+
+<script>
+// ══ UNIVERSAL JIRA CONTEXT SYSTEM ════════════════════════════
+var _jiraCtxProject = localStorage.getItem('pm_jira_ctx_project') || '';
+var _jiraCtxTab = '';
+
+var JIRA_TAB_CONFIG = {
+  'sprint-health': { title:'Sprint Health — Jira', sub:'Auto-fill sprint data from Jira', action:'loadJiraIntoSprintHealth' },
+  'monte-carlo':   { title:'Forecast — Jira', sub:'Pull backlog and velocity for Monte Carlo', action:'loadJiraIntoForecast' },
+  'backlog':       { title:'Backlog — Jira', sub:'View your live Jira backlog', action:'loadJiraIntoBacklog' },
+  'roadmap':       { title:'Roadmap — Jira', sub:'Pull epics and initiatives', action:'loadJiraIntoRoadmap' },
+  'mom':           { title:'MOM — Jira', sub:'Load open action items from Jira', action:'loadJiraIntoMOM' },
+  'docs':          { title:'Doc Creator — Jira', sub:'Generate docs from a live Jira ticket', action:'loadJiraIntoDocs' },
+  'metrics':       { title:'Metrics — Jira', sub:'Pull velocity and throughput data', action:'loadJiraIntoMetrics' },
+  'week-planner':  { title:'Week Planner — Jira', sub:'Load sprint items as weekly tasks', action:'loadJiraIntoWeekPlanner' },
+  'strategy':      { title:'Strategy — Jira', sub:'Use backlog themes to inform strategy', action:'loadJiraIntoStrategy' },
+  'decision-log':  { title:'Decision Log — Jira', sub:'Connect decisions to Jira tickets', action:'loadJiraIntoDecisionLog' }
+};
+
+function showJiraContextBanner(tab) {
+  if (!JIRA_TAB_CONFIG[tab]) return;
+  var old = document.getElementById('jira-feature-banner-' + tab);
+  if (old) old.remove();
+  var cfg = JIRA_TAB_CONFIG[tab];
+  var page = document.getElementById('page-' + tab);
+  if (!page) return;
+  var tp = page.querySelector('.tab-page') || page.querySelector('.tb') || page.firstElementChild;
+  if (!tp) return;
+
+  var banner = document.createElement('div');
+  banner.id = 'jira-feature-banner-' + tab;
+  banner.className = 'jira-feature-banner';
+
+  var proj = _jiraCtxProject;
+  var icon = document.createElement('span');
+  icon.textContent = '🔗';
+  icon.style.fontSize = '14px';
+  var info = document.createElement('span');
+  info.style.cssText = 'flex:1;color:var(--muted2);font-size:11px';
+  banner.appendChild(icon);
+  banner.appendChild(info);
+
+  if (proj) {
+    info.innerHTML = 'Jira: <strong style="color:#4C9AFF">' + proj + '</strong> — ' + cfg.sub;
+    var loadBtn = document.createElement('button');
+    loadBtn.textContent = '\u21bb Load from Jira';
+    loadBtn.style.cssText = 'background:#0052CC;color:#fff;border:none;border-radius:6px;padding:5px 12px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;margin-left:8px';
+    (function(a,p){ loadBtn.onclick = function(){ if(typeof window[a]==='function') window[a](p); }; })(cfg.action, proj);
+    var chgBtn = document.createElement('button');
+    chgBtn.textContent = 'Change';
+    chgBtn.style.cssText = 'background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:5px 8px;font-size:10px;color:var(--muted2);cursor:pointer;font-family:inherit;margin-left:4px';
+    (function(t){ chgBtn.onclick = function(){ openJiraCtxPopup(t); }; })(tab);
+    banner.appendChild(loadBtn);
+    banner.appendChild(chgBtn);
+  } else {
+    info.textContent = cfg.sub;
+    var conBtn = document.createElement('button');
+    conBtn.textContent = '\uD83D\uDD17 Connect Jira';
+    conBtn.style.cssText = 'background:#0052CC;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;margin-left:8px';
+    (function(t){ conBtn.onclick = function(){ openJiraCtxPopup(t); }; })(tab);
+    banner.appendChild(conBtn);
+  }
+
+  var firstChild = tp.querySelector('.tb') || tp.firstElementChild;
+  if (firstChild && firstChild.nextSibling) {
+    tp.insertBefore(banner, firstChild.nextSibling);
+  } else {
+    tp.prepend(banner);
+  }
+
+  if (proj && apiKey && typeof window[cfg.action] === 'function') {
+    setTimeout(function(){ window[cfg.action](proj); }, 600);
+  }
+}
+
+function openJiraCtxPopup(tab) {
+  _jiraCtxTab = tab || '';
+  var cfg = JIRA_TAB_CONFIG[tab] || {};
+  var titleEl = document.getElementById('jira-ctx-title');
+  var subEl   = document.getElementById('jira-ctx-sub');
+  if (titleEl) titleEl.textContent = cfg.title || 'Connect to Jira';
+  if (subEl)   subEl.textContent   = cfg.sub   || 'Select a project';
+  document.querySelectorAll('.jira-ctx-proj').forEach(function(btn){
+    btn.classList.toggle('selected', btn.dataset.proj === _jiraCtxProject);
+  });
+  var popup = document.getElementById('jira-ctx-popup');
+  if (popup) popup.style.display = 'flex';
+}
+
+function closeJiraCtxPopup() {
+  var popup = document.getElementById('jira-ctx-popup');
+  if (popup) popup.style.display = 'none';
+}
+
+function selectJiraCtxProject(proj, btn) {
+  _jiraCtxProject = proj;
+  localStorage.setItem('pm_jira_ctx_project', proj);
+  document.querySelectorAll('.jira-ctx-proj').forEach(function(b){ b.classList.remove('selected'); });
+  if (btn) btn.classList.add('selected');
+  closeJiraCtxPopup();
+  if (_jiraCtxTab) {
+    var old = document.getElementById('jira-feature-banner-' + _jiraCtxTab);
+    if (old) old.remove();
+    showJiraContextBanner(_jiraCtxTab);
+  }
+  if (typeof toast === 'function') toast('Jira project set to ' + proj, 'success');
+}
+
+// ── Per-feature loaders ───────────────────────────────────────
+
+window.loadJiraIntoSprintHealth = async function(proj) {
+  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if(typeof toast==='function') toast('Loading sprint data from ' + proj + '...');
+  try {
+    var r1 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC') + '&maxResults=50&fields=summary,status,issuetype,assignee,customfield_10028,priority');
+    var r2 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -14d') + '&maxResults=50&fields=summary');
+    var r3 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Bug AND statusCategory != Done') + '&maxResults=20&fields=summary,priority');
+    if (!r1.ok) throw new Error('HTTP ' + r1.status);
+    var d1 = await r1.json(), d2 = r2.ok ? await r2.json() : {issues:[]}, d3 = r3.ok ? await r3.json() : {issues:[]};
+    var assignees = new Set((d1.issues||[]).filter(function(i){ return i.fields.assignee; }).map(function(i){ return i.fields.assignee.displayName; }));
+    var committed = (d1.issues||[]).length + (d2.issues||[]).length;
+    var completed = (d2.issues||[]).length;
+    var bugCount  = d3.total || (d3.issues||[]).length;
+    var teamSize  = Math.max(assignees.size, 1);
+    var set = function(id, val){ var el = document.getElementById(id); if(el){ el.value = val; el.dispatchEvent(new Event('input')); }};
+    set('sh-committed', committed); set('sh-completed', completed);
+    set('sh-blockers', bugCount); set('sh-delivery-team', teamSize);
+    set('sh-day', 5); set('sh-length', 10);
+    if(typeof toast==='function') toast('Sprint Health loaded from ' + proj + ' — ' + committed + ' items, ' + bugCount + ' bugs', 'success');
+  } catch(e) { if(typeof toast==='function') toast('Error: ' + e.message, 'error'); }
+};
+
+window.loadJiraIntoForecast = async function(proj) {
+  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if(typeof toast==='function') toast('Loading backlog from ' + proj + ' for Monte Carlo...');
+  try {
+    var r1 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do"') + '&maxResults=1&fields=summary');
+    var r2 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -42d') + '&maxResults=50&fields=summary');
+    if (!r1.ok) throw new Error('HTTP ' + r1.status);
+    var d1 = await r1.json(), d2 = r2.ok ? await r2.json() : {issues:[]};
+    var backlog   = d1.total || 0;
+    var doneCount = (d2.issues||[]).length;
+    var velocity  = Math.max(Math.round(doneCount / 3), 1);
+    var set = function(id, val){ var el = document.getElementById(id); if(el){ el.value = val; el.dispatchEvent(new Event('input')); }};
+    set('mc-backlog', backlog); set('mc-velocity', velocity); set('mc-sprint-len', 10);
+    if(typeof toast==='function') toast('Forecast loaded — ' + backlog + ' items, ~' + velocity + ' velocity/sprint', 'success');
+  } catch(e) { if(typeof toast==='function') toast('Error: ' + e.message, 'error'); }
+};
+
+window.loadJiraIntoMOM = async function(proj) {
+  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if(typeof toast==='function') toast('Loading action items from ' + proj + '...');
+  try {
+    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory in ("To Do","In Progress") AND priority in (Highest,High) ORDER BY priority DESC') + '&maxResults=10&fields=summary,assignee,priority,status');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    var items = (data.issues||[]).map(function(i){
+      var who = i.fields.assignee ? i.fields.assignee.displayName.split(' ')[0] : 'Unassigned';
+      return i.key + ': ' + i.fields.summary + ' [' + who + ']';
+    });
+    var momInput = document.getElementById('mom-context') || document.getElementById('mom-input') || document.getElementById('mom-notes');
+    if (momInput) {
+      var prefix = momInput.value ? momInput.value + '\n\n' : '';
+      momInput.value = prefix + '--- Open items from ' + proj + ' ---\n' + items.join('\n');
+      if (typeof autoResize === 'function') autoResize(momInput);
+    }
+    if(typeof toast==='function') toast(items.length + ' items loaded from ' + proj, 'success');
+  } catch(e) { if(typeof toast==='function') toast('Error: ' + e.message, 'error'); }
+};
+
+window.loadJiraIntoDocs = function(proj) { openJiraCtxPopup('docs'); };
+
+window.loadJiraIntoBacklog = function(proj) {
+  if (typeof switchTab === 'function') switchTab('jira', document.getElementById('nav-tab-jira'));
+  setTimeout(function(){
+    var bl = document.getElementById('jira-bl-project');
+    if (bl) { bl.value = proj; if (typeof loadJiraBacklog === 'function') loadJiraBacklog(); }
+  }, 400);
+};
+
+window.loadJiraIntoRoadmap = async function(proj) {
+  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if(typeof toast==='function') toast('Loading epics from ' + proj + '...');
+  try {
+    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Epic ORDER BY priority DESC') + '&maxResults=20&fields=summary,status,priority');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    var epics = (data.issues||[]).map(function(i){ return i.key + ': ' + i.fields.summary; });
+    var inp = document.getElementById('chat-input');
+    if (inp && epics.length) {
+      inp.value = 'Build a roadmap from these live epics in ' + proj + ':\n\n' + epics.join('\n') + '\n\nGroup into quarters, assign priorities, identify dependencies.';
+      if (typeof autoResize === 'function') autoResize(inp);
+    }
+    if(typeof toast==='function') toast(epics.length + ' epics loaded from ' + proj, 'success');
+    if (typeof switchTab === 'function') switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+  } catch(e) { if(typeof toast==='function') toast('Error: ' + e.message, 'error'); }
+};
+
+window.loadJiraIntoMetrics = async function(proj) {
+  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if(typeof toast==='function') toast('Loading metrics from ' + proj + '...');
+  try {
+    var r1 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -30d') + '&maxResults=100&fields=summary');
+    var r2 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Bug AND statusCategory != Done') + '&maxResults=1&fields=summary');
+    var r3 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do"') + '&maxResults=1&fields=summary');
+    var d1 = r1.ok ? await r1.json() : {issues:[], total:0};
+    var d2 = r2.ok ? await r2.json() : {total:0};
+    var d3 = r3.ok ? await r3.json() : {total:0};
+    var throughput = (d1.issues||[]).length;
+    var bugCount   = d2.total || 0;
+    var backlog    = d3.total || 0;
+    var bugRate    = throughput > 0 ? Math.round(bugCount / throughput * 100) : 0;
+    var ctx = 'LIVE METRICS — ' + proj + ' (30 days):\n- Throughput: ' + throughput + ' completed\n- Open bugs: ' + bugCount + '\n- Backlog: ' + backlog + '\n- Bug rate: ' + bugRate + '%';
+    var inp = document.getElementById('chat-input');
+    if (inp) { inp.value = 'Analyse these live metrics from ' + proj + ' and give health assessment:\n\n' + ctx; if(typeof autoResize==='function') autoResize(inp); }
+    if(typeof toast==='function') toast('Metrics loaded from ' + proj, 'success');
+    if (typeof switchTab === 'function') switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+  } catch(e) { if(typeof toast==='function') toast('Error: ' + e.message, 'error'); }
+};
+
+window.loadJiraIntoWeekPlanner = async function(proj) {
+  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if(typeof toast==='function') toast('Loading sprint items for ' + proj + '...');
+  try {
+    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "In Progress" ORDER BY priority DESC') + '&maxResults=20&fields=summary,assignee,priority,status');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    var items = (data.issues||[]).map(function(i){
+      var who = i.fields.assignee ? i.fields.assignee.displayName.split(' ')[0] : 'Unassigned';
+      return '- [' + i.key + '] ' + i.fields.summary + ' (' + who + ')';
+    });
+    var inp = document.getElementById('chat-input');
+    if (inp) { inp.value = 'Help me plan my week as PO based on these active sprint items from ' + proj + ':\n\n' + items.join('\n') + '\n\nOrganise into daily priorities, flag blockers, suggest quick wins.'; if(typeof autoResize==='function') autoResize(inp); }
+    if(typeof toast==='function') toast(items.length + ' sprint items loaded', 'success');
+    if (typeof switchTab === 'function') switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+  } catch(e) { if(typeof toast==='function') toast('Error: ' + e.message, 'error'); }
+};
+
+window.loadJiraIntoStrategy = async function(proj) {
+  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if(typeof toast==='function') toast('Loading backlog from ' + proj + '...');
+  try {
+    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do" ORDER BY priority DESC') + '&maxResults=25&fields=summary,issuetype,priority,labels');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    var items = (data.issues||[]).map(function(i){ return '- ' + i.key + ' [' + (i.fields.priority ? i.fields.priority.name : '?') + ']: ' + i.fields.summary; });
+    var inp = document.getElementById('chat-input');
+    if (inp) { inp.value = 'Analyse this live backlog from ' + proj + ' and identify strategic themes, product bets, and OKR alignment:\n\n' + items.join('\n'); if(typeof autoResize==='function') autoResize(inp); }
+    if(typeof toast==='function') toast('Backlog themes loaded for strategy', 'success');
+    if (typeof switchTab === 'function') switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+  } catch(e) { if(typeof toast==='function') toast('Error: ' + e.message, 'error'); }
+};
+
+window.loadJiraIntoDecisionLog = async function(proj) {
+  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if(typeof toast==='function') toast('Loading from ' + proj + '...');
+  try {
+    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND priority in (Highest,High) AND issuetype in (Epic,Story) ORDER BY updated DESC') + '&maxResults=10&fields=summary,status,priority');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    var data = await res.json();
+    var items = (data.issues||[]).map(function(i){ return '- ' + i.key + ': ' + i.fields.summary; });
+    var inp = document.getElementById('chat-input');
+    if (inp) { inp.value = 'Review these key items from ' + proj + ' and help me update the decision log with rationale and impact:\n\n' + items.join('\n'); if(typeof autoResize==='function') autoResize(inp); }
+    if(typeof toast==='function') toast('Loaded from ' + proj, 'success');
+    if (typeof switchTab === 'function') switchTab('chat', document.querySelectorAll('.nav-tab')[1]);
+  } catch(e) { if(typeof toast==='function') toast('Error: ' + e.message, 'error'); }
+};
+
+document.addEventListener('click', function(e){
+  var popup = document.getElementById('jira-ctx-popup');
+  if (popup && e.target === popup) closeJiraCtxPopup();
+});
+
+setTimeout(function(){
+  if (_jiraCtxProject) {
+    var activeTab = document.querySelector('.nav-tab.active');
+    if (activeTab) {
+      var tab = activeTab.getAttribute('data-tab') || '';
+      if (JIRA_TAB_CONFIG[tab]) showJiraContextBanner(tab);
+    }
+  }
+}, 1500);
+</script>
+
+<!-- ══ BRD BUILDER — 2-PASS STREAMING ═══════════════════════ -->
+<script>
+var BRD_SECTIONS_META=[{id:1,title:'Executive Summary'},{id:2,title:'Business Objectives'},{id:3,title:'Scope'},{id:4,title:'Stakeholders and RACI'},{id:5,title:'User Personas'},{id:6,title:'Functional Requirements'},{id:7,title:'Non-Functional Requirements'},{id:8,title:'User Stories and AC'},{id:9,title:'Process Map'},{id:10,title:'Data Requirements'},{id:11,title:'Integration and API'},{id:12,title:'Security and Compliance'},{id:13,title:'Release Strategy'},{id:14,title:'Risk Register'},{id:15,title:'Open Questions'},{id:16,title:'Appendix'}];
+var _brdResult={};var _brdInput='';var _nl='\n';
+
+async function runBrdBuilder(featureDesc){
+  if(!apiKey){if(typeof toast==='function')toast('Add Anthropic API key first','warning');return;}
+  _brdInput=featureDesc||'';_brdResult={};
+  var outEl=document.getElementById('brd-output');
+  if(!outEl){outEl=document.createElement('div');outEl.id='brd-output';outEl.style.cssText='margin-top:16px;max-height:70vh;overflow-y:auto;padding:4px';var area=document.querySelector('.chat-messages')||document.querySelector('.tab-page');if(area)area.appendChild(outEl);}
+  outEl.style.display='block';
+  outEl.innerHTML='<div style="text-align:center;padding:24px"><div class="loading"></div><div style="font-size:12px;color:var(--muted2);margin-top:8px">BRD Builder Pass 1/2...</div></div>';
+  var sys='You are a senior BA. Write a comprehensive BRD. Mark each section: ===SECTION N: TITLE=== then content.';
+  var s1=BRD_SECTIONS_META.slice(0,9).map(function(s){return '===SECTION '+s.id+': '+s.title+'==='}).join(_nl);
+  var s2=BRD_SECTIONS_META.slice(9).map(function(s){return '===SECTION '+s.id+': '+s.title+'==='}).join(_nl);
+  var t1=await _brdStream(sys,'Write sections 1-9 for: '+featureDesc+_nl+_nl+s1+_nl+'Write each fully.',outEl,'Pass 1/2: Core Sections...');
+  if(!t1)return;
+  var t2=await _brdStream(sys,'Continue BRD for: '+featureDesc+_nl+'Context: '+t1.slice(0,1200)+_nl+_nl+s2+_nl+'Write each fully.',outEl,'Pass 2/2: Technical Sections...',true);
+  if(!t2)return;
+  _renderBrdOutput(t1+_nl+t2,outEl);
+  try{localStorage.setItem('prodmind_brd_v2',JSON.stringify({input:_brdInput,output:t1+_nl+t2,ts:Date.now()}));}catch(e){}
+  if(typeof toast==='function')toast('BRD complete — 16 sections','success');
+}
+
+async function _brdStream(sys,prompt,outEl,label,isP2){
+  outEl.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--accent);padding:8px 0">'+label+'</div><div id="brd-stream-out" style="font-size:12px;line-height:1.7"><span class="stream-cursor"></span></div>';
+  var el=document.getElementById('brd-stream-out');if(!el)return'';
+  try{
+    var res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:8192,stream:true,system:sys,messages:[{role:'user',content:prompt}]})});
+    if(!res.ok)throw new Error('API '+res.status);
+    var reader=res.body.getReader(),decoder=new TextDecoder(),buf='',full='';
+    el.innerHTML='<span class="stream-cursor"></span>';
+    while(true){
+      var chunk=await reader.read();if(chunk.done)break;
+      buf+=decoder.decode(chunk.value,{stream:true});
+      var lines=buf.split('\n');buf=lines.pop();
+      for(var i=0;i<lines.length;i++){
+        if(!lines[i].startsWith('data: '))continue;
+        var d=lines[i].slice(6).trim();if(d==='[DONE]'||!d)continue;
+        try{var ev=JSON.parse(d);if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.type==='text_delta'){full+=ev.delta.text;el.innerHTML=(typeof formatMsg==='function'?formatMsg(full):full)+'<span class="stream-cursor"></span>';}}catch(e){}
+      }
+    }
+    return full;
+  }catch(e){el.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';return'';}
+}
+
+function _parseBrdText(text){var sections={},parts=text.split(/===SECTION (\d+):[^=]*===/);for(var i=1;i<parts.length;i+=2){sections[parseInt(parts[i])]=parts[i+1]?parts[i+1].trim():'';}return sections;}
+
+function _renderBrdOutput(fullText,outEl){
+  var parsed=_parseBrdText(fullText),score=Object.keys(parsed).length,pct=Math.round(score/16*100);
+  var html='<div style="background:rgba(108,71,255,.08);border:0.5px solid rgba(108,71,255,.3);border-radius:10px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;gap:12px">'
+    +'<div style="font-size:22px;font-weight:800;font-family:monospace;color:var(--accent)">'+pct+'%</div>'
+    +'<div><div style="font-size:12px;font-weight:700">BRD Complete - '+score+'/16 sections</div><div style="font-size:10px;color:var(--muted2)">2-pass AI generation</div></div>'
+    +'<div style="margin-left:auto;display:flex;gap:6px">'
+    +'<button onclick="brdCopyAll()" style="font-size:10px;padding:4px 10px;border-radius:5px;background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);cursor:pointer;font-family:inherit">Copy</button>'
+    +'<button onclick="brdExportDoc()" style="font-size:10px;padding:4px 10px;border-radius:5px;background:#0052CC;border:none;color:#fff;cursor:pointer;font-family:inherit">Export</button>'
+    +'</div></div>';
+  BRD_SECTIONS_META.forEach(function(s){
+    var content=parsed[s.id]||'(Not generated)';var id='brd-sec-'+s.id;
+    html+='<div style="border:0.5px solid var(--border2);border-radius:8px;margin-bottom:6px;overflow:hidden">'
+      +'<div onclick="(function(){var e=document.getElementById(\''+id+'\');e.style.display=e.style.display===\'none\'?\'block\':\'none\';})()" style="padding:10px 14px;background:var(--bg3);cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600">'
+      +'<span>'+s.id+'. '+s.title+'</span><span style="font-size:10px;color:'+(parsed[s.id]?'#00C896':'#FF4757')+'">'+(parsed[s.id]?'OK':'?')+'</span></div>'
+      +'<div id="'+id+'" style="display:none;padding:14px;font-size:12px;line-height:1.7;color:var(--text)">'+(typeof formatMsg==='function'?formatMsg(content):content)+'</div></div>';
+  });
+  outEl.innerHTML=html;
+}
+
+function brdCopyAll(){try{var s=JSON.parse(localStorage.getItem('prodmind_brd_v2')||'{}');navigator.clipboard.writeText(s.output||'').then(function(){if(typeof toast==='function')toast('Copied!','success');});}catch(e){}}
+function brdExportDoc(){try{var s=JSON.parse(localStorage.getItem('prodmind_brd_v2')||'{}');if(!s.output){if(typeof toast==='function')toast('Generate BRD first','warning');return;}var blob=new Blob([s.output],{type:'text/plain'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='BRD.txt';a.click();URL.revokeObjectURL(a.href);if(typeof toast==='function')toast('Exported!','success');}catch(e){}}
+async function runBrainOnIssueByKey(key,brainId,encodedPrompt){var prompt=decodeURIComponent(encodedPrompt);if(typeof runBrainOnIssue==='function')await runBrainOnIssue(key,brainId,prompt);}
+</script>
+
+<script>
+// ══ JIRA DASHBOARD ENGINE ═════════════════════════════════════
+// Embedded in ProdMind — uses the same apiKey and Jira config
+
+var JD_CLOUD = 'fd834394-ca79-4414-b7b9-86c7a47cf3e1';
+var JD_MCP   = 'https://mcp.atlassian.com/v1/mcp';
+var _jdProj  = localStorage.getItem('jd_proj') || 'HIP';
+var _jdView  = 'board';
+var _jdIssue = null;
+var _jdAllIssues = [];
+var _jdCache = {};
+
+var JD_PRIO = { Highest:'🔴', High:'🟠', Medium:'🟡', Low:'🟢', Lowest:'⚪' };
+var JD_TYPE_C = { Bug:'#FF4757', Story:'#00C896', Task:'#4C9AFF', Epic:'#6C47FF', Initiative:'#F5A623' };
+var JD_CAT = {
+  new:          { bg:'rgba(107,114,128,0.15)', c:'#9ca3af' },
+  indeterminate:{ bg:'rgba(245,166,35,0.15)',  c:'#F5A623'  },
+  done:         { bg:'rgba(0,200,150,0.15)',    c:'#00C896'  }
+};
+
+// ── Core fetch ─────────────────────────────────────────────────
+async function jdFetch(path) {
+  var key = apiKey || localStorage.getItem('pos_api_key') || '';
+  if (!key) { toast('Add Anthropic API key first', 'warning'); return null; }
+
+  var cacheKey = _jdProj + path;
+  if (_jdCache[cacheKey]) return _jdCache[cacheKey];
+
+  var nl = '\n';
+  var auth = '';
+  if (jiraConfig && jiraConfig.email && jiraConfig.token && jiraConfig.token !== 'mcp') {
+    auth = 'Basic ' + btoa(jiraConfig.email + ':' + jiraConfig.token);
+  }
+
+  var mcpServer = { type:'url', url:JD_MCP, name:'atlassian-rovo' };
+  if (auth) mcpServer.authorization_token = auth;
+
+  var prompt = 'Use the atlassian-rovo MCP tool to call this Jira REST API and return ONLY raw JSON:' + nl
+    + 'Cloud ID: ' + JD_CLOUD + nl + 'Path: /rest/api/3' + path + nl + 'Return ONLY valid JSON.';
+
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'anthropic-beta': 'mcp-client-2025-04-04'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8192,
+        system: 'You are a Jira API relay. Use the atlassian-rovo MCP to fetch the endpoint and return ONLY raw JSON, no explanation.',
+        messages: [{ role:'user', content: prompt }],
+        mcp_servers: [mcpServer]
+      })
+    });
+
+    if (!res.ok) throw new Error('API ' + res.status);
+    var data = await res.json();
+    var text = '';
+    for (var i = 0; i < (data.content||[]).length; i++) {
+      if (data.content[i].type === 'text') { text = data.content[i].text; break; }
+    }
+    if (!text) throw new Error('No response');
+    var clean = text.trim().replace(/^```json\s*/i,'').replace(/^```\s*/i,'').replace(/\s*```$/,'').trim();
+    var parsed = JSON.parse(clean);
+    _jdCache[cacheKey] = parsed;
+    jdSetConnected(true);
+    return parsed;
+  } catch(e) {
+    console.error('jdFetch:', e.message);
+    toast('Jira: ' + e.message, 'error');
+    jdSetConnected(false);
+    return null;
+  }
+}
+
+// ── Connection ─────────────────────────────────────────────────
+function jdSetConnected(ok) {
+  var dot = document.getElementById('jd-conn-dot');
+  var lbl = document.getElementById('jd-conn-lbl');
+  if (!dot) return;
+  dot.style.background = ok ? '#00C896' : '#FF4757';
+  dot.style.boxShadow  = ok ? '0 0 6px #00C896' : '0 0 6px #FF4757';
+  if (lbl) { lbl.textContent = ok ? 'Connected' : 'Connection error'; lbl.style.color = ok ? '#00C896' : '#FF4757'; }
+}
+
+function jdChangeProject(proj) {
+  _jdProj = proj;
+  _jdCache = {};
+  localStorage.setItem('jd_proj', proj);
+  jdUpdateLabel();
+  jdLoadStats();
+  jdLoadView();
+}
+
+function jdUpdateLabel() {
+  var sel = document.getElementById('jd-proj-sel');
+  if (!sel) return;
+  sel.value = _jdProj;
+  var opt = sel.options[sel.selectedIndex];
+  var b = document.getElementById('jd-proj-badge');
+  var n = document.getElementById('jd-proj-name');
+  if (b) b.textContent = _jdProj;
+  if (n && opt) n.textContent = opt.dataset.n || _jdProj;
+}
+
+// ── Stats ──────────────────────────────────────────────────────
+async function jdLoadStats() {
+  var p = _jdProj;
+  var [r1,r2,r3,r4] = await Promise.all([
+    jdFetch('/search?jql=' + enc('project = '+p+' AND statusCategory != Done') + '&maxResults=1&fields=summary'),
+    jdFetch('/search?jql=' + enc('project = '+p+' AND statusCategory = "In Progress"') + '&maxResults=1&fields=summary'),
+    jdFetch('/search?jql=' + enc('project = '+p+' AND issuetype = Bug AND statusCategory != Done') + '&maxResults=1&fields=summary'),
+    jdFetch('/search?jql=' + enc('project = '+p+' AND priority in (Highest,High) AND statusCategory != Done') + '&maxResults=1&fields=summary'),
+  ]);
+  if (!r1) return;
+  var set = function(id, val){ var el=document.getElementById(id); if(el) el.textContent=val; };
+  set('jd-s-total', r1.total||0); set('jd-cnt-board', r1.total||0);
+  set('jd-s-inp',   r2?r2.total:0); 
+  set('jd-s-bugs',  r3?r3.total:0); set('jd-cnt-bugs', r3?r3.total:0);
+  set('jd-s-high',  r4?r4.total:0); set('jd-cnt-backlog', r1.total||0);
+  var statsEl = document.getElementById('jd-stats');
+  if (statsEl) statsEl.style.display = 'grid';
+}
+
+// ── View switching ─────────────────────────────────────────────
+function jdSwitchView(view, el) {
+  _jdView = view;
+  document.querySelectorAll('.jd-nav-item').forEach(function(i){ i.classList.remove('active'); });
+  if (el) el.classList.add('active');
+  ['board','backlog','bugs','search','ai'].forEach(function(v){
+    var d = document.getElementById('jd-view-' + v);
+    if (d) d.style.display = v === view ? 'block' : 'none';
+  });
+  jdLoadView();
+}
+
+function jdLoadView() {
+  if (_jdView === 'board')   jdLoadBoard();
+  else if (_jdView === 'backlog') jdLoadBacklog();
+  else if (_jdView === 'bugs')    jdLoadBugs();
+  else if (_jdView === 'search')  jdInitSearch();
+}
+
+// ── Board ──────────────────────────────────────────────────────
+async function jdLoadBoard() {
+  var el = document.getElementById('jd-view-board');
+  if (!el) return;
+  el.innerHTML = jdSpinner('Loading board...');
+  var data = await jdFetch('/search?jql=' + enc('project = '+_jdProj+' AND statusCategory in ("To Do","In Progress","Done") ORDER BY priority DESC')
+    + '&maxResults=50&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+  if (!data) { el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--red)">Failed to load board</div>'; return; }
+  _jdAllIssues = data.issues || [];
+  var cols = { new:[], indeterminate:[], done:[] };
+  _jdAllIssues.forEach(function(i){
+    var k = i.fields.status && i.fields.status.statusCategory && i.fields.status.statusCategory.key || 'new';
+    if (!cols[k]) k='new';
+    cols[k].push(i);
+  });
+  var COL_L = { new:'To Do', indeterminate:'In Progress', done:'Done' };
+  var COL_C = { new:'#6b7280', indeterminate:'#F5A623', done:'#00C896' };
+  var html = '<div class="jd-board">';
+  ['new','indeterminate','done'].forEach(function(cat){
+    var issues = cols[cat];
+    html += '<div><div class="jd-col-hdr"><span class="jd-col-dot" style="background:'+COL_C[cat]+'"></span>'
+      +COL_L[cat]+'<span class="jd-col-cnt">'+issues.length+'</span></div>'
+      +'<div class="jd-col-body">';
+    if (!issues.length) html += '<div style="text-align:center;padding:20px;font-size:11px;color:var(--muted2)">No items</div>';
+    issues.forEach(function(iss){ html += jdCard(iss); });
+    html += '</div></div>';
+  });
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ── Backlog ────────────────────────────────────────────────────
+async function jdLoadBacklog() {
+  var el = document.getElementById('jd-view-backlog');
+  if (!el) return;
+  el.innerHTML = jdSpinner('Loading backlog...');
+  var data = await jdFetch('/search?jql=' + enc('project = '+_jdProj+' AND statusCategory = "To Do" ORDER BY priority DESC')
+    + '&maxResults=50&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+  if (!data) { el.innerHTML = '<div style="color:var(--red);padding:20px">Failed</div>'; return; }
+  var issues = data.issues || [];
+  var html = '<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;overflow:hidden">'
+    +'<div style="padding:10px 14px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:8px">'
+    +'<span style="font-size:13px;font-weight:600">Backlog</span>'
+    +'<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent);background:rgba(76,154,255,0.1);padding:2px 8px;border-radius:4px">'+data.total+' items</span>'
+    +'<button class="gbtn" style="margin-left:auto" onclick="jdRunAI('rice')">⚡ AI RICE Score</button></div>'
+    +'<table class="jd-tbl"><thead><tr><th>Key</th><th>Summary</th><th>Type</th><th>Priority</th><th>Status</th><th>SP</th><th>Assignee</th></tr></thead><tbody>';
+  issues.forEach(function(iss){
+    var f=iss.fields, cat=f.status&&f.status.statusCategory&&f.status.statusCategory.key||'new';
+    var st=JD_CAT[cat]||JD_CAT.new, tc=JD_TYPE_C[f.issuetype&&f.issuetype.name]||'#4C9AFF';
+    html += '<tr onclick="jdOpenDetail(''+iss.key+'')">'
+      +'<td><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent)">'+iss.key+'</span></td>'
+      +'<td style="max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+jdEsc(f.summary)+'</td>'
+      +'<td><span class="jd-type" style="background:'+tc+'22;color:'+tc+'">'+((f.issuetype&&f.issuetype.name)||'?')+'</span></td>'
+      +'<td>'+(JD_PRIO[f.priority&&f.priority.name]||'⚪')+'</td>'
+      +'<td><span class="jd-status" style="background:'+st.bg+';color:'+st.c+'">'+(f.status&&f.status.name||'?')+'</span></td>'
+      +'<td style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2)">'+(f.customfield_10028||'—')+'</td>'
+      +'<td style="font-size:11px;color:var(--muted2)">'+((f.assignee&&f.assignee.displayName.split(' ')[0])||'—')+'</td>'
+      +'</tr>';
+  });
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
+}
+
+// ── Bugs ───────────────────────────────────────────────────────
+async function jdLoadBugs() {
+  var el = document.getElementById('jd-view-bugs');
+  if (!el) return;
+  el.innerHTML = jdSpinner('Loading bugs...');
+  var data = await jdFetch('/search?jql=' + enc('project = '+_jdProj+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')
+    + '&maxResults=50&fields=summary,status,issuetype,priority,assignee');
+  if (!data) { el.innerHTML = '<div style="color:var(--red);padding:20px">Failed</div>'; return; }
+  var issues = data.issues || [];
+  var html = '<div style="margin-bottom:12px;display:flex;align-items:center;gap:8px">'
+    +'<span style="font-size:13px;font-weight:600">🐛 Open Bugs</span>'
+    +'<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#FF4757;background:rgba(255,71,87,0.1);padding:2px 8px;border-radius:4px">'+data.total+' total</span>'
+    +'<button class="gbtn" style="margin-left:auto" onclick="jdRunAI('bug-triage')">🔴 AI Triage</button></div>'
+    +'<div style="display:flex;flex-direction:column;gap:8px">';
+  issues.forEach(function(iss){ html += jdCard(iss); });
+  if (!issues.length) html += '<div style="text-align:center;padding:30px;color:var(--muted2)">No open bugs ✅</div>';
+  html += '</div>';
+  el.innerHTML = html;
+}
+
+// ── Search ─────────────────────────────────────────────────────
+function jdInitSearch() {
+  var el = document.getElementById('jd-view-search');
+  if (!el || el.dataset.init) return;
+  el.dataset.init = '1';
+  el.innerHTML = '<div class="jd-jql">'
+    +'<input class="jd-jql-input" id="jd-jql-inp" placeholder="project = HIP AND statusCategory != Done" '
+    +'value="project = '+_jdProj+' AND statusCategory != Done ORDER BY priority DESC" '
+    +'onkeydown="if(event.key==='Enter')jdRunJQL()"/>'
+    +'<button class="gbtn gbtn-primary" onclick="jdRunJQL()" style="background:var(--accent);color:#fff;border:none">Search</button>'
+    +'</div>'
+    +'<div class="jd-preset">'
+    +'<span class="jd-preset-btn" onclick="jdSetJQL('AND statusCategory = &quot;In Progress&quot;')">🏃 In Progress</span>'
+    +'<span class="jd-preset-btn" onclick="jdSetJQL('AND issuetype = Bug AND statusCategory != Done')">🐛 Bugs</span>'
+    +'<span class="jd-preset-btn" onclick="jdSetJQL('AND priority = Highest AND statusCategory != Done')">🔴 Highest</span>'
+    +'<span class="jd-preset-btn" onclick="jdSetJQL('AND status = &quot;CODE REVIEW&quot;')">🔍 Code Review</span>'
+    +'<span class="jd-preset-btn" onclick="jdSetJQL('AND status = &quot;Ready For QA&quot;')">🧪 Ready for QA</span>'
+    +'<span class="jd-preset-btn" onclick="jdSetJQL('AND status = &quot;SIT DONE&quot;')">✅ SIT Done</span>'
+    +'<span class="jd-preset-btn" onclick="jdSetJQL('AND status = &quot;READY FOR DEVELOPMENT&quot;')">🟦 Ready for Dev</span>'
+    +'<span class="jd-preset-btn" onclick="jdSetJQL('AND updated >= -7d')">🕐 Last 7d</span>'
+    +'</div>'
+    +'<div id="jd-search-res"></div>';
+}
+
+function jdSetJQL(suffix) {
+  var inp = document.getElementById('jd-jql-inp');
+  if (inp) { inp.value = 'project = '+_jdProj+' '+suffix.replace(/&quot;/g,'"'); jdRunJQL(); }
+}
+
+async function jdRunJQL() {
+  var jql = document.getElementById('jd-jql-inp').value.trim();
+  if (!jql) return;
+  var el = document.getElementById('jd-search-res');
+  el.innerHTML = jdSpinner('Searching...');
+  var data = await jdFetch('/search?jql='+enc(jql)+'&maxResults=50&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+  if (!data) { el.innerHTML = '<div style="color:var(--red)">Search failed</div>'; return; }
+  var issues = data.issues || [];
+  var html = '<div style="margin-bottom:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2)">'+data.total+' results</div>'
+    +'<div style="background:var(--bg2);border:1px solid var(--border2);border-radius:10px;overflow:hidden">'
+    +'<table class="jd-tbl"><thead><tr><th>Key</th><th>Summary</th><th>Type</th><th>Priority</th><th>Status</th><th>Assignee</th></tr></thead><tbody>';
+  issues.forEach(function(iss){
+    var f=iss.fields, cat=f.status&&f.status.statusCategory&&f.status.statusCategory.key||'new';
+    var st=JD_CAT[cat]||JD_CAT.new, tc=JD_TYPE_C[f.issuetype&&f.issuetype.name]||'#4C9AFF';
+    html += '<tr onclick="jdOpenDetail(''+iss.key+'')">'
+      +'<td><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent)">'+iss.key+'</span></td>'
+      +'<td>'+jdEsc(f.summary)+'</td>'
+      +'<td><span class="jd-type" style="background:'+tc+'22;color:'+tc+'">'+((f.issuetype&&f.issuetype.name)||'?')+'</span></td>'
+      +'<td>'+(JD_PRIO[f.priority&&f.priority.name]||'⚪')+'</td>'
+      +'<td><span class="jd-status" style="background:'+st.bg+';color:'+st.c+'">'+(f.status&&f.status.name||'?')+'</span></td>'
+      +'<td style="font-size:11px;color:var(--muted2)">'+((f.assignee&&f.assignee.displayName.split(' ')[0])||'—')+'</td>'
+      +'</tr>';
+  });
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
+}
+
+// ── Issue Detail ───────────────────────────────────────────────
+async function jdOpenDetail(key) {
+  var dp = document.getElementById('jd-detail');
+  if (!dp) return;
+  document.getElementById('jd-dp-key').textContent = key;
+  document.getElementById('jd-dp-link').href = 'https://ebdae.atlassian.net/browse/'+key;
+  document.getElementById('jd-dp-title').textContent = 'Loading...';
+  document.getElementById('jd-dp-desc').textContent = '';
+  document.getElementById('jd-dp-meta').innerHTML = '';
+  document.getElementById('jd-dp-ai-out').innerHTML = '';
+  dp.classList.add('open');
+
+  var data = await jdFetch('/issue/'+key+'?fields=summary,description,status,issuetype,priority,assignee,customfield_10028,labels');
+  if (!data) { document.getElementById('jd-dp-title').textContent = 'Failed to load'; return; }
+  _jdIssue = data;
+  var f = data.fields;
+  document.getElementById('jd-dp-title').textContent = f.summary || key;
+
+  var cat = f.status&&f.status.statusCategory&&f.status.statusCategory.key||'new';
+  var st = JD_CAT[cat]||JD_CAT.new;
+  var tc = JD_TYPE_C[f.issuetype&&f.issuetype.name]||'#4C9AFF';
+  var meta = '';
+  if (f.issuetype) meta += '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:3px;background:'+tc+'22;color:'+tc+'">'+f.issuetype.name+'</span>';
+  if (f.status)    meta += '<span style="font-size:10px;padding:2px 8px;border-radius:3px;background:'+st.bg+';color:'+st.c+'">'+f.status.name+'</span>';
+  if (f.priority)  meta += '<span style="font-size:10px;padding:2px 8px;border-radius:3px;background:var(--bg3);">'+(JD_PRIO[f.priority.name]||'⚪')+' '+f.priority.name+'</span>';
+  if (f.assignee)  meta += '<span style="font-size:10px;padding:2px 8px;border-radius:3px;background:var(--bg3);color:var(--muted2)">👤 '+f.assignee.displayName+'</span>';
+  if (f.customfield_10028) meta += '<span style="font-size:10px;padding:2px 8px;border-radius:3px;background:rgba(76,154,255,0.1);color:var(--accent)">'+f.customfield_10028+' SP</span>';
+  document.getElementById('jd-dp-meta').innerHTML = meta;
+
+  var desc = '';
+  if (f.description) {
+    if (typeof f.description === 'string') desc = f.description;
+    else desc = jdAdfText(f.description);
+  }
+  document.getElementById('jd-dp-desc').textContent = desc || 'No description.';
+}
+
+function jdCloseDetail() {
+  var dp = document.getElementById('jd-detail');
+  if (dp) dp.classList.remove('open');
+  _jdIssue = null;
+}
+
+async function jdAnalyse(mode) {
+  if (!_jdIssue) return;
+  var out = document.getElementById('jd-dp-ai-out');
+  out.innerHTML = '<div class="jd-ai-out"><span class="stream-cursor"></span></div>';
+  var f = _jdIssue.fields;
+  var nl = '\n';
+  var ctx = 'Issue: '+_jdIssue.key+nl+'Type: '+((f.issuetype&&f.issuetype.name)||'?')+nl+'Status: '+((f.status&&f.status.name)||'?')+nl+'Priority: '+((f.priority&&f.priority.name)||'?')+nl+'Summary: '+f.summary+(f.description?nl+nl+'Description:'+nl+jdAdfText(f.description).slice(0,2000):'');
+  var prompts = {
+    po:   'As senior PO, review this Jira issue: 1) Business value, 2) Clarity of requirements, 3) What is missing, 4) Recommendations.',
+    ac:   'Write complete Acceptance Criteria in Given/When/Then BDD format. Include happy path, edge cases, error scenarios.',
+    test: 'Write comprehensive QA test cases: functional tests, edge cases, regression scenarios.',
+    tech: 'As senior architect review: 1) Technical complexity, 2) Architecture concerns, 3) Dependencies, 4) Risks, 5) SP estimate.',
+    risk: 'Risk analysis: 1) Delivery risks, 2) Technical risks, 3) Business impact, 4) Mitigation strategies.',
+    dor:  'Check Definition of Ready. Score: Clear description, AC present, Technical clarity, Dependencies identified, Appropriately sized. Give Go/No-Go.'
+  };
+  var outEl = out.querySelector('.jd-ai-out');
+  await jdStream(prompts[mode]+nl+nl+ctx, outEl);
+}
+
+function jdSendToChat() {
+  if (!_jdIssue) return;
+  var f = _jdIssue.fields;
+  var nl = '\n';
+  var ctx = 'Analyse this live Jira issue as the active brain:'+nl+nl
+    +'Issue: '+_jdIssue.key+nl+'Type: '+((f.issuetype&&f.issuetype.name)||'?')+nl+'Status: '+((f.status&&f.status.name)||'?')+nl+'Priority: '+((f.priority&&f.priority.name)||'?')+nl+'Summary: '+f.summary+(f.description?nl+nl+'Description:'+nl+jdAdfText(f.description).slice(0,1500):'');
+  var inp = document.getElementById('chat-input');
+  if (inp) { inp.value = ctx; if(typeof autoResize==='function') autoResize(inp); }
+  if (typeof switchTab === 'function') switchTab('chat', document.querySelector('[data-tab="chat"]'));
+  jdCloseDetail();
+}
+
+// ── AI Actions ─────────────────────────────────────────────────
+async function jdRunAI(action) {
+  ['board','backlog','bugs','search','ai'].forEach(function(v){
+    var el = document.getElementById('jd-view-'+v); if(el) el.style.display='none';
+  });
+  var el = document.getElementById('jd-view-ai');
+  if (!el) return;
+  el.style.display = 'block';
+  el.innerHTML = jdSpinner('Loading Jira data for AI analysis...');
+
+  // Fetch fresh data
+  var data = await jdFetch('/search?jql='+enc('project = '+_jdProj+' AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=30&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+  var issues = data ? (data.issues||[]) : _jdAllIssues;
+  var nl = '\n';
+  var list = issues.map(function(i){ return i.key+' ['+((i.fields.issuetype&&i.fields.issuetype.name)||'?')+'/'+((i.fields.priority&&i.fields.priority.name)||'?')+']: '+i.fields.summary; }).join(nl);
+
+  var labels = { 'sprint-review':'⚡ AI Sprint Review', 'rice':'📊 AI RICE Scoring', 'bug-triage':'🔴 AI Bug Triage', 'release-risk':'🛡 Release Risk Analysis' };
+  var prompts = {
+    'sprint-review': 'Perform AI Sprint Review for '+_jdProj+':'+nl+list+nl+nl+'Provide: 1) Sprint health, 2) Top risks, 3) Velocity observations, 4) Next sprint recommendations.',
+    'rice': 'RICE score these '+_jdProj+' backlog items:'+nl+list+nl+nl+'For each: Reach(1-10), Impact(1-3), Confidence(%), Effort(weeks). Calculate score. Give ranked table and top 5 sprint picks.',
+    'bug-triage': 'Bug triage for '+_jdProj+':'+nl+list+nl+nl+'1) Severity patterns, 2) Root cause categories, 3) Fix priority order, 4) Highest risk bugs, 5) Systemic issues.',
+    'release-risk': 'Release risk for '+_jdProj+':'+nl+list+nl+nl+'1) Release readiness, 2) Blockers, 3) Dependencies, 4) Go/No-Go recommendation, 5) Mitigation actions.'
+  };
+
+  el.innerHTML = '<div style="margin-bottom:14px;display:flex;align-items:center;gap:10px">'
+    +'<span style="font-size:14px;font-weight:600">'+(labels[action]||action)+'</span>'
+    +'<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2)">'+_jdProj+' · '+issues.length+' issues</span>'
+    +'<button class="gbtn" style="margin-left:auto" onclick="jdSwitchView('board',document.getElementById('jd-nav-board'))">← Back</button>'
+    +'</div>'
+    +'<div class="jd-ai-out" id="jd-ai-stream"><span class="stream-cursor"></span></div>';
+
+  await jdStream(prompts[action], document.getElementById('jd-ai-stream'));
+}
+
+// ── AI streaming ───────────────────────────────────────────────
+async function jdStream(prompt, outEl) {
+  var key = apiKey || localStorage.getItem('pos_api_key') || '';
+  if (!key) { outEl.innerHTML = '<span style="color:var(--red)">Add API key first</span>'; return; }
+  try {
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514', max_tokens:4096, stream:true,
+        system:'You are a senior PO and Scrum Master. Provide expert, structured, actionable analysis.',
+        messages:[{role:'user',content:prompt}]
+      })
+    });
+    if (!res.ok) throw new Error('API '+res.status);
+    var reader=res.body.getReader(), decoder=new TextDecoder(), buf='', full='';
+    outEl.innerHTML = '<span class="stream-cursor"></span>';
+    while(true){
+      var chunk=await reader.read(); if(chunk.done)break;
+      buf+=decoder.decode(chunk.value,{stream:true});
+      var lines=buf.split('\n'); buf=lines.pop();
+      for(var i=0;i<lines.length;i++){
+        if(!lines[i].startsWith('data: '))continue;
+        var d=lines[i].slice(6).trim(); if(d==='[DONE]'||!d)continue;
+        try{var ev=JSON.parse(d);if(ev.type==='content_block_delta'&&ev.delta&&ev.delta.type==='text_delta'){full+=ev.delta.text;outEl.innerHTML=jdFmt(full)+'<span class="stream-cursor"></span>';}}catch(e){}
+      }
+    }
+  }catch(e){ outEl.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>'; }
+}
+
+// ── Helpers ────────────────────────────────────────────────────
+function jdCard(iss) {
+  var f=iss.fields, cat=f.status&&f.status.statusCategory&&f.status.statusCategory.key||'new';
+  var st=JD_CAT[cat]||JD_CAT.new, tc=JD_TYPE_C[f.issuetype&&f.issuetype.name]||'#4C9AFF';
+  return '<div class="jd-card" onclick="jdOpenDetail(''+iss.key+'')">'
+    +'<div class="jd-card-top"><span class="jd-key">'+iss.key+'</span>'
+    +'<span class="jd-type" style="background:'+tc+'22;color:'+tc+'">'+((f.issuetype&&f.issuetype.name)||'?')+'</span>'
+    +'<span style="margin-left:auto;font-size:11px">'+(JD_PRIO[f.priority&&f.priority.name]||'⚪')+'</span></div>'
+    +'<div class="jd-summary">'+jdEsc(f.summary)+'</div>'
+    +'<div class="jd-meta"><span class="jd-status" style="background:'+st.bg+';color:'+st.c+'">'+(f.status&&f.status.name||'?')+'</span>'
+    +(f.customfield_10028?'<span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted2)">'+f.customfield_10028+'sp</span>':'')
+    +'<span class="jd-assignee">'+((f.assignee&&f.assignee.displayName.split(' ')[0])||'Unassigned')+'</span></div></div>';
+}
+
+function jdSpinner(msg) {
+  return '<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:40px;color:var(--muted2)">'
+    +'<div class="loading"></div>'+(msg||'Loading...')+'</div>';
+}
+
+function jdEsc(s) {
+  if(!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function jdAdfText(node) {
+  if(!node) return '';
+  if(typeof node==='string') return node;
+  if(node.text) return node.text;
+  if(node.content) return node.content.map(jdAdfText).join('');
+  return '';
+}
+
+function jdFmt(text) {
+  return jdEsc(text)
+    .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+    .replace(/^### (.+)$/gm,'<div style="font-size:12px;font-weight:700;margin:12px 0 5px">$1</div>')
+    .replace(/^## (.+)$/gm,'<div style="font-size:13px;font-weight:700;color:var(--accent);margin:14px 0 7px;border-bottom:1px solid var(--border2);padding-bottom:3px">$1</div>')
+    .replace(/^- (.+)$/gm,'<div style="padding-left:12px;margin:2px 0">• $1</div>')
+    .replace(/^(\d+)\. (.+)$/gm,'<div style="padding-left:12px;margin:2px 0"><strong style="color:var(--accent)">$1.</strong> $2</div>')
+    .replace(/\n/g,'<br>');
+}
+
+function enc(s) { return encodeURIComponent(s); }
+
+// ── Init when Jira tab opened ──────────────────────────────────
+(function() {
+  // Hook into switchTab to init dashboard when Jira tab is opened
+  var _origSwitch2 = window.switchTab;
+  if (_origSwitch2) {
+    var _patched = false;
+    var _checkPatch = setInterval(function(){
+      if (window.switchTab && !_patched) {
+        _patched = true;
+        clearInterval(_checkPatch);
+        var _orig = window.switchTab;
+        window.switchTab = function(tab, el) {
+          _orig.call(this, tab, el);
+          if (tab === 'jira') {
+            var sel = document.getElementById('jd-proj-sel');
+            if (sel) {
+              sel.value = _jdProj;
+              jdUpdateLabel();
+              if (!document.getElementById('jd-stats').style.display || document.getElementById('jd-stats').style.display === 'none') {
+                setTimeout(function(){ jdLoadStats(); jdLoadView(); }, 100);
+              }
+            }
+          }
+        };
+      }
+    }, 500);
+  }
+})();
+</script>
 </body>
-</html>
+</html<div id="page-jira">
+  <!-- ══ EMBEDDED JIRA DASHBOARD ══════════════════════════════ -->
+  <style>
+/* Jira Dashboard Styles — scoped to page-jira */
+#page-jira .jd-header {
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border2);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+#page-jira .jd-logo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+#page-jira .jd-badge {
+  background: rgba(76,154,255,0.12);
+  border: 1px solid rgba(76,154,255,0.25);
+  border-radius: 4px;
+  padding: 2px 9px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+}
+#page-jira .jd-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  height: calc(100vh - 100px);
+}
+#page-jira .jd-sidebar {
+  background: var(--bg2);
+  border-right: 1px solid var(--border2);
+  overflow-y: auto;
+  padding: 12px 0;
+}
+#page-jira .jd-main {
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--bg);
+}
+#page-jira .jd-proj-wrap { padding: 8px 12px; border-bottom: 1px solid var(--border2); margin-bottom:8px; }
+#page-jira .jd-proj-sel {
+  width: 100%;
+  background: var(--bg3);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  color: var(--text);
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+}
+#page-jira .jd-sec-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 4px 12px;
+  margin-bottom: 4px;
+}
+#page-jira .jd-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  cursor: pointer;
+  color: var(--muted2);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.12s;
+  border-left: 2px solid transparent;
+}
+#page-jira .jd-nav-item:hover { background: var(--bg3); color: var(--text); }
+#page-jira .jd-nav-item.active { background: rgba(76,154,255,0.08); color: var(--accent); border-left-color: var(--accent); }
+#page-jira .jd-nav-item .jd-cnt { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; background: var(--bg3); padding: 1px 7px; border-radius: 10px; }
+#page-jira .jd-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+#page-jira .jd-stat {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 12px 14px;
+  border-top: 2px solid var(--jd-c, var(--accent));
+}
+#page-jira .jd-stat-num { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--jd-c, var(--accent)); }
+#page-jira .jd-stat-lbl { font-size: 10px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+#page-jira .jd-board { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+#page-jira .jd-col-hdr {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: 8px 8px 0 0;
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted2);
+}
+#page-jira .jd-col-dot { width: 8px; height: 8px; border-radius: 50%; }
+#page-jira .jd-col-cnt { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; background: var(--bg3); padding: 1px 7px; border-radius: 10px; }
+#page-jira .jd-col-body {
+  background: var(--bg2); border: 1px solid var(--border2); border-top: none;
+  border-radius: 0 0 8px 8px; padding: 8px; min-height: 120px;
+  display: flex; flex-direction: column; gap: 6px;
+}
+#page-jira .jd-card {
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px;
+  padding: 9px 11px; cursor: pointer; transition: all 0.12s;
+}
+#page-jira .jd-card:hover { border-color: rgba(76,154,255,0.35); transform: translateY(-1px); }
+#page-jira .jd-card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
+#page-jira .jd-key { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); }
+#page-jira .jd-type { font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 1px 5px; border-radius: 3px; }
+#page-jira .jd-summary { font-size: 11px; color: var(--text); line-height: 1.4; margin-bottom: 7px; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+#page-jira .jd-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+#page-jira .jd-status { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
+#page-jira .jd-assignee { font-size: 10px; color: var(--muted2); background: var(--bg4); padding: 2px 7px; border-radius: 10px; margin-left: auto; }
+#page-jira .jd-tbl { width: 100%; border-collapse: collapse; }
+#page-jira .jd-tbl th { text-align:left; font-size:10px; font-weight:700; color:var(--muted2); text-transform:uppercase; letter-spacing:0.06em; padding:8px 10px; border-bottom:1px solid var(--border2); background:var(--bg2); }
+#page-jira .jd-tbl td { padding:9px 10px; border-bottom:1px solid var(--border2); font-size:11px; vertical-align:middle; }
+#page-jira .jd-tbl tr:hover td { background:var(--bg3); cursor:pointer; }
+#page-jira .jd-jql { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+#page-jira .jd-jql-input {
+  flex:1; min-width:200px; background:var(--bg2); border:1px solid var(--border2);
+  border-radius:6px; padding:7px 11px; font-size:11px; color:var(--text);
+  font-family:'JetBrains Mono',monospace; outline:none;
+}
+#page-jira .jd-jql-input:focus { border-color:var(--accent); }
+#page-jira .jd-preset { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+#page-jira .jd-preset-btn {
+  background:var(--bg2); border:1px solid var(--border2); border-radius:20px;
+  padding:3px 11px; font-size:10px; color:var(--muted2); cursor:pointer; font-family:inherit; transition:all 0.12s;
+}
+#page-jira .jd-preset-btn:hover { color:var(--text); border-color:rgba(255,255,255,0.2); }
+#page-jira .jd-ai-out {
+  background:var(--bg2); border:1px solid var(--border2); border-radius:8px;
+  padding:14px; font-size:12px; line-height:1.7; color:var(--text);
+  white-space:pre-wrap; margin-top:10px; max-height:60vh; overflow-y:auto;
+}
+#page-jira .jd-detail {
+  position:fixed; right:0; top:0; bottom:0; width:460px;
+  background:var(--bg2); border-left:1px solid var(--border2);
+  z-index:500; display:none; flex-direction:column;
+  box-shadow:-16px 0 50px rgba(0,0,0,0.5);
+}
+#page-jira .jd-detail.open { display:flex; }
+#page-jira .jd-detail-hdr { padding:14px 18px; border-bottom:1px solid var(--border2); }
+#page-jira .jd-detail-key { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); margin-bottom:4px; display:flex;align-items:center;gap:8px; }
+#page-jira .jd-detail-key a { color:var(--accent);text-decoration:none;font-size:10px; }
+#page-jira .jd-detail-title { font-size:14px; font-weight:600; line-height:1.4; margin-bottom:10px; }
+#page-jira .jd-detail-body { flex:1; overflow-y:auto; padding:14px 18px; }
+#page-jira .jd-detail-close { background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;line-height:1; }
+#page-jira .jd-detail-close:hover { background:var(--bg3);color:var(--text); }
+#page-jira .jd-ai-btns { display:flex;flex-wrap:wrap;gap:6px;padding:12px 18px;border-top:1px solid var(--border2);background:var(--bg3); }
+#page-jira .jd-ai-btn { background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit;transition:all 0.12s; }
+#page-jira .jd-ai-btn:hover { background:rgba(76,154,255,0.1);border-color:rgba(76,154,255,0.3);color:var(--accent); }
+#page-jira .jd-view-tabs { display:flex;border-bottom:1px solid var(--border2);margin-bottom:14px; }
+#page-jira .jd-view-tab { padding:7px 14px;font-size:11px;font-weight:500;color:var(--muted2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.12s;margin-bottom:-1px; }
+#page-jira .jd-view-tab:hover { color:var(--text); }
+#page-jira .jd-view-tab.active { color:var(--accent);border-bottom-color:var(--accent); }
+  </style>
+
+  <!-- Header -->
+  <div class="jd-header" style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border2)">
+    <span class="jd-logo">🔗 Jira Dashboard</span>
+    <span class="jd-badge" id="jd-proj-badge">—</span>
+    <span style="font-size:11px;color:var(--muted2)" id="jd-proj-name"></span>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <span id="jd-conn-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted2);display:inline-block"></span>
+      <span id="jd-conn-lbl" style="font-size:11px;color:var(--muted2)">Not connected</span>
+      <button class="gbtn" onclick="jdLoadStats();jdLoadView()">↻ Refresh</button>
+    </div>
+  </div>
+
+  <!-- Layout -->
+  <div class="jd-layout">
+    <!-- Sidebar -->
+    <div class="jd-sidebar">
+      <div class="jd-proj-wrap">
+        <select class="jd-proj-sel" id="jd-proj-sel" onchange="jdChangeProject(this.value)">
+          <optgroup label="Harbour Platform">
+            <option value="HIP" data-n="Harbour - Linkon">HIP — Harbour Linkon</option>
+            <option value="HUP" data-n="Harbour - Mirros">HUP — Harbour Mirros</option>
+            <option value="MIN" data-n="Harbour - Mindra">MIN — Harbour Mindra</option>
+            <option value="SHL" data-n="Harbour - Shellix">SHL — Harbour Shellix</option>
+            <option value="HD" data-n="Harbour Discovery">HD — Harbour Discovery</option>
+          </optgroup>
+          <optgroup label="GDF / Digital Futures">
+            <option value="DFG" data-n="GDF Gates">DFG — GDF Gates</option>
+            <option value="CAP" data-n="Digital Futures Magnet">CAP — DF Magnet</option>
+            <option value="ATD" data-n="Aldar Tech Debt">ATD — Tech Debt</option>
+            <option value="AILAB" data-n="AI Experience Lab">AILAB — AI Lab</option>
+            <option value="APG" data-n="Aldar Projects Gateways">APG — Projects Gateways</option>
+          </optgroup>
+          <optgroup label="Digital Products">
+            <option value="HEA" data-n="Hello Aldar">HEA — Hello Aldar</option>
+            <option value="BRP" data-n="Broker Portal">BRP — Broker Portal</option>
+            <option value="PAY" data-n="Aldar Payments">PAY — Aldar Payments</option>
+            <option value="LAV" data-n="Live Aldar">LAV — Live Aldar</option>
+            <option value="OB" data-n="Marketplace">OB — Marketplace</option>
+            <option value="GD" data-n="Darna">GD — Darna</option>
+          </optgroup>
+          <optgroup label="Education">
+            <option value="ADP" data-n="Aldar Education">ADP — Aldar Education</option>
+            <option value="M2" data-n="Aldar Mobile">M2 — Education Mobile</option>
+          </optgroup>
+          <optgroup label="Estates & Retail">
+            <option value="ESMRP" data-n="Estates Super Roadmap">ESMRP — Estates Roadmap</option>
+            <option value="RCM" data-n="Retail CRM">RCM — Retail CRM</option>
+            <option value="SSC" data-n="Deal Prime">SSC — Deal Prime</option>
+          </optgroup>
+          <optgroup label="Mobile & Native">
+            <option value="ANM" data-n="AE Native Mobile">ANM — AE Native</option>
+            <option value="MAFP" data-n="MAFP">MAFP — MAFP</option>
+          </optgroup>
+          <optgroup label="Platform & Ops">
+            <option value="AEPMO" data-n="AE EPMO">AEPMO — AE EPMO</option>
+            <option value="TCSS" data-n="Cloud Solutions">TCSS — Cloud Solutions</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="jd-sec-label">Views</div>
+      <div class="jd-nav-item active" id="jd-nav-board" onclick="jdSwitchView('board',this)">▦ Sprint Board <span class="jd-cnt" id="jd-cnt-board">—</span></div>
+      <div class="jd-nav-item" id="jd-nav-backlog" onclick="jdSwitchView('backlog',this)">☰ Backlog <span class="jd-cnt" id="jd-cnt-backlog">—</span></div>
+      <div class="jd-nav-item" id="jd-nav-bugs" onclick="jdSwitchView('bugs',this)">🐛 Bugs <span class="jd-cnt" id="jd-cnt-bugs">—</span></div>
+      <div class="jd-nav-item" id="jd-nav-search" onclick="jdSwitchView('search',this)">⌕ JQL Search</div>
+      <div class="jd-sec-label" style="margin-top:12px;border-top:1px solid var(--border2);padding-top:12px">AI Actions</div>
+      <div class="jd-nav-item" onclick="jdRunAI('sprint-review')">⚡ AI Sprint Review</div>
+      <div class="jd-nav-item" onclick="jdRunAI('rice')">📊 AI RICE Score</div>
+      <div class="jd-nav-item" onclick="jdRunAI('bug-triage')">🔴 AI Bug Triage</div>
+      <div class="jd-nav-item" onclick="jdRunAI('release-risk')">🛡 Release Risk</div>
+    </div>
+
+    <!-- Main -->
+    <div class="jd-main">
+      <!-- Stats -->
+      <div class="jd-stats" id="jd-stats" style="display:none">
+        <div class="jd-stat" style="--jd-c:#4C9AFF"><div class="jd-stat-num" id="jd-s-total">—</div><div class="jd-stat-lbl">Open Items</div></div>
+        <div class="jd-stat" style="--jd-c:#F5A623"><div class="jd-stat-num" id="jd-s-inp">—</div><div class="jd-stat-lbl">In Progress</div></div>
+        <div class="jd-stat" style="--jd-c:#FF4757"><div class="jd-stat-num" id="jd-s-bugs">—</div><div class="jd-stat-lbl">Open Bugs</div></div>
+        <div class="jd-stat" style="--jd-c:#00C896"><div class="jd-stat-num" id="jd-s-high">—</div><div class="jd-stat-lbl">High Priority</div></div>
+      </div>
+      <!-- View: Board -->
+      <div id="jd-view-board"></div>
+      <!-- View: Backlog -->
+      <div id="jd-view-backlog" style="display:none"></div>
+      <!-- View: Bugs -->
+      <div id="jd-view-bugs" style="display:none"></div>
+      <!-- View: Search -->
+      <div id="jd-view-search" style="display:none"></div>
+      <!-- View: AI -->
+      <div id="jd-view-ai" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- Issue Detail Panel -->
+  <div class="jd-detail" id="jd-detail">
+    <div class="jd-detail-hdr">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="flex:1;min-width:0">
+          <div class="jd-detail-key">
+            <span id="jd-dp-key"></span>
+            <a id="jd-dp-link" href="#" target="_blank" style="font-size:10px">Open in Jira ↗</a>
+          </div>
+          <div class="jd-detail-title" id="jd-dp-title">Loading...</div>
+          <div id="jd-dp-meta" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+        </div>
+        <button class="jd-detail-close" onclick="jdCloseDetail()">✕</button>
+      </div>
+    </div>
+    <div class="jd-detail-body">
+      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted2);margin-bottom:8px">Description</div>
+      <div id="jd-dp-desc" style="font-size:12px;line-height:1.7;color:var(--text);opacity:0.85;white-space:pre-wrap;word-break:break-word">—</div>
+      <div id="jd-dp-ai-out"></div>
+    </div>
+    <div class="jd-ai-btns">
+      <button class="jd-ai-btn" onclick="jdAnalyse('po')">🧠 PO Review</button>
+      <button class="jd-ai-btn" onclick="jdAnalyse('ac')">✍ Write AC</button>
+      <button class="jd-ai-btn" onclick="jdAnalyse('test')">🧪 Test Cases</button>
+      <button class="jd-ai-btn" onclick="jdAnalyse('tech')">⚙ Tech Review</button>
+      <button class="jd-ai-btn" onclick="jdAnalyse('risk')">🛡 Risk</button>
+      <button class="jd-ai-btn" onclick="jdAnalyse('dor')">✅ DoR Check</button>
+      <button class="jd-ai-btn" onclick="jdSendToChat()">💬 Send to Chat</button>
+    </div>
+  </div>
+
+</div>
+>
