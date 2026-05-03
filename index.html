@@ -25986,13 +25986,10 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
         🔗 <strong style="color:var(--text)">Jira via Vercel Proxy</strong> — enter your proxy URL, email and Atlassian API token. Credentials stay in your browser only.
       </div>
       <div class="cf">
-        <label>Proxy URL <span style="font-size:9px;color:var(--muted2)">(your Vercel deployment)</span></label>
-        <input id="jm-proxy" placeholder="https://odd-moon-93a6.abhinavbilla1991.workers.dev" style="font-family:monospace;font-size:11px"/>
+        <label>Proxy URL <span style="font-size:9px;color:var(--muted2)">(Cloudflare or Vercel)</span></label>
+        <input id="jm-proxy" value="https://odd-moon-93a6.abhinavbilla1991.workers.dev" placeholder="https://odd-moon-93a6.abhinavbilla1991.workers.dev" style="font-family:monospace;font-size:11px"/>
       </div>
-      <div class="cf">
-        <label>Proxy URL <span style="color:var(--muted2);font-size:9px;font-weight:400">Your Vercel deployment URL</span></label>
-        <input id="jm-proxy" placeholder="https://prodmind-jira-proxy.vercel.app" style="font-family:monospace"/>
-      </div>
+
       <div class="cf">
         <label>Email</label>
         <input id="jm-email" type="email" placeholder="abilla@aldar.com"/>
@@ -26062,7 +26059,7 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
 
 let jiraConfig = null;
 let _jiraContextIssue = null;
-let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
+let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93a6.abhinavbilla1991.workers.dev';
 
 // ── Init: restore saved config ────────────────────────────────
 (function(){
@@ -26072,8 +26069,9 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '';
     if (saved) jiraConfig = JSON.parse(saved);
   } catch(_){}
 
-  var savedProxy = localStorage.getItem('pm_jira_proxy');
-  if (savedProxy) jiraProxyUrl = savedProxy;
+  var savedProxy = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93a6.abhinavbilla1991.workers.dev';
+  jiraProxyUrl = savedProxy;
+  localStorage.setItem('pm_jira_proxy', savedProxy);
 
   // Pre-fill modal
   setTimeout(function(){
@@ -26117,16 +26115,20 @@ function closeJiraConnectModal(){
 
 // ── Save config and test ──────────────────────────────────────
 async function saveJiraConfig(){
-  var proxy  = (document.getElementById('jm-proxy')?.value||'').trim().replace(/\/+$/,'');
+  var WORKER_URL = 'https://odd-moon-93a6.abhinavbilla1991.workers.dev';
+  var proxyEl = document.getElementById('jm-proxy');
+  var proxy   = ((proxyEl && proxyEl.value) || WORKER_URL).trim().replace(/\/+$/,'');
+  if (!proxy) proxy = WORKER_URL;
   var domain = (document.getElementById('jm-domain')?.value||'ebdae.atlassian.net').trim().replace(/^https?:\/\//,'');
-  var email  = (document.getElementById('jm-email')?.value||'').trim();
-  var token  = (document.getElementById('jm-token')?.value||'').trim();
+  var email  = (document.getElementById('jm-email')?.value||'abilla@aldar.com').trim();
+  var tokenEl = document.getElementById('jm-token');
+  var token   = (tokenEl && tokenEl.value || '').trim();
   var st     = document.getElementById('jm-status');
-  if (!proxy || !email || !token) {
-    if(st){ st.textContent = '⚠ Enter proxy URL, email and API token'; st.style.color='var(--red)'; }
+  if (!token) {
+    if(st){ st.textContent = '⚠ Enter your Atlassian API token'; st.style.color='var(--red)'; }
     return;
   }
-  _jiraProxyUrl = proxy;
+  jiraProxyUrl = proxy;
   localStorage.setItem('pm_jira_proxy', proxy);
   jiraConfig = { domain, email, token };
   localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
@@ -26147,7 +26149,7 @@ async function saveJiraConfig(){
       setJiraStatusCredentialsSaved(domain, email);
     }
   } catch(e){
-    if(st){ st.textContent='⚠ Saved — CORS blocked direct call. Board will still work via API.'; st.style.color='var(--yellow)'; }
+    if(st){ st.textContent='⚠ Saved — test error: '+e.message; st.style.color='var(--yellow)'; }
     setJiraStatusCredentialsSaved(domain, email);
     setTimeout(closeJiraConnectModal, 2000);
   }
@@ -26204,12 +26206,7 @@ async function testJiraConnection(){
   const testBtn = document.getElementById('jira-test-btn');
   const st      = document.getElementById('jm-status');
   if (testBtn) { testBtn.textContent = 'Testing…'; testBtn.disabled = true; }
-  if (st) { st.textContent = 'Connecting via Rovo MCP…'; st.style.color = 'var(--muted2)'; }
-  if (!apiKey) {
-    if (st) { st.textContent = '⚠ Add Anthropic API key first'; st.style.color = 'var(--red)'; }
-    if (testBtn) { testBtn.textContent = '↻ Test Connection'; testBtn.disabled = false; }
-    return;
-  }
+  if (st) { st.textContent = 'Testing connection to Jira…'; st.style.color = 'var(--muted2)'; }
   try {
     const res = await jiraFetch('/myself');
     if (res.ok) {
@@ -26260,9 +26257,14 @@ async function jiraFetch(path, opts) {
     return { ok: true, status: 200, json: async () => _jiraCache[cacheKey] };
   }
 
-  // Build proxy URL: https://your-proxy.vercel.app/api/jira?path=/rest/api/3/search?jql=...
+  // Build proxy URL — ensure path includes /rest/api/3 prefix for Atlassian
   const base = jiraProxyUrl.replace(/\/+$/, '');
-  const url  = base + '/api/jira?path=' + encodeURIComponent(path);
+  const fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
+  // Auto-detect: Cloudflare Workers at root, Vercel at /api/jira
+  const isCloudflare = base.includes('workers.dev');
+  const url = isCloudflare
+    ? base + '?path=' + encodeURIComponent(fullPath)
+    : base + '/api/jira?path=' + encodeURIComponent(fullPath);
 
   const fetchOpts = {
     method: method,
