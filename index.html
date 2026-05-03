@@ -3982,7 +3982,15 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js"></script>
-</head>
+
+<style>
+.jira-hub-card{background:var(--bg2);border:0.5px solid var(--border2);border-radius:10px;padding:14px;cursor:pointer;transition:all 0.15s;display:flex;flex-direction:column;gap:4px;}
+.jira-hub-card:hover{border-color:rgba(0,82,204,0.4);background:rgba(0,82,204,0.05);transform:translateY(-1px);}
+.jira-hub-card:active{transform:scale(0.98);}
+.jhc-icon{font-size:20px;margin-bottom:2px;}
+.jhc-title{font-size:12px;font-weight:700;color:var(--text);}
+.jhc-desc{font-size:10px;color:var(--muted2);line-height:1.4;}
+</style></head>
 <body>
 
 <!-- ══ PRODMIND SPLASH SCREEN ══════════════════════════════════ -->
@@ -10403,7 +10411,7 @@ function copyMsgById(id, _unused){
   const el = document.getElementById(id);
   if(!el) return;
   const plain = (el.innerText||el.textContent||'').trim();
-  const html  = '<html><body><div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.75;color:#1a1a2a;max-width:800px">'+el.innerHTML+'</div>\n</body></html>';
+  const html  = '<html><body><div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.75;color:#1a1a2a;max-width:800px">'+el.innerHTML+'</div>\n';
   // Button feedback
   const triggerBtn = document.querySelector('[onclick*="copyMsgById(\'' + id + '\'"]');
   if(triggerBtn){ const orig=triggerBtn.innerHTML; triggerBtn.innerHTML='✓ Copied!'; triggerBtn.style.color='var(--green)'; setTimeout(()=>{triggerBtn.innerHTML=orig;triggerBtn.style.color='';},1800); }
@@ -18055,6 +18063,684 @@ Your call. Which option. Why. What you need the stakeholder to decide.
 
 ## Stakeholder Communication
 What to tell them, in what format, when, and how to frame the trade-off conversation.`},
+,
+  // ══ JIRA PROMPT REPO — Live data commands ════════════════════
+  // Type any of these in chat → I fetch live Jira data and run the analysis
+
+  // ── SPRINT HEALTH ──────────────────────────────────────────
+  {brain:'po',icon:'🔗',color:'#0052CC',name:'[JIRA] Sprint Health — HIP',
+   prompt:`Fetch the current sprint data from Jira project HIP and populate the Sprint Health score.
+
+Use this exact JQL to get the data:
+- All open items: project = HIP AND statusCategory in ("To Do","In Progress")
+- Done last 14d: project = HIP AND statusCategory = Done AND updated >= -14d
+- Open bugs: project = HIP AND issuetype = Bug AND statusCategory != Done
+- Team members: unique assignees on open items
+
+Then give me:
+
+## Sprint Health Score (calculate each)
+- Committed: [total open + done in sprint]
+- Completed: [done items]
+- Blockers: [open bugs]
+- Team size: [unique assignees]
+- Day of sprint: assume Day 5 of 10
+
+## Health Score (0-100)
+Score each dimension: Velocity, Bug Rate, Team Capacity, Completion Rate
+
+## PO Verdict
+What is the sprint health status? What should I be worried about? What action do I take today?
+
+## Top 3 risks for this sprint
+Based on the actual issues, what could derail delivery?`},
+
+  {brain:'scrum',icon:'🔗',color:'#0052CC',name:'[JIRA] Sprint Health — Custom Project',
+   prompt:`Fetch sprint health data for project [PROJECT KEY e.g. HUP / BRP / HEA].
+
+JQL to run:
+- Open: project = [PROJECT] AND statusCategory in ("To Do","In Progress")
+- Done 14d: project = [PROJECT] AND statusCategory = Done AND updated >= -14d
+- Bugs: project = [PROJECT] AND issuetype = Bug AND statusCategory != Done
+
+Calculate Sprint Health Score and give:
+## Health Assessment
+## Velocity trend (from done items)
+## Bug rate
+## Biggest risks
+## My recommended action for today as PO`},
+
+  // ── BACKLOG MANAGEMENT ─────────────────────────────────────
+  {brain:'po',icon:'🔗',color:'#0052CC',name:'[JIRA] RICE Score Backlog — HIP',
+   prompt:`Fetch all open backlog items from HIP and RICE score them.
+
+JQL: project = HIP AND statusCategory = "To Do" ORDER BY priority DESC
+
+For each item returned, RICE score it:
+- Reach: how many Harbour Platform users impacted (1-10 scale)
+- Impact: business value (0.25/0.5/1/2/3)
+- Confidence: how confident are we (25/50/75/100%)
+- Effort: story points or estimated weeks
+
+## RICE Scored Backlog Table
+| Key | Summary | R | I | C | E | RICE Score |
+(rank by RICE score descending)
+
+## Top 5 for next sprint
+Which items should go into the next sprint and why?
+
+## Items to kill or defer
+Bottom 5 with honest reason
+
+## Sprint plan recommendation
+Given the scores, what is the ideal sprint goal?`},
+
+  {brain:'po',icon:'🔗',color:'#0052CC',name:'[JIRA] Backlog Refinement — Any Project',
+   prompt:`Fetch the backlog for project [PROJECT KEY] and run a backlog refinement session.
+
+JQL: project = [PROJECT] AND statusCategory = "To Do" ORDER BY priority DESC
+
+For each issue analyse:
+1. Is the summary clear enough for a developer to understand?
+2. Does it likely have acceptance criteria? (infer from summary)
+3. Is it sized appropriately (not too big, not too vague)?
+4. Does it belong in this project or should it be linked elsewhere?
+
+## Refinement Report
+| Key | Summary | Clarity | AC Needed | Size Risk | Action |
+
+## Items that are NOT ready for development
+List with specific gaps
+
+## Items ready to pull into sprint
+List of genuinely sprint-ready items
+
+## Suggested groupings / epics
+How should this backlog be themed?`},
+
+  // ── BUG TRIAGE ─────────────────────────────────────────────
+  {brain:'qa',icon:'🔗',color:'#0052CC',name:'[JIRA] Bug Triage — HIP',
+   prompt:`Fetch all open bugs from HIP and perform expert QA triage.
+
+JQL: project = HIP AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC
+
+For each bug analyse:
+- Severity (Blocker/Critical/Major/Minor based on summary)
+- Root cause category (UI/API/Data/Auth/Performance/Workflow)
+- User impact (who is affected and how badly)
+- Fix complexity estimate (Quick/Medium/Complex)
+
+## Bug Triage Report
+
+### 🔴 Fix immediately (this sprint)
+Bugs that are production risks or blocking user flows
+
+### 🟠 Fix next sprint
+Important but not blocking
+
+### 🟡 Backlog — monitor
+Low impact, can wait
+
+## Root cause analysis
+What patterns do you see? Is there a systemic issue?
+
+## Recommended fix order
+Specific sequence with rationale
+
+## Risk to current sprint
+Will any of these bugs derail the sprint goal?`},
+
+  {brain:'qa',icon:'🔗',color:'#0052CC',name:'[JIRA] Bug Triage — Custom Project',
+   prompt:`Fetch all open bugs for project [PROJECT KEY] and triage them.
+
+JQL: project = [PROJECT] AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC
+
+Categorise each bug:
+- Severity: Blocker / Critical / Major / Minor
+- Category: UI / API / Data / Auth / Notification / Workflow / Performance
+- Fix complexity: Quick (<1d) / Medium (1-3d) / Complex (3d+)
+
+## Triage Table
+## Fix Now vs Fix Later split
+## Systemic patterns
+## Recommendation for the team`},
+
+  // ── RELEASE MANAGEMENT ─────────────────────────────────────
+  {brain:'rm',icon:'🔗',color:'#0052CC',name:'[JIRA] Release Risk Assessment — HIP',
+   prompt:`Fetch the current state of HIP and perform a release risk assessment.
+
+Fetch:
+1. In progress: project = HIP AND statusCategory = "In Progress"
+2. Code review: project = HIP AND status = "CODE REVIEW"
+3. Ready for QA: project = HIP AND status = "Ready For QA"
+4. Open bugs: project = HIP AND issuetype = Bug AND statusCategory != Done
+5. SIT done: project = HIP AND status = "SIT DONE"
+
+## Release Readiness Dashboard
+
+### 🟢 Ready to release
+Items that are SIT Done or fully tested
+
+### 🟠 At risk
+Items in Code Review or QA with open bugs nearby
+
+### 🔴 Blockers
+Open Highest/High priority bugs that could stop release
+
+## Go / No-Go Recommendation
+Based on the data, is HIP ready to release? What conditions must be met?
+
+## Release checklist
+What must happen before we can go live?
+
+## Risk mitigation
+For each blocker, what is the workaround or contingency?`},
+
+  {brain:'rm',icon:'🔗',color:'#0052CC',name:'[JIRA] Release Notes Draft — HIP',
+   prompt:`Fetch recently completed HIP items and draft release notes.
+
+JQL: project = HIP AND statusCategory = Done AND updated >= -30d ORDER BY updated DESC
+
+From the completed items, draft professional release notes:
+
+## Release Notes — Harbour Platform [VERSION]
+**Release Date:** [TODAY]
+**Project:** HIP — Harbour Linkon
+
+### ✅ New Features
+(list completed Stories and Initiatives)
+
+### 🐛 Bug Fixes
+(list completed Bugs)
+
+### ⚡ Improvements
+(list completed Tasks and improvements)
+
+### ⚠️ Known Issues
+(list any open Highest/High bugs not yet fixed)
+
+### 🔧 Technical Notes
+(any migrations, config changes, or dev notes inferred)
+
+Write in clear, user-friendly language. Avoid Jira jargon.`},
+
+  // ── FORECAST / MONTE CARLO ─────────────────────────────────
+  {brain:'po',icon:'🔗',color:'#0052CC',name:'[JIRA] Forecast Inputs — HIP',
+   prompt:`Fetch the data I need to run a Monte Carlo forecast for HIP.
+
+Fetch:
+1. Backlog size: project = HIP AND statusCategory = "To Do" (get total count)
+2. Completed last 6 weeks: project = HIP AND statusCategory = Done AND updated >= -42d (count per 2-week sprint)
+3. In progress: project = HIP AND statusCategory = "In Progress" (count)
+
+Calculate:
+- Average velocity per sprint (items completed per 2 weeks)
+- Velocity variance (best sprint / worst sprint)
+- Backlog size
+
+## Forecast Inputs for Monte Carlo
+- Backlog: [N] items
+- Average velocity: [N] items/sprint
+- Velocity range: [min]-[max] items/sprint
+- Current WIP: [N] items in progress
+
+## Monte Carlo Simulation (run 100 scenarios mentally)
+If velocity varies between [min] and [max] per sprint:
+- 50th percentile: done in [N] sprints = [date]
+- 85th percentile: done in [N] sprints = [date]
+- 95th percentile: done in [N] sprints = [date]
+
+## PO Recommendation
+What date should I commit to? What assumptions am I making?
+What could accelerate or delay this forecast?`},
+
+  // ── STRATEGY ───────────────────────────────────────────────
+  {brain:'po',icon:'🔗',color:'#0052CC',name:'[JIRA] Strategic Backlog Analysis — HIP',
+   prompt:`Fetch the HIP backlog and identify strategic themes, product bets and OKR alignment.
+
+JQL: project = HIP AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC
+
+Analyse all items and:
+
+## Strategic Themes
+Group issues into 4-6 themes (e.g. "Approval Workflow", "Notifications", "Gate Management", "Performance")
+
+For each theme:
+- How many items? What % of backlog?
+- Business value (why does this theme matter to Aldar?)
+- Strategic priority (Critical/High/Medium/Low)
+- Current status (is this theme moving or stuck?)
+
+## Product Bets
+Which 3 items are our biggest bets — highest risk, highest reward?
+
+## OKR Alignment
+Map each theme to a potential OKR:
+- Objective: [what we're trying to achieve]
+- Key Result: [how we measure it from these Jira items]
+
+## What is NOT in the backlog that should be?
+Based on the patterns, what gaps do you see?
+
+## North Star recommendation
+Given this backlog, what is the single most important thing to ship next quarter?`},
+
+  {brain:'ceo',icon:'🔗',color:'#0052CC',name:'[JIRA] Executive Sprint Summary — HIP',
+   prompt:`Fetch HIP sprint data and write an executive summary for Harry (CDO).
+
+Fetch:
+- Open items: project = HIP AND statusCategory != Done ORDER BY priority DESC (top 10)
+- Done recently: project = HIP AND statusCategory = Done AND updated >= -14d
+- Open bugs: project = HIP AND issuetype = Bug AND statusCategory != Done
+
+Write a 1-page executive update in this format:
+
+## Harbour Platform — Sprint Update
+**Date:** [TODAY] | **Prepared by:** Abhinav (PO)
+
+### 🎯 Sprint Status: [GREEN / AMBER / RED]
+One sentence on overall health.
+
+### ✅ Delivered this sprint
+3-5 bullet points on completed items (business language, no Jira jargon)
+
+### 🔄 In progress
+Top 3 items currently being built
+
+### ⚠️ Risks & blockers
+Any Highest/High priority open bugs or blockers (with severity and impact)
+
+### 📊 Key metrics
+- Velocity: X items
+- Open bugs: N
+- Backlog size: N items
+
+### 📅 Next sprint focus
+Top 3 priorities for next sprint
+
+**Keep it under 300 words. Write for a CDO, not a developer.**`},
+
+  // ── DOC CREATOR ────────────────────────────────────────────
+  {brain:'ba',icon:'🔗',color:'#0052CC',name:'[JIRA] Analyse Ticket — Write Full BRD',
+   prompt:`Fetch ticket [TICKET KEY e.g. HIP-2336] from Jira and write a complete BRD.
+
+Get the ticket details including summary, description, acceptance criteria, and any linked issues.
+
+Using the ticket content, produce a full BRD with these sections:
+
+§1 Executive Summary
+§2 Business Objectives & Success Metrics
+§3 Scope (In / Out)
+§4 Stakeholders & RACI
+§5 User Personas & Jobs-to-be-Done
+§6 Functional Requirements
+§7 Non-Functional Requirements
+§8 User Stories & Acceptance Criteria (Given/When/Then)
+§9 Process Map & User Journey
+§10 Data Requirements
+§11 Integration & API Requirements
+§12 Security & Compliance
+§13 Release Strategy
+§14 Risk Register
+§15 Open Questions & Assumptions
+§16 Appendix
+
+Produce each section in full. Flag any gaps in the original ticket as [TBD - needs clarification].`},
+
+  {brain:'ba',icon:'🔗',color:'#0052CC',name:'[JIRA] Analyse Ticket — DoR Check',
+   prompt:`Fetch ticket [TICKET KEY] from Jira and check if it meets the Definition of Ready.
+
+Get: summary, description, status, priority, assignee, story points.
+
+## Definition of Ready Scorecard
+
+Score each criterion (Pass / Fail / Partial):
+
+| Criterion | Status | Notes |
+|---|---|---|
+| Clear title and summary | | |
+| Business value stated | | |
+| Acceptance criteria written | | |
+| Technical approach clear | | |
+| Dependencies identified | | |
+| Sized (story points) | | |
+| Team can start without questions | | |
+| No blockers | | |
+| Testable / measurable | | |
+
+## DoR Score: X/9
+
+## Verdict
+🟢 READY / 🟠 ALMOST READY / 🔴 NOT READY
+
+## What must be fixed before sprint
+Specific gaps with owner and action`},
+
+  {brain:'qa',icon:'🔗',color:'#0052CC',name:'[JIRA] Analyse Ticket — Write Test Cases',
+   prompt:`Fetch ticket [TICKET KEY] from Jira and write comprehensive test cases.
+
+Get the full ticket: summary, description, acceptance criteria.
+
+Write a complete test case document:
+
+## Test Cases — [TICKET KEY]: [SUMMARY]
+
+### Functional Test Cases
+For each acceptance criterion, write:
+
+**TC-001: [Test name]**
+- Precondition: [setup required]
+- Steps: [numbered steps]
+- Expected result: [what should happen]
+- Priority: High/Medium/Low
+
+### Edge Cases
+Scenarios the dev might not have thought of
+
+### Negative Tests
+What should NOT work / error states
+
+### Regression risks
+What existing functionality could this break?
+
+### UAT checklist
+5 things the business user should verify
+
+Write minimum 10 test cases. Be specific — assume the tester has never seen this feature.`},
+
+  {brain:'ba',icon:'🔗',color:'#0052CC',name:'[JIRA] Analyse Ticket — Write AC',
+   prompt:`Fetch ticket [TICKET KEY] from Jira and write complete Acceptance Criteria.
+
+Get the full ticket details.
+
+Write production-quality Acceptance Criteria in Gherkin (Given/When/Then) format:
+
+## Acceptance Criteria — [TICKET KEY]: [SUMMARY]
+
+### Happy Path
+**Scenario 1: [name]**
+GIVEN [precondition]
+WHEN [action]
+THEN [expected outcome]
+AND [additional outcome if needed]
+
+### Edge Cases
+**Scenario 2, 3...** [repeat pattern]
+
+### Error States
+**Scenario N: [error name]**
+GIVEN [setup that causes the error]
+WHEN [action]
+THEN [error message/handling]
+
+### Out of Scope
+What this ticket does NOT cover
+
+### Definition of Done checklist
+- [ ] Code reviewed
+- [ ] Unit tests written
+- [ ] AC signed off by PO
+- [ ] Tested in UAT
+- [ ] No Highest/High bugs remaining
+
+Write minimum 8 scenarios. Include both positive and negative cases.`},
+
+  // ── MOM ─────────────────────────────────────────────────────
+  {brain:'scrum',icon:'🔗',color:'#0052CC',name:'[JIRA] MOM Action Items — HIP',
+   prompt:`Fetch the current open high-priority items from HIP to use as action items in today's MOM.
+
+JQL: project = HIP AND priority in (Highest, High) AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC
+
+Format as a Meeting Action Item table:
+
+## Action Items — [TODAY'S DATE]
+
+| # | Jira Key | Action / Description | Owner | Due Date | Status |
+|---|---|---|---|---|---|
+(populate from fetched issues, use assignee as Owner, status from Jira)
+
+## Open bugs requiring immediate action
+List Highest priority bugs with assignee and expected fix date
+
+## Carry-overs from last sprint
+Items that were in progress but not completed
+
+## Decisions needed from this meeting
+Based on the open items, what decisions need to be made today?
+
+## Risk register update
+Any new risks based on the open item patterns?`},
+
+  {brain:'scrum',icon:'🔗',color:'#0052CC',name:'[JIRA] Daily Standup — HIP',
+   prompt:`Fetch today's sprint data from HIP and write a standup summary.
+
+Fetch:
+- In progress: project = HIP AND statusCategory = "In Progress" ORDER BY priority DESC
+- Blocked/bugs: project = HIP AND issuetype = Bug AND priority in (Highest, High) AND statusCategory != Done
+
+Format as a standup email/message:
+
+## Daily Standup — HIP — [TODAY]
+
+### ✅ Done yesterday
+(infer from recently updated items)
+
+### 🔄 In progress today
+For each in-progress item:
+- [KEY]: [Summary] — [Assignee] — [Status]
+
+### 🚨 Blockers
+Any Highest bugs or items stuck in same status for 3+ days
+
+### 📊 Sprint health check
+- On track? Y/N
+- Items at risk?
+- Action needed from PO today?
+
+Keep it under 200 words. Write as if sending to the team on Slack.`},
+
+  // ── WEEK PLANNER ───────────────────────────────────────────
+  {brain:'po',icon:'🔗',color:'#0052CC',name:'[JIRA] My Week Plan — HIP',
+   prompt:`Fetch my current sprint items from HIP and plan my week as PO.
+
+Fetch: project = HIP AND statusCategory = "In Progress" ORDER BY priority DESC
+
+Also fetch: project = HIP AND issuetype = Bug AND priority = Highest AND statusCategory != Done
+
+Build a practical week plan:
+
+## My PO Week Plan — W/C [DATE]
+
+### Monday
+- Morning: [highest priority action from Jira data]
+- Afternoon: []
+
+### Tuesday
+- [items to unblock or review]
+
+### Wednesday
+- [mid-week check / demos / refinement]
+
+### Thursday
+- [sprint planning prep if end of sprint]
+
+### Friday
+- [retrospective / metrics review / stakeholder updates]
+
+### Key Jira tickets to action this week
+| Key | Summary | My Action | By When |
+
+### What I must NOT let slip this week
+Top 3 non-negotiables based on the Jira data
+
+### What I'm delegating / tracking
+Items where I just need to monitor, not act`},
+
+  // ── DECISION LOG ───────────────────────────────────────────
+  {brain:'dm',icon:'🔗',color:'#0052CC',name:'[JIRA] Decision Log — HIP Initiatives',
+   prompt:`Fetch the HIP Initiatives and Epics and create a decision log.
+
+JQL: project = HIP AND issuetype in (Initiative, Epic) AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC
+
+For each initiative/epic, create a decision log entry:
+
+## Decision Log — HIP Platform
+
+| Date | Decision | Context | Options Considered | Decision Made | Rationale | Owner | Status |
+(populate from the initiatives)
+
+## Architectural decisions
+For any initiatives involving integration or technical complexity, document the key technical decisions
+
+## Product decisions
+Key scope/feature decisions captured in the Jira descriptions
+
+## Open decisions
+Initiatives where decisions are still pending — what needs to be decided and by whom?
+
+## Decision dependencies
+Which decisions are blocking other decisions?`},
+
+  // ── METRICS ────────────────────────────────────────────────
+  {brain:'po',icon:'🔗',color:'#0052CC',name:'[JIRA] Product Health Metrics — HIP',
+   prompt:`Fetch HIP metrics and produce a product health dashboard.
+
+Fetch:
+1. Throughput (30d): project = HIP AND statusCategory = Done AND updated >= -30d
+2. Bug count: project = HIP AND issuetype = Bug AND statusCategory != Done
+3. Backlog size: project = HIP AND statusCategory = "To Do"
+4. In progress: project = HIP AND statusCategory = "In Progress"
+5. Backlog age: project = HIP AND statusCategory = "To Do" AND created <= -30d (old items)
+
+## Product Health Dashboard — HIP
+
+### Throughput
+- Items completed last 30d: [N]
+- Avg per sprint: [N]
+- Trend: Up / Down / Stable
+
+### Quality
+- Open bugs: [N]
+- Bug rate: open bugs / total items = [%]
+- Highest priority open bugs: [list top 3]
+
+### Flow
+- WIP (in progress): [N] — ideal is < 15
+- Backlog size: [N] items
+- Old items (30d+): [N] — these need triage
+
+### Health Score: [GREEN/AMBER/RED]
+Overall assessment: is HIP healthy?
+
+### Recommended actions
+3 specific things I should do this week based on these metrics`},
+
+  // ── ROADMAP ────────────────────────────────────────────────
+  {brain:'po',icon:'🔗',color:'#0052CC',name:'[JIRA] Roadmap — HIP Epics & Initiatives',
+   prompt:`Fetch HIP Epics and Initiatives and build a product roadmap.
+
+JQL: project = HIP AND issuetype in (Initiative, Epic) ORDER BY priority DESC
+
+Group into quarters and build a roadmap:
+
+## HIP Product Roadmap — 2026
+
+### Now (Q2 2026)
+Initiatives/Epics currently In Progress or Code Review
+- [KEY]: [Summary] — [Status] — [Owner]
+
+### Next (Q3 2026)
+Initiatives/Epics in To Do / Planning with high priority
+- [KEY]: [Summary] — [Estimated effort]
+
+### Later (Q4 2026+)
+Lower priority or Discovery items
+
+### Not prioritised
+Items that need more discovery before roadmap placement
+
+## Roadmap risks
+What dependencies or blockers could shift these timelines?
+
+## What's missing from the roadmap?
+Based on the initiatives, what themes are under-invested?
+
+## Stakeholder message
+Write a 3-sentence roadmap summary I can share with Harry (CDO) in our next 1:1`},
+
+  // ── STAKEHOLDER MANAGEMENT ─────────────────────────────────
+  {brain:'po',icon:'🔗',color:'#0052CC',name:'[JIRA] Stakeholder Update — HIP',
+   prompt:`Fetch HIP data and write a stakeholder update for the GDF leadership team.
+
+Fetch:
+- Done last sprint: project = HIP AND statusCategory = Done AND updated >= -14d
+- In progress: project = HIP AND statusCategory = "In Progress" ORDER BY priority DESC (top 5)
+- Open bugs: project = HIP AND issuetype = Bug AND priority in (Highest, High) AND statusCategory != Done
+
+Write a professional stakeholder update:
+
+## Harbour Platform — Stakeholder Update
+**Date:** [TODAY]
+**Audience:** GDF Leadership / Harry (CDO)
+
+### Sprint highlights
+What we shipped (3-5 bullets, business language)
+
+### In flight
+What is currently being built (top 3 items with expected completion)
+
+### Risks & issues requiring leadership attention
+Any Highest bugs or blockers that need escalation or a decision
+
+### Upcoming milestones
+Next 2 sprints focus areas
+
+### Metrics
+| Metric | Value | Trend |
+| Throughput | | |
+| Open bugs | | |
+| Backlog | | |
+
+### Asks from leadership
+Any decisions, resources, or support needed
+
+**Tone: concise, confident, data-driven. Max 400 words.**`},
+
+  // ── NORTH STAR ─────────────────────────────────────────────
+  {brain:'ceo',icon:'🔗',color:'#0052CC',name:'[JIRA] North Star — From Jira Backlog',
+   prompt:`Fetch the HIP backlog and derive the product North Star metric and OKRs.
+
+JQL: project = HIP AND issuetype in (Initiative, Epic, Story) AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC
+
+Analyse all the items and answer:
+
+## North Star Metric
+What is the single number that captures whether the Harbour Platform is delivering value to Aldar?
+
+Example candidates:
+- Gate approvals completed per month
+- Time from gate submission to approval
+- Projects moving from G0 to G1 within target SLA
+
+## Why this metric?
+How does it connect to Aldar's real estate development business goals?
+
+## OKRs for Q3 2026
+
+**Objective 1:** [from highest priority initiative theme]
+- KR1: [measurable, from Jira items]
+- KR2:
+- KR3:
+
+**Objective 2:** [second theme]
+- KR1:
+- KR2:
+
+## What the backlog tells us about product strategy
+3 strategic insights from the pattern of issues
+
+## What's missing
+What investments are not in the backlog that should be?`}
 
 ];
 
@@ -18132,7 +18818,7 @@ function usePromptByIdx(idx) {
 
 
 function _richCopy(htmlContent, plainText, successMsg){
-  var html = '<html><body><div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.75;color:#1a1a2a;max-width:800px">'+htmlContent+'</div></body></html>';
+  var html = '<html><body><div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.75;color:#1a1a2a;max-width:800px">'+htmlContent+'</div>';
   try {
     var item = new ClipboardItem({
       'text/html' : new Blob([html],  {type:'text/html'}),
@@ -18277,7 +18963,7 @@ innerHtml+'\n'+
 '<div class="ftr-btns">\n'+
 '<button onclick="window.print()" style="background:#0d0d14;color:#fff">🖨 Print / Save PDF</button>\n'+
 '<button onclick="window.close()" style="background:#f0f0f4;color:#333;border:1px solid #ddd">Close</button>\n'+
-'</div></div></div></body></html>';
+'</div></div></div>';
 
   var blob = new Blob([docHtml],{type:'text/html;charset=utf-8'});
   var url  = URL.createObjectURL(blob);
@@ -19355,11 +20041,11 @@ function exportFullChat(){
     </head><body>
       <div class="doc">${html}</div>
       <button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button>
-    </body></html>`);
+    `);
     win.document.close();
   } else {
     // Popup blocked — fallback to download
-    const blob = new Blob([`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title></head><body>${html}</body></html>`],{type:'text/html'});
+    const blob = new Blob([`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title></head><body>${html}`],{type:'text/html'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = title.replace(/[^a-z0-9]/gi,'-').toLowerCase()+'.html';
@@ -19376,7 +20062,7 @@ function copyFullChat(){
     return;
   }
   const {html, plain} = _buildChatHtml();
-  const fullHtml = '<html><body><div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.75;color:#1a1a2a;max-width:820px">'+html+'</div></body></html>';
+  const fullHtml = '<html><body><div style="font-family:Arial,sans-serif;font-size:14px;line-height:1.75;color:#1a1a2a;max-width:820px">'+html+'</div>';
   try {
     const item = new ClipboardItem({
       'text/html' : new Blob([fullHtml], {type:'text/html'}),
@@ -19468,7 +20154,7 @@ function exportContext(){
       </style></head><body>
       <div class="doc">${html}</div>
       <button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button>
-    </body></html>`);
+    `);
     win.document.close();
   } else {
     const blob = new Blob([html],{type:'text/html'});
@@ -19488,7 +20174,7 @@ function copyContext(){
   if(!hasAny){ toast('No context saved yet — fill in the Product Context panel first'); return; }
   const plain = _buildContextText();
   const html = _buildContextHtml();
-  const fullHtml = '<html><body>'+html+'</body></html>';
+  const fullHtml = '<html><body>'+html+'';
   try {
     const item = new ClipboardItem({
       'text/html' : new Blob([fullHtml],{type:'text/html'}),
@@ -20699,7 +21385,7 @@ function exportSuitePdf() {
       </style>
     </head><body>${html}
       <button class="print-btn" onclick="window.print()">🖨 Print / Save PDF</button>
-    </body></html>`);
+    `);
     win.document.close();
     toast('📄 Suite opened — Print to save as PDF');
   }
@@ -24668,7 +25354,7 @@ function exportDoc(sourceId, title) {
   </div>
 </div>
 
-</body></html>`);
+`);
   win.document.close();
   toast('📄 Export opened — Print → Save as PDF', 'success');
 }
@@ -25423,7 +26109,8 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
 <!-- ══ JIRA LIVE WIDGET injected into home ══════════════════ -->
 <script>
 window._jiraNavIssue=function(k){if(typeof switchTab==='function')switchTab('jira',document.getElementById('nav-tab-jira'));setTimeout(function(){if(typeof loadIssueIntoContext==='function')loadIssueIntoContext(k);},400);};
-window.loadJiraHomeWidget=async function(){try{if(typeof jiraConfig==='undefined'||!jiraConfig||!jiraConfig.token)return;var proj=(document.getElementById('jhw-project')&&document.getElementById('jhw-project').value)||'HIP';var r1=await jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND statusCategory != Done')+'&maxResults=5&fields=summary,issuetype,priority');var r2=await jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND statusCategory = "In Progress"')+'&maxResults=1&fields=summary');var r3=await jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND issuetype = Bug AND statusCategory != Done')+'&maxResults=1&fields=summary');var r4=await jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND priority in (Highest,High) AND statusCategory != Done')+'&maxResults=1&fields=summary');var d1=await r1.json(),d2=await r2.json(),d3=await r3.json(),d4=await r4.json();var s=document.getElementById('jhw-status');if(s)s.textContent='Live - '+proj;var t=document.getElementById('jhw-total');if(t)t.textContent=d1.total||'0';var ip=document.getElementById('jhw-inprog');if(ip)ip.textContent=d2.total||'0';var bg=document.getElementById('jhw-bugs');if(bg)bg.textContent=d3.total||'0';var hp=document.getElementById('jhw-high');if(hp)hp.textContent=d4.total||'0';var el=document.getElementById('jhw-issues');if(el&&d1.issues&&d1.issues.length){var TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};var html='';for(var i=0;i<d1.issues.length;i++){var iss=d1.issues[i],f=iss.fields,tc=TCOL[f.issuetype&&f.issuetype.name]||'#7a7a90';html+='<div data-k="'+iss.key+'" onclick="window._jiraNavIssue(this.dataset.k)" style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;cursor:pointer;margin-bottom:3px"><span style="font-size:9px;font-family:monospace;color:#4C9AFF">'+iss.key+'</span><span style="font-size:8px;padding:1px 5px;border-radius:3px;background:'+tc+'18;color:'+tc+'">'+(f.issuetype&&f.issuetype.name||'?')+'</span><span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(f.summary||'')+'</span></div>';}el.innerHTML=html;}}catch(e){}};
+window.loadJiraHomeWidget=async function(){
+  if (typeof jiraFetch !== 'function') { console.warn('jiraFetch not ready yet'); return; }try{if(typeof jiraConfig==='undefined'||!jiraConfig||!jiraConfig.token)return;var proj=(document.getElementById('jhw-project')&&document.getElementById('jhw-project').value)||'HIP';var r1=await jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND statusCategory != Done')+'&maxResults=5&fields=summary,issuetype,priority');var r2=await jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND statusCategory = "In Progress"')+'&maxResults=1&fields=summary');var r3=await jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND issuetype = Bug AND statusCategory != Done')+'&maxResults=1&fields=summary');var r4=await jiraFetch('/search?jql='+encodeURIComponent('project = '+proj+' AND priority in (Highest,High) AND statusCategory != Done')+'&maxResults=1&fields=summary');var d1=await r1.json(),d2=await r2.json(),d3=await r3.json(),d4=await r4.json();var s=document.getElementById('jhw-status');if(s)s.textContent='Live - '+proj;var t=document.getElementById('jhw-total');if(t)t.textContent=d1.total||'0';var ip=document.getElementById('jhw-inprog');if(ip)ip.textContent=d2.total||'0';var bg=document.getElementById('jhw-bugs');if(bg)bg.textContent=d3.total||'0';var hp=document.getElementById('jhw-high');if(hp)hp.textContent=d4.total||'0';var el=document.getElementById('jhw-issues');if(el&&d1.issues&&d1.issues.length){var TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};var html='';for(var i=0;i<d1.issues.length;i++){var iss=d1.issues[i],f=iss.fields,tc=TCOL[f.issuetype&&f.issuetype.name]||'#7a7a90';html+='<div data-k="'+iss.key+'" onclick="window._jiraNavIssue(this.dataset.k)" style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;cursor:pointer;margin-bottom:3px"><span style="font-size:9px;font-family:monospace;color:#4C9AFF">'+iss.key+'</span><span style="font-size:8px;padding:1px 5px;border-radius:3px;background:'+tc+'18;color:'+tc+'">'+(f.issuetype&&f.issuetype.name||'?')+'</span><span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(f.summary||'')+'</span></div>';}el.innerHTML=html;}}catch(e){}};
 setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraConfig.token)window.loadJiraHomeWidget();}catch(e){}},3000);
 </script>
 
@@ -26236,33 +26923,38 @@ async function testJiraConnection(){
 // Set proxy URL in Jira tab → ⚙ Configure
 
 const JIRA_CLOUD_ID = 'fd834394-ca79-4414-b7b9-86c7a47cf3e1';
-var _jiraCache = {};
+window._jiraCache = window._jiraCache || {};
+var _jiraCache = window._jiraCache;
 
 async function jiraFetch(path, opts) {
   opts = opts || {};
 
-  // Check proxy URL is configured
+  // Validate config
   if (!jiraProxyUrl) {
-    throw new Error('Proxy URL not set — click ⚙ Configure in the Jira tab');
+    throw new Error('Proxy URL not set — open Jira tab and configure');
   }
-
-  // Check credentials
   if (!jiraConfig || !jiraConfig.email || !jiraConfig.token) {
-    throw new Error('Jira credentials not set — click ⚙ Configure');
+    throw new Error('Jira credentials not set — open Jira tab and configure');
   }
 
   const method = (opts.method || 'GET').toUpperCase();
   const cacheKey = method + path;
-  if (method === 'GET' && _jiraCache[cacheKey]) {
-    return { ok: true, status: 200, json: async () => _jiraCache[cacheKey] };
+
+  // Self-heal cache if undefined (cross-block scope issue)
+  if (typeof _jiraCache === 'undefined') { window._jiraCache = {}; }
+  var _cache = window._jiraCache || {};
+
+  // Return cached data wrapped in response-like object
+  if (method === 'GET' && _cache[cacheKey]) {
+    const cached = _cache[cacheKey];
+    return { ok: true, status: 200, json: async function(){ return cached; } };
   }
 
-  // Build proxy URL — ensure path includes /rest/api/3 prefix for Atlassian
+  // Build proxy URL
   const base = jiraProxyUrl.replace(/\/+$/, '');
   const fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
-  // Auto-detect: Cloudflare Workers at root, Vercel at /api/jira
   const isCloudflare = base.includes('workers.dev');
-  const url = isCloudflare
+  const proxyUrl = isCloudflare
     ? base + '?path=' + encodeURIComponent(fullPath)
     : base + '/api/jira?path=' + encodeURIComponent(fullPath);
 
@@ -26275,17 +26967,40 @@ async function jiraFetch(path, opts) {
       'X-Jira-Token': jiraConfig.token
     }
   };
-
   if (opts.body) fetchOpts.body = opts.body;
 
-  const res = await fetch(url, fetchOpts);
+  try {
+    const res = await fetch(proxyUrl, fetchOpts);
+    const status = res.status;
 
-  if (method === 'GET' && res.ok) {
-    const data = await res.clone().json().catch(() => null);
-    if (data) _jiraCache[cacheKey] = data;
+    // Parse body ONCE — never return raw Response to avoid body-consumed errors
+    const text = await res.text();
+    let parsed = null;
+    try { parsed = JSON.parse(text); } catch(_) { parsed = { error: text }; }
+
+    // Cache successful GET responses
+    if (method === 'GET' && res.ok && parsed && !parsed.error) {
+      _cache[cacheKey] = parsed;
+      window._jiraCache[cacheKey] = parsed;
+    }
+
+    // Return normalized response-like object
+    return {
+      ok: res.ok,
+      status: status,
+      json: async function() { return parsed; },
+      text: async function() { return text; }
+    };
+
+  } catch(e) {
+    // Network or proxy error
+    return {
+      ok: false,
+      status: 0,
+      json: async function() { return { error: e.message }; },
+      text: async function() { return e.message; }
+    };
   }
-
-  return res;
 }
 // ── ADF text extractor ────────────────────────────────────────
 function _adfToText(node){
@@ -27255,7 +27970,7 @@ function selectJiraCtxProject(proj, btn) {
 // ── Per-feature loaders ───────────────────────────────────────
 
 window.loadJiraIntoSprintHealth = async function(proj) {
-  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading sprint data from ' + proj + '...');
   try {
     var r1 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC') + '&maxResults=50&fields=summary,status,issuetype,assignee,customfield_10028,priority');
@@ -27277,7 +27992,7 @@ window.loadJiraIntoSprintHealth = async function(proj) {
 };
 
 window.loadJiraIntoForecast = async function(proj) {
-  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading backlog from ' + proj + ' for Monte Carlo...');
   try {
     var r1 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do"') + '&maxResults=1&fields=summary');
@@ -27294,7 +28009,7 @@ window.loadJiraIntoForecast = async function(proj) {
 };
 
 window.loadJiraIntoMOM = async function(proj) {
-  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading action items from ' + proj + '...');
   try {
     var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory in ("To Do","In Progress") AND priority in (Highest,High) ORDER BY priority DESC') + '&maxResults=10&fields=summary,assignee,priority,status');
@@ -27325,7 +28040,7 @@ window.loadJiraIntoBacklog = function(proj) {
 };
 
 window.loadJiraIntoRoadmap = async function(proj) {
-  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading epics from ' + proj + '...');
   try {
     var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Epic ORDER BY priority DESC') + '&maxResults=20&fields=summary,status,priority');
@@ -27343,7 +28058,7 @@ window.loadJiraIntoRoadmap = async function(proj) {
 };
 
 window.loadJiraIntoMetrics = async function(proj) {
-  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading metrics from ' + proj + '...');
   try {
     var r1 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -30d') + '&maxResults=100&fields=summary');
@@ -27365,7 +28080,7 @@ window.loadJiraIntoMetrics = async function(proj) {
 };
 
 window.loadJiraIntoWeekPlanner = async function(proj) {
-  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading sprint items for ' + proj + '...');
   try {
     var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "In Progress" ORDER BY priority DESC') + '&maxResults=20&fields=summary,assignee,priority,status');
@@ -27383,7 +28098,7 @@ window.loadJiraIntoWeekPlanner = async function(proj) {
 };
 
 window.loadJiraIntoStrategy = async function(proj) {
-  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading backlog from ' + proj + '...');
   try {
     var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do" ORDER BY priority DESC') + '&maxResults=25&fields=summary,issuetype,priority,labels');
@@ -27398,7 +28113,7 @@ window.loadJiraIntoStrategy = async function(proj) {
 };
 
 window.loadJiraIntoDecisionLog = async function(proj) {
-  if (!apiKey) { if(typeof toast==='function') toast('Add API key first','warning'); return; }
+  if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading from ' + proj + '...');
   try {
     var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND priority in (Highest,High) AND issuetype in (Epic,Story) ORDER BY updated DESC') + '&maxResults=10&fields=summary,status,priority');
@@ -27507,7 +28222,8 @@ var _jdProj = localStorage.getItem('jd_proj') || 'HIP';
 var _jdView = 'board';
 var _jdIssue = null;
 var _jdAll = [];
-var _jdCache2 = {};
+window._jdCache2 = window._jdCache2 || {};
+var _jdCache2 = window._jdCache2;
 var _jdPrio = {Highest:'🔴',High:'🟠',Medium:'🟡',Low:'🟢',Lowest:'⚪'};
 var _jdTypeC = {Bug:'#FF4757',Story:'#00C896',Task:'#4C9AFF',Epic:'#6C47FF',Initiative:'#F5A623'};
 var _jdCat = {
@@ -27518,12 +28234,15 @@ var _jdCat = {
 
 async function jdFetch(path) {
   var cacheKey = _jdProj + path;
-  if (_jdCache2[cacheKey]) return _jdCache2[cacheKey];
+  if (typeof _jdCache2 === 'undefined') { window._jdCache2 = {}; }
+  var _jdC = window._jdCache2 || {};
+  if (_jdC[cacheKey]) return _jdC[cacheKey];
   try {
     var res = await jiraFetch(path);
     if (!res || !res.ok) return null;
     var data = await res.json();
-    _jdCache2[cacheKey] = data;
+    _jdC[cacheKey] = data;
+    if (typeof window._jdCache2 !== 'undefined') window._jdCache2[cacheKey] = data;
     jdSetConn(true);
     return data;
   } catch(e) {
@@ -27847,297 +28566,245 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 
 </script>
-</body>
-</html<div id="page-jira">
-  <!-- ══ EMBEDDED JIRA DASHBOARD ══════════════════════════════ -->
-  <style>
-/* Jira Dashboard Styles — scoped to page-jira */
-#page-jira .jd-header {
-  background: var(--bg2);
-  border-bottom: 1px solid var(--border2);
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-#page-jira .jd-logo {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-#page-jira .jd-badge {
-  background: rgba(76,154,255,0.12);
-  border: 1px solid rgba(76,154,255,0.25);
-  border-radius: 4px;
-  padding: 2px 9px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--accent);
-}
-#page-jira .jd-layout {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  height: calc(100vh - 100px);
-}
-#page-jira .jd-sidebar {
-  background: var(--bg2);
-  border-right: 1px solid var(--border2);
-  overflow-y: auto;
-  padding: 12px 0;
-}
-#page-jira .jd-main {
-  overflow-y: auto;
-  padding: 16px;
-  background: var(--bg);
-}
-#page-jira .jd-proj-wrap { padding: 8px 12px; border-bottom: 1px solid var(--border2); margin-bottom:8px; }
-#page-jira .jd-proj-sel {
-  width: 100%;
-  background: var(--bg3);
-  border: 1px solid var(--border2);
-  border-radius: 6px;
-  padding: 6px 8px;
-  font-size: 11px;
-  color: var(--text);
-  font-family: inherit;
-  outline: none;
-  cursor: pointer;
-}
-#page-jira .jd-sec-label {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 9px;
-  font-weight: 700;
-  color: var(--muted2);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 4px 12px;
-  margin-bottom: 4px;
-}
-#page-jira .jd-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  cursor: pointer;
-  color: var(--muted2);
-  font-size: 12px;
-  font-weight: 500;
-  transition: all 0.12s;
-  border-left: 2px solid transparent;
-}
-#page-jira .jd-nav-item:hover { background: var(--bg3); color: var(--text); }
-#page-jira .jd-nav-item.active { background: rgba(76,154,255,0.08); color: var(--accent); border-left-color: var(--accent); }
-#page-jira .jd-nav-item .jd-cnt { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; background: var(--bg3); padding: 1px 7px; border-radius: 10px; }
-#page-jira .jd-stats { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
-#page-jira .jd-stat {
-  background: var(--bg2);
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  padding: 12px 14px;
-  border-top: 2px solid var(--jd-c, var(--accent));
-}
-#page-jira .jd-stat-num { font-family: 'JetBrains Mono', monospace; font-size: 24px; font-weight: 700; color: var(--jd-c, var(--accent)); }
-#page-jira .jd-stat-lbl { font-size: 10px; color: var(--muted2); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
-#page-jira .jd-board { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
-#page-jira .jd-col-hdr {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 12px;
-  background: var(--bg2); border: 1px solid var(--border2); border-radius: 8px 8px 0 0;
-  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted2);
-}
-#page-jira .jd-col-dot { width: 8px; height: 8px; border-radius: 50%; }
-#page-jira .jd-col-cnt { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 10px; background: var(--bg3); padding: 1px 7px; border-radius: 10px; }
-#page-jira .jd-col-body {
-  background: var(--bg2); border: 1px solid var(--border2); border-top: none;
-  border-radius: 0 0 8px 8px; padding: 8px; min-height: 120px;
-  display: flex; flex-direction: column; gap: 6px;
-}
-#page-jira .jd-card {
-  background: var(--bg3); border: 1px solid var(--border2); border-radius: 7px;
-  padding: 9px 11px; cursor: pointer; transition: all 0.12s;
-}
-#page-jira .jd-card:hover { border-color: rgba(76,154,255,0.35); transform: translateY(-1px); }
-#page-jira .jd-card-top { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; }
-#page-jira .jd-key { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--accent); }
-#page-jira .jd-type { font-size: 9px; font-weight: 700; text-transform: uppercase; padding: 1px 5px; border-radius: 3px; }
-#page-jira .jd-summary { font-size: 11px; color: var(--text); line-height: 1.4; margin-bottom: 7px; display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
-#page-jira .jd-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-#page-jira .jd-status { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.04em; }
-#page-jira .jd-assignee { font-size: 10px; color: var(--muted2); background: var(--bg4); padding: 2px 7px; border-radius: 10px; margin-left: auto; }
-#page-jira .jd-tbl { width: 100%; border-collapse: collapse; }
-#page-jira .jd-tbl th { text-align:left; font-size:10px; font-weight:700; color:var(--muted2); text-transform:uppercase; letter-spacing:0.06em; padding:8px 10px; border-bottom:1px solid var(--border2); background:var(--bg2); }
-#page-jira .jd-tbl td { padding:9px 10px; border-bottom:1px solid var(--border2); font-size:11px; vertical-align:middle; }
-#page-jira .jd-tbl tr:hover td { background:var(--bg3); cursor:pointer; }
-#page-jira .jd-jql { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
-#page-jira .jd-jql-input {
-  flex:1; min-width:200px; background:var(--bg2); border:1px solid var(--border2);
-  border-radius:6px; padding:7px 11px; font-size:11px; color:var(--text);
-  font-family:'JetBrains Mono',monospace; outline:none;
-}
-#page-jira .jd-jql-input:focus { border-color:var(--accent); }
-#page-jira .jd-preset { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
-#page-jira .jd-preset-btn {
-  background:var(--bg2); border:1px solid var(--border2); border-radius:20px;
-  padding:3px 11px; font-size:10px; color:var(--muted2); cursor:pointer; font-family:inherit; transition:all 0.12s;
-}
-#page-jira .jd-preset-btn:hover { color:var(--text); border-color:rgba(255,255,255,0.2); }
-#page-jira .jd-ai-out {
-  background:var(--bg2); border:1px solid var(--border2); border-radius:8px;
-  padding:14px; font-size:12px; line-height:1.7; color:var(--text);
-  white-space:pre-wrap; margin-top:10px; max-height:60vh; overflow-y:auto;
-}
-#page-jira .jd-detail {
-  position:fixed; right:0; top:0; bottom:0; width:460px;
-  background:var(--bg2); border-left:1px solid var(--border2);
-  z-index:500; display:none; flex-direction:column;
-  box-shadow:-16px 0 50px rgba(0,0,0,0.5);
-}
-#page-jira .jd-detail.open { display:flex; }
-#page-jira .jd-detail-hdr { padding:14px 18px; border-bottom:1px solid var(--border2); }
-#page-jira .jd-detail-key { font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent); margin-bottom:4px; display:flex;align-items:center;gap:8px; }
-#page-jira .jd-detail-key a { color:var(--accent);text-decoration:none;font-size:10px; }
-#page-jira .jd-detail-title { font-size:14px; font-weight:600; line-height:1.4; margin-bottom:10px; }
-#page-jira .jd-detail-body { flex:1; overflow-y:auto; padding:14px 18px; }
-#page-jira .jd-detail-close { background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;line-height:1; }
-#page-jira .jd-detail-close:hover { background:var(--bg3);color:var(--text); }
-#page-jira .jd-ai-btns { display:flex;flex-wrap:wrap;gap:6px;padding:12px 18px;border-top:1px solid var(--border2);background:var(--bg3); }
-#page-jira .jd-ai-btn { background:var(--bg4);border:1px solid var(--border2);border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit;transition:all 0.12s; }
-#page-jira .jd-ai-btn:hover { background:rgba(76,154,255,0.1);border-color:rgba(76,154,255,0.3);color:var(--accent); }
-#page-jira .jd-view-tabs { display:flex;border-bottom:1px solid var(--border2);margin-bottom:14px; }
-#page-jira .jd-view-tab { padding:7px 14px;font-size:11px;font-weight:500;color:var(--muted2);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.12s;margin-bottom:-1px; }
-#page-jira .jd-view-tab:hover { color:var(--text); }
-#page-jira .jd-view-tab.active { color:var(--accent);border-bottom-color:var(--accent); }
-  </style>
 
-  <!-- Header -->
-  <div class="jd-header" style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border2)">
-    <span class="jd-logo">🔗 Jira Dashboard</span>
-    <span class="jd-badge" id="jd-proj-badge">—</span>
-    <span style="font-size:11px;color:var(--muted2)" id="jd-proj-name"></span>
-    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-      <span id="jd-conn-dot" style="width:8px;height:8px;border-radius:50%;background:var(--muted2);display:inline-block"></span>
-      <span id="jd-conn-lbl" style="font-size:11px;color:var(--muted2)">Not connected</span>
-      <button class="gbtn" onclick="jdLoadStats();jdLoadView()">↻ Refresh</button>
-    </div>
-  </div>
+<script>
+// ── Jira Prompt Filter ────────────────────────────────────────
+function filterJiraPrompts(btn) {
+  // Remove active from all filter buttons
+  document.querySelectorAll('.pr-filter-btn, .jira-pr-btn').forEach(function(b){
+    b.classList.remove('on');
+    b.style.background = '';
+  });
+  if (btn) {
+    btn.classList.add('on');
+    btn.style.background = 'rgba(0,82,204,0.2)';
+  }
 
-  <!-- Layout -->
-  <div class="jd-layout">
-    <!-- Sidebar -->
-    <div class="jd-sidebar">
-      <div class="jd-proj-wrap">
-        <select class="jd-proj-sel" id="jd-proj-sel" onchange="jdChangeProject(this.value)">
-          <optgroup label="Harbour Platform">
-            <option value="HIP" data-n="Harbour - Linkon">HIP — Harbour Linkon</option>
-            <option value="HUP" data-n="Harbour - Mirros">HUP — Harbour Mirros</option>
-            <option value="MIN" data-n="Harbour - Mindra">MIN — Harbour Mindra</option>
-            <option value="SHL" data-n="Harbour - Shellix">SHL — Harbour Shellix</option>
-            <option value="HD" data-n="Harbour Discovery">HD — Harbour Discovery</option>
-          </optgroup>
-          <optgroup label="GDF / Digital Futures">
-            <option value="DFG" data-n="GDF Gates">DFG — GDF Gates</option>
-            <option value="CAP" data-n="Digital Futures Magnet">CAP — DF Magnet</option>
-            <option value="ATD" data-n="Aldar Tech Debt">ATD — Tech Debt</option>
-            <option value="AILAB" data-n="AI Experience Lab">AILAB — AI Lab</option>
-            <option value="APG" data-n="Aldar Projects Gateways">APG — Projects Gateways</option>
-          </optgroup>
-          <optgroup label="Digital Products">
-            <option value="HEA" data-n="Hello Aldar">HEA — Hello Aldar</option>
-            <option value="BRP" data-n="Broker Portal">BRP — Broker Portal</option>
-            <option value="PAY" data-n="Aldar Payments">PAY — Aldar Payments</option>
-            <option value="LAV" data-n="Live Aldar">LAV — Live Aldar</option>
-            <option value="OB" data-n="Marketplace">OB — Marketplace</option>
-            <option value="GD" data-n="Darna">GD — Darna</option>
-          </optgroup>
-          <optgroup label="Education">
-            <option value="ADP" data-n="Aldar Education">ADP — Aldar Education</option>
-            <option value="M2" data-n="Aldar Mobile">M2 — Education Mobile</option>
-          </optgroup>
-          <optgroup label="Estates & Retail">
-            <option value="ESMRP" data-n="Estates Super Roadmap">ESMRP — Estates Roadmap</option>
-            <option value="RCM" data-n="Retail CRM">RCM — Retail CRM</option>
-            <option value="SSC" data-n="Deal Prime">SSC — Deal Prime</option>
-          </optgroup>
-          <optgroup label="Mobile & Native">
-            <option value="ANM" data-n="AE Native Mobile">ANM — AE Native</option>
-            <option value="MAFP" data-n="MAFP">MAFP — MAFP</option>
-          </optgroup>
-          <optgroup label="Platform & Ops">
-            <option value="AEPMO" data-n="AE EPMO">AEPMO — AE EPMO</option>
-            <option value="TCSS" data-n="Cloud Solutions">TCSS — Cloud Solutions</option>
-          </optgroup>
-        </select>
-      </div>
-      <div class="jd-sec-label">Views</div>
-      <div class="jd-nav-item active" id="jd-nav-board" onclick="jdSwitchView('board',this)">▦ Sprint Board <span class="jd-cnt" id="jd-cnt-board">—</span></div>
-      <div class="jd-nav-item" id="jd-nav-backlog" onclick="jdSwitchView('backlog',this)">☰ Backlog <span class="jd-cnt" id="jd-cnt-backlog">—</span></div>
-      <div class="jd-nav-item" id="jd-nav-bugs" onclick="jdSwitchView('bugs',this)">🐛 Bugs <span class="jd-cnt" id="jd-cnt-bugs">—</span></div>
-      <div class="jd-nav-item" id="jd-nav-search" onclick="jdSwitchView('search',this)">⌕ JQL Search</div>
-      <div class="jd-sec-label" style="margin-top:12px;border-top:1px solid var(--border2);padding-top:12px">AI Actions</div>
-      <div class="jd-nav-item" onclick="jdRunAI('sprint-review')">⚡ AI Sprint Review</div>
-      <div class="jd-nav-item" onclick="jdRunAI('rice')">📊 AI RICE Score</div>
-      <div class="jd-nav-item" onclick="jdRunAI('bug-triage')">🔴 AI Bug Triage</div>
-      <div class="jd-nav-item" onclick="jdRunAI('release-risk')">🛡 Release Risk</div>
-    </div>
+  // Show only Jira prompts (those with name starting with [JIRA])
+  var cards = document.querySelectorAll('.pr-card, .prompt-card');
+  var shown = 0;
+  cards.forEach(function(card) {
+    var name = card.querySelector('.pr-name, .prompt-name, h4, strong');
+    var nameText = name ? name.textContent : card.textContent;
+    if (nameText.includes('[JIRA]')) {
+      card.style.display = '';
+      shown++;
+    } else {
+      card.style.display = 'none';
+    }
+  });
 
-    <!-- Main -->
-    <div class="jd-main">
-      <!-- Stats -->
-      <div class="jd-stats" id="jd-stats" style="display:none">
-        <div class="jd-stat" style="--jd-c:#4C9AFF"><div class="jd-stat-num" id="jd-s-total">—</div><div class="jd-stat-lbl">Open Items</div></div>
-        <div class="jd-stat" style="--jd-c:#F5A623"><div class="jd-stat-num" id="jd-s-inp">—</div><div class="jd-stat-lbl">In Progress</div></div>
-        <div class="jd-stat" style="--jd-c:#FF4757"><div class="jd-stat-num" id="jd-s-bugs">—</div><div class="jd-stat-lbl">Open Bugs</div></div>
-        <div class="jd-stat" style="--jd-c:#00C896"><div class="jd-stat-num" id="jd-s-high">—</div><div class="jd-stat-lbl">High Priority</div></div>
-      </div>
-      <!-- View: Board -->
-      <div id="jd-view-board"></div>
-      <!-- View: Backlog -->
-      <div id="jd-view-backlog" style="display:none"></div>
-      <!-- View: Bugs -->
-      <div id="jd-view-bugs" style="display:none"></div>
-      <!-- View: Search -->
-      <div id="jd-view-search" style="display:none"></div>
-      <!-- View: AI -->
-      <div id="jd-view-ai" style="display:none"></div>
-    </div>
-  </div>
+  // If no cards found with those classes, try filtering by prompt content
+  if (shown === 0) {
+    var allItems = document.querySelectorAll('[data-prompt], [class*="prompt"]');
+    allItems.forEach(function(item){
+      var txt = item.textContent || '';
+      item.style.display = txt.includes('[JIRA]') ? '' : 'none';
+    });
+  }
+}
 
-  <!-- Issue Detail Panel -->
-  <div class="jd-detail" id="jd-detail">
-    <div class="jd-detail-hdr">
-      <div style="display:flex;align-items:flex-start;gap:12px">
-        <div style="flex:1;min-width:0">
-          <div class="jd-detail-key">
-            <span id="jd-dp-key"></span>
-            <a id="jd-dp-link" href="#" target="_blank" style="font-size:10px">Open in Jira ↗</a>
-          </div>
-          <div class="jd-detail-title" id="jd-dp-title">Loading...</div>
-          <div id="jd-dp-meta" style="display:flex;flex-wrap:wrap;gap:5px"></div>
+// Add Jira filter button to prompt repo header when it's visible
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    // Find the brain filter bar in prompts page
+    var filterBars = document.querySelectorAll('.pr-filters, .brain-filters, [class*="filter"]');
+    filterBars.forEach(function(bar){
+      if (!bar.querySelector('.jira-pr-btn')) {
+        var btn = document.createElement('button');
+        btn.className = 'pr-filter-btn jira-pr-btn';
+        btn.textContent = '🔗 Jira Live';
+        btn.style.cssText = 'background:rgba(0,82,204,0.1);border-color:rgba(0,82,204,0.3);color:#4C9AFF;font-weight:700';
+        btn.onclick = function(){ filterJiraPrompts(this); };
+        bar.appendChild(btn);
+      }
+    });
+  }, 1500);
+});
+</script>
+<script>
+// ══ JIRA INTELLIGENCE HUB ════════════════════════════════════
+var JIRA_HUB_PROMPTS = {
+  'sprint-health': function(p){ return 'Fetch the current sprint data from Jira project '+p+' and give me a full Sprint Health assessment.\n\nFetch these live:\n- All open items: project = '+p+' AND statusCategory in ("To Do","In Progress")\n- Done last 14d: project = '+p+' AND statusCategory = Done AND updated >= -14d\n- Open bugs: project = '+p+' AND issuetype = Bug AND statusCategory != Done\n\nCalculate and output:\n## Sprint Health Score (0-100)\n- Velocity score: done vs committed\n- Quality score: bug rate\n- Flow score: WIP levels\n- Team score: assignee distribution\n\n## PO Verdict\nOverall health status and what I should action today\n\n## Top 3 sprint risks\nBased on actual issues'; },
+
+  'standup': function(p){ return 'Fetch the daily standup data for project '+p+' from Jira.\n\nFetch: project = '+p+' AND statusCategory = "In Progress" ORDER BY priority DESC\nAlso: project = '+p+' AND issuetype = Bug AND priority in (Highest,High) AND statusCategory != Done\n\n## Daily Standup - '+p+' - Today\n\n### Done recently\n(from updated items)\n\n### In progress today\n- [KEY]: [Summary] — [Assignee]\n\n### Blockers\nHighest bugs or stuck items\n\n### PO action today\nWhat must I do right now?\n\nKeep under 200 words. Format for Slack.'; },
+
+  'forecast': function(p){ return 'Fetch delivery forecast data for '+p+'.\n\nFetch:\n1. Backlog: project = '+p+' AND statusCategory = "To Do" (total count)\n2. Done 6 weeks: project = '+p+' AND statusCategory = Done AND updated >= -42d\n3. WIP: project = '+p+' AND statusCategory = "In Progress" (count)\n\n## Delivery Forecast - '+p+'\n- Backlog size: N items\n- Avg velocity: N items/sprint (from 3 sprints)\n- Velocity range: min-max\n\n## Monte Carlo (50/85/95 percentiles)\nWhen will the backlog be done?\n\n## PO commitment recommendation\nWhat date should I commit to and why?'; },
+
+  'week-plan': function(p){ return 'Fetch my sprint items from '+p+' and plan my week.\n\nFetch: project = '+p+' AND statusCategory = "In Progress" ORDER BY priority DESC\nAlso: project = '+p+' AND issuetype = Bug AND priority = Highest AND statusCategory != Done\n\n## My PO Week Plan\n\n### Monday — Tuesday\n[highest priority items to unblock]\n\n### Wednesday\n[mid-week check, demos, refinement]\n\n### Thursday — Friday\n[sprint planning prep, stakeholder updates]\n\n### Non-negotiables this week\nTop 3 things I must not miss\n\n### What I am delegating\nItems to monitor only'; },
+
+  'rice': function(p){ return 'Fetch the backlog for '+p+' and RICE score every item.\n\nJQL: project = '+p+' AND statusCategory = "To Do" ORDER BY priority DESC\n\nFor each item produce a RICE score:\n- Reach (1-10 Harbour users impacted)\n- Impact (0.25/0.5/1/2/3)\n- Confidence (25/50/75/100%)\n- Effort (story points or weeks)\n- RICE = (R x I x C) / E\n\n## RICE Scored Backlog\n| Key | Summary | R | I | C | E | RICE |\n(ranked by RICE descending)\n\n## Top 5 for next sprint\n## Items to kill or defer\n## Sprint goal recommendation'; },
+
+  'refinement': function(p){ return 'Fetch the backlog for '+p+' and run backlog refinement.\n\nJQL: project = '+p+' AND statusCategory = "To Do" ORDER BY priority DESC\n\nFor each item check:\n1. Clear summary? (yes/no)\n2. Likely has AC? (infer from description)\n3. Appropriately sized? (not too big/vague)\n4. Ready for dev? (yes/partial/no)\n\n## Refinement Report\n| Key | Summary | Clear | AC | Sized | Ready |\n\n## NOT ready for sprint (with gaps)\n## Ready to pull immediately\n## Suggested groupings/epics'; },
+
+  'roadmap': function(p){ return 'Fetch '+p+' Epics and Initiatives and build a product roadmap.\n\nJQL: project = '+p+' AND issuetype in (Initiative, Epic) ORDER BY priority DESC\n\n## '+p+' Product Roadmap 2026\n\n### Now (Q2 2026)\nIn Progress / Code Review items\n\n### Next (Q3 2026)\nHigh priority To Do items\n\n### Later (Q4 2026+)\nLower priority or Discovery\n\n### Not prioritised\nItems needing more discovery\n\n## Roadmap risks\n## Missing investments\n## 3-sentence summary for Harry (CDO)'; },
+
+  'north-star': function(p){ return 'Fetch '+p+' backlog and derive the North Star metric and OKRs.\n\nJQL: project = '+p+' AND issuetype in (Initiative, Epic, Story) AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC\n\n## North Star Metric\nThe single number that shows '+p+' is delivering value\n\n## Why this metric\nConnection to Aldar business goals\n\n## OKRs for Q3 2026\nObjective 1 (from highest priority theme):\n- KR1, KR2, KR3\n\nObjective 2:\n- KR1, KR2\n\n## Strategic insights from backlog\n## What is missing from the roadmap'; },
+
+  'bug-triage': function(p){ return 'Fetch all open bugs from '+p+' and perform expert QA triage.\n\nJQL: project = '+p+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC\n\nFor each bug:\n- Severity: Blocker/Critical/Major/Minor\n- Category: UI/API/Auth/Data/Notification/Workflow\n- Fix complexity: Quick/Medium/Complex\n- User impact: who is blocked\n\n## Bug Triage Report\n### Fix immediately (this sprint)\n### Fix next sprint\n### Monitor - low impact\n\n## Root cause patterns\n## Fix sequence recommendation\n## Sprint risk assessment'; },
+
+  'release-risk': function(p){ return 'Fetch current '+p+' state and assess release risk.\n\nFetch:\n1. In progress: project = '+p+' AND statusCategory = "In Progress"\n2. Code review: project = '+p+' AND status = "CODE REVIEW"\n3. Ready for QA: project = '+p+' AND status = "Ready For QA"\n4. Open bugs: project = '+p+' AND issuetype = Bug AND statusCategory != Done\n5. SIT done: project = '+p+' AND status = "SIT DONE"\n\n## Release Readiness Dashboard\n### Ready to release\n### At risk\n### Blockers\n\n## Go/No-Go Recommendation\n## Conditions for release\n## Risk mitigations'; },
+
+  'release-notes': function(p){ return 'Fetch recently completed '+p+' items and draft release notes.\n\nJQL: project = '+p+' AND statusCategory = Done AND updated >= -30d ORDER BY updated DESC\n\n## Release Notes - '+p+' - [TODAY]\n\n### New Features\n### Bug Fixes\n### Improvements\n### Known Issues (open Highest/High bugs)\n### Technical Notes\n\nWrite in plain business language. No Jira jargon.'; },
+
+  'metrics': function(p){ return 'Fetch '+p+' metrics for a product health dashboard.\n\nFetch:\n1. Done 30d: project = '+p+' AND statusCategory = Done AND updated >= -30d\n2. Open bugs: project = '+p+' AND issuetype = Bug AND statusCategory != Done\n3. Backlog: project = '+p+' AND statusCategory = "To Do"\n4. In progress: project = '+p+' AND statusCategory = "In Progress"\n\n## Product Health Dashboard - '+p+'\n\n### Throughput\n- Items completed last 30d\n- Avg per sprint\n- Trend\n\n### Quality\n- Open bugs and bug rate\n- Top 3 critical bugs\n\n### Flow\n- WIP levels\n- Backlog health\n\n### Health Score: GREEN/AMBER/RED\n### 3 recommended actions this week'; },
+
+  'exec-update': function(p){ return 'Fetch '+p+' data and write an executive update for Harry (CDO).\n\nFetch:\n- Done last 14d: project = '+p+' AND statusCategory = Done AND updated >= -14d\n- In progress: project = '+p+' AND statusCategory = "In Progress" ORDER BY priority DESC (top 5)\n- Open bugs: project = '+p+' AND issuetype = Bug AND priority in (Highest,High) AND statusCategory != Done\n\n## '+p+' Sprint Update for Harry\n**Date:** Today | **From:** Abhinav (PO)\n\n### Sprint Status: GREEN/AMBER/RED\n\n### Delivered\n3-5 bullets in business language\n\n### In flight\nTop 3 items\n\n### Risks requiring leadership attention\nAny Highest bugs or blockers\n\n### Next sprint focus\nTop 3 priorities\n\nMax 300 words. Write for a CDO, not a developer.'; },
+
+  'mom': function(p){ return 'Fetch open high-priority items from '+p+' for meeting action items.\n\nJQL: project = '+p+' AND priority in (Highest,High) AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC\n\n## Action Items - Today\n\n| # | Key | Action | Owner | Due | Status |\n(populate from Jira)\n\n## Bugs requiring immediate action\n## Carry-overs from last sprint\n## Decisions needed today\n## Risk register update'; },
+
+  'strategy': function(p){ return 'Fetch '+p+' backlog and identify strategic themes, product bets and OKR alignment.\n\nJQL: project = '+p+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC\n\n## Strategic Themes\nGroup into 4-6 themes with: item count, business value, priority, momentum\n\n## Product Bets\nTop 3 highest risk/reward items\n\n## OKR Alignment\nMap each theme to an OKR\n\n## Strategic gaps\nWhat is NOT in the backlog but should be\n\n## North Star for '+p; },
+
+  'decision-log': function(p){ return 'Fetch '+p+' Initiatives and Epics and create a decision log.\n\nJQL: project = '+p+' AND issuetype in (Initiative,Epic) AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC\n\n## Decision Log - '+p+'\n\n| Date | Decision | Context | Options | Decision Made | Rationale | Owner | Status |\n\n## Architectural decisions\n## Product scope decisions\n## Open decisions (pending)\n## Decision dependencies'; }
+};
+
+var JIRA_HUB_TICKET_PROMPTS = {
+  'brd':       function(key){ return 'Fetch ticket '+key+' from Jira (full details: summary, description, status, priority, assignee, acceptance criteria) and write a complete 16-section BRD.\n\n§1 Executive Summary\n§2 Business Objectives\n§3 Scope (In/Out)\n§4 Stakeholders & RACI\n§5 User Personas\n§6 Functional Requirements\n§7 Non-Functional Requirements\n§8 User Stories & AC (Given/When/Then)\n§9 Process Map\n§10 Data Requirements\n§11 Integration & API\n§12 Security & Compliance\n§13 Release Strategy\n§14 Risk Register\n§15 Open Questions\n§16 Appendix\n\nFlag gaps as [TBD - needs clarification].'; },
+  'ac':        function(key){ return 'Fetch ticket '+key+' from Jira (summary + description) and write complete Acceptance Criteria in Gherkin format.\n\nWrite minimum 8 scenarios: happy path, edge cases, error states.\n\n## AC - '+key+'\n\n### Happy Path\nGIVEN / WHEN / THEN\n\n### Edge Cases\n\n### Error States\n\n### Out of Scope\n\n### Definition of Done checklist'; },
+  'test':      function(key){ return 'Fetch ticket '+key+' from Jira (summary + description + AC) and write comprehensive test cases.\n\nWrite minimum 10 test cases:\n- Functional tests\n- Edge cases\n- Negative tests\n- Regression risks\n- UAT checklist\n\n## Test Cases - '+key+'\n\nFor each: Name, Precondition, Steps, Expected Result, Priority'; },
+  'dor':       function(key){ return 'Fetch ticket '+key+' from Jira and check Definition of Ready.\n\n## DoR Scorecard - '+key+'\n\n| Criterion | Pass/Fail/Partial | Notes |\n| Clear title | | |\n| Business value stated | | |\n| Acceptance criteria | | |\n| Technical clarity | | |\n| Dependencies identified | | |\n| Sized (story points) | | |\n| Team can start | | |\n| No blockers | | |\n| Testable | | |\n\n## DoR Score: X/9\n## Verdict: READY / ALMOST / NOT READY\n## What must be fixed'; },
+  'po-review': function(key){ return 'Fetch ticket '+key+' from Jira and give a senior PO review.\n\n## PO Review - '+key+'\n\n### Business value assessment\nWhy does this matter? What problem does it solve?\n\n### Clarity score (1-10)\nIs this clear enough for a developer to start?\n\n### Missing information\nWhat gaps exist in the current description?\n\n### Risks\nWhat could go wrong with this ticket as written?\n\n### My recommendation\nApprove / Needs work / Reject - with specific actions'; },
+  'tech':      function(key){ return 'Fetch ticket '+key+' from Jira and give a technical review.\n\n## Tech Review - '+key+'\n\n### Complexity assessment\nSimple / Medium / Complex and why\n\n### Architecture concerns\nAny design patterns, performance, or scalability issues\n\n### Dependencies\nWhat systems/APIs/teams does this touch\n\n### Story point estimate\nWith rationale (compare to similar completed tickets)\n\n### Risks\nWhat could go wrong technically\n\n### Questions for the team\nTop 3 clarifications needed before starting'; }
+};
+
+function jiraHubAction(action) {
+  var proj = (document.getElementById('jira-hub-proj') || {}).value
+          || localStorage.getItem('jd_proj') || 'HIP';
+  var fn = JIRA_HUB_PROMPTS[action];
+  if (!fn) { if(typeof toast==='function') toast('Unknown action: '+action,'error'); return; }
+  var prompt = fn(proj);
+  var inp = document.getElementById('chat-input');
+  if (inp) {
+    inp.value = prompt;
+    if (typeof autoResize === 'function') autoResize(inp);
+  }
+  if (typeof switchTab === 'function') switchTab('chat', document.querySelector('[data-tab="chat"]'));
+  if (typeof toast === 'function') toast('Loaded into AI Chat — hit Send to fetch live Jira data', 'success');
+}
+
+function jiraHubTicketAction(mode) {
+  var key = ((document.getElementById('jira-hub-ticket') || {}).value || '').trim().toUpperCase();
+  if (!key) {
+    if (typeof toast === 'function') toast('Enter a ticket key first (e.g. HIP-2336)', 'warning');
+    var inp = document.getElementById('jira-hub-ticket');
+    if (inp) inp.focus();
+    return;
+  }
+  var fn = JIRA_HUB_TICKET_PROMPTS[mode];
+  if (!fn) return;
+  var prompt = fn(key);
+  var chatInp = document.getElementById('chat-input');
+  if (chatInp) {
+    chatInp.value = prompt;
+    if (typeof autoResize === 'function') autoResize(chatInp);
+  }
+  if (typeof switchTab === 'function') switchTab('chat', document.querySelector('[data-tab="chat"]'));
+  if (typeof toast === 'function') toast('Ticket analysis loaded for '+key+' — hit Send', 'success');
+}
+
+// Restore saved project on Jira tab open
+(function(){
+  setTimeout(function(){
+    var orig = window.switchTab;
+    if (!orig) return;
+    window.switchTab = function(tab, el) {
+      orig.call(this, tab, el);
+      if (tab === 'jira') {
+        var sel = document.getElementById('jira-hub-proj');
+        var saved = localStorage.getItem('jd_proj') || 'HIP';
+        if (sel) sel.value = saved;
+      }
+    };
+  }, 1000);
+})();
+</script>
+<div id="page-jira">
+  <div class="tab-page" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 48px)">
+    <div style="padding:16px 20px 12px;border-bottom:1px solid var(--border2);background:var(--bg2)">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div>
+          <h2 style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px">
+            🔗 Jira Intelligence Hub
+            <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(0,82,204,0.12);color:#4C9AFF;border:0.5px solid rgba(0,82,204,0.3)">Live via Rovo MCP</span>
+          </h2>
+          <p style="font-size:11px;color:var(--muted2);margin-top:2px">Click any action — data fetched live from Jira — analysis runs instantly in AI Chat</p>
         </div>
-        <button class="jd-detail-close" onclick="jdCloseDetail()">✕</button>
+        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+          <span style="font-size:11px;color:var(--muted2)">Project:</span>
+          <select id="jira-hub-proj" onchange="localStorage.setItem('jd_proj',this.value)"
+            style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
+            <optgroup label="Harbour Platform"><option value="HIP">HIP</option><option value="HUP">HUP</option><option value="MIN">MIN</option><option value="SHL">SHL</option><option value="HD">HD</option></optgroup>
+            <optgroup label="GDF / Digital Futures"><option value="DFG">DFG</option><option value="CAP">CAP</option><option value="ATD">ATD</option><option value="AILAB">AILAB</option><option value="APG">APG</option></optgroup>
+            <optgroup label="Digital Products"><option value="HEA">HEA</option><option value="BRP">BRP</option><option value="PAY">PAY</option><option value="LAV">LAV</option><option value="OB">OB</option><option value="GD">GD</option></optgroup>
+            <optgroup label="Education"><option value="ADP">ADP</option><option value="M2">M2</option></optgroup>
+            <optgroup label="Estates &amp; Retail"><option value="ESMRP">ESMRP</option><option value="RCM">RCM</option><option value="SSC">SSC</option></optgroup>
+            <optgroup label="Mobile &amp; Native"><option value="ANM">ANM</option><option value="MAFP">MAFP</option></optgroup>
+            <optgroup label="Platform &amp; Ops"><option value="AEPMO">AEPMO</option><option value="TCSS">TCSS</option></optgroup>
+          </select>
+        </div>
       </div>
     </div>
-    <div class="jd-detail-body">
-      <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--muted2);margin-bottom:8px">Description</div>
-      <div id="jd-dp-desc" style="font-size:12px;line-height:1.7;color:var(--text);opacity:0.85;white-space:pre-wrap;word-break:break-word">—</div>
-      <div id="jd-dp-ai-out"></div>
-    </div>
-    <div class="jd-ai-btns">
-      <button class="jd-ai-btn" onclick="jdAnalyse('po')">🧠 PO Review</button>
-      <button class="jd-ai-btn" onclick="jdAnalyse('ac')">✍ Write AC</button>
-      <button class="jd-ai-btn" onclick="jdAnalyse('test')">🧪 Test Cases</button>
-      <button class="jd-ai-btn" onclick="jdAnalyse('tech')">⚙ Tech Review</button>
-      <button class="jd-ai-btn" onclick="jdAnalyse('risk')">🛡 Risk</button>
-      <button class="jd-ai-btn" onclick="jdAnalyse('dor')">✅ DoR Check</button>
-      <button class="jd-ai-btn" onclick="jdSendToChat()">💬 Send to Chat</button>
+    <div style="flex:1;overflow-y:auto;padding:20px">
+
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🏃 Sprint &amp; Delivery</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubAction('sprint-health')"><div class="jhc-icon">🏃</div><div class="jhc-title">Sprint Health Score</div><div class="jhc-desc">Live velocity, bug rate, team capacity</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('standup')"><div class="jhc-icon">☀️</div><div class="jhc-title">Daily Standup</div><div class="jhc-desc">In-progress items formatted for team</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('forecast')"><div class="jhc-icon">🎲</div><div class="jhc-title">Delivery Forecast</div><div class="jhc-desc">Monte Carlo from real velocity data</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('week-plan')"><div class="jhc-icon">📅</div><div class="jhc-title">My Week Plan</div><div class="jhc-desc">Day-by-day PO plan from sprint items</div></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">📋 Backlog Management</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubAction('rice')"><div class="jhc-icon">⚡</div><div class="jhc-title">RICE Score Backlog</div><div class="jhc-desc">Rank every item with RICE scoring</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('refinement')"><div class="jhc-icon">✂️</div><div class="jhc-title">Backlog Refinement</div><div class="jhc-desc">DoR check on every backlog item</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('roadmap')"><div class="jhc-icon">🗺</div><div class="jhc-title">Build Roadmap</div><div class="jhc-desc">Epics and initiatives into quarterly plan</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('north-star')"><div class="jhc-icon">⭐</div><div class="jhc-title">North Star + OKRs</div><div class="jhc-desc">Derive OKRs from backlog themes</div></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🐛 Quality &amp; Release</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubAction('bug-triage')"><div class="jhc-icon">🔴</div><div class="jhc-title">Bug Triage</div><div class="jhc-desc">Severity, root cause, fix priority</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('release-risk')"><div class="jhc-icon">🛡</div><div class="jhc-title">Release Risk</div><div class="jhc-desc">Go/No-Go from live Jira state</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('release-notes')"><div class="jhc-icon">📋</div><div class="jhc-title">Release Notes Draft</div><div class="jhc-desc">Auto-draft from completed items</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('metrics')"><div class="jhc-icon">📊</div><div class="jhc-title">Product Health</div><div class="jhc-desc">Throughput, bug rate, flow health</div></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">📄 Ticket Analysis — enter key then click</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+          <input id="jira-hub-ticket" placeholder="e.g. HIP-2336" onkeydown="if(event.key==='Enter')jiraHubTicketAction('brd')"
+            style="width:180px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none"/>
+          <span style="font-size:11px;color:var(--muted2)">then click an action below</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('brd')"><div class="jhc-icon">📄</div><div class="jhc-title">Write Full BRD</div><div class="jhc-desc">16-section BRD from ticket</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('ac')"><div class="jhc-icon">✍️</div><div class="jhc-title">Write AC</div><div class="jhc-desc">Full Gherkin acceptance criteria</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('test')"><div class="jhc-icon">🧪</div><div class="jhc-title">Write Test Cases</div><div class="jhc-desc">10+ test cases from ticket</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('dor')"><div class="jhc-icon">✅</div><div class="jhc-title">DoR Check</div><div class="jhc-desc">Is this ticket sprint-ready?</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('po-review')"><div class="jhc-icon">🧠</div><div class="jhc-title">PO Review</div><div class="jhc-desc">Value, gaps, recommendations</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('tech')"><div class="jhc-icon">⚙️</div><div class="jhc-title">Tech Review</div><div class="jhc-desc">Complexity, risks, SP estimate</div></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🤝 Stakeholders &amp; Reporting</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubAction('exec-update')"><div class="jhc-icon">👔</div><div class="jhc-title">Executive Update</div><div class="jhc-desc">1-pager for Harry (CDO)</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('mom')"><div class="jhc-icon">📝</div><div class="jhc-title">MOM Action Items</div><div class="jhc-desc">Action table from open items</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('strategy')"><div class="jhc-icon">🎯</div><div class="jhc-title">Strategic Analysis</div><div class="jhc-desc">Themes, bets, OKR alignment</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('decision-log')"><div class="jhc-icon">🧭</div><div class="jhc-title">Decision Log</div><div class="jhc-desc">Decisions from epics and initiatives</div></div>
+        </div>
+      </div>
+
     </div>
   </div>
-
 </div>
->
+</body>
+</html>
