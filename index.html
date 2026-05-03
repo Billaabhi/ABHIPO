@@ -26928,77 +26928,88 @@ var _jiraCache = window._jiraCache;
 
 async function jiraFetch(path, opts) {
   opts = opts || {};
+  var method = (opts.method || 'GET').toUpperCase();
+  var cacheKey = method + path;
+  window._jiraCache = window._jiraCache || {};
 
-  // Validate config
-  if (!jiraProxyUrl) {
-    throw new Error('Proxy URL not set — open Jira tab and configure');
-  }
-  if (!jiraConfig || !jiraConfig.email || !jiraConfig.token) {
-    throw new Error('Jira credentials not set — open Jira tab and configure');
-  }
-
-  const method = (opts.method || 'GET').toUpperCase();
-  const cacheKey = method + path;
-
-  // Self-heal cache if undefined (cross-block scope issue)
-  if (typeof _jiraCache === 'undefined') { window._jiraCache = {}; }
-  var _cache = window._jiraCache || {};
-
-  // Return cached data wrapped in response-like object
-  if (method === 'GET' && _cache[cacheKey]) {
-    const cached = _cache[cacheKey];
-    return { ok: true, status: 200, json: async function(){ return cached; } };
+  // Return cached GET
+  if (method === 'GET' && window._jiraCache[cacheKey]) {
+    var _cached = window._jiraCache[cacheKey];
+    return { ok: true, status: 200, json: async function(){ return _cached; } };
   }
 
-  // Build proxy URL
-  const base = jiraProxyUrl.replace(/\/+$/, '');
-  const fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
-  const isCloudflare = base.includes('workers.dev');
-  const proxyUrl = isCloudflare
-    ? base + '?path=' + encodeURIComponent(fullPath)
-    : base + '/api/jira?path=' + encodeURIComponent(fullPath);
+  // Get the Anthropic API key
+  var _ak = apiKey || localStorage.getItem('pos_api_key') || '';
+  if (!_ak) throw new Error('Add your Anthropic API key first');
 
-  const fetchOpts = {
-    method: method,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'X-Jira-Email': jiraConfig.email,
-      'X-Jira-Token': jiraConfig.token
-    }
-  };
-  if (opts.body) fetchOpts.body = opts.body;
+  // Get OAuth token
+  var _oauthToken = localStorage.getItem('jira_oauth_token') || '';
+  if (!_oauthToken) throw new Error('Connect Jira first — click the Jira tab');
+
+  // Build full REST path
+  var fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
+
+  // Prompt for Claude to fetch via MCP
+  var nl = '\n';
+  var prompt = 'Use the atlassian-rovo MCP tool to call this Jira REST API and return ONLY the raw JSON response — no explanation, no markdown:' + nl
+    + 'Endpoint: ' + fullPath + nl
+    + 'Method: ' + method + nl
+    + (opts.body ? 'Body: ' + opts.body + nl : '')
+    + 'Return ONLY valid JSON.';
 
   try {
-    const res = await fetch(proxyUrl, fetchOpts);
-    const status = res.status;
+    var res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': _ak,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'anthropic-beta': 'mcp-client-2025-11-20'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 8192,
+        system: 'You are a Jira API relay. Use the atlassian-rovo MCP tool to call the requested endpoint. Return ONLY the raw JSON from Jira — nothing else.',
+        messages: [{ role: 'user', content: prompt }],
+        mcp_servers: [{
+          type: 'url',
+          url: 'https://mcp.atlassian.com/v1/mcp',
+          name: 'atlassian-rovo',
+          authorization_token: _oauthToken
+        }]
+      })
+    });
 
-    // Parse body ONCE — never return raw Response to avoid body-consumed errors
-    const text = await res.text();
-    let parsed = null;
-    try { parsed = JSON.parse(text); } catch(_) { parsed = { error: text }; }
-
-    // Cache successful GET responses
-    if (method === 'GET' && res.ok && parsed && !parsed.error) {
-      _cache[cacheKey] = parsed;
-      window._jiraCache[cacheKey] = parsed;
+    if (!res.ok) {
+      var _err = await res.json().catch(function(){ return {}; });
+      throw new Error('API ' + res.status + ': ' + ((_err.error && _err.error.message) || 'unknown'));
     }
 
-    // Return normalized response-like object
-    return {
-      ok: res.ok,
-      status: status,
-      json: async function() { return parsed; },
-      text: async function() { return text; }
-    };
+    var _data = await res.json();
+    var _text = '';
+    for (var _i = 0; _i < (_data.content || []).length; _i++) {
+      if (_data.content[_i].type === 'text' && _data.content[_i].text) {
+        _text = _data.content[_i].text; break;
+      }
+    }
+    if (!_text) throw new Error('No response from Jira relay');
 
-  } catch(e) {
-    // Network or proxy error
+    // Strip markdown fences
+    _text = _text.trim()
+      .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '').trim();
+
+    var _parsed = JSON.parse(_text);
+    if (method === 'GET') window._jiraCache[cacheKey] = _parsed;
+
+    return { ok: true, status: 200, json: async function(){ return _parsed; } };
+
+  } catch(_e) {
+    console.error('jiraFetch error:', _e.message);
     return {
-      ok: false,
-      status: 0,
-      json: async function() { return { error: e.message }; },
-      text: async function() { return e.message; }
+      ok: false, status: 500,
+      json: async function(){ return { error: _e.message }; },
+      text: async function(){ return _e.message; }
     };
   }
 }
@@ -28667,22 +28678,82 @@ var JIRA_HUB_TICKET_PROMPTS = {
   'tech':      function(key){ return 'Fetch ticket '+key+' from Jira and give a technical review.\n\n## Tech Review - '+key+'\n\n### Complexity assessment\nSimple / Medium / Complex and why\n\n### Architecture concerns\nAny design patterns, performance, or scalability issues\n\n### Dependencies\nWhat systems/APIs/teams does this touch\n\n### Story point estimate\nWith rationale (compare to similar completed tickets)\n\n### Risks\nWhat could go wrong technically\n\n### Questions for the team\nTop 3 clarifications needed before starting'; }
 };
 
-function jiraHubAction(action) {
+async function jiraHubAction(action) {
   var proj = (document.getElementById('jira-hub-proj') || {}).value
           || localStorage.getItem('jd_proj') || 'HIP';
   var fn = JIRA_HUB_PROMPTS[action];
   if (!fn) { if(typeof toast==='function') toast('Unknown action: '+action,'error'); return; }
-  var prompt = fn(proj);
+
+  // Switch to chat first
+  if (typeof switchTab === 'function') switchTab('chat', document.querySelector('[data-tab="chat"]'));
+
+  // Show loading state in chat input
   var inp = document.getElementById('chat-input');
+  if (inp) { inp.value = 'Fetching live Jira data for ' + proj + '...'; if(typeof autoResize==='function') autoResize(inp); }
+
+  // Fetch live Jira data via the proxy
+  var proxyBase = (localStorage.getItem('pm_jira_proxy') || '').replace(/\/+$/, '');
+  var liveData = '';
+
+  if (proxyBase) {
+    try {
+      if(typeof toast==='function') toast('Fetching live Jira data...', '');
+      var enc = encodeURIComponent;
+      var jqlMap = {
+        'sprint-health': 'project = '+proj+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC',
+        'standup':       'project = '+proj+' AND statusCategory = "In Progress" ORDER BY priority DESC',
+        'forecast':      'project = '+proj+' AND statusCategory != Done ORDER BY priority DESC',
+        'week-plan':     'project = '+proj+' AND statusCategory = "In Progress" ORDER BY priority DESC',
+        'rice':          'project = '+proj+' AND statusCategory = "To Do" ORDER BY priority DESC',
+        'refinement':    'project = '+proj+' AND statusCategory = "To Do" ORDER BY priority DESC',
+        'roadmap':       'project = '+proj+' AND issuetype in (Initiative,Epic) ORDER BY priority DESC',
+        'north-star':    'project = '+proj+' AND issuetype in (Initiative,Epic) ORDER BY priority DESC',
+        'bug-triage':    'project = '+proj+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC',
+        'release-risk':  'project = '+proj+' AND statusCategory != Done ORDER BY priority DESC',
+        'release-notes': 'project = '+proj+' AND statusCategory = Done AND updated >= -30d ORDER BY updated DESC',
+        'metrics':       'project = '+proj+' AND statusCategory != Done ORDER BY priority DESC',
+        'exec-update':   'project = '+proj+' AND statusCategory != Done ORDER BY priority DESC',
+        'mom':           'project = '+proj+' AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC',
+        'strategy':      'project = '+proj+' AND statusCategory != Done ORDER BY priority DESC',
+        'decision-log':  'project = '+proj+' AND issuetype in (Initiative,Epic) ORDER BY priority DESC'
+      };
+      var jql = jqlMap[action] || ('project = '+proj+' AND statusCategory != Done ORDER BY priority DESC');
+      var url = proxyBase + '?path=' + enc('/rest/api/3/search?jql='+enc(jql)+'&maxResults=40&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+      var res = await fetch(url, { headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' } });
+      if (res.ok) {
+        var data = await res.json();
+        var issues = (data.issues || []);
+        if (issues.length > 0) {
+          liveData = '\n\n=== LIVE JIRA DATA (' + proj + ') — ' + issues.length + ' issues fetched ===\n';
+          issues.forEach(function(i) {
+            var f = i.fields;
+            var status   = (f.status && f.status.name) || '?';
+            var itype    = (f.issuetype && f.issuetype.name) || '?';
+            var prio     = (f.priority && f.priority.name) || '?';
+            var sp       = f.customfield_10028 || '—';
+            var assignee = (f.assignee && f.assignee.displayName) || 'Unassigned';
+            liveData += i.key + ' [' + itype + '/' + prio + '/SP:' + sp + '/' + status + '] ' + f.summary + ' — ' + assignee + '\n';
+          });
+          liveData += '=== END LIVE DATA ===\n';
+        }
+      }
+    } catch(e) {
+      console.warn('Jira fetch failed:', e.message);
+    }
+  }
+
+  // Build final prompt = analysis instruction + live data
+  var basePrompt = fn(proj);
+  var finalPrompt = basePrompt + liveData;
+
   if (inp) {
-    inp.value = prompt;
+    inp.value = finalPrompt;
     if (typeof autoResize === 'function') autoResize(inp);
   }
-  if (typeof switchTab === 'function') switchTab('chat', document.querySelector('[data-tab="chat"]'));
   if (typeof toast === 'function') toast('Loaded into AI Chat — hit Send to fetch live Jira data', 'success');
 }
 
-function jiraHubTicketAction(mode) {
+async function jiraHubTicketAction(mode) {
   var key = ((document.getElementById('jira-hub-ticket') || {}).value || '').trim().toUpperCase();
   if (!key) {
     if (typeof toast === 'function') toast('Enter a ticket key first (e.g. HIP-2336)', 'warning');
@@ -28692,14 +28763,46 @@ function jiraHubTicketAction(mode) {
   }
   var fn = JIRA_HUB_TICKET_PROMPTS[mode];
   if (!fn) return;
-  var prompt = fn(key);
+
+  if (typeof switchTab === 'function') switchTab('chat', document.querySelector('[data-tab="chat"]'));
+  if (typeof toast === 'function') toast('Fetching ' + key + ' from Jira...', '');
+
+  // Fetch live ticket data
+  var proxyBase = (localStorage.getItem('pm_jira_proxy') || '').replace(/\/+$/, '');
+  var liveData = '';
+
+  if (proxyBase) {
+    try {
+      var url = proxyBase + '?path=' + encodeURIComponent('/rest/api/3/issue/' + key + '?fields=summary,description,status,issuetype,priority,assignee,customfield_10028,labels,comment');
+      var res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      if (res.ok) {
+        var data = await res.json();
+        var f = data.fields || {};
+        liveData = '\n\n=== LIVE JIRA TICKET: ' + key + ' ===\n';
+        liveData += 'Summary: ' + (f.summary || '') + '\n';
+        liveData += 'Type: ' + ((f.issuetype && f.issuetype.name) || '?') + '\n';
+        liveData += 'Status: ' + ((f.status && f.status.name) || '?') + '\n';
+        liveData += 'Priority: ' + ((f.priority && f.priority.name) || '?') + '\n';
+        liveData += 'Assignee: ' + ((f.assignee && f.assignee.displayName) || 'Unassigned') + '\n';
+        liveData += 'Story Points: ' + (f.customfield_10028 || '—') + '\n';
+        if (f.description) {
+          var desc = typeof f.description === 'string' ? f.description : _adfToText(f.description);
+          liveData += 'Description:\n' + desc.slice(0, 2000) + '\n';
+        }
+        liveData += '=== END TICKET DATA ===\n';
+      }
+    } catch(e) {
+      console.warn('Ticket fetch failed:', e.message);
+    }
+  }
+
+  var finalPrompt = fn(key) + liveData;
   var chatInp = document.getElementById('chat-input');
   if (chatInp) {
-    chatInp.value = prompt;
+    chatInp.value = finalPrompt;
     if (typeof autoResize === 'function') autoResize(chatInp);
   }
-  if (typeof switchTab === 'function') switchTab('chat', document.querySelector('[data-tab="chat"]'));
-  if (typeof toast === 'function') toast('Ticket analysis loaded for '+key+' — hit Send', 'success');
+  if (typeof toast === 'function') toast(key + ' loaded — hit Send', 'success');
 }
 
 // Restore saved project on Jira tab open
@@ -28720,30 +28823,61 @@ function jiraHubTicketAction(mode) {
 </script>
 <div id="page-jira">
   <div class="tab-page" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 48px)">
-    <div style="padding:16px 20px 12px;border-bottom:1px solid var(--border2);background:var(--bg2)">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-        <div>
-          <h2 style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px">
-            🔗 Jira Intelligence Hub
-            <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(0,82,204,0.12);color:#4C9AFF;border:0.5px solid rgba(0,82,204,0.3)">Live via Rovo MCP</span>
-          </h2>
-          <p style="font-size:11px;color:var(--muted2);margin-top:2px">Click any action — data fetched live from Jira — analysis runs instantly in AI Chat</p>
+
+    <!-- Header -->
+    <div style="padding:12px 20px;border-bottom:1px solid var(--border2);background:var(--bg2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">
+          🔗 Jira Intelligence Hub
+          <span id="jira-conn-badge" style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:rgba(107,114,128,0.15);color:var(--muted2);border:0.5px solid var(--border2)">Not connected</span>
+        </h2>
+        <p style="font-size:11px;color:var(--muted2);margin-top:2px">Configure once — every feature gets live Jira data</p>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <select id="jira-hub-proj" onchange="localStorage.setItem('jd_proj',this.value)"
+          style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
+          <optgroup label="Harbour Platform"><option value="HIP">HIP</option><option value="HUP">HUP</option><option value="MIN">MIN</option><option value="SHL">SHL</option><option value="HD">HD</option></optgroup>
+          <optgroup label="GDF"><option value="DFG">DFG</option><option value="CAP">CAP</option><option value="ATD">ATD</option><option value="AILAB">AILAB</option><option value="APG">APG</option></optgroup>
+          <optgroup label="Digital Products"><option value="HEA">HEA</option><option value="BRP">BRP</option><option value="PAY">PAY</option><option value="LAV">LAV</option><option value="OB">OB</option><option value="GD">GD</option></optgroup>
+          <optgroup label="Education"><option value="ADP">ADP</option><option value="M2">M2</option></optgroup>
+          <optgroup label="Estates"><option value="ESMRP">ESMRP</option><option value="RCM">RCM</option><option value="SSC">SSC</option></optgroup>
+          <optgroup label="Mobile"><option value="ANM">ANM</option><option value="MAFP">MAFP</option></optgroup>
+          <optgroup label="Platform"><option value="AEPMO">AEPMO</option><option value="TCSS">TCSS</option></optgroup>
+        </select>
+        <button onclick="showJiraConfig()"
+          style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit">
+          ⚙ Configure
+        </button>
+      </div>
+    </div>
+
+    <!-- Config panel -->
+    <div id="jira-config-panel" style="display:none;padding:20px;border-bottom:1px solid var(--border2);background:var(--bg2)">
+      <div style="max-width:600px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Jira Connection — Cloudflare Proxy</div>
+        <div style="font-size:11px;background:rgba(0,200,150,0.06);border:0.5px solid rgba(0,200,150,0.2);border-radius:6px;padding:8px 12px;color:var(--muted2)">
+          ✅ <strong style="color:var(--text)">No credentials stored in browser</strong> — your Jira email and API token are set as environment variables in Vercel. Just enter your deployment URL below.
         </div>
-        <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-          <span style="font-size:11px;color:var(--muted2)">Project:</span>
-          <select id="jira-hub-proj" onchange="localStorage.setItem('jd_proj',this.value)"
-            style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
-            <optgroup label="Harbour Platform"><option value="HIP">HIP</option><option value="HUP">HUP</option><option value="MIN">MIN</option><option value="SHL">SHL</option><option value="HD">HD</option></optgroup>
-            <optgroup label="GDF / Digital Futures"><option value="DFG">DFG</option><option value="CAP">CAP</option><option value="ATD">ATD</option><option value="AILAB">AILAB</option><option value="APG">APG</option></optgroup>
-            <optgroup label="Digital Products"><option value="HEA">HEA</option><option value="BRP">BRP</option><option value="PAY">PAY</option><option value="LAV">LAV</option><option value="OB">OB</option><option value="GD">GD</option></optgroup>
-            <optgroup label="Education"><option value="ADP">ADP</option><option value="M2">M2</option></optgroup>
-            <optgroup label="Estates &amp; Retail"><option value="ESMRP">ESMRP</option><option value="RCM">RCM</option><option value="SSC">SSC</option></optgroup>
-            <optgroup label="Mobile &amp; Native"><option value="ANM">ANM</option><option value="MAFP">MAFP</option></optgroup>
-            <optgroup label="Platform &amp; Ops"><option value="AEPMO">AEPMO</option><option value="TCSS">TCSS</option></optgroup>
-          </select>
+        <div>
+          <label style="font-size:10px;font-weight:600;color:var(--muted2);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Vercel API URL</label>
+          <input id="jcfg-proxy" placeholder="https://prodmind-jira-api.vercel.app"
+            style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none;box-sizing:border-box"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onclick="saveJiraHubConfig()"
+            style="background:#0052CC;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
+            Save &amp; Test
+          </button>
+          <button onclick="document.getElementById('jira-config-panel').style.display='none'"
+            style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:8px 14px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--text)">
+            Cancel
+          </button>
+          <span id="jcfg-status" style="font-size:11px;color:var(--muted2)"></span>
         </div>
       </div>
     </div>
+
+    <!-- Hub actions -->
     <div style="flex:1;overflow-y:auto;padding:20px">
 
       <div style="margin-bottom:20px">
@@ -28779,9 +28913,9 @@ function jiraHubTicketAction(mode) {
       <div style="margin-bottom:20px">
         <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">📄 Ticket Analysis — enter key then click</div>
         <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-          <input id="jira-hub-ticket" placeholder="e.g. HIP-2336" onkeydown="if(event.key==='Enter')jiraHubTicketAction('brd')"
-            style="width:180px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none"/>
-          <span style="font-size:11px;color:var(--muted2)">then click an action below</span>
+          <input id="jira-hub-ticket" placeholder="e.g. HIP-2448"
+            style="width:160px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none"/>
+          <span style="font-size:11px;color:var(--muted2)">then click below</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
           <div class="jira-hub-card" onclick="jiraHubTicketAction('brd')"><div class="jhc-icon">📄</div><div class="jhc-title">Write Full BRD</div><div class="jhc-desc">16-section BRD from ticket</div></div>
@@ -28802,9 +28936,134 @@ function jiraHubTicketAction(mode) {
           <div class="jira-hub-card" onclick="jiraHubAction('decision-log')"><div class="jhc-icon">🧭</div><div class="jhc-title">Decision Log</div><div class="jhc-desc">Decisions from epics and initiatives</div></div>
         </div>
       </div>
-
     </div>
   </div>
 </div>
-</body>
+<script>
+// ── Jira Hub Config ───────────────────────────────────────────
+function showJiraConfig() {
+  var panel = document.getElementById('jira-config-panel');
+  if (!panel) return;
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+  // Pre-fill saved values
+  var proxy = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93a6.abhinavbilla1991.workers.dev';
+  var email = (jiraConfig && jiraConfig.email) || 'abilla@aldar.com';
+  var pe = document.getElementById('jcfg-proxy');
+  var ee = document.getElementById('jcfg-email');
+  if (pe) pe.value = proxy;
+  if (ee) ee.value = email;
+}
+
+async function saveJiraHubConfig() {
+  var proxy = (document.getElementById('jcfg-proxy')?.value || '').trim().replace(/\/+$/, '');
+  var st    = document.getElementById('jcfg-status');
+
+  if (!proxy) { if(st) { st.textContent = '⚠ Enter your Vercel API URL'; st.style.color='var(--red)'; } return; }
+
+  // Save URL — credentials live server-side in Vercel env vars
+  localStorage.setItem('pm_jira_proxy', proxy);
+  jiraConfig = { domain: 'ebdae.atlassian.net', configured: true };
+  window._jiraCache = {};
+
+  if(st) { st.textContent = 'Testing...'; st.style.color = 'var(--muted2)'; }
+
+  // Test connection
+  try {
+    var res = await jiraFetch('/rest/api/3/myself');
+    if (res && res.ok) {
+      var data = await res.json();
+      var name = (data && data.displayName) || email;
+      if(st) { st.textContent = '✅ Connected as ' + name; st.style.color = '#00C896'; }
+      updateJiraConnBadge(true, name);
+      setTimeout(function(){ document.getElementById('jira-config-panel').style.display='none'; }, 1500);
+    } else {
+      var errData = res ? await res.json().catch(function(){return {};}) : {};
+      if(st) { st.textContent = '⚠ HTTP ' + (res ? res.status : 0) + ' — check token'; st.style.color='var(--yellow)'; }
+      updateJiraConnBadge(false);
+    }
+  } catch(e) {
+    if(st) { st.textContent = '⚠ Error: ' + e.message; st.style.color='var(--red)'; }
+    updateJiraConnBadge(false);
+  }
+}
+
+function updateJiraConnBadge(connected, name) {
+  var badge = document.getElementById('jira-conn-badge');
+  if (!badge) return;
+  if (connected) {
+    badge.textContent = name ? 'Connected — ' + name.split(' ')[0] : 'Connected';
+    badge.style.background = 'rgba(0,200,150,0.12)';
+    badge.style.color = '#00C896';
+    badge.style.borderColor = 'rgba(0,200,150,0.3)';
+  } else {
+    badge.textContent = 'Not connected';
+    badge.style.background = 'rgba(107,114,128,0.15)';
+    badge.style.color = 'var(--muted2)';
+    badge.style.borderColor = 'var(--border2)';
+  }
+}
+
+// jiraFetch — calls ProdMind Jira API (credentials stored server-side in Vercel env vars)
+window.jiraFetch = async function(path, opts) {
+  opts = opts || {};
+  var method   = (opts.method || 'GET').toUpperCase();
+  var cacheKey = method + path;
+  window._jiraCache = window._jiraCache || {};
+
+  // Return cache for GET
+  if (method === 'GET' && window._jiraCache[cacheKey]) {
+    var _cv = window._jiraCache[cacheKey];
+    return { ok: true, status: 200, json: async function(){ return _cv; } };
+  }
+
+  // Get API base URL
+  var base = (localStorage.getItem('pm_jira_proxy') || '').replace(/\/+$/, '');
+  if (!base) return { ok: false, status: 0, json: async function(){ return { error: 'API URL not set — click ⚙ Configure' }; } };
+
+  // Build URL
+  var fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
+  var url = base + '/api/jira?path=' + encodeURIComponent(fullPath);
+
+  try {
+    var res = await fetch(url, {
+      method: method,
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: opts.body || undefined
+    });
+
+    var text = await res.text();
+    var parsed = null;
+    try { parsed = JSON.parse(text); } catch(_) { parsed = { error: text || 'Empty response' }; }
+
+    if (method === 'GET' && res.ok && parsed && !parsed.errorMessages && !parsed.error) {
+      window._jiraCache[cacheKey] = parsed;
+    }
+
+    return {
+      ok: res.ok, status: res.status,
+      json: async function() { return parsed; },
+      text: async function() { return text; }
+    };
+
+  } catch(e) {
+    return { ok: false, status: 0, json: async function(){ return { error: e.message }; } };
+  }
+};
+
+// Init on load
+(function(){
+  setTimeout(function(){
+    var saved = localStorage.getItem('pm_jira_config');
+    if (saved) {
+      try { jiraConfig = JSON.parse(saved); } catch(_){}
+    }
+    var proxy = localStorage.getItem('pm_jira_proxy') || '';
+    if (proxy && jiraConfig && jiraConfig.token) {
+      updateJiraConnBadge(true, jiraConfig.email);
+    }
+    var sel = document.getElementById('jira-hub-proj');
+    if (sel) sel.value = localStorage.getItem('jd_proj') || 'HIP';
+  }, 400);
+})();
+</script></body>
 </html>
