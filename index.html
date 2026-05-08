@@ -26223,7 +26223,11 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
           <option value="Task">Task</option>
         </select>
         <input id="jira-board-search" placeholder="Filter issues…" oninput="filterJiraBoard(this.value)" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;max-width:160px"/>
-        <button class="gbtn" onclick="loadJiraBoard()" style="font-size:10px;padding:4px 10px">🔄 Refresh</button>
+        <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted2);cursor:pointer;white-space:nowrap" title="Show only items in the active sprint">
+          <input type="checkbox" id="jira-sprint-only" onchange="loadJiraBoard()" checked style="cursor:pointer"/>
+          Active sprint only
+        </label>
+        <button class="gbtn" onclick="clearJiraCache();loadJiraBoard()" style="font-size:10px;padding:4px 10px">🔄 Refresh</button>
         <button class="gbtn" onclick="aiJiraReview()" style="font-size:10px;padding:4px 10px;background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)">🧠 AI Sprint Review</button>
       </div>
       <div id="jira-board-cols" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;min-height:200px">
@@ -26767,11 +26771,11 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93
     var pm = document.getElementById('jm-proxy');
     if (dm) dm.value = (jiraConfig && jiraConfig.domain) || 'ebdae.atlassian.net';
     if (em) em.value = (jiraConfig && jiraConfig.email)  || 'abilla@aldar.com';
-    if (pm) pm.value = _jiraProxyUrl || "https://odd-moon-93a6.abhinavbilla1991.workers.dev";
+    if (pm) pm.value = jiraProxyUrl || "https://odd-moon-93a6.abhinavbilla1991.workers.dev";
   }, 500);
 
   // Show status
-  if (jiraConfig && jiraConfig.email && jiraConfig.token && _jiraProxyUrl) {
+  if (jiraConfig && jiraConfig.email && jiraConfig.token && jiraProxyUrl) {
     setJiraStatusConnected(jiraConfig.email.split('@')[0], jiraConfig.domain || 'ebdae.atlassian.net');
   } else if (jiraConfig && jiraConfig.email) {
     setJiraStatusCredentialsSaved(jiraConfig.domain || 'ebdae.atlassian.net', jiraConfig.email);
@@ -26929,27 +26933,56 @@ var _jiraCache = window._jiraCache;
 async function jiraFetch(path, opts) {
   opts = opts || {};
   var method = (opts.method || 'GET').toUpperCase();
-  var cacheKey = method + path;
+  var cacheKey = method + '|' + path;
   window._jiraCache = window._jiraCache || {};
 
-  // Return cached GET
+  // Cache with 5-minute TTL for GET requests
   if (method === 'GET' && window._jiraCache[cacheKey]) {
-    var _cached = window._jiraCache[cacheKey];
-    return { ok: true, status: 200, json: async function(){ return _cached; } };
+    var _c = window._jiraCache[cacheKey];
+    if (Date.now() - _c.ts < 300000) {
+      return { ok: true, status: 200, json: async function(){ return _c.data; } };
+    }
+    delete window._jiraCache[cacheKey];
   }
 
-  // Get the Anthropic API key
+  // Build full REST/Agile path
+  var fullPath = (path.startsWith('/rest/') || path.startsWith('/agile/')) ? path : '/rest/api/3' + path;
+
+  // ── Path A: Direct proxy with Basic Auth (fast, accurate, deterministic) ──
+  if (jiraConfig && jiraConfig.token && jiraConfig.email && jiraProxyUrl) {
+    try {
+      var _domain = jiraConfig.domain || 'ebdae.atlassian.net';
+      var _creds  = btoa(jiraConfig.email + ':' + jiraConfig.token);
+      var _pRes   = await fetch(jiraProxyUrl + fullPath, {
+        method: method,
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Jira-Domain': _domain,
+          'Authorization': 'Basic ' + _creds
+        },
+        body: (opts.body && method !== 'GET') ? opts.body : undefined
+      });
+      if (_pRes.ok) {
+        var _pData = await _pRes.json();
+        if (method === 'GET') window._jiraCache[cacheKey] = { data: _pData, ts: Date.now() };
+        return { ok: true, status: _pRes.status, json: async function(){ return _pData; } };
+      }
+      if (_pRes.status === 401 || _pRes.status === 403) {
+        return { ok: false, status: _pRes.status, json: async function(){ return { error: 'Auth failed — check API token' }; }, text: async function(){ return 'Auth failed'; } };
+      }
+      // Non-auth proxy error — fall through to Claude relay
+    } catch (_proxyErr) {
+      console.warn('Direct proxy failed, trying Claude relay:', _proxyErr.message);
+    }
+  }
+
+  // ── Path B: Claude MCP relay (fallback when proxy unavailable) ──
   var _ak = apiKey || localStorage.getItem('pos_api_key') || '';
   if (!_ak) throw new Error('Add your Anthropic API key first');
 
-  // Get OAuth token
   var _oauthToken = localStorage.getItem('jira_oauth_token') || '';
   if (!_oauthToken) throw new Error('Connect Jira first — click the Jira tab');
 
-  // Build full REST path
-  var fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
-
-  // Prompt for Claude to fetch via MCP
   var nl = '\n';
   var prompt = 'Use the atlassian-rovo MCP tool to call this Jira REST API and return ONLY the raw JSON response — no explanation, no markdown:' + nl
     + 'Endpoint: ' + fullPath + nl
@@ -26995,12 +27028,11 @@ async function jiraFetch(path, opts) {
     }
     if (!_text) throw new Error('No response from Jira relay');
 
-    // Strip markdown fences
     _text = _text.trim()
       .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '').trim();
 
     var _parsed = JSON.parse(_text);
-    if (method === 'GET') window._jiraCache[cacheKey] = _parsed;
+    if (method === 'GET') window._jiraCache[cacheKey] = { data: _parsed, ts: Date.now() };
 
     return { ok: true, status: 200, json: async function(){ return _parsed; } };
 
@@ -27012,6 +27044,12 @@ async function jiraFetch(path, opts) {
       text: async function(){ return _e.message; }
     };
   }
+}
+
+// Clear Jira cache (useful after mutations or stale data)
+function clearJiraCache() {
+  window._jiraCache = {};
+  toast('Jira cache cleared — next load will fetch fresh data', 'success');
 }
 // ── ADF text extractor ────────────────────────────────────────
 function _adfToText(node){
@@ -27061,27 +27099,44 @@ function showJiraSubTab(id, el){
 async function loadJiraBoard(){
   const project=document.getElementById('jira-project-sel').value;
   const typeFilter=document.getElementById('jira-type-filter').value;
+  const sprintOnly=document.getElementById('jira-sprint-only')?.checked !== false;
   if(!project) return;
   if(!jiraConfig){ openJiraConnectModal(); return; }
   const boardEl=document.getElementById('jira-board-cols');
   boardEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)"><div class="loading"></div></div>';
   const typeJQL=typeFilter?' AND issuetype = "'+typeFilter+'"':'';
-  const jql='project = '+project+typeJQL+' AND statusCategory in ("To Do","In Progress","Done") ORDER BY priority DESC';
+  // Default: scope to active sprint for accurate sprint board; toggle shows all project issues
+  const scopeJQL=sprintOnly
+    ? 'project = '+project+typeJQL+' AND sprint in openSprints() ORDER BY status ASC, priority DESC'
+    : 'project = '+project+typeJQL+' AND statusCategory in ("To Do","In Progress","Done") ORDER BY priority DESC';
   try{
-    const res=await jiraFetch('/search?jql='+encodeURIComponent(jql)+'&maxResults=80&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+    const res=await jiraFetch('/search?jql='+encodeURIComponent(scopeJQL)+'&maxResults=100&fields=summary,status,issuetype,priority,assignee,customfield_10028,customfield_10020');
     if(!res.ok) throw new Error('HTTP '+res.status);
     const data=await res.json();
-    renderJiraBoard(data.issues||[]);
+    const issues=data.issues||[];
+
+    // Show sprint name in board header if available
+    const sf=issues[0]?.fields?.customfield_10020;
+    let sprintLabel='';
+    if(sprintOnly && Array.isArray(sf) && sf.length){
+      const active=sf.find(s=>s.state==='active')||sf[sf.length-1];
+      if(active?.name) sprintLabel=' — '+active.name;
+    }
+    const countEl=boardEl.previousElementSibling?.querySelector?.('.jira-sprint-label');
+    if(!issues.length && sprintOnly){
+      boardEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)">No active sprint found for '+project+'. <a href="#" onclick="document.getElementById(\'jira-sprint-only\').checked=false;loadJiraBoard();return false" style="color:var(--accent)">Show all issues →</a></div>';
+      return;
+    }
+    renderJiraBoard(issues, sprintLabel);
   } catch(e){
     boardEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)">⚠ '+e.message+'</div>';
   }
 }
 
-function renderJiraBoard(issues){
+function renderJiraBoard(issues, sprintLabel){
   const SCOL={'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896'};
   const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF','Sub-task':'#9b59b6','Initiative':'#e67e22'};
   const PEMU={'Highest':'🔴','High':'🟠','Medium':'🟡','Low':'🟢','Lowest':'⚪'};
-  // Group by statusCategory key — works with ALL custom statuses
   const COLS={'To Do':[],'In Progress':[],'Done':[]};
   issues.forEach(issue=>{
     const cat = issue.fields.status?.statusCategory?.key || 'new';
@@ -27089,27 +27144,35 @@ function renderJiraBoard(issues){
     else if(cat === 'indeterminate' || cat === 'in-progress') COLS['In Progress'].push(issue);
     else COLS['To Do'].push(issue);
   });
-  document.getElementById('jira-board-cols').innerHTML=Object.entries(COLS).map(([col,items])=>`
-    <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:10px">
+  const totalSP = issues.reduce((s,i)=>s+(parseFloat(i.fields?.customfield_10028)||0),0);
+  const doneSP  = COLS['Done'].reduce((s,i)=>s+(parseFloat(i.fields?.customfield_10028)||0),0);
+  const header  = sprintLabel
+    ? `<div style="grid-column:1/-1;font-size:11px;font-weight:600;color:var(--accent);margin-bottom:2px;display:flex;gap:12px;align-items:center"><span>🏃${sprintLabel}</span>${totalSP>0?`<span style="color:var(--muted2);font-size:10px;font-weight:400">${Math.round(doneSP)} / ${Math.round(totalSP)} SP done</span>`:''}</div>`
+    : '';
+  document.getElementById('jira-board-cols').innerHTML=header+Object.entries(COLS).map(([col,items])=>{
+    const colSP=items.reduce((s,i)=>s+(parseFloat(i.fields?.customfield_10028)||0),0);
+    return `<div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:10px">
       <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px 8px;border-bottom:0.5px solid var(--border);margin-bottom:6px">
         <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${SCOL[col]||'#7a7a90'}">${col}</span>
-        <span style="font-size:9px;background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1px 7px;color:var(--muted2)">${items.length}</span>
+        <span style="font-size:9px;background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1px 7px;color:var(--muted2)">${items.length}${colSP>0?' · '+Math.round(colSP)+'SP':''}</span>
       </div>
       ${items.length===0?'<div style="font-size:10px;color:var(--muted);text-align:center;padding:12px 0">No issues</div>':
         items.map(issue=>{
           const f=issue.fields;
           const tc=TCOL[f.issuetype?.name]||'#7a7a90';
+          const sp=f.customfield_10028?`<span style="font-size:9px;color:var(--muted2);margin-left:auto">${f.customfield_10028}SP</span>`:'';
           return `<div class="jira-issue-card" style="--jic:${tc}" onclick="loadIssueIntoContext('${issue.key}')">
             <div class="jira-issue-key">${issue.key}</div>
             <div class="jira-issue-title">${escapeHtml(f.summary)}</div>
             <div class="jira-issue-meta">
               <span class="jira-type-badge" style="background:${tc}18;color:${tc}">${f.issuetype?.name||'?'}</span>
               <span>${PEMU[f.priority?.name]||'⚪'}</span>
-              ${f.assignee?`<span style="font-size:9px;color:var(--muted2);margin-left:auto">👤 ${f.assignee.displayName.split(' ')[0]}</span>`:''}
+              ${f.assignee?`<span style="font-size:9px;color:var(--muted2)"}>👤 ${f.assignee.displayName.split(' ')[0]}</span>`:''}
+              ${sp}
             </div>
           </div>`;
         }).join('')}
-    </div>`).join('');
+    </div>`;}).join('');
 }
 
 function filterJiraBoard(q){
@@ -27527,43 +27590,89 @@ async function loadSprintFromJira(){
   const project = document.getElementById('sh-jira-project')?.value;
   if(!project){ toast('Select a project first','warning'); return; }
   if(!jiraConfig){ openJiraConnectModal(); return; }
-  toast('Loading sprint data from '+project+'…');
-  try{
-    // Fetch in parallel: total committed, completed (done this sprint), blockers
-    const [rAll, rDone, rBug] = await Promise.all([
-      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=50&fields=summary,status,issuetype,assignee,customfield_10028'),
-      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory = Done AND updated >= -14d ORDER BY updated DESC')+'&maxResults=50&fields=summary,status'),
-      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=10&fields=summary,priority'),
-    ]);
-    const dAll = await rAll.json();
-    const dDone = await rDone.json();
-    const dBug = await rBug.json();
+  toast('⏳ Loading active sprint from '+project+'…');
 
-    const committed = (dAll.total || dAll.issues?.length || 0) + (dDone.issues?.length || 0);
-    const completed = dDone.issues?.length || 0;
-    const blockers  = Math.min(dBug.issues?.length || 0, 10);
-    // Count unique assignees as team size proxy
-    const assignees = new Set((dAll.issues||[]).map(i=>i.fields?.assignee?.displayName).filter(Boolean));
+  const sumSP = (issues) => (issues||[]).reduce((s,i)=>s+(parseFloat(i.fields?.customfield_10028)||0),0);
+
+  try{
+    // All three fetches scoped to the ACTIVE sprint only
+    const [rOpen, rDone, rBug] = await Promise.all([
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND sprint in openSprints() AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=100&fields=summary,status,issuetype,assignee,customfield_10028,customfield_10020'),
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND sprint in openSprints() AND statusCategory = Done ORDER BY updated DESC')+'&maxResults=100&fields=summary,status,customfield_10028'),
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND sprint in openSprints() AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=20&fields=summary,priority'),
+    ]);
+
+    const dOpen = await rOpen.json();
+    const dDone = await rDone.json();
+    const dBug  = await rBug.json();
+
+    const openIssues = dOpen.issues || [];
+    const doneIssues = dDone.issues || [];
+    const bugIssues  = dBug.issues  || [];
+
+    if(!openIssues.length && !doneIssues.length){
+      toast('No active sprint found for '+project+' — check the project key or sprint state','warning');
+      return;
+    }
+
+    // Story points (fall back to issue counts if all SPs are missing)
+    const openSP  = sumSP(openIssues);
+    const doneSP  = sumSP(doneIssues);
+    const totalSP = openSP + doneSP;
+    const useSP   = totalSP > 0;
+
+    const committedVal = useSP ? Math.round(totalSP) : (openIssues.length + doneIssues.length);
+    const completedVal = useSP ? Math.round(doneSP)  : doneIssues.length;
+    const blockers     = Math.min(bugIssues.length, 10);
+
+    const assignees = new Set([...openIssues, ...doneIssues].map(i=>i.fields?.assignee?.displayName).filter(Boolean));
     const teamSize  = Math.max(assignees.size, 1);
 
-    // Fill Sprint Health inputs
-    const set = (id, val) => { const el=document.getElementById(id); if(el) el.value=val; };
-    set('sh-committed', committed);
-    set('sh-completed', completed);
-    set('sh-blockers',  blockers);
-    set('sh-delivery-team', teamSize);
-    set('sh-scope', 0);
+    // Extract sprint metadata from the customfield_10020 (sprint object array)
+    let sprintName = '', sprintStart = '', sprintEnd = '';
+    const sprintField = openIssues[0]?.fields?.customfield_10020 || doneIssues[0]?.fields?.customfield_10020;
+    if(Array.isArray(sprintField) && sprintField.length){
+      const activeSprint = sprintField.find(s=>s.state==='active') || sprintField[sprintField.length-1];
+      sprintName  = activeSprint.name        || '';
+      sprintStart = activeSprint.startDate   || '';
+      sprintEnd   = activeSprint.endDate     || '';
+    }
 
-    toast('✅ Sprint data loaded from '+project+' — '+committed+' items, '+blockers+' bugs, '+teamSize+' assignees', 'success');
+    // Auto-calculate sprint day and length from real dates
+    let sprintDay = 0, sprintLength = 10;
+    if(sprintStart && sprintEnd){
+      const tzOffset = new Date().getTimezoneOffset() * 60000;
+      const start  = new Date(new Date(sprintStart).getTime() - tzOffset);
+      const end    = new Date(new Date(sprintEnd).getTime() - tzOffset);
+      const now    = new Date();
+      // Working-days approximation: total calendar days ignoring weekends
+      sprintLength = Math.max(Math.round((end - start) / 86400000), 1);
+      sprintDay    = Math.max(1, Math.min(Math.round((now - start) / 86400000) + 1, sprintLength));
+    }
 
-    // Show a summary banner
+    // Populate Sprint Health form
+    const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.value=val; };
+    set('sh-committed',    committedVal);
+    set('sh-completed',    completedVal);
+    set('sh-blockers',     blockers);
+    set('sh-delivery-team',teamSize);
+    set('sh-scope',        0);
+    if(sprintDay    > 0) set('sh-day',    sprintDay);
+    if(sprintLength > 0) set('sh-length', sprintLength);
+
+    const metric = useSP ? 'SP' : 'issues';
+    toast('✅ '+( sprintName||'Active sprint')+' loaded — '+committedVal+' '+metric+' committed, '+completedVal+' done, '+blockers+' bugs', 'success');
+
     const banner = document.createElement('div');
-    banner.style.cssText = 'background:rgba(0,82,204,0.06);border:0.5px solid rgba(0,82,204,0.25);border-radius:8px;padding:8px 12px;font-size:11px;color:#4C9AFF;margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap';
-    banner.innerHTML = '<strong>🔗 Live from '+project+':</strong>'
-      +' <span>📋 '+committed+' open items</span>'
-      +' <span>✅ '+completed+' done (last 14d)</span>'
+    banner.style.cssText = 'background:rgba(0,82,204,0.06);border:0.5px solid rgba(0,82,204,0.25);border-radius:8px;padding:8px 12px;font-size:11px;color:#4C9AFF;margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap;align-items:center';
+    banner.innerHTML = '<strong>🔗 '+(sprintName||'Active Sprint')+' — '+project+':</strong>'
+      +' <span>📋 '+committedVal+' '+metric+' committed</span>'
+      +' <span>✅ '+completedVal+' '+metric+' done</span>'
       +' <span>🐛 '+blockers+' open bugs</span>'
-      +' <span>👥 '+teamSize+' assignees</span>';
+      +' <span>👥 '+teamSize+' assignees</span>'
+      +(sprintDay > 0 ? ' <span>📅 Day '+sprintDay+'/'+sprintLength+'</span>' : '')
+      +(!useSP ? ' <span style="color:var(--muted2);font-size:9px">(no SP set — using issue counts)</span>' : '');
+
     const shForm = document.querySelector('#page-sprint-health .tab-page');
     const existing = shForm?.querySelector('#sh-jira-banner');
     if(existing) existing.remove();
@@ -27607,16 +27716,38 @@ async function handleJiraSlashCommand(cmd){
 
   // /jira sprint PROJECT
   if(subCmd === 'sprint'){
-    toast('Loading sprint for '+arg+'...');
-    const res = await jiraFetch('/search?jql='+encodeURIComponent('project = '+arg+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
-    if(!res.ok){ toast('Error: HTTP '+res.status,'error'); return; }
-    const data = await res.json();
-    const issues = data.issues || [];
+    toast('Loading active sprint for '+arg+'...');
+    const [rOpen, rDone] = await Promise.all([
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+arg+' AND sprint in openSprints() AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=50&fields=summary,status,issuetype,priority,assignee,customfield_10028,customfield_10020'),
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+arg+' AND sprint in openSprints() AND statusCategory = Done ORDER BY updated DESC')+'&maxResults=50&fields=summary,status,customfield_10028')
+    ]);
+    if(!rOpen.ok){ toast('Error: HTTP '+rOpen.status,'error'); return; }
+    const dOpen = await rOpen.json();
+    const dDone = await rDone.json();
+    const openIssues = dOpen.issues || [];
+    const doneIssues = dDone.issues || [];
+
+    // Extract sprint name
+    let sprintName = arg+' Active Sprint';
+    const sf = openIssues[0]?.fields?.customfield_10020;
+    if(Array.isArray(sf) && sf.length){
+      const active = sf.find(s=>s.state==='active') || sf[sf.length-1];
+      if(active.name) sprintName = active.name;
+    }
+
+    const sumSP = (issues) => (issues||[]).reduce((s,i)=>s+(parseFloat(i.fields?.customfield_10028)||0),0);
+    const openSP = sumSP(openIssues), doneSP = sumSP(doneIssues);
+    const useSP = (openSP + doneSP) > 0;
+
     const nl = '\n';
-    const lines = issues.map(function(i){ return '- '+i.key+': '+i.fields.summary+' ['+i.fields.status?.name+' / '+i.fields.priority?.name+']'; });
-    const summary = '## Live Sprint — '+arg+nl+'Total open: '+data.total+nl+nl+lines.join(nl);
+    const openLines = openIssues.map(function(i){ return '- '+i.key+': '+i.fields.summary+' ['+i.fields.status?.name+' / '+i.fields.priority?.name+(useSP&&i.fields.customfield_10028?' / '+i.fields.customfield_10028+'SP':'')+']'; });
+    const doneLines = doneIssues.map(function(i){ return '- ✅ '+i.key+': '+i.fields.summary+(useSP&&i.fields.customfield_10028?' ['+i.fields.customfield_10028+'SP]':''); });
+    const metricLine = useSP
+      ? 'Committed: '+(openSP+doneSP)+' SP | Completed: '+doneSP+' SP | Remaining: '+openSP+' SP'
+      : 'Total: '+(openIssues.length+doneIssues.length)+' | Completed: '+doneIssues.length+' | Remaining: '+openIssues.length;
+    const summary = '## '+sprintName+' — '+arg+nl+metricLine+nl+nl+'### In Progress / To Do'+nl+openLines.join(nl)+nl+nl+'### Done this sprint'+nl+(doneLines.length ? doneLines.join(nl) : '(none yet)');
     const inp = document.getElementById('chat-input');
-    if(inp){ inp.value = 'Review this live sprint data and give health assessment, top risks, action items:'+nl+nl+summary; if(typeof autoResize==='function') autoResize(inp); inp.focus(); }
+    if(inp){ inp.value = 'Review this active sprint data and give: sprint health RAG status, top 3 risks, recommended actions this week:'+nl+nl+summary; if(typeof autoResize==='function') autoResize(inp); inp.focus(); }
     return;
   }
 
