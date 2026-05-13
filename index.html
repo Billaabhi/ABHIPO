@@ -10948,7 +10948,7 @@ async function askOneBrain(id,icon,name,sys,userMsg){
   t.innerHTML=`<div class="av">${icon}</div><div class="tdots"><div class="tdot"></div><div class="tdot"></div><div class="tdot"></div></div>`;
   msgs.appendChild(t);msgs.scrollTop=msgs.scrollHeight;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,system:sys,messages:[{role:'user',content:userMsg}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:3000,system:sys,messages:[{role:'user',content:userMsg}]})});
     t.remove();
     if(!res.ok){
       const err=await res.json().catch(()=>({}));
@@ -11196,7 +11196,7 @@ async function sendMsg(){
       headers:{
         'Content-Type':'application/json',
         'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true',
+        'anthropic-version':'2023-06-01',
         'anthropic-dangerous-direct-browser-access':'true'
       },
       body:JSON.stringify({
@@ -12082,7 +12082,7 @@ async function scoreAllWithAI(){
   toast('AI scoring...');
   const titles=backlogItems.map((b,i)=>`${i+1}. ${b.title}: ${b.desc||'no description'}`).join('\n');
   const prompt=`RICE score these backlog items (Reach = users/quarter 0-10000, Impact 1-3, Confidence 0-100%, Effort in person-months 0.1-6). Reply ONLY with JSON: [{"title":"...","reach":N,"impact":N,"confidence":N,"effort":N}]\n\n${titles}${getCtx()}`;
-  try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:'Reply only with valid JSON array, no markdown.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'[]';const scores=JSON.parse(text.replace(/```json|```/g,'').trim());scores.forEach(s=>{const item=backlogItems.find(b=>b.title.toLowerCase().includes(s.title.toLowerCase().substring(0,15)));if(item){item.reach=s.reach;item.impact=s.impact;item.confidence=s.confidence;item.effort=s.effort;item.rice=calcRice(s.reach,s.impact,s.confidence,s.effort);}});sortByRice();toast('AI scoring done!');}catch(e){toast('Scoring error');}
+  try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,system:'Reply only with valid JSON array, no markdown.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'[]';const scores=JSON.parse(text.replace(/```json|```/g,'').trim());scores.forEach(s=>{const item=backlogItems.find(b=>b.title.toLowerCase().includes(s.title.toLowerCase().substring(0,15)));if(item){item.reach=s.reach;item.impact=s.impact;item.confidence=s.confidence;item.effort=s.effort;item.rice=calcRice(s.reach,s.impact,s.confidence,s.effort);}});sortByRice();toast('AI scoring done!');}catch(e){toast('Scoring error');}
 }
 
 function renderBacklog(){ renderBacklogItems(backlogItems); }
@@ -12275,7 +12275,7 @@ function openDocGenerator(type){
   document.addEventListener('click', document._sugCloseHandler);
 }
 function closeDocGenerator(){document.getElementById('doc-generator-panel').style.display='none';activeDocType='';}
-async function generateDoc(){if(!apiKey){openModal();return;}if(!activeDocType)return;const config=DOC_CONFIGS[activeDocType];const fieldValues={};config.fields.forEach(f=>{fieldValues[f.id]=document.getElementById(f.id)?.value||'';});const prompt=DOC_PROMPTS[activeDocType](fieldValues);const btn=document.getElementById('doc-gen-btn');btn.textContent='⏳ Generating...';btn.disabled=true;try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,system:'You are a senior Product Owner with 15+ years experience at Aldar Properties, Abu Dhabi.\n\nCRITICAL — When the message contains === LIVE JIRA DATA ===:\n- Use ONLY the actual ticket keys and summaries from that section\n- Reference specific keys (e.g. HIP-2448) in your analysis\n- Name actual assignees from the data\n- NEVER invent tickets, metrics or names not in the data\n\nFor all other requests: be specific, actionable, professional. Use ## headings and tables.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'Error generating.';docOutput=text;addAuditEntry('doc',`Document generated: ${activeDocType} — ${DOC_CONFIGS[activeDocType]?.title||activeDocType}`);document.getElementById('doc-output-content').innerHTML=formatOutput(text,activeDocType);document.getElementById('doc-output').style.display='block';toast('Document generated!');}catch(e){
+async function generateDoc(){if(!apiKey){openModal();return;}if(!activeDocType)return;const config=DOC_CONFIGS[activeDocType];const fieldValues={};config.fields.forEach(f=>{fieldValues[f.id]=document.getElementById(f.id)?.value||'';});const prompt=DOC_PROMPTS[activeDocType](fieldValues);const btn=document.getElementById('doc-gen-btn');btn.textContent='⏳ Generating...';btn.disabled=true;try{const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,system:'You are a senior Product Owner with 15+ years experience at Aldar Properties, Abu Dhabi.\n\nCRITICAL — When the message contains === LIVE JIRA DATA ===:\n- Use ONLY the actual ticket keys and summaries from that section\n- Reference specific keys (e.g. HIP-2448) in your analysis\n- Name actual assignees from the data\n- NEVER invent tickets, metrics or names not in the data\n\nFor all other requests: be specific, actionable, professional. Use ## headings and tables.',messages:[{role:'user',content:prompt}]})});const data=await res.json();const text=data.content?.map(c=>c.text||'').join('')||'Error generating.';docOutput=text;addAuditEntry('doc',`Document generated: ${activeDocType} — ${DOC_CONFIGS[activeDocType]?.title||activeDocType}`);document.getElementById('doc-output-content').innerHTML=formatOutput(text,activeDocType);document.getElementById('doc-output').style.display='block';toast('Document generated!');}catch(e){
     const msg = e.message.includes('fetch') || e.message.includes('Failed')
       ? 'API not reachable — check you are on the Vercel deployment and your API key is set'
       : `Error: ${e.message}`;
@@ -12313,7 +12313,7 @@ async function generateMom(){
   const btn=document.getElementById('mom-gen-btn');
   btn.textContent='Generating...';btn.disabled=true;
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:'You are a senior Product Owner creating precise, professional Minutes of Meeting from raw transcripts. You only include what was actually said or decided. Every action item has a specific named owner and a due date. Your output is ready to send immediately.',messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2000,system:'You are a senior Product Owner creating precise, professional Minutes of Meeting from raw transcripts. You only include what was actually said or decided. Every action item has a specific named owner and a due date. Your output is ready to send immediately.',messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
     momOutput=data.content?.map(b=>b.text||'').join('')||'';
     if(!momOutput){toast('No response — check API key');return;}
@@ -13360,7 +13360,7 @@ The most important questions the gate panel should ask the project team.${getCtx
   outWrap.style.display='block';
 
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:'You are a senior PDLC consultant. Be direct and specific. Gate reviews must be honest — if a project is not ready, say so clearly with specific reasons.',messages:[{role:'user',content:prompt}]})});
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1200,system:'You are a senior PDLC consultant. Be direct and specific. Gate reviews must be honest — if a project is not ready, say so clearly with specific reasons.',messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
     const text=data.content?.map(b=>b.text||'').join('')||'';
     outEl.innerHTML=formatOutput(text,'gate');
@@ -27331,11 +27331,11 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93
     var pm = document.getElementById('jm-proxy');
     if (dm) dm.value = (jiraConfig && jiraConfig.domain) || 'ebdae.atlassian.net';
     if (em) em.value = (jiraConfig && jiraConfig.email)  || 'abilla@aldar.com';
-    if (pm) pm.value = _jiraProxyUrl || "https://odd-moon-93a6.abhinavbilla1991.workers.dev";
+    if (pm) pm.value = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
   }, 500);
 
   // Show status
-  if (jiraConfig && jiraConfig.email && jiraConfig.token && _jiraProxyUrl) {
+  if (jiraConfig && jiraConfig.email && jiraConfig.token && localStorage.getItem('pm_jira_proxy')) {
     setJiraStatusConnected(jiraConfig.email.split('@')[0], jiraConfig.domain || 'ebdae.atlassian.net');
   } else if (jiraConfig && jiraConfig.email) {
     setJiraStatusCredentialsSaved(jiraConfig.domain || 'ebdae.atlassian.net', jiraConfig.email);
@@ -29577,68 +29577,52 @@ window.jiraFetch = async function(path, opts) {
   }, 400);
 })();
 </script><script>
-// ── Chat Mode System v2 ───────────────────────────────────────
-// Modes that OVERRIDE the brain system prompt
+// ── Chat Mode System (Safe version — no infinite recursion) ──
+var _freeModeActive = null;
+
 var FREE_MODES = {
   'general': {
     label: '💬 General',
     color: '#00C896',
-    system: 'You are a helpful, knowledgeable assistant. Answer questions clearly and directly. No product management framing unless the user asks for it.'
+    system: 'You are a helpful assistant. Answer questions clearly and directly.'
   },
   'code': {
-    label: '💻 Technical',
+    label: '💻 Code',
     color: '#F5A623',
-    system: 'You are a senior software engineer and technical architect. Help with code review, debugging, architecture decisions, API design, SQL queries, and DevOps. Be precise, provide working code examples, explain trade-offs clearly.'
+    system: 'You are a senior software engineer. Help with code, debugging, architecture. Be precise and provide working examples.'
   },
   'write': {
     label: '✍️ Writing',
     color: '#E91E8C',
-    system: 'You are an expert writer and communications specialist. Help with professional emails, executive reports, proposals, blog posts, presentations, and Slack messages. Match the tone requested. Be concise and impactful.'
+    system: 'You are an expert writer. Help with emails, reports, proposals. Be concise and clear.'
   },
   'data': {
-    label: '📊 Data & Excel',
+    label: '📊 Data',
     color: '#00BCD4',
-    system: 'You are a data analyst and Excel expert. Help with Excel formulas (VLOOKUP, INDEX/MATCH, pivot tables), data analysis, chart recommendations, SQL queries, and data cleaning. Always provide exact formulas with step-by-step explanations.'
+    system: 'You are a data analyst. Help with Excel formulas, SQL, data analysis. Provide exact working formulas.'
   }
 };
 
-// Current free mode — null means use the active brain (default behavior)
-var _freeModeActive = null;
-
 function setChatMode(mode, el) {
   if (mode === 'brain') {
-    // Switch back to brain mode — clear any free mode override
     _freeModeActive = null;
-    updateModeBtns(null);
-    var brain = (typeof activeBrain !== 'undefined') ? activeBrain : 'po';
-    if (typeof toast === 'function') toast('Using ' + brain.toUpperCase() + ' Brain system prompt', '');
-    return;
-  }
-
-  if (FREE_MODES[mode]) {
+  } else if (FREE_MODES[mode]) {
     _freeModeActive = mode;
-    updateModeBtns(mode);
-    if (typeof toast === 'function') toast('Mode: ' + FREE_MODES[mode].label + ' — brain prompt bypassed', '');
-    // Update placeholder
-    var placeholders = {
-      'general': 'Ask me anything...',
-      'code':    'Share code, ask for review, architecture questions...',
-      'write':   'Write an email, report, proposal, blog post...',
-      'data':    'Excel formula, data analysis, SQL query...'
-    };
-    var inp = document.getElementById('chat-input');
-    if (inp) inp.placeholder = placeholders[mode] || 'Message ProdMind...';
   }
-  localStorage.setItem('free_mode', mode);
+  updateModeBtns(mode === 'brain' ? null : mode);
+  if (typeof toast === 'function') {
+    var label = mode === 'brain' ? 'Active Brain' : (FREE_MODES[mode] ? FREE_MODES[mode].label : mode);
+    toast('Mode: ' + label, '');
+  }
 }
 
 function updateModeBtns(activeMode) {
   document.querySelectorAll('.chat-mode-btn').forEach(function(btn) {
-    var mode = btn.dataset.mode;
-    var isActive = mode === activeMode || (activeMode === null && mode === 'brain');
+    var m = btn.dataset.mode;
+    var isActive = activeMode === null ? m === 'brain' : m === activeMode;
     if (isActive) {
-      var col = mode === 'brain' ? '#6C47FF' : (FREE_MODES[mode] ? FREE_MODES[mode].color : '#6C47FF');
-      btn.style.background = 'rgba(' + hexToRgb(col) + ',0.15)';
+      var col = m === 'brain' ? '#6C47FF' : (FREE_MODES[m] ? FREE_MODES[m].color : '#6C47FF');
+      btn.style.background = 'rgba(108,71,255,0.15)';
       btn.style.borderColor = col;
       btn.style.color = col;
       btn.style.fontWeight = '700';
@@ -29651,67 +29635,27 @@ function updateModeBtns(activeMode) {
   });
 }
 
-function hexToRgb(hex) {
-  var r = parseInt(hex.slice(1,3),16);
-  var g = parseInt(hex.slice(3,5),16);
-  var b = parseInt(hex.slice(5,7),16);
-  return r+','+g+','+b;
-}
-
-// Override getActiveBrainSystemPrompt to inject free mode when active
-var _origBrainSysPrompt = window.getActiveBrainSystemPrompt;
-(function waitForBrainPrompt() {
-  if (typeof getActiveBrainSystemPrompt === 'function' && getActiveBrainSystemPrompt !== _wrappedBrainSys) {
-    _origBrainSysPrompt = getActiveBrainSystemPrompt;
-    window.getActiveBrainSystemPrompt = _wrappedBrainSys;
-  }
-})();
-
-function _wrappedBrainSys() {
-  // Free mode active — bypass brain, use free mode system prompt
-  if (_freeModeActive && FREE_MODES[_freeModeActive]) {
-    return FREE_MODES[_freeModeActive].system;
-  }
-  // Default — use the active brain's system prompt
-  if (_origBrainSysPrompt) return _origBrainSysPrompt();
-  return 'You are a helpful assistant.';
-}
-
-// When brain switches, clear free mode and update mode bar label
-var _origSwitchBrain = window.switchActiveBrain;
-setTimeout(function() {
-  if (typeof switchActiveBrain === 'function' && switchActiveBrain !== _patchedSwitch) {
-    _origSwitchBrain = switchActiveBrain;
-    window.switchActiveBrain = _patchedSwitch;
-  }
-}, 1000);
-
-function _patchedSwitch(id) {
-  if (_origSwitchBrain) _origSwitchBrain(id);
-  // Clear free mode when brain changes
-  _freeModeActive = null;
-  // Update the brain mode button label to show active brain
-  var brainBtn = document.querySelector('.chat-mode-btn[data-mode="brain"]');
-  if (brainBtn && typeof ALL_BRAINS !== 'undefined') {
-    var brain = ALL_BRAINS.find(function(b){ return b.id === id; });
-    if (brain) brainBtn.textContent = brain.icon + ' ' + brain.label;
-  }
-  updateModeBtns(null);
-}
-
-// Init
+// SAFE: override getActiveBrainSystemPrompt without recursion
 (function() {
   setTimeout(function() {
-    var saved = localStorage.getItem('free_mode');
-    // Default to brain mode — don't restore free mode on load
-    _freeModeActive = null;
+    var realFn = window.getActiveBrainSystemPrompt;
+    if (typeof realFn !== 'function') return;
+    window.getActiveBrainSystemPrompt = function() {
+      // Free mode — return free mode system
+      if (_freeModeActive && FREE_MODES[_freeModeActive]) {
+        return FREE_MODES[_freeModeActive].system;
+      }
+      // Brain mode — call the REAL original function directly
+      return realFn();
+    };
+  }, 800);
+})();
+
+// Init mode buttons
+(function() {
+  setTimeout(function() {
     updateModeBtns(null);
-    // Wrap getActiveBrainSystemPrompt
-    if (typeof getActiveBrainSystemPrompt === 'function') {
-      _origBrainSysPrompt = getActiveBrainSystemPrompt;
-      window.getActiveBrainSystemPrompt = _wrappedBrainSys;
-    }
-  }, 1000);
+  }, 900);
 })();
 </script><script>
 // ── Sprint Report Engine ──────────────────────────────────────
