@@ -11126,10 +11126,8 @@ async function sendMsg(){
   if(activeAddons.size > 0) fullPrompt = getAddonPrefix() + fullPrompt;
   fullPrompt+=getCtx();
   fullPrompt+=getKbContext();
-  // Auto-inject live Jira data if message mentions ticket keys — await so it's included in the prompt
-  if(typeof injectJiraContextIfNeeded === 'function' && jiraConfig && jiraConfig.token){
-    try{ const jiraCtx = await injectJiraContextIfNeeded(userText); if(jiraCtx) fullPrompt+=jiraCtx; }catch(_){}
-  }
+  // Jira context is injected via Hub cards — NOT auto-triggered on every message
+  // (auto-inject caused infinite loading by awaiting slow network calls)
   fullPrompt+=getChatAttachContext();
 
   input.value=''; input.style.height='auto';
@@ -11777,7 +11775,7 @@ function readAsArrayBuffer(f){return new Promise((res,rej)=>{const r=new FileRea
 // ── Jira context injection for AI chat ───────────────────────
 // When user mentions a ticket key (e.g. HIP-2336), auto-fetch and inject
 async function injectJiraContextIfNeeded(userMsg){
-  if(!jiraConfig || !jiraConfig.token) return '';
+  var _proxyUrl = localStorage.getItem('pm_jira_proxy') || ''; if(!_proxyUrl) return '';
   const msg = userMsg.toLowerCase();
   let jiraContext = '';
 
@@ -11793,7 +11791,7 @@ async function injectJiraContextIfNeeded(userMsg){
 
   try {
     if(isBacklogQuery){
-      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = \"+proj+\" AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=20&fields=summary,issuetype,priority,customfield_10028,assignee,status');
+      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=20&fields=summary,issuetype,priority,customfield_10028,assignee,status');
       if(res.ok){
         const data = await res.json();
         const lines = (data.issues||[]).map(i=>'- '+i.key+': '+i.fields.summary+' ['+i.fields.issuetype?.name+' / '+(i.fields.priority?.name||'?')+' / SP:'+(i.fields.customfield_10028||'?')+']');
@@ -11801,7 +11799,7 @@ async function injectJiraContextIfNeeded(userMsg){
       }
     }
     if(isBugQuery){
-      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = \"+proj+\" AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee');
+      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = "'+proj+'" AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee');
       if(res.ok){
         const data = await res.json();
         const lines = (data.issues||[]).map(i=>'- '+i.key+' ['+i.fields.priority?.name+']: '+i.fields.summary+' → '+(i.fields.assignee?.displayName||'Unassigned'));
@@ -11809,7 +11807,7 @@ async function injectJiraContextIfNeeded(userMsg){
       }
     }
     if(isSprintQuery){
-      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = \"+proj+\" AND statusCategory = "In Progress" ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "In Progress" ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
       if(res.ok){
         const data = await res.json();
         const lines = (data.issues||[]).map(i=>'- '+i.key+' ['+i.fields.status?.name+']: '+i.fields.summary+' → '+(i.fields.assignee?.displayName||'Unassigned'));
@@ -11817,7 +11815,7 @@ async function injectJiraContextIfNeeded(userMsg){
       }
     }
     if(isHighPriQuery){
-      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = \"+proj+\" AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee,issuetype');
+      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = "'+proj+'" AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee,issuetype');
       if(res.ok){
         const data = await res.json();
         const lines = (data.issues||[]).map(i=>'- '+i.key+' ['+i.fields.priority?.name+'/'+i.fields.issuetype?.name+']: '+i.fields.summary);
@@ -26775,209 +26773,128 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
 
 <!-- ══ JIRA PAGE ═══════════════════════════════════════════════ -->
 <div class="page" id="page-jira">
-  <div class="tab-page">
+  <div class="tab-page" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 48px)">
 
     <!-- Header -->
-    <div class="tb" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:0">
+    <div style="padding:12px 20px;border-bottom:1px solid var(--border2);background:var(--bg2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
       <div>
-        <h2 style="display:flex;align-items:center;gap:10px">🔗 Jira
-          <span style="font-size:10px;font-weight:600;padding:3px 9px;border-radius:12px;background:rgba(0,200,150,0.12);color:#00C896;border:0.5px solid rgba(0,200,150,0.3)">📖 READ-ONLY</span>
+        <h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">
+          🔗 Jira Intelligence Hub
+          <span id="jira-conn-badge" style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:rgba(107,114,128,0.15);color:var(--muted2);border:0.5px solid var(--border2)">Not connected</span>
         </h2>
-        <span style="font-size:11px;color:var(--muted2)">Browse and analyse your Harbour Platform issues — write mode after demo</span>
+        <p style="font-size:11px;color:var(--muted2);margin-top:2px">Click ⚙ Configure → enter your proxy URL → every feature gets live Jira data</p>
       </div>
-      <button id="jira-connect-btn" onclick="
-  var m=document.getElementById('jira-modal');
-  if(m){
-    var d=document.getElementById('jm-domain');
-    var e=document.getElementById('jm-email');
-    if(d) d.value='ebdae.atlassian.net';
-    if(e) e.value='abilla@aldar.com';
-    m.style.cssText='position:fixed!important;inset:0!important;background:rgba(0,0,0,0.75)!important;z-index:9999!important;display:flex!important;align-items:center!important;justify-content:center!important';
-  }
-" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">⚙ Configure</button>
-    </div>
-
-    <!-- ── CONNECTION STATUS BANNER ───────────────────────── -->
-    <div id="jira-status-banner" style="margin:14px 0;border-radius:10px;padding:12px 16px;background:var(--bg2);border:0.5px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <div id="jira-status-dot" style="width:10px;height:10px;border-radius:50%;background:var(--muted);flex-shrink:0"></div>
-      <div style="flex:1;min-width:200px">
-        <div id="jira-status-text" style="font-size:12px;font-weight:600;color:var(--muted2)">Not connected — click ⚙ Configure</div>
-        <div id="jira-status-sub" style="font-size:10px;color:var(--muted);margin-top:2px"></div>
-      </div>
-      <button id="jira-test-btn" onclick="testJiraConnection()" style="display:none;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:4px 12px;font-size:10px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:inherit">↻ Test Connection</button>
-    </div>
-
-    <!-- ── SUB-TABS (read-only: Board / Backlog / Search) ──── -->
-    <div style="display:flex;gap:2px;border-bottom:0.5px solid var(--border);margin-bottom:16px">
-      <button class="jira-sub-tab active" onclick="showJiraSubTab('board',this)">🗂 Sprint Board</button>
-      <button class="jira-sub-tab" onclick="showJiraSubTab('backlog',this)">📋 Backlog</button>
-      <button class="jira-sub-tab" onclick="showJiraSubTab('search',this)">🔍 JQL Search</button>
-    </div>
-
-    <!-- ── BOARD ─────────────────────────────────────────── -->
-    <div id="jsub-board" class="jira-sub-panel">
-      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
-        <select id="jira-project-sel" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
-          <option value="">— Select project —</option>
-        <optgroup label="🏗 Harbour Platform">
-          <option value="HIP">HIP — Harbour Linkon</option>
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+        <select id="jira-hub-proj" onchange="localStorage.setItem('jd_proj',this.value)"
+          style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
+          <option value="HIP" selected>HIP — Harbour Linkon</option>
           <option value="HUP">HUP — Harbour Mirros</option>
           <option value="MIN">MIN — Harbour Mindra</option>
           <option value="SHL">SHL — Harbour Shellix</option>
           <option value="HD">HD — Harbour Discovery</option>
-        </optgroup>
-        <optgroup label="🏢 GDF / Digital Futures">
-          <option value="DFG">DFG — Digital Futures Gates</option>
-          <option value="CAP">CAP — Digital Futures Magnet</option>
-          <option value="DFIB">DFIB — Idea Board</option>
-          <option value="ATD">ATD — Aldar Tech Debt</option>
-          <option value="DEMO">DEMO — GDF Demos</option>
-          <option value="AILAB">AILAB — AI Experience Lab</option>
-        </optgroup>
-        <optgroup label="🌐 Digital Products">
           <option value="HEA">HEA — Hello Aldar</option>
           <option value="BRP">BRP — Broker Portal</option>
-          <option value="PAY">PAY — Aldar Payments</option>
-          <option value="LAV">LAV — Live Aldar Abu Dhabi</option>
-          <option value="LIA">LIA — Living-in Bridge</option>
-          <option value="OB">OB — Marketplace</option>
           <option value="GD">GD — Darna</option>
-          </optgroup>
-        <optgroup label="🎓 Education">
-          <option value="ADP">ADP — Aldar Education Digital</option>
-          <option value="M2">M2 — Aldar Education Mobile</option>
-        </optgroup>
-        <optgroup label="🏘 Estates & Retail">
-          <option value="ESMRP">ESMRP — Estates Super Roadmap</option>
-          <option value="RCM">RCM — Retail CRM</option>
-          <option value="LSQD">LSQD — LSQ Digital</option>
-          <option value="CRL">CRL — Landlord</option>
-          <option value="AHM">AHM — Aldar Home</option>
-        </optgroup>
-        <optgroup label="📱 Mobile & Native">
-          <option value="ANM">ANM — AE Native Mobile</option>
-          <option value="MAFP">MAFP — MAFP</option>
-          <option value="DSIR">DSIR — Digital Sales Issue Reporting</option>
-        </optgroup>
-        <optgroup label="⚙️ Platform & Operations">
+          <option value="DFG">DFG — GDF Gates</option>
           <option value="APG">APG — Aldar Projects Gateways</option>
+          <option value="AILAB">AILAB — AI Lab</option>
+          <option value="ATD">ATD — Tech Debt</option>
+          <option value="ADP">ADP — Aldar Education</option>
           <option value="AEPMO">AEPMO — AE EPMO</option>
-          <option value="SSC">SSC — Deal Prime</option>
-          <option value="SSR">SSR — Service Prime</option>
-          <option value="TCSS">TCSS — Cloud Solutions Suite</option>
-          <option value="GH">GH — GDF Hiring</option>
-          <option value="GTMS">GTMS — Go to Market Sample</option>
-        </optgroup>
         </select>
-        <select id="jira-type-filter" onchange="loadJiraBoard()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
-          <option value="">All types</option>
-          <option value="Story">Story</option>
-          <option value="Bug">Bug</option>
-          <option value="Task">Task</option>
-        </select>
-        <input id="jira-board-search" placeholder="Filter issues…" oninput="filterJiraBoard(this.value)" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;max-width:160px"/>
-        <button class="gbtn" onclick="loadJiraBoard()" style="font-size:10px;padding:4px 10px">🔄 Refresh</button>
-        <button class="gbtn" onclick="aiJiraReview()" style="font-size:10px;padding:4px 10px;background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)">🧠 AI Sprint Review</button>
+        <button onclick="showJiraConfig()"
+          style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit">
+          ⚙ Configure
+        </button>
       </div>
-      <div id="jira-board-cols" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;min-height:200px">
-        <div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--muted2)">
-          <div style="font-size:24px;opacity:.4;margin-bottom:8px">🗂</div>
-          <div style="font-size:12px;font-weight:500;margin-bottom:12px">Select a project and configure Jira to load board</div>
-          <button onclick="openJiraConnectModal()" style="background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:7px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;font-family:inherit">⚙ Connect now →</button>
+    </div>
+
+    <!-- Config panel -->
+    <div id="jira-config-panel" style="display:none;padding:16px 20px;border-bottom:1px solid var(--border2);background:var(--bg2)">
+      <div style="max-width:560px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:11px;background:rgba(0,200,150,0.06);border:0.5px solid rgba(0,200,150,0.2);border-radius:6px;padding:8px 12px;color:var(--muted2)">
+          ✅ <strong style="color:var(--text)">Credentials stored in Cloudflare Worker</strong> — paste your Worker URL below. No tokens in the browser.
+        </div>
+        <div>
+          <label style="font-size:10px;font-weight:600;color:var(--muted2);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Cloudflare Worker URL</label>
+          <input id="jcfg-proxy" placeholder="https://prodmind-jira-proxy.abhinavbilla1991.workers.dev"
+            style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none;box-sizing:border-box"/>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <button onclick="saveJiraHubConfig()"
+            style="background:#0052CC;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
+            Save &amp; Test Connection
+          </button>
+          <button onclick="document.getElementById('jira-config-panel').style.display='none'"
+            style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:8px 14px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--text)">
+            Cancel
+          </button>
+          <span id="jcfg-status" style="font-size:11px;color:var(--muted2)"></span>
         </div>
       </div>
-      <div id="jira-ai-review-out" style="display:none;margin-top:14px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:10px;padding:14px">
-        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">🧠 AI Sprint Review</div>
-        <div id="jira-ai-review-text" style="font-size:12px;line-height:1.65;color:var(--text)"></div>
-      </div>
     </div>
 
-    <!-- ── BACKLOG ─────────────────────────────────────────── -->
-    <div id="jsub-backlog" class="jira-sub-panel" style="display:none">
-      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center">
-        <select id="jira-bl-project" onchange="loadJiraBacklog()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
-          <option value="">— Select project —</option>
-        <optgroup label="🏗 Harbour Platform">
-          <option value="HIP">HIP — Harbour Linkon</option>
-          <option value="HUP">HUP — Harbour Mirros</option>
-          <option value="MIN">MIN — Harbour Mindra</option>
-          <option value="SHL">SHL — Harbour Shellix</option>
-          <option value="HD">HD — Harbour Discovery</option>
-        </optgroup>
-        <optgroup label="🏢 GDF / Digital Futures">
-          <option value="DFG">DFG — Digital Futures Gates</option>
-          <option value="CAP">CAP — Digital Futures Magnet</option>
-          <option value="DFIB">DFIB — Idea Board</option>
-          <option value="ATD">ATD — Aldar Tech Debt</option>
-          <option value="DEMO">DEMO — GDF Demos</option>
-          <option value="AILAB">AILAB — AI Experience Lab</option>
-        </optgroup>
-        <optgroup label="🌐 Digital Products">
-          <option value="HEA">HEA — Hello Aldar</option>
-          <option value="BRP">BRP — Broker Portal</option>
-          <option value="PAY">PAY — Aldar Payments</option>
-          <option value="LAV">LAV — Live Aldar Abu Dhabi</option>
-          <option value="LIA">LIA — Living-in Bridge</option>
-          <option value="OB">OB — Marketplace</option>
-          <option value="GD">GD — Darna</option>
-          </optgroup>
-        <optgroup label="🎓 Education">
-          <option value="ADP">ADP — Aldar Education Digital</option>
-          <option value="M2">M2 — Aldar Education Mobile</option>
-        </optgroup>
-        <optgroup label="🏘 Estates & Retail">
-          <option value="ESMRP">ESMRP — Estates Super Roadmap</option>
-          <option value="RCM">RCM — Retail CRM</option>
-          <option value="LSQD">LSQD — LSQ Digital</option>
-          <option value="CRL">CRL — Landlord</option>
-          <option value="AHM">AHM — Aldar Home</option>
-        </optgroup>
-        <optgroup label="📱 Mobile & Native">
-          <option value="ANM">ANM — AE Native Mobile</option>
-          <option value="MAFP">MAFP — MAFP</option>
-          <option value="DSIR">DSIR — Digital Sales Issue Reporting</option>
-        </optgroup>
-        <optgroup label="⚙️ Platform & Operations">
-          <option value="APG">APG — Aldar Projects Gateways</option>
-          <option value="AEPMO">AEPMO — AE EPMO</option>
-          <option value="SSC">SSC — Deal Prime</option>
-          <option value="SSR">SSR — Service Prime</option>
-          <option value="TCSS">TCSS — Cloud Solutions Suite</option>
-          <option value="GH">GH — GDF Hiring</option>
-          <option value="GTMS">GTMS — Go to Market Sample</option>
-        </optgroup>
-        </select>
-        <button class="gbtn" onclick="loadJiraBacklog()" style="font-size:10px;padding:4px 10px">🔄 Refresh</button>
-        <button class="gbtn" onclick="aiRiceBacklog()" style="font-size:10px;padding:4px 10px;background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)">⚡ AI RICE Score</button>
-      </div>
-      <div id="jira-backlog-table"><div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Select a project to load backlog</div></div>
-      <div id="jira-rice-out" style="display:none;margin-top:14px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:10px;padding:14px">
-        <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">⚡ AI RICE</div>
-        <div id="jira-rice-text" style="font-size:12px;line-height:1.65;color:var(--text)"></div>
-      </div>
-    </div>
+    <!-- Hub actions -->
+    <div style="flex:1;overflow-y:auto;padding:20px">
 
-    <!-- ── SEARCH ─────────────────────────────────────────── -->
-    <div id="jsub-search" class="jira-sub-panel" style="display:none">
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <input id="jira-jql-input" placeholder="project = HIP AND status != Done ORDER BY priority DESC" onkeydown="if(event.key==='Enter')runJiraJQL()" style="flex:1;background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:7px 11px;font-size:12px;color:var(--text);font-family:'JetBrains Mono',monospace;outline:none"/>
-        <button class="btn" onclick="runJiraJQL()" style="background:#0052CC;border-color:#0052CC;white-space:nowrap;font-size:11px">Run JQL</button>
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🏃 Sprint &amp; Delivery</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubAction('sprint-health')"><div class="jhc-icon">🏃</div><div class="jhc-title">Sprint Health Score</div><div class="jhc-desc">Live velocity, bug rate, team capacity</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('standup')"><div class="jhc-icon">☀️</div><div class="jhc-title">Daily Standup</div><div class="jhc-desc">In-progress items formatted for team</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('forecast')"><div class="jhc-icon">🎲</div><div class="jhc-title">Delivery Forecast</div><div class="jhc-desc">Monte Carlo from real velocity data</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('week-plan')"><div class="jhc-icon">📅</div><div class="jhc-title">My Week Plan</div><div class="jhc-desc">Day-by-day PO plan from sprint items</div></div>
+        </div>
       </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px">
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND statusCategory = &quot;In Progress&quot; ORDER BY priority DESC')">🏃 In Progress</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')">🐛 Open Bugs</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND statusCategory = &quot;To Do&quot; ORDER BY priority DESC')">📋 Backlog</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC')">🔴 High Priority</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND updated >= -7d ORDER BY updated DESC')">🕐 Last 7 days</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;Ready For QA&quot; ORDER BY priority DESC')">🧪 Ready for QA</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;SIT DONE&quot; ORDER BY updated DESC')">✅ SIT Done</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND issuetype = Bug AND priority = Highest ORDER BY created DESC')">🚨 Critical Bugs</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;CODE REVIEW&quot; ORDER BY updated DESC')">🔍 Code Review</button>
-        <button class="gbtn" style="font-size:10px;padding:3px 9px" onclick="setJiraJQLp('AND status = &quot;READY FOR DEVELOPMENT&quot; ORDER BY priority DESC')">🟦 Ready for Dev</button>
-      </div>
-      <div id="jira-search-results"><div style="text-align:center;padding:40px;color:var(--muted2);font-size:12px">Run a JQL query to see results</div></div>
-    </div>
 
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">📋 Backlog Management</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubAction('rice')"><div class="jhc-icon">⚡</div><div class="jhc-title">RICE Score Backlog</div><div class="jhc-desc">Rank every item with RICE scoring</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('refinement')"><div class="jhc-icon">✂️</div><div class="jhc-title">Backlog Refinement</div><div class="jhc-desc">DoR check on every backlog item</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('roadmap')"><div class="jhc-icon">🗺</div><div class="jhc-title">Build Roadmap</div><div class="jhc-desc">Epics and initiatives into quarterly plan</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('north-star')"><div class="jhc-icon">⭐</div><div class="jhc-title">North Star + OKRs</div><div class="jhc-desc">Derive OKRs from backlog themes</div></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🐛 Quality &amp; Release</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubAction('bug-triage')"><div class="jhc-icon">🔴</div><div class="jhc-title">Bug Triage</div><div class="jhc-desc">Severity, root cause, fix priority</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('release-risk')"><div class="jhc-icon">🛡</div><div class="jhc-title">Release Risk</div><div class="jhc-desc">Go/No-Go from live Jira state</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('release-notes')"><div class="jhc-icon">📋</div><div class="jhc-title">Release Notes Draft</div><div class="jhc-desc">Auto-draft from completed items</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('metrics')"><div class="jhc-icon">📊</div><div class="jhc-title">Product Health</div><div class="jhc-desc">Throughput, bug rate, flow health</div></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">📄 Ticket Analysis — enter key then click</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+          <input id="jira-hub-ticket" placeholder="e.g. HIP-2448"
+            style="width:160px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none"/>
+          <span style="font-size:11px;color:var(--muted2)">then click below</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('brd')"><div class="jhc-icon">📄</div><div class="jhc-title">Write Full BRD</div><div class="jhc-desc">16-section BRD from ticket</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('ac')"><div class="jhc-icon">✍️</div><div class="jhc-title">Write AC</div><div class="jhc-desc">Full Gherkin acceptance criteria</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('test')"><div class="jhc-icon">🧪</div><div class="jhc-title">Write Test Cases</div><div class="jhc-desc">10+ test cases from ticket</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('dor')"><div class="jhc-icon">✅</div><div class="jhc-title">DoR Check</div><div class="jhc-desc">Is this ticket sprint-ready?</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('po-review')"><div class="jhc-icon">🧠</div><div class="jhc-title">PO Review</div><div class="jhc-desc">Value, gaps, recommendations</div></div>
+          <div class="jira-hub-card" onclick="jiraHubTicketAction('tech')"><div class="jhc-icon">⚙️</div><div class="jhc-title">Tech Review</div><div class="jhc-desc">Complexity, risks, SP estimate</div></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🤝 Stakeholders &amp; Reporting</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
+          <div class="jira-hub-card" onclick="jiraHubAction('exec-update')"><div class="jhc-icon">👔</div><div class="jhc-title">Executive Update</div><div class="jhc-desc">1-pager for Harry (CDO)</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('mom')"><div class="jhc-icon">📝</div><div class="jhc-title">MOM Action Items</div><div class="jhc-desc">Action table from open items</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('strategy')"><div class="jhc-icon">🎯</div><div class="jhc-title">Strategic Analysis</div><div class="jhc-desc">Themes, bets, OKR alignment</div></div>
+          <div class="jira-hub-card" onclick="jiraHubAction('decision-log')"><div class="jhc-icon">🧭</div><div class="jhc-title">Decision Log</div><div class="jhc-desc">Decisions from epics and initiatives</div></div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -27675,226 +27592,6 @@ function escapeHtml(s){
 }
 
 // ── Sub-tab switching ─────────────────────────────────────────
-function showJiraSubTab(id, el){
-  document.querySelectorAll('.jira-sub-panel').forEach(p=>p.style.display='none');
-  document.querySelectorAll('.jira-sub-tab').forEach(t=>t.classList.remove('active'));
-  const panel=document.getElementById('jsub-'+id);
-  if(panel) panel.style.display='block';
-  if(el) el.classList.add('active');
-}
-
-// ── switchTab hook ────────────────────────────────────────────
-(function(){
-  const _orig = window.switchTab;
-  window.switchTab = function(tab, el){
-    _orig(tab, el);
-    if(tab==='jira'){
-      if (apiKey) {
-        setJiraStatusConnected('Abhinav Reddy billa', 'ebdae.atlassian.net');
-      } else {
-        const txt = document.getElementById('jira-status-text');
-        if (txt) { txt.textContent = 'Add Anthropic API key to activate Jira'; txt.style.color = '#F5A623'; }
-      }
-    }
-    // Show Jira context banner for Jira-aware features
-    const JIRA_TABS = ['sprint-health','monte-carlo','backlog','roadmap','mom','docs','metrics','week-planner','strategy','decision-log'];
-    if(JIRA_TABS.includes(tab)){
-      showJiraContextBanner(tab);
-    }
-  };
-})();
-
-// ── Board ─────────────────────────────────────────────────────
-async function loadJiraBoard(){
-  const project=document.getElementById('jira-project-sel').value;
-  const typeFilter=document.getElementById('jira-type-filter').value;
-  if(!project) return;
-  if(!jiraConfig){ openJiraConnectModal(); return; }
-  const boardEl=document.getElementById('jira-board-cols');
-  boardEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)"><div class="loading"></div></div>';
-  const typeJQL=typeFilter?' AND issuetype = "'+typeFilter+'"':'';
-  const jql='project = '+project+typeJQL+' AND statusCategory in ("To Do","In Progress","Done") ORDER BY priority DESC';
-  try{
-    const res=await jiraFetch('/search?jql='+encodeURIComponent(jql)+'&maxResults=80&fields=summary,status,issuetype,priority,assignee,customfield_10028');
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data=await res.json();
-    renderJiraBoard(data.issues||[]);
-  } catch(e){
-    boardEl.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:32px;color:var(--muted2)">⚠ '+e.message+'</div>';
-  }
-}
-
-function renderJiraBoard(issues){
-  const SCOL={'To Do':'#7a7a90','In Progress':'#6C47FF','In Review':'#F5A623','Done':'#00C896'};
-  const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF','Sub-task':'#9b59b6','Initiative':'#e67e22'};
-  const PEMU={'Highest':'🔴','High':'🟠','Medium':'🟡','Low':'🟢','Lowest':'⚪'};
-  // Group by statusCategory key — works with ALL custom statuses
-  const COLS={'To Do':[],'In Progress':[],'Done':[]};
-  issues.forEach(issue=>{
-    const cat = issue.fields.status?.statusCategory?.key || 'new';
-    if(cat === 'done') COLS['Done'].push(issue);
-    else if(cat === 'indeterminate' || cat === 'in-progress') COLS['In Progress'].push(issue);
-    else COLS['To Do'].push(issue);
-  });
-  document.getElementById('jira-board-cols').innerHTML=Object.entries(COLS).map(([col,items])=>`
-    <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:10px">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 2px 8px;border-bottom:0.5px solid var(--border);margin-bottom:6px">
-        <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:${SCOL[col]||'#7a7a90'}">${col}</span>
-        <span style="font-size:9px;background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:1px 7px;color:var(--muted2)">${items.length}</span>
-      </div>
-      ${items.length===0?'<div style="font-size:10px;color:var(--muted);text-align:center;padding:12px 0">No issues</div>':
-        items.map(issue=>{
-          const f=issue.fields;
-          const tc=TCOL[f.issuetype?.name]||'#7a7a90';
-          return `<div class="jira-issue-card" style="--jic:${tc}" onclick="loadIssueIntoContext('${issue.key}')">
-            <div class="jira-issue-key">${issue.key}</div>
-            <div class="jira-issue-title">${escapeHtml(f.summary)}</div>
-            <div class="jira-issue-meta">
-              <span class="jira-type-badge" style="background:${tc}18;color:${tc}">${f.issuetype?.name||'?'}</span>
-              <span>${PEMU[f.priority?.name]||'⚪'}</span>
-              ${f.assignee?`<span style="font-size:9px;color:var(--muted2);margin-left:auto">👤 ${f.assignee.displayName.split(' ')[0]}</span>`:''}
-            </div>
-          </div>`;
-        }).join('')}
-    </div>`).join('');
-}
-
-function filterJiraBoard(q){
-  document.querySelectorAll('.jira-issue-card').forEach(c=>{
-    c.style.display=c.textContent.toLowerCase().includes(q.toLowerCase())?'':'none';
-  });
-}
-
-// ── AI Sprint Review ──────────────────────────────────────────
-async function aiJiraReview(){
-  if(!apiKey){ toast('Add Anthropic API key','warning'); return; }
-  const cards=document.querySelectorAll('.jira-issue-card');
-  if(!cards.length){ toast('Load board first','warning'); return; }
-  const items=[...cards].map(c=>{
-    const key=c.querySelector('.jira-issue-key')?.textContent||'';
-    const title=c.querySelector('.jira-issue-title')?.textContent||'';
-    return key+': '+title;
-  }).join('\n');
-  const outEl=document.getElementById('jira-ai-review-out');
-  const textEl=document.getElementById('jira-ai-review-text');
-  outEl.style.display='block';
-  textEl.innerHTML='<div class="loading"></div>';
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,stream:true,
-        system:BRAIN_SYSTEM_PROMPTS[activeBrain]||BRAIN_SYSTEM_PROMPTS.po,
-        messages:[{role:'user',content:'Review this sprint board:\n\n'+items+'\n\nProduce:\n## Sprint Health (RAG + one honest sentence)\n## Top 3 blockers or risks\n## Velocity signal\n## Recommended actions this week'}]})
-    });
-    const reader=res.body.getReader();const decoder=new TextDecoder();let buf='',full='';
-    textEl.innerHTML='<span class="stream-cursor"></span>';
-    while(true){
-      const{done,value}=await reader.read();if(done)break;
-      buf+=decoder.decode(value,{stream:true});
-      const lines=buf.split('\n');buf=lines.pop();
-      for(const line of lines){
-        if(!line.startsWith('data: '))continue;
-        const d=line.slice(6).trim();if(d==='[DONE]'||!d)continue;
-        try{const ev=JSON.parse(d);if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){full+=ev.delta.text;textEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>';}}catch(_){}
-      }
-    }
-    textEl.innerHTML=formatMsg(full);
-  }catch(e){textEl.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';}
-}
-
-// ── Backlog ────────────────────────────────────────────────────
-async function loadJiraBacklog(){
-  const project=document.getElementById('jira-bl-project').value;
-  if(!project) return;
-  if(!jiraConfig){ openJiraConnectModal(); return; }
-  const el=document.getElementById('jira-backlog-table');
-  el.innerHTML='<div style="text-align:center;padding:30px"><div class="loading"></div></div>';
-  try{
-    const jql='project = '+project+' AND statusCategory = "To Do" ORDER BY priority DESC, created DESC';
-    const res=await jiraFetch('/search?jql='+encodeURIComponent(jql)+'&maxResults=50&fields=summary,issuetype,priority,customfield_10028,assignee,status');
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data=await res.json();
-    renderJiraBacklog(data.issues||[],data.total||0);
-  }catch(e){
-    el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">⚠ '+e.message+'</div>';
-  }
-}
-
-function renderJiraBacklog(issues,total){
-  const TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};
-  const el=document.getElementById('jira-backlog-table');
-  if(!issues.length){el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">No backlog items</div>';return;}
-  el.innerHTML=`<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">${issues.length} of ${total} items — click any row to analyse with AI</div>
-  <table style="width:100%;border-collapse:collapse">
-    <thead><tr>${['Key','Summary','Type','Priority','SP'].map(h=>`<th style="padding:6px 10px;font-size:9px;font-weight:700;text-transform:uppercase;color:var(--muted);background:var(--bg2);border-bottom:0.5px solid var(--border);text-align:left">${h}</th>`).join('')}</tr></thead>
-    <tbody>${issues.map(issue=>{
-      const f=issue.fields;const tc=TCOL[f.issuetype?.name]||'#7a7a90';
-      const sp=f.customfield_10028||'—';
-      return `<tr style="cursor:pointer" onclick="loadIssueIntoContext('${issue.key}')">
-        <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#4C9AFF;border-bottom:0.5px solid var(--border)">${issue.key}</td>
-        <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border);max-width:300px">${escapeHtml(f.summary)}</td>
-        <td style="padding:7px 10px;border-bottom:0.5px solid var(--border)"><span style="font-size:8px;font-weight:700;text-transform:uppercase;padding:2px 5px;border-radius:3px;background:${tc}18;color:${tc}">${f.issuetype?.name||'—'}</span></td>
-        <td style="padding:7px 10px;font-size:11px;color:var(--text);border-bottom:0.5px solid var(--border)">${f.priority?.name||'—'}</td>
-        <td style="padding:7px 10px;font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--accent);border-bottom:0.5px solid var(--border)">${sp}</td>
-      </tr>`;
-    }).join('')}</tbody>
-  </table>`;
-}
-
-// ── AI RICE ───────────────────────────────────────────────────
-async function aiRiceBacklog(){
-  if(!apiKey){toast('Add Anthropic API key','warning');return;}
-  const table=document.querySelector('#jira-backlog-table table');
-  if(!table){toast('Load backlog first','warning');return;}
-  const items=[...table.querySelectorAll('tbody tr')].map(r=>{
-    const cells=r.querySelectorAll('td');
-    return cells[0]?.textContent+': '+cells[1]?.textContent+' ['+cells[2]?.textContent+'/'+cells[3]?.textContent+'/SP:'+cells[4]?.textContent+']';
-  }).join('\n');
-  const outEl=document.getElementById('jira-rice-out');
-  const textEl=document.getElementById('jira-rice-text');
-  outEl.style.display='block';
-  textEl.innerHTML='<div class="loading"></div>';
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:900,stream:true,
-        system:BRAIN_SYSTEM_PROMPTS[activeBrain]||BRAIN_SYSTEM_PROMPTS.po,
-        messages:[{role:'user',content:'RICE score this Jira backlog:\n\n'+items+'\n\n## RICE Table\n| Key | Summary | Reach | Impact | Confidence | Effort | RICE |\n\n## Top 5 for next sprint with rationale\n\n## Defer list'}]})
-    });
-    const reader=res.body.getReader();const decoder=new TextDecoder();let buf='',full='';
-    textEl.innerHTML='<span class="stream-cursor"></span>';
-    while(true){
-      const{done,value}=await reader.read();if(done)break;
-      buf+=decoder.decode(value,{stream:true});
-      const lines=buf.split('\n');buf=lines.pop();
-      for(const line of lines){
-        if(!line.startsWith('data: '))continue;
-        const d=line.slice(6).trim();if(d==='[DONE]'||!d)continue;
-        try{const ev=JSON.parse(d);if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){full+=ev.delta.text;textEl.innerHTML=formatMsg(full)+'<span class="stream-cursor"></span>';}}catch(_){}
-      }
-    }
-    textEl.innerHTML=formatMsg(full);
-  }catch(e){textEl.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>';}
-}
-
-// ── JQL Search ────────────────────────────────────────────────
-function setJiraJQL(jql){ document.getElementById('jira-jql-input').value=jql; runJiraJQL(); }
-
-// Project-aware JQL preset — prepends active project from search or board tab
-function setJiraJQLp(suffix){
-  // Try to get active project from board or backlog selectors
-  const proj = (document.getElementById('jira-project-sel') && document.getElementById('jira-project-sel').value)
-    || (document.getElementById('jira-bl-project') && document.getElementById('jira-bl-project').value)
-    || 'HIP';
-  const jql = 'project = ' + proj + ' ' + suffix.replace(/&quot;/g, '"');
-  document.getElementById('jira-jql-input').value = jql;
-  // Switch to search tab
-  showJiraSubTab('search', document.querySelectorAll('.jira-sub-tab')[2]);
-  runJiraJQL();
-}
-
 async function runJiraJQL(){
   if(!jiraConfig){ openJiraConnectModal(); return; }
   const jql=document.getElementById('jira-jql-input').value.trim();
@@ -28980,68 +28677,9 @@ function jdSwitchView(view, el) {
 }
 
 function jdLoadView() {
-  if (_jdView==='board') jdLoadBoard();
-  else if (_jdView==='backlog') jdLoadBacklog();
-  else if (_jdView==='bugs') jdLoadBugs();
+  // Board and backlog use the new Jira Intelligence Hub
+  if (_jdView==='bugs') jdLoadBugs();
   else if (_jdView==='search') jdInitSearch();
-}
-
-async function jdLoadBoard() {
-  var el=document.getElementById('jd-view-board'); if(!el) return;
-  jdSpinner(el,'Loading board...');
-  var data=await jdFetch('/search?jql='+encodeURIComponent('project = '+_jdProj+' AND statusCategory in ("To Do","In Progress","Done") ORDER BY priority DESC')+'&maxResults=50&fields=summary,status,issuetype,priority,assignee,customfield_10028');
-  if (!data) { el.textContent='Failed'; return; }
-  _jdAll = data.issues||[];
-  var cols={new:[],indeterminate:[],done:[]};
-  _jdAll.forEach(function(i){
-    var k=i.fields.status&&i.fields.status.statusCategory&&i.fields.status.statusCategory.key||'new';
-    if(!cols[k]) k='new'; cols[k].push(i);
-  });
-  el.innerHTML='';
-  var board=document.createElement('div'); board.className='jd-board'; el.appendChild(board);
-  [{k:'new',label:'To Do',color:'#6b7280'},{k:'indeterminate',label:'In Progress',color:'#F5A623'},{k:'done',label:'Done',color:'#00C896'}].forEach(function(cm){
-    var issues=cols[cm.k], col=document.createElement('div');
-    var hdr=document.createElement('div'); hdr.className='jd-col-hdr';
-    var dot=document.createElement('span'); dot.className='jd-col-dot'; dot.style.background=cm.color;
-    var lbl=document.createElement('span'); lbl.textContent=cm.label;
-    var cnt=document.createElement('span'); cnt.className='jd-col-cnt'; cnt.textContent=issues.length;
-    hdr.appendChild(dot); hdr.appendChild(lbl); hdr.appendChild(cnt);
-    var body=document.createElement('div'); body.className='jd-col-body';
-    if (!issues.length) { var e=document.createElement('div'); e.style.cssText='text-align:center;padding:20px;font-size:11px;color:var(--muted2)'; e.textContent='No items'; body.appendChild(e); }
-    issues.forEach(function(iss){ body.appendChild(jdCard(iss)); });
-    col.appendChild(hdr); col.appendChild(body); board.appendChild(col);
-  });
-}
-
-async function jdLoadBacklog() {
-  var el=document.getElementById('jd-view-backlog'); if(!el) return;
-  jdSpinner(el,'Loading backlog...');
-  var data=await jdFetch('/search?jql='+encodeURIComponent('project = '+_jdProj+' AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=50&fields=summary,status,issuetype,priority,assignee,customfield_10028');
-  if (!data) { el.textContent='Failed'; return; }
-  el.innerHTML='';
-  var wrap=jdEl('div',{style:'background:var(--bg2);border:1px solid var(--border2);border-radius:10px;overflow:hidden'});
-  var bar=jdEl('div',{style:'padding:10px 14px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:8px'});
-  bar.appendChild(jdEl('span',{style:'font-size:13px;font-weight:600',text:'Backlog'}));
-  bar.appendChild(jdEl('span',{style:'font-size:11px;color:var(--accent);background:rgba(76,154,255,0.1);padding:2px 8px;border-radius:4px',text:(data.total||0)+' items'}));
-  var rb=jdEl('button',{class:'gbtn',style:'margin-left:auto',text:'⚡ AI RICE Score'}); rb.onclick=function(){jdRunAI('rice');}; bar.appendChild(rb);
-  wrap.appendChild(bar);
-  var tbl=document.createElement('table'); tbl.className='jd-tbl';
-  var thead=tbl.createTHead(); var hr=thead.insertRow();
-  ['Key','Summary','Type','Priority','Status','SP','Assignee'].forEach(function(h){ var th=document.createElement('th');th.textContent=h;hr.appendChild(th); });
-  var tbody=tbl.createTBody();
-  (data.issues||[]).forEach(function(iss){
-    var f=iss.fields,cat=f.status&&f.status.statusCategory&&f.status.statusCategory.key||'new';
-    var st=_jdCat[cat]||_jdCat.new,tc=_jdTypeC[f.issuetype&&f.issuetype.name]||'#4C9AFF';
-    var row=tbody.insertRow(); row.style.cursor='pointer'; row.onclick=(function(k){return function(){jdOpenDetail(k);};})(iss.key);
-    var c1=row.insertCell();c1.style.cssText='font-size:10px;color:var(--accent)';c1.textContent=iss.key;
-    var c2=row.insertCell();c2.style.cssText='max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap';c2.textContent=f.summary||'';
-    var c3=row.insertCell();var ts=jdEl('span',{class:'jd-type',style:'background:'+tc+'22;color:'+tc,text:(f.issuetype&&f.issuetype.name)||'?'});c3.appendChild(ts);
-    var c4=row.insertCell();c4.textContent=(_jdPrio[f.priority&&f.priority.name]||'⚪');
-    var c5=row.insertCell();var ss=jdEl('span',{class:'jd-status',style:'background:'+st.bg+';color:'+st.c,text:(f.status&&f.status.name)||'?'});c5.appendChild(ss);
-    var c6=row.insertCell();c6.style.cssText='font-size:10px;color:var(--muted2)';c6.textContent=f.customfield_10028||'—';
-    var c7=row.insertCell();c7.style.cssText='font-size:11px;color:var(--muted2)';c7.textContent=(f.assignee&&f.assignee.displayName.split(' ')[0])||'—';
-  });
-  wrap.appendChild(tbl); el.appendChild(wrap);
 }
 
 async function jdLoadBugs() {
@@ -30853,6 +30491,88 @@ function sendKanbanToChat() {
   var inp = document.getElementById('chat-input');
   if (inp) { inp.value = prompt; if(typeof autoResize==='function') autoResize(inp); }
   if (typeof switchTab==='function') switchTab('chat', document.querySelector('[data-tab="chat"]'));
+}
+</script><script>
+// ── handleSlashKey — slash command autocomplete ───────────────
+function handleSlashKey(e) {
+  var inp = document.getElementById('chat-input');
+  if (!inp) return;
+  var val = inp.value;
+
+  // Show slash command suggestions when user types /
+  if (e.type === 'input' || e.key === '/') {
+    showSlashRec(val);
+    return;
+  }
+
+  // Tab to autocomplete
+  if (e.key === 'Tab' && val.startsWith('/')) {
+    e.preventDefault();
+    var rec = document.getElementById('slash-rec');
+    if (rec) {
+      var first = rec.querySelector('.slash-item');
+      if (first) first.click();
+    }
+    return;
+  }
+
+  // Escape to close
+  if (e.key === 'Escape') {
+    var rec = document.getElementById('slash-rec');
+    if (rec) rec.style.display = 'none';
+    return;
+  }
+
+  // Arrow keys to navigate
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    var rec = document.getElementById('slash-rec');
+    if (!rec || rec.style.display === 'none') return;
+    var items = rec.querySelectorAll('.slash-item');
+    if (!items.length) return;
+    e.preventDefault();
+    var active = rec.querySelector('.slash-item.active');
+    var idx = -1;
+    items.forEach(function(item, i) { if (item === active) idx = i; });
+    if (e.key === 'ArrowDown') idx = Math.min(idx + 1, items.length - 1);
+    else idx = Math.max(idx - 1, 0);
+    items.forEach(function(item) { item.classList.remove('active'); });
+    if (items[idx]) items[idx].classList.add('active');
+    return;
+  }
+}
+
+// Make sure showSlashRec exists even if not defined
+if (typeof showSlashRec !== 'function') {
+  window.showSlashRec = function(val) {
+    var rec = document.getElementById('slash-rec');
+    if (!rec) return;
+    if (!val || !val.startsWith('/')) { rec.style.display = 'none'; return; }
+    // Simple filtering of SLASH_COMMANDS
+    if (typeof SLASH_COMMANDS === 'undefined') return;
+    var query = val.slice(1).toLowerCase();
+    var matches = SLASH_COMMANDS.filter(function(cmd) {
+      return cmd.cmd && cmd.cmd.toLowerCase().includes(query);
+    }).slice(0, 8);
+    if (!matches.length) { rec.style.display = 'none'; return; }
+    rec.innerHTML = '';
+    matches.forEach(function(cmd) { var d=document.createElement('div'); d.className='slash-item'; d.dataset.cmd=cmd.cmd; d.onclick=function(){ applySlashCmd(this.dataset.cmd); }; d.innerHTML='<code>/'+cmd.cmd+'</code> <span>'+(cmd.desc||'')+'</span>'; rec.appendChild(d); });
+
+    rec.style.display = 'block';
+  };
+}
+
+if (typeof applySlashCmd !== 'function') {
+  window.applySlashCmd = function(cmd, el) {
+    if (el && el.dataset && el.dataset.cmd) cmd = el.dataset.cmd;
+    var inp = document.getElementById('chat-input');
+    if (inp) {
+      inp.value = '/' + cmd + ' ';
+      inp.focus();
+      if (typeof autoResize === 'function') autoResize(inp);
+    }
+    var rec = document.getElementById('slash-rec');
+    if (rec) rec.style.display = 'none';
+  };
 }
 </script></body>
 </html>
