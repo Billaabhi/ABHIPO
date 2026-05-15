@@ -27490,93 +27490,7 @@ const JIRA_CLOUD_ID = 'fd834394-ca79-4414-b7b9-86c7a47cf3e1';
 window._jiraCache = window._jiraCache || {};
 var _jiraCache = window._jiraCache;
 
-async function jiraFetch(path, opts) {
-  opts = opts || {};
-  var method = (opts.method || 'GET').toUpperCase();
-  var cacheKey = method + path;
-  window._jiraCache = window._jiraCache || {};
-
-  // Return cached GET
-  if (method === 'GET' && window._jiraCache[cacheKey]) {
-    var _cached = window._jiraCache[cacheKey];
-    return { ok: true, status: 200, json: async function(){ return _cached; } };
-  }
-
-  // Get the Anthropic API key
-  var _ak = apiKey || localStorage.getItem('pos_api_key') || '';
-  if (!_ak) throw new Error('Add your Anthropic API key first');
-
-  // Get OAuth token
-  var _oauthToken = localStorage.getItem('jira_oauth_token') || '';
-  if (!_oauthToken) throw new Error('Connect Jira first — click the Jira tab');
-
-  // Build full REST path
-  var fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
-
-  // Prompt for Claude to fetch via MCP
-  var nl = '\n';
-  var prompt = 'Use the atlassian-rovo MCP tool to call this Jira REST API and return ONLY the raw JSON response — no explanation, no markdown:' + nl
-    + 'Endpoint: ' + fullPath + nl
-    + 'Method: ' + method + nl
-    + (opts.body ? 'Body: ' + opts.body + nl : '')
-    + 'Return ONLY valid JSON.';
-
-  try {
-    var res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': _ak,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-        'anthropic-beta': 'mcp-client-2025-11-20'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8192,
-        system: 'You are a Jira API relay. Use the atlassian-rovo MCP tool to call the requested endpoint. Return ONLY the raw JSON from Jira — nothing else.',
-        messages: [{ role: 'user', content: prompt }],
-        mcp_servers: [{
-          type: 'url',
-          url: 'https://mcp.atlassian.com/v1/mcp',
-          name: 'atlassian-rovo',
-          authorization_token: _oauthToken
-        }]
-      })
-    });
-
-    if (!res.ok) {
-      var _err = await res.json().catch(function(){ return {}; });
-      throw new Error('API ' + res.status + ': ' + ((_err.error && _err.error.message) || 'unknown'));
-    }
-
-    var _data = await res.json();
-    var _text = '';
-    for (var _i = 0; _i < (_data.content || []).length; _i++) {
-      if (_data.content[_i].type === 'text' && _data.content[_i].text) {
-        _text = _data.content[_i].text; break;
-      }
-    }
-    if (!_text) throw new Error('No response from Jira relay');
-
-    // Strip markdown fences
-    _text = _text.trim()
-      .replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/, '').trim();
-
-    var _parsed = JSON.parse(_text);
-    if (method === 'GET') window._jiraCache[cacheKey] = _parsed;
-
-    return { ok: true, status: 200, json: async function(){ return _parsed; } };
-
-  } catch(_e) {
-    console.error('jiraFetch error:', _e.message);
-    return {
-      ok: false, status: 500,
-      json: async function(){ return { error: _e.message }; },
-      text: async function(){ return _e.message; }
-    };
-  }
-}
+// jiraFetch — defined below as window.jiraFetch (proxy path, single canonical implementation)
 // ── ADF text extractor ────────────────────────────────────────
 function _adfToText(node){
   if(!node) return '';
@@ -29044,8 +28958,11 @@ async function jiraHubAction(action) {
         }
       }
     } catch(e) {
+      if(typeof toast==='function') toast('Jira fetch failed: ' + e.message + ' — check ⚙ Configure', 'error');
       console.warn('Jira fetch failed:', e.message);
     }
+  } else {
+    if(typeof toast==='function') toast('No Jira proxy set — click ⚙ Configure in Jira tab', 'error');
   }
 
   // Build final prompt = analysis instruction + live data
@@ -29056,7 +28973,13 @@ async function jiraHubAction(action) {
     inp.value = finalPrompt;
     if (typeof autoResize === 'function') autoResize(inp);
   }
-  if (typeof toast === 'function') toast('Loaded into AI Chat — hit Send to fetch live Jira data', 'success');
+
+  if (liveData) {
+    if(typeof toast==='function') toast('Live Jira data loaded — sending to AI...', 'success');
+    setTimeout(function(){ if(typeof sendMsg==='function') sendMsg(); }, 120);
+  } else {
+    if(typeof toast==='function') toast('Prompt ready — no live data returned. Check proxy config.', 'warning');
+  }
 }
 
 async function jiraHubTicketAction(mode) {
@@ -29527,24 +29450,47 @@ window.jiraFetch = async function(path, opts) {
     return { ok: true, status: 200, json: async function(){ return _cv; } };
   }
 
-  // Get API base URL
+  // Get proxy base URL
   var base = (localStorage.getItem('pm_jira_proxy') || '').replace(/\/+$/, '');
-  if (!base) return { ok: false, status: 0, json: async function(){ return { error: 'API URL not set — click ⚙ Configure' }; } };
+  if (!base) {
+    if(typeof toast==='function') toast('Jira proxy not set — click ⚙ Configure in the Jira tab', 'error');
+    return { ok: false, status: 0, json: async function(){ return { error: 'Proxy URL not set — click ⚙ Configure' }; } };
+  }
 
-  // Build URL
+  // Get credentials for Basic auth
+  var _cfg = null;
+  try { _cfg = JSON.parse(localStorage.getItem('pm_jira_config') || 'null'); } catch(_){}
+  var _email = (_cfg && _cfg.email) || '';
+  var _token = (_cfg && _cfg.token) || '';
+  if (!_email || !_token) {
+    if(typeof toast==='function') toast('Jira credentials missing — open Jira tab → ⚙ Configure', 'error');
+    return { ok: false, status: 0, json: async function(){ return { error: 'Jira credentials not set' }; } };
+  }
+  var _auth = 'Basic ' + btoa(_email + ':' + _token);
+
+  // Build URL — support both proxy URL patterns (?path= and /api/jira?path=)
   var fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
-  var url = base + '/api/jira?path=' + encodeURIComponent(fullPath);
+  var url = base + '?path=' + encodeURIComponent(fullPath);
 
   try {
     var res = await fetch(url, {
       method: method,
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': _auth
+      },
       body: opts.body || undefined
     });
 
     var text = await res.text();
     var parsed = null;
     try { parsed = JSON.parse(text); } catch(_) { parsed = { error: text || 'Empty response' }; }
+
+    if (!res.ok) {
+      var errMsg = (parsed && (parsed.message || (parsed.errorMessages && parsed.errorMessages[0]))) || ('HTTP ' + res.status);
+      if(typeof toast==='function') toast('Jira error: ' + errMsg, 'error');
+    }
 
     if (method === 'GET' && res.ok && parsed && !parsed.errorMessages && !parsed.error) {
       window._jiraCache[cacheKey] = parsed;
@@ -29557,6 +29503,7 @@ window.jiraFetch = async function(path, opts) {
     };
 
   } catch(e) {
+    if(typeof toast==='function') toast('Jira fetch failed: ' + e.message + ' — check proxy URL', 'error');
     return { ok: false, status: 0, json: async function(){ return { error: e.message }; } };
   }
 };
@@ -29568,7 +29515,7 @@ window.jiraFetch = async function(path, opts) {
     if (saved) {
       try { jiraConfig = JSON.parse(saved); } catch(_){}
     }
-    var proxy = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
+    var proxy = localStorage.getItem('pm_jira_proxy') || '';
     if (proxy && jiraConfig && jiraConfig.token) {
       updateJiraConnBadge(true, jiraConfig.email);
     }
