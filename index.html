@@ -27437,7 +27437,7 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
       </div>
       <div class="cf">
         <label>Proxy URL <span style="font-size:9px;color:var(--muted2)">(Cloudflare or Vercel)</span></label>
-        <input id="jm-proxy" value="https://odd-moon-93a6.abhinavbilla1991.workers.dev" placeholder="https://odd-moon-93a6.abhinavbilla1991.workers.dev" style="font-family:monospace;font-size:11px"/>
+        <input id="jm-proxy" placeholder="https://your-worker.workers.dev" style="font-family:monospace;font-size:11px"/>
       </div>
 
       <div class="cf">
@@ -27509,7 +27509,7 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
 
 let jiraConfig = null;
 let _jiraContextIssue = null;
-let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93a6.abhinavbilla1991.workers.dev';
+let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
 
 // ── Init: restore saved config ────────────────────────────────
 (function(){
@@ -27519,7 +27519,7 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93
     if (saved) jiraConfig = JSON.parse(saved);
   } catch(_){}
 
-  var savedProxy = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93a6.abhinavbilla1991.workers.dev';
+  var savedProxy = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
   jiraProxyUrl = savedProxy;
   localStorage.setItem('pm_jira_proxy', savedProxy);
 
@@ -27530,7 +27530,7 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93
     var pm = document.getElementById('jm-proxy');
     if (dm) dm.value = (jiraConfig && jiraConfig.domain) || 'ebdae.atlassian.net';
     if (em) em.value = (jiraConfig && jiraConfig.email)  || 'abilla@aldar.com';
-    if (pm) pm.value = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
+    if (pm) pm.value = localStorage.getItem('pm_jira_proxy') || '';
   }, 500);
 
   // Show status
@@ -27547,9 +27547,10 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93
 function openJiraConnectModal(){
   const el = document.getElementById('jira-modal');
   if(!el){ console.error('jira-modal not found'); return; }
-  // Pre-fill known credentials
-  const d=document.getElementById('jm-domain'); if(d) d.value='ebdae.atlassian.net';
-  const e=document.getElementById('jm-email');  if(e) e.value='abilla@aldar.com';
+  // Pre-fill from saved config (never hardcode defaults)
+  const d=document.getElementById('jm-domain'); if(d) d.value=(jiraConfig && jiraConfig.domain)||'';
+  const e=document.getElementById('jm-email');  if(e) e.value=(jiraConfig && jiraConfig.email)||'';
+  const p=document.getElementById('jm-proxy');  if(p) p.value=localStorage.getItem('pm_jira_proxy')||'';
   if(jiraConfig && jiraConfig.token){
     const t=document.getElementById('jm-token'); if(t) t.value=jiraConfig.token;
   }
@@ -27565,7 +27566,7 @@ function closeJiraConnectModal(){
 
 // ── Save config and test ──────────────────────────────────────
 async function saveJiraConfig(){
-  var WORKER_URL = 'https://odd-moon-93a6.abhinavbilla1991.workers.dev';
+  var WORKER_URL = 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
   var proxyEl = document.getElementById('jm-proxy');
   var proxy   = ((proxyEl && proxyEl.value) || WORKER_URL).trim().replace(/\/+$/,'');
   if (!proxy) proxy = WORKER_URL;
@@ -29579,7 +29580,7 @@ function showJiraConfig() {
   if (!panel) return;
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
   // Pre-fill saved values
-  var proxy = localStorage.getItem('pm_jira_proxy') || 'https://odd-moon-93a6.abhinavbilla1991.workers.dev';
+  var proxy = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
   var email = (jiraConfig && jiraConfig.email) || 'abilla@aldar.com';
   var pe = document.getElementById('jcfg-proxy');
   var ee = document.getElementById('jcfg-email');
