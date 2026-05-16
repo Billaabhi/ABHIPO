@@ -29165,21 +29165,25 @@ async function jiraHubAction(action) {
     if(typeof toast==='function') toast('No Jira proxy set — click ⚙ Configure in Jira tab', 'error');
   }
 
-  // Build final prompt = analysis instruction + live data
+  // Guard: never send to AI without live data — Claude will hallucinate if no data is provided
+  if (!liveData) {
+    if (inp) inp.value = '';
+    if(typeof toast==='function') toast('No live Jira data returned — check ⚙ Configure and confirm your Worker has JIRA_EMAIL and JIRA_TOKEN secrets set.', 'error');
+    return;
+  }
+
+  // Build final prompt — prepend strict instruction so Claude uses only the appended data
   var basePrompt = fn(proj);
-  var finalPrompt = basePrompt + liveData;
+  var dataPrefix = 'IMPORTANT: Use ONLY the live Jira data appended below. Do NOT generate, invent, or assume any ticket details. Every issue key, status, assignee and summary must come from the data section marked === LIVE JIRA DATA ===.\n\n';
+  var finalPrompt = dataPrefix + basePrompt + liveData;
 
   if (inp) {
     inp.value = finalPrompt;
     if (typeof autoResize === 'function') autoResize(inp);
   }
 
-  if (liveData) {
-    if(typeof toast==='function') toast('Live Jira data loaded — sending to AI...', 'success');
-    setTimeout(function(){ if(typeof sendMsg==='function') sendMsg(); }, 120);
-  } else {
-    if(typeof toast==='function') toast('Prompt ready — no live data returned. Check proxy config.', 'warning');
-  }
+  if(typeof toast==='function') toast('Live Jira data loaded — sending to AI...', 'success');
+  setTimeout(function(){ if(typeof sendMsg==='function') sendMsg(); }, 120);
 }
 
 async function jiraHubTicketAction(mode) {
@@ -29225,13 +29229,21 @@ async function jiraHubTicketAction(mode) {
     }
   }
 
-  var finalPrompt = fn(key) + liveData;
+  // Guard: never send to AI without live ticket data
+  if (!liveData) {
+    if (typeof toast === 'function') toast('Could not fetch ' + key + ' from Jira — check ⚙ Configure and confirm your Worker secrets are set.', 'error');
+    return;
+  }
+
+  var dataPrefix = 'IMPORTANT: Use ONLY the live ticket data appended below. Do NOT invent any field values — every detail must come from the === LIVE JIRA TICKET === section.\n\n';
+  var finalPrompt = dataPrefix + fn(key) + liveData;
   var chatInp = document.getElementById('chat-input');
   if (chatInp) {
     chatInp.value = finalPrompt;
     if (typeof autoResize === 'function') autoResize(chatInp);
   }
-  if (typeof toast === 'function') toast(key + ' loaded — hit Send', 'success');
+  if (typeof toast === 'function') toast(key + ' loaded — sending to AI...', 'success');
+  setTimeout(function(){ if (typeof sendMsg === 'function') sendMsg(); }, 120);
 }
 
 // Restore saved project on Jira tab open
