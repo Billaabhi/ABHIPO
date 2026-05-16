@@ -29594,9 +29594,10 @@ async function saveJiraHubConfig() {
 
   if (!proxy) { if(st) { st.textContent = '⚠ Enter your Vercel API URL'; st.style.color='var(--red)'; } return; }
 
-  // Save URL — credentials live server-side in Vercel env vars
+  // Save URL — credentials live server-side in Cloudflare Worker
   localStorage.setItem('pm_jira_proxy', proxy);
   jiraConfig = { domain: 'ebdae.atlassian.net', configured: true };
+  localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
   window._jiraCache = {};
 
   if(st) { st.textContent = 'Testing...'; st.style.color = 'var(--muted2)'; }
@@ -29657,16 +29658,17 @@ window.jiraFetch = async function(path, opts) {
     return { ok: false, status: 0, json: async function(){ return { error: 'Proxy URL not set — click ⚙ Configure' }; } };
   }
 
-  // Get credentials for Basic auth
+  // Get credentials for Basic auth (optional — worker may handle auth server-side)
   var _cfg = null;
   try { _cfg = JSON.parse(localStorage.getItem('pm_jira_config') || 'null'); } catch(_){}
   var _email = (_cfg && _cfg.email) || '';
   var _token = (_cfg && _cfg.token) || '';
-  if (!_email || !_token) {
+  var _workerAuth = _cfg && _cfg.configured && !_email && !_token;
+  if (!_workerAuth && (!_email || !_token)) {
     if(typeof toast==='function') toast('Jira credentials missing — open Jira tab → ⚙ Configure', 'error');
     return { ok: false, status: 0, json: async function(){ return { error: 'Jira credentials not set' }; } };
   }
-  var _auth = 'Basic ' + btoa(_email + ':' + _token);
+  var _auth = (_email && _token) ? 'Basic ' + btoa(_email + ':' + _token) : null;
 
   // Build URL — support both proxy URL patterns (?path= and /api/jira?path=)
   var fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
@@ -29675,11 +29677,10 @@ window.jiraFetch = async function(path, opts) {
   try {
     var res = await fetch(url, {
       method: method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': _auth
-      },
+      headers: Object.assign(
+        { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        _auth ? { 'Authorization': _auth } : {}
+      ),
       body: opts.body || undefined
     });
 
