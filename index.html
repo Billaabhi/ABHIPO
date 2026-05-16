@@ -29138,9 +29138,13 @@ async function jiraHubAction(action) {
         'strategy':      'project = \"'+proj+'\" AND statusCategory != Done AND updated >= -90d ORDER BY updated DESC',
         'decision-log':  'project = \"'+proj+'\" AND issuetype in (Initiative,Epic) AND statusCategory != Done ORDER BY updated DESC'
       };
-      var jql = jqlMap[action] || ('project = \"+proj+\" AND statusCategory != Done ORDER BY priority DESC');
-      var url = proxyBase + '?path=' + enc('/rest/api/3/search?jql='+enc(jql)+'&maxResults=40&fields=summary,status,issuetype,priority,assignee,customfield_10028');
-      var res = await fetch(url, { headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' } });
+      var jql = jqlMap[action] || ('project = "'+proj+'" AND statusCategory != Done ORDER BY priority DESC');
+      var url = proxyBase + '?path=' + enc('/rest/api/3/search/jql');
+      var res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jql: jql, maxResults: 40, fields: ['summary','status','issuetype','priority','assignee','customfield_10028'] })
+      });
       if (res.ok) {
         var data = await res.json();
         var issues = (data.issues || []);
@@ -29695,8 +29699,22 @@ window.jiraFetch = async function(path, opts) {
   }
   var _auth = (_email && _token) ? 'Basic ' + btoa(_email + ':' + _token) : null;
 
-  // Build URL — support both proxy URL patterns (?path= and /api/jira?path=)
+  // Build URL
   var fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
+
+  // GET /search is deprecated (returns 410) — auto-convert to POST /search/jql
+  if (method === 'GET' && fullPath.match(/\/rest\/api\/3\/search\?/)) {
+    try {
+      var _sp = new URLSearchParams(fullPath.split('?')[1] || '');
+      var _jql = _sp.get('jql') || '';
+      var _max = parseInt(_sp.get('maxResults')) || 50;
+      var _flds = (_sp.get('fields') || '').split(',').filter(Boolean);
+      method = 'POST';
+      fullPath = '/rest/api/3/search/jql';
+      opts = Object.assign({}, opts, { method: 'POST', body: JSON.stringify({ jql: _jql, maxResults: _max, fields: _flds.length ? _flds : undefined }) });
+    } catch(_) {}
+  }
+
   var url = base + '?path=' + encodeURIComponent(fullPath);
 
   try {
