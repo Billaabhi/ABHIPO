@@ -26972,60 +26972,167 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
 
 <!-- ══ JIRA PAGE ═══════════════════════════════════════════════ -->
 <div class="page" id="page-jira">
-  <div class="tab-page" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 48px)">
+  <div style="display:flex;flex-direction:column;height:calc(100vh - 96px)">
 
     <!-- Header -->
-    <div style="padding:12px 20px;border-bottom:1px solid var(--border2);background:var(--bg2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <div>
-        <h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">
-          🔗 Jira Intelligence Hub
-          <span id="jira-conn-badge" style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:rgba(107,114,128,0.15);color:var(--muted2);border:0.5px solid var(--border2)">Not connected</span>
-        </h2>
-        <p style="font-size:11px;color:var(--muted2);margin-top:2px">Click ⚙ Configure → enter your proxy URL → every feature gets live Jira data</p>
+    <div style="padding:18px 28px;border-bottom:1px solid var(--border2);background:linear-gradient(135deg,var(--bg2) 0%,rgba(0,82,204,0.04) 100%);display:flex;align-items:center;gap:16px;flex-wrap:wrap;flex-shrink:0">
+      <div style="display:flex;flex-direction:column;gap:5px;min-width:0">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <h2 style="font-size:16px;font-weight:700;margin:0;color:var(--text);white-space:nowrap">🔗 Jira Intelligence Hub</h2>
+          <span id="jira-conn-badge" style="display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:600;padding:3px 10px 3px 8px;border-radius:20px;background:rgba(107,114,128,0.12);color:var(--muted2);border:0.5px solid var(--border2);white-space:nowrap">
+            <span style="width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;display:inline-block"></span>Not connected
+          </span>
+        </div>
+        <p style="font-size:11px;color:var(--muted2);margin:0">Powered by Cloudflare Worker — credentials stored server-side, never in browser</p>
       </div>
-      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <select id="jira-hub-proj" onchange="localStorage.setItem('jd_proj',this.value)"
-          style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
-          <option value="HIP" selected>HIP — Harbour Linkon</option>
-          <option value="HUP">HUP — Harbour Mirros</option>
-          <option value="MIN">MIN — Harbour Mindra</option>
-          <option value="SHL">SHL — Harbour Shellix</option>
-          <option value="HD">HD — Harbour Discovery</option>
-          <option value="HEA">HEA — Hello Aldar</option>
-          <option value="BRP">BRP — Broker Portal</option>
-          <option value="GD">GD — Darna</option>
-          <option value="DFG">DFG — GDF Gates</option>
-          <option value="APG">APG — Aldar Projects Gateways</option>
-          <option value="AILAB">AILAB — AI Lab</option>
-          <option value="ATD">ATD — Tech Debt</option>
-          <option value="ADP">ADP — Aldar Education</option>
-          <option value="AEPMO">AEPMO — AE EPMO</option>
+          style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer;max-width:240px">
+          <optgroup label="Harbour Platform">
+            <option value="HEA">HEA — Hello Aldar</option>
+            <option value="HIP" selected>HIP — Harbour Linkon</option>
+            <option value="HRB">HRB — Digital Futures Harbour</option>
+            <option value="HUP">HUP — Harbour Mirros</option>
+            <option value="LAC">LAC — Live Aldar Community - IceRidge</option>
+            <option value="LALI">LALI — Live Aldar Living In</option>
+            <option value="LAP">LAP — LIVE Aldar Platform</option>
+            <option value="LAV">LAV — Live Aldar - Abu Dhabi</option>
+          </optgroup>
+          <optgroup label="GDF / Digital Futures">
+            <option value="AGAA">AGAA — AP Gateways and AI</option>
+            <option value="AGDF">AGDF — Aldar GT - Digital Future</option>
+            <option value="AGH">AGH — Aldar GDS - Hyperion</option>
+            <option value="AGHA">AGHA — Aldar GDS - ERP AE Program</option>
+            <option value="AGHAS">AGHAS — Aldar-GDS HO Appointment</option>
+            <option value="AGHP">AGHP — Aldar GDS - Provis P&amp;B</option>
+            <option value="AGPP">AGPP — Aldar GT - Project Pulse</option>
+            <option value="AILAB">AILAB — AI Experience Lab</option>
+            <option value="APG">APG — Aldar Projects Gateways</option>
+            <option value="ATD">ATD — Aldar Tech Debt</option>
+            <option value="CAP">CAP — Digital Futures Magnet</option>
+            <option value="DFG">DFG — GDF Initiative Gates</option>
+            <option value="DFIB">DFIB — Digital Futures - Idea Board</option>
+            <option value="DFPD">DFPD — DF Product Development</option>
+            <option value="DFPM">DFPM — Digital Futures - Product Mgmt</option>
+            <option value="GH">GH — GDF Hiring</option>
+          </optgroup>
+          <optgroup label="Aldar Education">
+            <option value="ADB">ADB — Aldar Education - Demand Board</option>
+            <option value="ADE">ADE — AE - Design</option>
+            <option value="ADP">ADP — AE Digital Transformation</option>
+            <option value="AEA">AEA — Azure Enterprise App - SSO</option>
+            <option value="AEB">AEB — Project Bumblebee</option>
+            <option value="AEC">AEC — Project Nitro</option>
+            <option value="AED">AED — AE-DT-WEB</option>
+            <option value="AEF">AEF — Aldar Education: Financial Mgt</option>
+            <option value="AEH">AEH — Aldar Education: HCM Module</option>
+            <option value="AEI">AEI — AE - DTS Initiatives</option>
+            <option value="AEM">AEM — Aldar Education: Web</option>
+            <option value="AEPMO">AEPMO — AE EPMO</option>
+            <option value="AEPO">AEPO — Aldar Education</option>
+            <option value="AESD">AESD — AE: SIS-Data</option>
+            <option value="ASC">ASC — AE: Education Cloud Report</option>
+            <option value="EDA">EDA — Estates data analytics</option>
+            <option value="EDC">EDC — Education Cloud</option>
+            <option value="EEC">EEC — AE: Education Cloud HQ</option>
+            <option value="EPM">EPM — AE: Procurement Module</option>
+            <option value="GAEMA">GAEMA — GDS Aldar Education Mobile App</option>
+          </optgroup>
+          <optgroup label="Digital Products">
+            <option value="AGDA">AGDA — Aldar GDS - Digital Adoption</option>
+            <option value="ALDAR">ALDAR — Aldar GDS - Sitecore</option>
+            <option value="ANM">ANM — AE-Native mobile</option>
+            <option value="BRP">BRP — Broker Portal</option>
+            <option value="CRL">CRL — Landlord</option>
+            <option value="DAM">DAM — Live Aldar Sales - Damascus</option>
+            <option value="DAR">DAR — Darna Offers</option>
+            <option value="DO">DO — Darna Operations</option>
+            <option value="DOB">DOB — Darna On-boarding</option>
+            <option value="DRCM">DRCM — GT EDARCOM</option>
+            <option value="ESC">ESC — Estates Sales Cycle</option>
+            <option value="GD">GD — Darna</option>
+            <option value="GDS">GDS — GDS IT Operation</option>
+          </optgroup>
+          <optgroup label="Platform &amp; Ops">
+            <option value="AGA">AGA — Aldar GDS - Atlas</option>
+            <option value="AGAS">AGAS — Aldar GDS - Salesforce</option>
+            <option value="AGE">AGE — Aldar GDS - Eazyq</option>
+            <option value="AGEA">AGEA — Aldar GDS - Entity App</option>
+            <option value="AGEEFF">AGEEFF — Aldar GDS - ERP Finance</option>
+            <option value="AGEUS">AGEUS — Aldar GT - End-user Support</option>
+            <option value="AGIE">AGIE — Aldar GT - Infra Enhancements</option>
+            <option value="AGIS">AGIS — Aldar GDS IT Security</option>
+            <option value="AGM">AGM — Aldar GT - ManageEngine</option>
+            <option value="AGOS">AGOS — Aldar GT - Office Setup</option>
+            <option value="AGPA">AGPA — Aldar GDS - Procurement Auto</option>
+            <option value="AGPE">AGPE — Aldar GT - Process &amp; Enhancements</option>
+            <option value="AGS">AGS — Aldar GDS - Sprinklr</option>
+            <option value="AGT">AGT — Aldar GDS - Teyaseer</option>
+            <option value="AGY">AGY — Aldar GDS - Yardi</option>
+            <option value="BSM">BSM — BE Service Management</option>
+            <option value="CF">CF — Cloud Foundation</option>
+            <option value="COPE">COPE — Cloud Ops Platform Engineering</option>
+            <option value="COSD">COSD — Cloud Ops Service Desk</option>
+            <option value="DP">DP — Datadog Products</option>
+            <option value="GEF">GEF — GT-ERP Finance</option>
+            <option value="GIO">GIO — GDS IT OPERATIONAL</option>
+            <option value="GLS">GLS — GT-Leasing Solutions</option>
+            <option value="IDP">IDP — Intelligent Data Platform</option>
+          </optgroup>
+          <optgroup label="Other">
+            <option value="AAC">AAC — Agentic Aldar</option>
+            <option value="AAI">AAI — Aleria AI</option>
+            <option value="ADS">ADS — Aldar Data Science</option>
+            <option value="AH">AH — Aldar Hospitality</option>
+            <option value="AT">AT — Atlas</option>
+            <option value="BOT">BOT — Optimus Prime - Agentic</option>
+            <option value="CHS">CHS — Megatron</option>
+            <option value="CIAM">CIAM — GDS Customer Identity &amp; Access</option>
+            <option value="CIO">CIO — CIO command center</option>
+            <option value="COP">COP — ATLAS GenAI</option>
+            <option value="DATA">DATA — Data Translation Team</option>
+            <option value="DEMO">DEMO — GDF Demos</option>
+            <option value="DES">DES — Design Studio</option>
+            <option value="EAP">EAP — Enterprise Architecture</option>
+            <option value="EIM">EIM — GDS Enterprise Integrations</option>
+            <option value="GPM">GPM — GDF Product Management</option>
+            <option value="GPR">GPR — Elevate Program</option>
+            <option value="GSN">GSN — Elevate Phase II - Global Design</option>
+            <option value="GTS">GTS — GT Strategy Revamp</option>
+            <option value="ICS">ICS — Bee hive</option>
+            <option value="INA">INA — INVIDA</option>
+            <option value="IPMP">IPMP — Integrated Project Mgmt Platform</option>
+            <option value="JAA">JAA — JIRA Automation</option>
+          </optgroup>
         </select>
         <button onclick="showJiraConfig()"
-          style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit">
-          ⚙ Configure
+          style="display:inline-flex;align-items:center;gap:6px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:7px 16px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit;white-space:nowrap;transition:background 0.15s">
+          ⚙️ Configure
         </button>
       </div>
     </div>
 
     <!-- Config panel -->
-    <div id="jira-config-panel" style="display:none;padding:16px 20px;border-bottom:1px solid var(--border2);background:var(--bg2)">
-      <div style="max-width:560px;display:flex;flex-direction:column;gap:10px">
-        <div style="font-size:11px;background:rgba(0,200,150,0.06);border:0.5px solid rgba(0,200,150,0.2);border-radius:6px;padding:8px 12px;color:var(--muted2)">
-          ✅ <strong style="color:var(--text)">Credentials stored in Cloudflare Worker</strong> — paste your Worker URL below. No tokens in the browser.
+    <div id="jira-config-panel" style="display:none;border-bottom:1px solid var(--border2);background:var(--bg2);flex-shrink:0">
+      <div style="padding:18px 28px;max-width:500px">
+        <div style="display:flex;align-items:flex-start;gap:10px;background:rgba(0,200,150,0.06);border:0.5px solid rgba(0,200,150,0.25);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+          <span style="font-size:16px;flex-shrink:0;line-height:1">🔐</span>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#00C896;margin-bottom:3px">Credentials stored server-side</div>
+            <div style="font-size:10px;color:var(--muted2);line-height:1.5">Your Jira email &amp; API token live in the Cloudflare Worker as secrets — never exposed in the browser.</div>
+          </div>
         </div>
-        <div>
-          <label style="font-size:10px;font-weight:600;color:var(--muted2);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Cloudflare Worker URL</label>
-          <input id="jcfg-proxy" placeholder="https://prodmind-jira-proxy.abhinavbilla1991.workers.dev"
-            style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none;box-sizing:border-box"/>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
+        <label style="font-size:10px;font-weight:700;color:var(--muted2);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.07em">Cloudflare Worker URL</label>
+        <input id="jcfg-proxy" placeholder="https://prodmind-jira-proxy.abhinavbilla1991.workers.dev"
+          style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--text);font-family:monospace;outline:none;box-sizing:border-box;margin-bottom:14px"
+          onfocus="this.style.borderColor='rgba(0,82,204,0.55)'" onblur="this.style.borderColor='var(--border2)'"/>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
           <button onclick="saveJiraHubConfig()"
-            style="background:#0052CC;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
+            style="background:#0052CC;color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
             Save &amp; Test Connection
           </button>
           <button onclick="document.getElementById('jira-config-panel').style.display='none'"
-            style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:8px 14px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--text)">
+            style="background:transparent;border:0.5px solid var(--border2);border-radius:8px;padding:9px 14px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--muted2)">
             Cancel
           </button>
           <span id="jcfg-status" style="font-size:11px;color:var(--muted2)"></span>
@@ -27033,63 +27140,85 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
       </div>
     </div>
 
-    <!-- Hub actions -->
-    <div style="flex:1;overflow-y:auto;padding:20px">
+    <!-- Hub action cards -->
+    <div style="flex:1;overflow-y:auto;padding:24px 28px 40px">
 
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🏃 Sprint &amp; Delivery</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubAction('sprint-health')"><div class="jhc-icon">🏃</div><div class="jhc-title">Sprint Health Score</div><div class="jhc-desc">Live velocity, bug rate, team capacity</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('standup')"><div class="jhc-icon">☀️</div><div class="jhc-title">Daily Standup</div><div class="jhc-desc">In-progress items formatted for team</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('forecast')"><div class="jhc-icon">🎲</div><div class="jhc-title">Delivery Forecast</div><div class="jhc-desc">Monte Carlo from real velocity data</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('week-plan')"><div class="jhc-icon">📅</div><div class="jhc-title">My Week Plan</div><div class="jhc-desc">Day-by-day PO plan from sprint items</div></div>
+      <!-- Sprint & Delivery -->
+      <div style="margin-bottom:28px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:3px;height:14px;border-radius:2px;background:#00C896;flex-shrink:0"></div>
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted2)">Sprint &amp; Delivery</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+          <div class="jira-hub-card" style="border-top:2px solid #00C896" onclick="jiraHubAction('sprint-health')"><div class="jhc-icon">🏃</div><div class="jhc-title">Sprint Health Score</div><div class="jhc-desc">Live velocity, bug rate, team capacity</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #00C896" onclick="jiraHubAction('standup')"><div class="jhc-icon">☀️</div><div class="jhc-title">Daily Standup</div><div class="jhc-desc">In-progress items formatted for team</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #00C896" onclick="jiraHubAction('forecast')"><div class="jhc-icon">🎲</div><div class="jhc-title">Delivery Forecast</div><div class="jhc-desc">Monte Carlo from real velocity data</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #00C896" onclick="jiraHubAction('week-plan')"><div class="jhc-icon">📅</div><div class="jhc-title">My Week Plan</div><div class="jhc-desc">Day-by-day PO plan from sprint items</div></div>
         </div>
       </div>
 
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">📋 Backlog Management</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubAction('rice')"><div class="jhc-icon">⚡</div><div class="jhc-title">RICE Score Backlog</div><div class="jhc-desc">Rank every item with RICE scoring</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('refinement')"><div class="jhc-icon">✂️</div><div class="jhc-title">Backlog Refinement</div><div class="jhc-desc">DoR check on every backlog item</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('roadmap')"><div class="jhc-icon">🗺</div><div class="jhc-title">Build Roadmap</div><div class="jhc-desc">Epics and initiatives into quarterly plan</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('north-star')"><div class="jhc-icon">⭐</div><div class="jhc-title">North Star + OKRs</div><div class="jhc-desc">Derive OKRs from backlog themes</div></div>
+      <!-- Backlog Management -->
+      <div style="margin-bottom:28px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:3px;height:14px;border-radius:2px;background:#6C47FF;flex-shrink:0"></div>
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted2)">Backlog Management</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+          <div class="jira-hub-card" style="border-top:2px solid #6C47FF" onclick="jiraHubAction('rice')"><div class="jhc-icon">⚡</div><div class="jhc-title">RICE Score Backlog</div><div class="jhc-desc">Rank every item with RICE scoring</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #6C47FF" onclick="jiraHubAction('refinement')"><div class="jhc-icon">✂️</div><div class="jhc-title">Backlog Refinement</div><div class="jhc-desc">DoR check on every backlog item</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #6C47FF" onclick="jiraHubAction('roadmap')"><div class="jhc-icon">🗺️</div><div class="jhc-title">Build Roadmap</div><div class="jhc-desc">Epics and initiatives into quarterly plan</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #6C47FF" onclick="jiraHubAction('north-star')"><div class="jhc-icon">⭐</div><div class="jhc-title">North Star + OKRs</div><div class="jhc-desc">Derive OKRs from backlog themes</div></div>
         </div>
       </div>
 
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🐛 Quality &amp; Release</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubAction('bug-triage')"><div class="jhc-icon">🔴</div><div class="jhc-title">Bug Triage</div><div class="jhc-desc">Severity, root cause, fix priority</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('release-risk')"><div class="jhc-icon">🛡</div><div class="jhc-title">Release Risk</div><div class="jhc-desc">Go/No-Go from live Jira state</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('release-notes')"><div class="jhc-icon">📋</div><div class="jhc-title">Release Notes Draft</div><div class="jhc-desc">Auto-draft from completed items</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('metrics')"><div class="jhc-icon">📊</div><div class="jhc-title">Product Health</div><div class="jhc-desc">Throughput, bug rate, flow health</div></div>
+      <!-- Quality & Release -->
+      <div style="margin-bottom:28px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:3px;height:14px;border-radius:2px;background:#FF6B35;flex-shrink:0"></div>
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted2)">Quality &amp; Release</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+          <div class="jira-hub-card" style="border-top:2px solid #FF6B35" onclick="jiraHubAction('bug-triage')"><div class="jhc-icon">🔴</div><div class="jhc-title">Bug Triage</div><div class="jhc-desc">Severity, root cause, fix priority</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #FF6B35" onclick="jiraHubAction('release-risk')"><div class="jhc-icon">🛡️</div><div class="jhc-title">Release Risk</div><div class="jhc-desc">Go/No-Go from live Jira state</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #FF6B35" onclick="jiraHubAction('release-notes')"><div class="jhc-icon">📋</div><div class="jhc-title">Release Notes Draft</div><div class="jhc-desc">Auto-draft from completed items</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #FF6B35" onclick="jiraHubAction('metrics')"><div class="jhc-icon">📊</div><div class="jhc-title">Product Health</div><div class="jhc-desc">Throughput, bug rate, flow health</div></div>
         </div>
       </div>
 
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">📄 Ticket Analysis — enter key then click</div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <!-- Ticket Analysis -->
+      <div style="margin-bottom:28px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:3px;height:14px;border-radius:2px;background:#0052CC;flex-shrink:0"></div>
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted2)">Ticket Analysis</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:9px 14px">
+          <span style="font-size:10px;font-weight:600;color:var(--muted2);white-space:nowrap">Ticket key</span>
           <input id="jira-hub-ticket" placeholder="e.g. HIP-2448"
-            style="width:160px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none"/>
-          <span style="font-size:11px;color:var(--muted2)">then click below</span>
+            style="flex:1;min-width:0;max-width:160px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none"
+            onfocus="this.style.borderColor='rgba(0,82,204,0.5)'" onblur="this.style.borderColor='var(--border2)'"/>
+          <span style="font-size:10px;color:var(--muted2)">→ then click a card below</span>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('brd')"><div class="jhc-icon">📄</div><div class="jhc-title">Write Full BRD</div><div class="jhc-desc">16-section BRD from ticket</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('ac')"><div class="jhc-icon">✍️</div><div class="jhc-title">Write AC</div><div class="jhc-desc">Full Gherkin acceptance criteria</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('test')"><div class="jhc-icon">🧪</div><div class="jhc-title">Write Test Cases</div><div class="jhc-desc">10+ test cases from ticket</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('dor')"><div class="jhc-icon">✅</div><div class="jhc-title">DoR Check</div><div class="jhc-desc">Is this ticket sprint-ready?</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('po-review')"><div class="jhc-icon">🧠</div><div class="jhc-title">PO Review</div><div class="jhc-desc">Value, gaps, recommendations</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('tech')"><div class="jhc-icon">⚙️</div><div class="jhc-title">Tech Review</div><div class="jhc-desc">Complexity, risks, SP estimate</div></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+          <div class="jira-hub-card" style="border-top:2px solid #0052CC" onclick="jiraHubTicketAction('brd')"><div class="jhc-icon">📄</div><div class="jhc-title">Write Full BRD</div><div class="jhc-desc">16-section BRD from ticket</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #0052CC" onclick="jiraHubTicketAction('ac')"><div class="jhc-icon">✍️</div><div class="jhc-title">Write AC</div><div class="jhc-desc">Full Gherkin acceptance criteria</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #0052CC" onclick="jiraHubTicketAction('test')"><div class="jhc-icon">🧪</div><div class="jhc-title">Write Test Cases</div><div class="jhc-desc">10+ test cases from ticket</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #0052CC" onclick="jiraHubTicketAction('dor')"><div class="jhc-icon">✅</div><div class="jhc-title">DoR Check</div><div class="jhc-desc">Is this ticket sprint-ready?</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #0052CC" onclick="jiraHubTicketAction('po-review')"><div class="jhc-icon">🧠</div><div class="jhc-title">PO Review</div><div class="jhc-desc">Value, gaps, recommendations</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #0052CC" onclick="jiraHubTicketAction('tech')"><div class="jhc-icon">⚙️</div><div class="jhc-title">Tech Review</div><div class="jhc-desc">Complexity, risks, SP estimate</div></div>
         </div>
       </div>
 
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🤝 Stakeholders &amp; Reporting</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubAction('exec-update')"><div class="jhc-icon">👔</div><div class="jhc-title">Executive Update</div><div class="jhc-desc">1-pager for Harry (CDO)</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('mom')"><div class="jhc-icon">📝</div><div class="jhc-title">MOM Action Items</div><div class="jhc-desc">Action table from open items</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('strategy')"><div class="jhc-icon">🎯</div><div class="jhc-title">Strategic Analysis</div><div class="jhc-desc">Themes, bets, OKR alignment</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('decision-log')"><div class="jhc-icon">🧭</div><div class="jhc-title">Decision Log</div><div class="jhc-desc">Decisions from epics and initiatives</div></div>
+      <!-- Stakeholders & Reporting -->
+      <div style="margin-bottom:28px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+          <div style="width:3px;height:14px;border-radius:2px;background:#E91E8C;flex-shrink:0"></div>
+          <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted2)">Stakeholders &amp; Reporting</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px">
+          <div class="jira-hub-card" style="border-top:2px solid #E91E8C" onclick="jiraHubAction('exec-update')"><div class="jhc-icon">👔</div><div class="jhc-title">Executive Update</div><div class="jhc-desc">1-pager for Harry (CDO)</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #E91E8C" onclick="jiraHubAction('mom')"><div class="jhc-icon">📝</div><div class="jhc-title">MOM Action Items</div><div class="jhc-desc">Action table from open items</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #E91E8C" onclick="jiraHubAction('strategy')"><div class="jhc-icon">🎯</div><div class="jhc-title">Strategic Analysis</div><div class="jhc-desc">Themes, bets, OKR alignment</div></div>
+          <div class="jira-hub-card" style="border-top:2px solid #E91E8C" onclick="jiraHubAction('decision-log')"><div class="jhc-icon">🧭</div><div class="jhc-title">Decision Log</div><div class="jhc-desc">Decisions from epics and initiatives</div></div>
         </div>
       </div>
 
@@ -29274,329 +29403,6 @@ async function jiraHubTicketAction(mode) {
   }, 1000);
 })();
 </script>
-<div id="page-jira">
-  <div class="tab-page" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 48px)">
-
-    <!-- Header -->
-    <div style="padding:12px 20px;border-bottom:1px solid var(--border2);background:var(--bg2);display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <div>
-        <h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">
-          🔗 Jira Intelligence Hub
-          <span id="jira-conn-badge" style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:rgba(107,114,128,0.15);color:var(--muted2);border:0.5px solid var(--border2)">Not connected</span>
-        </h2>
-        <p style="font-size:11px;color:var(--muted2);margin-top:2px">Configure once — every feature gets live Jira data</p>
-      </div>
-      <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
-        <select id="jira-hub-proj" onchange="localStorage.setItem('jd_proj',this.value)"
-          style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:5px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none">
-          <optgroup label="Harbour Platform">
-            <option value="HEA">HEA — Hello Aldar</option>
-            <option value="HIP" selected>HIP — Harbour - Linkon</option>
-            <option value="HRB">HRB — Digital Futures Harbour</option>
-            <option value="HUP">HUP — Harbour - Mirros</option>
-            <option value="LAC">LAC — Live Aldar Community Experience - IceRidge</option>
-            <option value="LALI">LALI — Live Aldar Living In Experience</option>
-            <option value="LAP">LAP — LIVE Aldar Platform</option>
-            <option value="LAV">LAV — Live Aldar - Abu Dhabi</option>
-          </optgroup>
-          <optgroup label="GDF / Digital Futures">
-            <option value="AGAA">AGAA — AP Gateways and AI</option>
-            <option value="AGDF">AGDF — Aldar GT - Digital Future</option>
-            <option value="AGH">AGH — Aldar GDS - Hyperion</option>
-            <option value="AGHA">AGHA — Aldar GDS - ERP for AE Program</option>
-            <option value="AGHAS">AGHAS — Aldar-GDS HO Appointment System</option>
-            <option value="AGHP">AGHP — Aldar GDS - Provis P&B and HRMS Program</option>
-            <option value="AGPP">AGPP — Aldar GT - Project Pulse</option>
-            <option value="AILAB">AILAB — AI Experience Lab</option>
-            <option value="APG">APG — Aldar Projects Gateways</option>
-            <option value="ATD">ATD — Aldar Tech Debt</option>
-            <option value="CAP">CAP — Digital Futures Magnet</option>
-            <option value="DFG">DFG — GDF Initiative Gates</option>
-            <option value="DFIB">DFIB — Digital Futures - Idea Board</option>
-            <option value="DFPD">DFPD — DF – Product Development</option>
-            <option value="DFPM">DFPM — Digital Futures - Product Management</option>
-            <option value="GH">GH — GDF Hiring</option>
-            <option value="GHICWLA">GHICWLA — GDS- HarmonAIze - Integration of ChatGPT with</option>
-          </optgroup>
-          <optgroup label="Aldar Education">
-            <option value="ADB">ADB — Aldar Education - Demand Board</option>
-            <option value="ADE">ADE — AE - Design</option>
-            <option value="ADP">ADP — Aldar Education Digital Transformation Progra</option>
-            <option value="AEA">AEA — Azure Enterprise App - SSO Integration</option>
-            <option value="AEB">AEB — Project Bumblebee</option>
-            <option value="AEC">AEC — Project Nitro</option>
-            <option value="AED">AED — AE-DT-WEB</option>
-            <option value="AEF">AEF — Aldar Education: Financial Mgt Module</option>
-            <option value="AEH">AEH — Aldar Education: HCM Module</option>
-            <option value="AEI">AEI — Aldar Education - DTS Initiatives</option>
-            <option value="AEM">AEM — Aldar Education: Web</option>
-            <option value="AEN">AEN — Aldar Education Design</option>
-            <option value="AEO">AEO — Aldar Education - Oracle Initiatives</option>
-            <option value="AEPMO">AEPMO — AE EPMO</option>
-            <option value="AEPO">AEPO — Aldar Education</option>
-            <option value="AESD">AESD — Aldar Education: SIS-Data</option>
-            <option value="ASC">ASC — Aldar Education: Education Cloud Report</option>
-            <option value="EDA">EDA — Estates data analytics</option>
-            <option value="EDC">EDC — Education Cloud</option>
-            <option value="EEC">EEC — Aldar Education: Education Cloud HQ</option>
-            <option value="EPM">EPM — Aldar Education: Procurement Module</option>
-            <option value="GAEMA">GAEMA — GDS- Aldar Education Mobile Application</option>
-          </optgroup>
-          <optgroup label="Digital Products">
-            <option value="AGDA">AGDA — Aldar GDS - Digital Adoption</option>
-            <option value="ALDAR">ALDAR — Aldar GDS - Sitecore</option>
-            <option value="ANM">ANM — AE-Native mobile</option>
-            <option value="BRP">BRP — Broker Portal</option>
-            <option value="CRL">CRL — Landlord</option>
-            <option value="DAM">DAM — Live Aldar Sales Experience - Damascus</option>
-            <option value="DAR">DAR — Darna Offers</option>
-            <option value="DO">DO — Darna Operations</option>
-            <option value="DOB">DOB — Darna On-boarding</option>
-            <option value="DRCM">DRCM — GT EDARCOM</option>
-            <option value="ESC">ESC — Estates Sales Cycle</option>
-            <option value="ESMP">ESMP — ESTATES SUPER MASTER PLAN</option>
-            <option value="ESMRP">ESMRP — Estates Super Master Roadmap Plan</option>
-            <option value="ESS">ESS — Estates SFMC</option>
-            <option value="GD">GD — Darna</option>
-            <option value="GDS">GDS — GDS IT Operation/Deployment project</option>
-          </optgroup>
-          <optgroup label="Platform & Ops">
-            <option value="AGA">AGA — Aldar GDS - Atlas</option>
-            <option value="AGAS">AGAS — Aldar GDS - Aldar Salesforce</option>
-            <option value="AGCTM">AGCTM — Aldar GDS – HCM Implementation for TalentHub</option>
-            <option value="AGE">AGE — Aldar GDS - Eazyq</option>
-            <option value="AGEA">AGEA — Aldar GDS - Entity Application</option>
-            <option value="AGEEFF">AGEEFF — Aldar GDS - ERP Enhancement for Finance</option>
-            <option value="AGEFCP">AGEFCP — Aldar GDS - ERP for C2i Program</option>
-            <option value="AGETR">AGETR — Aldar GDS - Emerging Technology Radar</option>
-            <option value="AGEUS">AGEUS — Aldar GT - End-user Support</option>
-            <option value="AGIE">AGIE — Aldar GT - Infrastructure Enhancements</option>
-            <option value="AGIRSDID">AGIRSDID — Aldar GDS - ICE RIDGE-SOHO-DAMSCUS Inter-Depe</option>
-            <option value="AGIS">AGIS — Aldar GDS – IT Sec</option>
-            <option value="AGM">AGM — Aldar GT - ManageEngine</option>
-            <option value="AGME">AGME — Aldar GT – POC</option>
-            <option value="AGOS">AGOS — Aldar GT - Office Setup</option>
-            <option value="AGPA">AGPA — Aldar GDS - Procurement Automation</option>
-            <option value="AGPE">AGPE — Aldar GT - Process and Enhancements</option>
-            <option value="AGQ">AGQ — Aldar - GDS QHSE</option>
-            <option value="AGS">AGS — Aldar GDS - Sprinklr</option>
-            <option value="AGSE">AGSE — Aldar GT - Sales Event</option>
-            <option value="AGT">AGT — Aldar GDS - Teyaseer</option>
-            <option value="AGTI">AGTI — Aldar GDS-TMS Implementation</option>
-            <option value="AGV">AGV — Aldar GDS - VTS</option>
-            <option value="AGY">AGY — Aldar GDS - Yardi</option>
-            <option value="BMDP">BMDP — BIM Master Project</option>
-            <option value="BSM">BSM — BE- Service Management</option>
-            <option value="CF">CF — Cloud Foundation</option>
-            <option value="CID">CID — Cloud Infrastructure Deployment</option>
-            <option value="CLOUD">CLOUD — Cloud Services Suite Test</option>
-            <option value="COPE">COPE — Cloud Ops Platform Engineering</option>
-            <option value="COSD">COSD — Cloud Ops Service Desk</option>
-            <option value="DP">DP — Datadog Products</option>
-            <option value="GEF">GEF — GT-ERP Finance</option>
-            <option value="GEP">GEP — GT - EBS procurement</option>
-            <option value="GIO">GIO — GDS IT OPERATIONAL</option>
-            <option value="GLS">GLS — GT-Leasing Solutions</option>
-            <option value="IDP">IDP — Intelligent Data Platform</option>
-          </optgroup>
-          <optgroup label="Other">
-            <option value="A360">A360 — GDF Agile 360 (Migration)</option>
-            <option value="AAC">AAC — Agentic Aldar</option>
-            <option value="AAI">AAI — Aleria AI</option>
-            <option value="ABS">ABS — AE Business Stand Up Project</option>
-            <option value="ADIODM">ADIODM — Aldar Data Initiatives</option>
-            <option value="ADS">ADS — Aldar Data Science</option>
-            <option value="AEUM">AEUM — ArcGIS Enterprise Upgrade and Migration</option>
-            <option value="AEY">AEY — Aldar Estates-Hypercare</option>
-            <option value="AH">AH — Aldar Hospitality</option>
-            <option value="AHM">AHM — GDF - Aldar Home</option>
-            <option value="AHP">AHP — Aldar Hospitality</option>
-            <option value="AOP">AOP — ATLAS Oracle Platform</option>
-            <option value="APDT">APDT — Aldar Projects Digital Transformation</option>
-            <option value="APE">APE — ATLAS Platform Engineering</option>
-            <option value="APR">APR — Aldar project Report</option>
-            <option value="APSPD">APSPD — Aldar Projects Stakeholder Portal development</option>
-            <option value="ARD">ARD — AIP Retail Division</option>
-            <option value="ARE">ARE — Aldar Retail Management</option>
-            <option value="ARM">ARM — C2i to ARM user migration</option>
-            <option value="ASP">ASP — Diamante POD</option>
-            <option value="AT">AT — Atlas</option>
-            <option value="AVS">AVS — Aldar GDS - AVS Migration</option>
-            <option value="BI">BI — BIM</option>
-            <option value="BLOC">BLOC — Block26</option>
-            <option value="BOT">BOT — Optimus Prime - Agentic Workforce</option>
-            <option value="CHS">CHS — Megatron</option>
-            <option value="CIAM">CIAM — GDS- Customer Identity and Access Management</option>
-            <option value="CIO">CIO — CIO command center</option>
-            <option value="CM">CM — CM Initiatives</option>
-            <option value="CO">CO — CDE optimization</option>
-            <option value="COM">COM — GDS - Company Merger & Acquisition</option>
-            <option value="COP">COP — ATLAS GenAI</option>
-            <option value="CSR">CSR — Project Name: CSR</option>
-            <option value="DAS">DAS — Business Excellence</option>
-            <option value="DATA">DATA — Data Translation Team</option>
-            <option value="DEMO">DEMO — GDF Demos</option>
-            <option value="DES">DES — Design Studio</option>
-            <option value="DF">DF — Digital</option>
-            <option value="DIGITAL">DIGITAL — Optimus Prime</option>
-            <option value="DIS">DIS — District management</option>
-            <option value="DSD">DSD — Design Studio - Development</option>
-            <option value="DSGN">DSGN — Design Studio - Test</option>
-            <option value="DSIR">DSIR — Digital Sales Issue Reporting</option>
-            <option value="DSTP">DSTP — Design Studio - Test Project</option>
-            <option value="DSY">DSY — Design Systems</option>
-            <option value="EAP">EAP — Enterprise Architecture</option>
-            <option value="EB">EB — Exploration Bay</option>
-            <option value="ED">ED — Aldar Education Data layer</option>
-            <option value="EIM">EIM — GDS- Enterprise Integrations - Mulesoft</option>
-            <option value="ENA">ENA — Enterprise Architecture Planning</option>
-            <option value="EOCPE">EOCPE — Enterprise Database Offerings</option>
-            <option value="EPIO">EPIO — Embedded Product Integration Offerings</option>
-            <option value="EXC">EXC — Experience Cloud</option>
-            <option value="FAR">FAR — Farvision</option>
-            <option value="FEUEYD">FEUEYD — FSI Evolution Upgrade & Enhancements and @you</option>
-            <option value="FH">FH — Aldar GDS - Fusion HCM</option>
-            <option value="FIN">FIN — Dev Finance CI</option>
-            <option value="GAAS">GAAS — GDS - Aldar Appointment System</option>
-            <option value="GAHA">GAHA — GDS- Aldar Home Application</option>
-            <option value="GCMA">GCMA — GT - Company Merger & Acquisition</option>
-            <option value="GCMEC">GCMEC — GDS- Customer Management - Email Communicatio</option>
-            <option value="GEADSA">GEADSA — GDS- ERP Application and Databases Support an</option>
-            <option value="GER">GER — The GP&S Engine Room</option>
-            <option value="GJT">GJT — GDS Software development project</option>
-            <option value="GMMPIFD">GMMPIFD — GDS- MoEngage Marketing Platform Implementati</option>
-            <option value="GPM">GPM — GDF Product Management</option>
-            <option value="GPR">GPR — Elevate Program</option>
-            <option value="GPT">GPT — GT - Programs Tracking</option>
-            <option value="GQAES">GQAES — GDS- QHSE Application Enhancement and Support</option>
-            <option value="GRAI">GRAI — GIA Recommendations Action Items</option>
-            <option value="GSMMA">GSMMA — GDS- Sales Manager Mobile Application</option>
-            <option value="GSN">GSN — Elevate Phase II - Global Design</option>
-            <option value="GSS">GSS — GT - Sustainability Synergy</option>
-            <option value="GTMS">GTMS — Go to market sample</option>
-            <option value="GTR">GTR — GT Strateg</option>
-            <option value="GTS">GTS — GT Strategy Revamp</option>
-            <option value="HPPS">HPPS — HR Pilot Project Software</option>
-            <option value="ICE">ICE — Digital Futures - Ice Ridge</option>
-            <option value="ICS">ICS — Bee hive</option>
-            <option value="IDDQ">IDDQ — I Dynamic Data Quality</option>
-            <option value="IL">IL — Infra Label</option>
-            <option value="INA">INA — INVIDA</option>
-            <option value="IPMP">IPMP — Integrated Project Management Platform</option>
-            <option value="IS">IS — GT Scrum of Scrum</option>
-            <option value="JAA">JAA — JIRA Automation</option>
-            <option value="JD">JD — JIRA Dashboard</option>
-            <option value="JMTP">JMTP — JIRA Migration Test Project</option>
-            <option value="JS1">JS1 — JIRA Soultions</option>
-            <option value="JW">JW — Jira Workflow</option>
-            <option value="KCI">KCI — Test CI</option>
-            <option value="LAS">LAS — LSQ SF Implementation</option>
-            <option value="LDM">LDM — LSQ - Project SCALA</option>
-            <option value="LDR">LDR — Aldar GDF - Darna Program</option>
-            <option value="LIA">LIA — Living-in Experience : Bridge</option>
-            <option value="LIPT">LIPT — Living-in POD - Test</option>
-            <option value="LIT">LIT — LSQ IT</option>
-            <option value="LOADT">LOADT — Loyalty Operations Activities - Daily tasks</option>
-            <option value="LPM">LPM — Leasing Portfolio Management</option>
-            <option value="LSE">LSE — Live Aldar Servicing</option>
-            <option value="LSQD">LSQD — LSQ Digital</option>
-          </optgroup>
-        </select>
-        <button onclick="showJiraConfig()"
-          style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:6px 14px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;font-family:inherit">
-          ⚙ Configure
-        </button>
-      </div>
-    </div>
-
-    <!-- Config panel -->
-    <div id="jira-config-panel" style="display:none;padding:20px;border-bottom:1px solid var(--border2);background:var(--bg2)">
-      <div style="max-width:600px;display:flex;flex-direction:column;gap:10px">
-        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">Jira Connection — Cloudflare Proxy</div>
-        <div style="font-size:11px;background:rgba(0,200,150,0.06);border:0.5px solid rgba(0,200,150,0.2);border-radius:6px;padding:8px 12px;color:var(--muted2)">
-          ✅ <strong style="color:var(--text)">No credentials stored in browser</strong> — your Jira email and API token are set as environment variables in Vercel. Just enter your deployment URL below.
-        </div>
-        <div>
-          <label style="font-size:10px;font-weight:600;color:var(--muted2);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em">Vercel API URL</label>
-          <input id="jcfg-proxy" placeholder="https://prodmind-jira-proxy.abhinavbilla1991.workers.dev"
-            style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:7px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none;box-sizing:border-box"/>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button onclick="saveJiraHubConfig()"
-            style="background:#0052CC;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">
-            Save &amp; Test
-          </button>
-          <button onclick="document.getElementById('jira-config-panel').style.display='none'"
-            style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:6px;padding:8px 14px;font-size:11px;cursor:pointer;font-family:inherit;color:var(--text)">
-            Cancel
-          </button>
-          <span id="jcfg-status" style="font-size:11px;color:var(--muted2)"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Hub actions -->
-    <div style="flex:1;overflow-y:auto;padding:20px">
-
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🏃 Sprint &amp; Delivery</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubAction('sprint-health')"><div class="jhc-icon">🏃</div><div class="jhc-title">Sprint Health Score</div><div class="jhc-desc">Live velocity, bug rate, team capacity</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('standup')"><div class="jhc-icon">☀️</div><div class="jhc-title">Daily Standup</div><div class="jhc-desc">In-progress items formatted for team</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('forecast')"><div class="jhc-icon">🎲</div><div class="jhc-title">Delivery Forecast</div><div class="jhc-desc">Monte Carlo from real velocity data</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('week-plan')"><div class="jhc-icon">📅</div><div class="jhc-title">My Week Plan</div><div class="jhc-desc">Day-by-day PO plan from sprint items</div></div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">📋 Backlog Management</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubAction('rice')"><div class="jhc-icon">⚡</div><div class="jhc-title">RICE Score Backlog</div><div class="jhc-desc">Rank every item with RICE scoring</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('refinement')"><div class="jhc-icon">✂️</div><div class="jhc-title">Backlog Refinement</div><div class="jhc-desc">DoR check on every backlog item</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('roadmap')"><div class="jhc-icon">🗺</div><div class="jhc-title">Build Roadmap</div><div class="jhc-desc">Epics and initiatives into quarterly plan</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('north-star')"><div class="jhc-icon">⭐</div><div class="jhc-title">North Star + OKRs</div><div class="jhc-desc">Derive OKRs from backlog themes</div></div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🐛 Quality &amp; Release</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubAction('bug-triage')"><div class="jhc-icon">🔴</div><div class="jhc-title">Bug Triage</div><div class="jhc-desc">Severity, root cause, fix priority</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('release-risk')"><div class="jhc-icon">🛡</div><div class="jhc-title">Release Risk</div><div class="jhc-desc">Go/No-Go from live Jira state</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('release-notes')"><div class="jhc-icon">📋</div><div class="jhc-title">Release Notes Draft</div><div class="jhc-desc">Auto-draft from completed items</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('metrics')"><div class="jhc-icon">📊</div><div class="jhc-title">Product Health</div><div class="jhc-desc">Throughput, bug rate, flow health</div></div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">📄 Ticket Analysis — enter key then click</div>
-        <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-          <input id="jira-hub-ticket" placeholder="e.g. HIP-2448"
-            style="width:160px;background:var(--bg2);border:0.5px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);font-family:monospace;outline:none"/>
-          <span style="font-size:11px;color:var(--muted2)">then click below</span>
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('brd')"><div class="jhc-icon">📄</div><div class="jhc-title">Write Full BRD</div><div class="jhc-desc">16-section BRD from ticket</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('ac')"><div class="jhc-icon">✍️</div><div class="jhc-title">Write AC</div><div class="jhc-desc">Full Gherkin acceptance criteria</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('test')"><div class="jhc-icon">🧪</div><div class="jhc-title">Write Test Cases</div><div class="jhc-desc">10+ test cases from ticket</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('dor')"><div class="jhc-icon">✅</div><div class="jhc-title">DoR Check</div><div class="jhc-desc">Is this ticket sprint-ready?</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('po-review')"><div class="jhc-icon">🧠</div><div class="jhc-title">PO Review</div><div class="jhc-desc">Value, gaps, recommendations</div></div>
-          <div class="jira-hub-card" onclick="jiraHubTicketAction('tech')"><div class="jhc-icon">⚙️</div><div class="jhc-title">Tech Review</div><div class="jhc-desc">Complexity, risks, SP estimate</div></div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:20px">
-        <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--muted2);margin-bottom:10px">🤝 Stakeholders &amp; Reporting</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px">
-          <div class="jira-hub-card" onclick="jiraHubAction('exec-update')"><div class="jhc-icon">👔</div><div class="jhc-title">Executive Update</div><div class="jhc-desc">1-pager for Harry (CDO)</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('mom')"><div class="jhc-icon">📝</div><div class="jhc-title">MOM Action Items</div><div class="jhc-desc">Action table from open items</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('strategy')"><div class="jhc-icon">🎯</div><div class="jhc-title">Strategic Analysis</div><div class="jhc-desc">Themes, bets, OKR alignment</div></div>
-          <div class="jira-hub-card" onclick="jiraHubAction('decision-log')"><div class="jhc-icon">🧭</div><div class="jhc-title">Decision Log</div><div class="jhc-desc">Decisions from epics and initiatives</div></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
 <script>
 // ── Jira Hub Config ───────────────────────────────────────────
 function showJiraConfig() {
@@ -29604,12 +29410,9 @@ function showJiraConfig() {
   if (!panel) return;
   panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
   // Pre-fill saved values
-  var proxy = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
-  var email = (jiraConfig && jiraConfig.email) || 'abilla@aldar.com';
+  var proxy = localStorage.getItem('pm_jira_proxy') || '';
   var pe = document.getElementById('jcfg-proxy');
-  var ee = document.getElementById('jcfg-email');
   if (pe) pe.value = proxy;
-  if (ee) ee.value = email;
 }
 
 async function saveJiraHubConfig() {
@@ -29655,13 +29458,14 @@ function updateJiraConnBadge(connected, name) {
   var badge = document.getElementById('jira-conn-badge');
   if (!badge) return;
   if (connected) {
-    badge.textContent = name ? 'Connected — ' + name.split(' ')[0] : 'Connected';
+    var label = name ? 'Connected — ' + name.split(' ')[0] : 'Connected';
+    badge.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:#00C896;flex-shrink:0;display:inline-block"></span>' + label;
     badge.style.background = 'rgba(0,200,150,0.12)';
     badge.style.color = '#00C896';
     badge.style.borderColor = 'rgba(0,200,150,0.3)';
   } else {
-    badge.textContent = 'Not connected';
-    badge.style.background = 'rgba(107,114,128,0.15)';
+    badge.innerHTML = '<span style="width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0;display:inline-block"></span>Not connected';
+    badge.style.background = 'rgba(107,114,128,0.12)';
     badge.style.color = 'var(--muted2)';
     badge.style.borderColor = 'var(--border2)';
   }
