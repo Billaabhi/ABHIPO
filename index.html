@@ -29144,9 +29144,9 @@ async function jiraHubAction(action) {
       if (res.ok) {
         var data = await res.json();
         var issues = (data.issues || []);
+        var now = new Date().toISOString().split('T')[0];
+        liveData = '\n\n=== LIVE JIRA DATA (' + proj + ') — Fetched: ' + now + ' — ' + issues.length + ' issues ===\n';
         if (issues.length > 0) {
-          var now = new Date().toISOString().split('T')[0];
-          liveData = '\n\n=== LIVE JIRA DATA (' + proj + ') — Fetched: ' + now + ' — ' + issues.length + ' current open issues ===\n';
           issues.forEach(function(i) {
             var f = i.fields;
             var status   = (f.status && f.status.name) || '?';
@@ -29156,21 +29156,27 @@ async function jiraHubAction(action) {
             var assignee = (f.assignee && f.assignee.displayName) || 'Unassigned';
             liveData += i.key + ' [' + itype + '/' + prio + '/SP:' + sp + '/' + status + '] ' + f.summary + ' — ' + assignee + '\n';
           });
-          liveData += '=== END LIVE DATA ===\n';
+        } else {
+          liveData += 'No issues found for this JQL — project may have no active items matching the query.\n';
         }
+        liveData += '=== END LIVE DATA ===\n';
+      } else {
+        var errBody = '';
+        try { var eb = await res.json(); errBody = eb.error || eb.message || JSON.stringify(eb); } catch(_){}
+        if(typeof toast==='function') toast('Jira proxy returned HTTP ' + res.status + (errBody ? ': ' + errBody : '') + ' — check worker secrets', 'error');
+        console.error('jiraHubAction fetch error HTTP', res.status, errBody);
       }
     } catch(e) {
-      if(typeof toast==='function') toast('Jira fetch failed: ' + e.message + ' — check ⚙ Configure', 'error');
-      console.warn('Jira fetch failed:', e.message);
+      if(typeof toast==='function') toast('Jira fetch failed: ' + e.message, 'error');
+      console.error('jiraHubAction fetch exception:', e.message);
     }
   } else {
-    if(typeof toast==='function') toast('No Jira proxy set — click ⚙ Configure in Jira tab', 'error');
+    if(typeof toast==='function') toast('No Jira proxy set — open Jira Intel Hub → ⚙ Configure', 'error');
   }
 
-  // Guard: never send to AI without live data — Claude will hallucinate if no data is provided
+  // Guard: only block on actual fetch failure (liveData empty means HTTP error or no proxy)
   if (!liveData) {
     if (inp) inp.value = '';
-    if(typeof toast==='function') toast('No live Jira data returned — check ⚙ Configure and confirm your Worker has JIRA_EMAIL and JIRA_TOKEN secrets set.', 'error');
     return;
   }
 
