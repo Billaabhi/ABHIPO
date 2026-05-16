@@ -27536,6 +27536,8 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-ji
   // Show status
   if (jiraConfig && jiraConfig.email && jiraConfig.token && localStorage.getItem('pm_jira_proxy')) {
     setJiraStatusConnected(jiraConfig.email.split('@')[0], jiraConfig.domain || 'ebdae.atlassian.net');
+  } else if (jiraConfig && jiraConfig.configured && localStorage.getItem('pm_jira_proxy')) {
+    setJiraStatusConnected(jiraConfig.name || 'Worker Auth', jiraConfig.domain || 'ebdae.atlassian.net');
   } else if (jiraConfig && jiraConfig.email) {
     setJiraStatusCredentialsSaved(jiraConfig.domain || 'ebdae.atlassian.net', jiraConfig.email);
   } else {
@@ -29611,6 +29613,7 @@ async function saveJiraHubConfig() {
   jiraConfig = { domain: 'ebdae.atlassian.net', configured: true };
   localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
   window._jiraCache = {};
+  window._jiraCache2 = {};
 
   if(st) { st.textContent = 'Testing...'; st.style.color = 'var(--muted2)'; }
 
@@ -29619,9 +29622,13 @@ async function saveJiraHubConfig() {
     var res = await jiraFetch('/rest/api/3/myself');
     if (res && res.ok) {
       var data = await res.json();
-      var name = (data && data.displayName) || email;
+      var name = (data && data.displayName) || 'Worker Auth';
+      // Persist name so status banner survives reload
+      jiraConfig.name = name;
+      localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
       if(st) { st.textContent = '✅ Connected as ' + name; st.style.color = '#00C896'; }
       updateJiraConnBadge(true, name);
+      setJiraStatusConnected(name, jiraConfig.domain);
       setTimeout(function(){ document.getElementById('jira-config-panel').style.display='none'; }, 1500);
     } else {
       var errData = res ? await res.json().catch(function(){return {};}) : {};
