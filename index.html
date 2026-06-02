@@ -4343,6 +4343,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   <div class="nav-tab" onclick="switchTab('north-star',this)">⭐ North Star</div>
   <div class="nav-tab" onclick="switchTab('monte-carlo',this)">🎲 Forecast</div>
   <div class="nav-tab nav-tab-jira" onclick="switchTab('jira',this)" id="nav-tab-jira">🔗 Jira</div>
+  <div class="nav-tab" onclick="switchTab('intelligence',this)" id="nav-tab-intel" style="position:relative">🤖 Intelligence<span id="intel-notif-badge" style="display:none;position:absolute;top:4px;right:2px;background:#FF4757;color:#fff;border-radius:8px;font-size:7px;padding:1px 4px;font-weight:800;line-height:1.4">0</span></div>
   <div class="nav-tab" style="color:var(--accent);opacity:.6;cursor:default;font-style:italic" title="Coming soon">📓 Notion <span style="font-size:8px;background:var(--accent-l);border:0.5px solid var(--accent-m);border-radius:4px;padding:1px 5px;margin-left:3px">Soon</span></div>
 </div>
   </div>
@@ -29195,6 +29196,777 @@ window.jiraFetch = async function(path, opts) {
     var sel = document.getElementById('jira-hub-proj');
     if (sel) sel.value = localStorage.getItem('jd_proj') || 'HIP';
   }, 400);
+})();
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PRODMIND 3.0 — AI INTELLIGENCE HUB PAGE
+═══════════════════════════════════════════════════════════════ -->
+<div class="page" id="page-intelligence" style="display:none;padding:16px;max-width:1400px;margin:0 auto">
+
+  <!-- Header row -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-size:18px;font-weight:800;color:var(--text)">🤖 AI Intelligence Hub</div>
+      <div style="font-size:11px;color:var(--muted2);margin-top:2px">Proactive product intelligence — monitoring, predicting, recommending</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <select id="intel-project-sel" onchange="PM3.setProject(this.value)" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:7px;padding:6px 10px;font-size:11px;color:var(--text);font-family:inherit;outline:none;cursor:pointer">
+        <option value="HIP">HIP — Harbour Linkon</option><option value="HUP">HUP</option><option value="MIN">MIN</option><option value="BRP">BRP</option><option value="HEA">HEA</option><option value="DFG">DFG</option><option value="PAY">PAY</option><option value="ADP">ADP</option>
+      </select>
+      <button onclick="PM3.runAllWatchers()" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">⚡ Run All Watchers</button>
+      <button onclick="PM3.snapshot.capture()" style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:7px 12px;font-size:11px;cursor:pointer;color:var(--text);font-family:inherit">📸 Snapshot Now</button>
+      <span id="intel-last-run" style="font-size:10px;color:var(--muted)">Not run yet</span>
+    </div>
+  </div>
+
+  <!-- Product Health Score Hero -->
+  <div style="background:linear-gradient(135deg,rgba(108,71,255,.12),rgba(0,200,150,.08));border:0.5px solid rgba(108,71,255,.25);border-radius:14px;padding:20px 24px;margin-bottom:16px;display:flex;align-items:center;gap:32px;flex-wrap:wrap">
+    <div style="text-align:center;min-width:100px">
+      <div id="intel-health-score" style="font-size:52px;font-weight:900;color:var(--accent);line-height:1">—</div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted2);margin-top:4px">Product Health</div>
+    </div>
+    <div style="flex:1;min-width:200px">
+      <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px">
+        <div style="text-align:center"><div id="intel-del-score" style="font-size:22px;font-weight:800;color:#6C47FF">—</div><div style="font-size:9px;color:var(--muted2)">Delivery</div></div>
+        <div style="text-align:center"><div id="intel-qual-score" style="font-size:22px;font-weight:800;color:#00C896">—</div><div style="font-size:9px;color:var(--muted2)">Quality</div></div>
+        <div style="text-align:center"><div id="intel-team-score" style="font-size:22px;font-weight:800;color:#F5A623">—</div><div style="font-size:9px;color:var(--muted2)">Team</div></div>
+        <div style="text-align:center"><div id="intel-strat-score" style="font-size:22px;font-weight:800;color:#4C9AFF">—</div><div style="font-size:9px;color:var(--muted2)">Strategic</div></div>
+      </div>
+      <div id="intel-health-bar" style="height:6px;background:var(--bg3);border-radius:3px;overflow:hidden"><div id="intel-health-bar-fill" style="height:100%;width:0%;background:linear-gradient(90deg,#6C47FF,#00C896);border-radius:3px;transition:width .6s ease"></div></div>
+    </div>
+    <div id="intel-health-label" style="font-size:13px;font-weight:700;color:var(--muted2);min-width:120px">Run watchers to score</div>
+  </div>
+
+  <!-- 3-column: Alerts | Opportunities | Recommendations -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px">
+
+    <!-- Alerts -->
+    <div style="background:var(--bg2);border:0.5px solid rgba(255,71,87,.3);border-radius:12px;padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#FF4757;text-transform:uppercase;letter-spacing:.07em">🚨 Critical Alerts</div>
+        <span id="intel-alert-count" style="font-size:9px;background:rgba(255,71,87,.15);color:#FF4757;border-radius:10px;padding:2px 8px;font-weight:700">0</span>
+      </div>
+      <div id="intel-alerts-list" style="font-size:11px;color:var(--muted2);min-height:60px">
+        <div style="text-align:center;padding:20px 0;opacity:.5">Run watchers to detect risks</div>
+      </div>
+    </div>
+
+    <!-- Opportunities -->
+    <div style="background:var(--bg2);border:0.5px solid rgba(0,200,150,.3);border-radius:12px;padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#00C896;text-transform:uppercase;letter-spacing:.07em">💡 Opportunities</div>
+        <span id="intel-opp-count" style="font-size:9px;background:rgba(0,200,150,.15);color:#00C896;border-radius:10px;padding:2px 8px;font-weight:700">0</span>
+      </div>
+      <div id="intel-opps-list" style="font-size:11px;color:var(--muted2);min-height:60px">
+        <div style="text-align:center;padding:20px 0;opacity:.5">Run watchers to find quick wins</div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div style="background:var(--bg2);border:0.5px solid rgba(76,154,255,.3);border-radius:12px;padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:#4C9AFF;text-transform:uppercase;letter-spacing:.07em">🎯 Recommendations</div>
+        <span id="intel-rec-count" style="font-size:9px;background:rgba(76,154,255,.15);color:#4C9AFF;border-radius:10px;padding:2px 8px;font-weight:700">0</span>
+      </div>
+      <div id="intel-recs-list" style="font-size:11px;color:var(--muted2);min-height:60px">
+        <div style="text-align:center;padding:20px 0;opacity:.5">AI recommendations appear here</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6 Watcher Cards -->
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+
+    <div id="watcher-card-sprint" style="background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer" onclick="PM3.watchers.sprintRisk.run()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--text)">🏃 Sprint Risk Monitor</div>
+        <span id="watcher-sprint-status" style="font-size:9px;background:var(--bg3);color:var(--muted2);border-radius:6px;padding:2px 7px">Idle</span>
+      </div>
+      <div id="watcher-sprint-result" style="font-size:10px;color:var(--muted2);line-height:1.5">Velocity · Blockers · Forecast — click to run</div>
+    </div>
+
+    <div id="watcher-card-zombie" style="background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer" onclick="PM3.watchers.zombie.run()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--text)">🧟 Zombie Ticket Hunter</div>
+        <span id="watcher-zombie-status" style="font-size:9px;background:var(--bg3);color:var(--muted2);border-radius:6px;padding:2px 7px">Idle</span>
+      </div>
+      <div id="watcher-zombie-result" style="font-size:10px;color:var(--muted2);line-height:1.5">Stale tickets >7 days — click to hunt</div>
+    </div>
+
+    <div id="watcher-card-release" style="background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer" onclick="PM3.watchers.release.run()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--text)">🚀 Release Guardian</div>
+        <span id="watcher-release-status" style="font-size:9px;background:var(--bg3);color:var(--muted2);border-radius:6px;padding:2px 7px">Idle</span>
+      </div>
+      <div id="watcher-release-result" style="font-size:10px;color:var(--muted2);line-height:1.5">UAT · SIT · Critical bugs — click to assess</div>
+    </div>
+
+    <div id="watcher-card-roadmap" style="background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer" onclick="PM3.watchers.roadmap.run()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--text)">🗺️ Roadmap Drift Detector</div>
+        <span id="watcher-roadmap-status" style="font-size:9px;background:var(--bg3);color:var(--muted2);border-radius:6px;padding:2px 7px">Idle</span>
+      </div>
+      <div id="watcher-roadmap-result" style="font-size:10px;color:var(--muted2);line-height:1.5">Alignment · Scope creep · Strategic drift</div>
+    </div>
+
+    <div id="watcher-card-capacity" style="background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer" onclick="PM3.watchers.capacity.run()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--text)">👥 Team Capacity Monitor</div>
+        <span id="watcher-capacity-status" style="font-size:9px;background:var(--bg3);color:var(--muted2);border-radius:6px;padding:2px 7px">Idle</span>
+      </div>
+      <div id="watcher-capacity-result" style="font-size:10px;color:var(--muted2);line-height:1.5">Overload · WIP · Single points of failure</div>
+    </div>
+
+    <div id="watcher-card-opportunity" style="background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:12px;cursor:pointer" onclick="PM3.watchers.opportunity.run()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--text)">💎 Opportunity Engine</div>
+        <span id="watcher-opportunity-status" style="font-size:9px;background:var(--bg3);color:var(--muted2);border-radius:6px;padding:2px 7px">Idle</span>
+      </div>
+      <div id="watcher-opportunity-result" style="font-size:10px;color:var(--muted2);line-height:1.5">Quick wins · Feature demand · Revenue signals</div>
+    </div>
+  </div>
+
+  <!-- Product Pulse + Executive Summary (side by side) -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+
+    <!-- Product Pulse -->
+    <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <div style="font-size:11px;font-weight:700;color:var(--text)">📡 Product Pulse</div>
+        <button onclick="PM3.pulse.generate()" style="background:var(--accent-l);border:0.5px solid var(--accent-m);color:var(--accent);border-radius:6px;padding:3px 10px;font-size:10px;cursor:pointer;font-family:inherit;font-weight:600">Generate</button>
+      </div>
+      <div id="intel-pulse-content" style="font-size:11px;color:var(--muted2);line-height:1.6;min-height:80px">
+        <div style="text-align:center;padding:24px 0;opacity:.5">Daily intelligence digest — click Generate</div>
+      </div>
+    </div>
+
+    <!-- Executive Summary -->
+    <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+        <div style="font-size:11px;font-weight:700;color:var(--text)">👔 Executive Summary</div>
+        <div style="display:flex;gap:4px">
+          <button onclick="PM3.exec.generate('CEO')" style="background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);border-radius:5px;padding:2px 8px;font-size:9px;cursor:pointer;font-family:inherit" id="exec-btn-CEO">CEO</button>
+          <button onclick="PM3.exec.generate('CDO')" style="background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);border-radius:5px;padding:2px 8px;font-size:9px;cursor:pointer;font-family:inherit" id="exec-btn-CDO">CDO</button>
+          <button onclick="PM3.exec.generate('CTO')" style="background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);border-radius:5px;padding:2px 8px;font-size:9px;cursor:pointer;font-family:inherit" id="exec-btn-CTO">CTO</button>
+          <button onclick="PM3.exec.generate('PO')" style="background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);border-radius:5px;padding:2px 8px;font-size:9px;cursor:pointer;font-family:inherit" id="exec-btn-PO">PO</button>
+        </div>
+      </div>
+      <div id="intel-exec-content" style="font-size:11px;color:var(--muted2);line-height:1.6;min-height:80px">
+        <div style="text-align:center;padding:24px 0;opacity:.5">Select a view to generate executive summary</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Snapshot Timeline + Change History -->
+  <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--text)">📸 Snapshot Timeline <span style="font-size:9px;font-weight:400;color:var(--muted2)">(auto every 15 min while tab is open)</span></div>
+      <button onclick="PM3.snapshot.renderHistory()" style="background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);border-radius:6px;padding:3px 10px;font-size:10px;cursor:pointer;font-family:inherit">Refresh</button>
+    </div>
+    <div id="intel-snapshot-timeline" style="font-size:10px;color:var(--muted2);display:flex;gap:6px;flex-wrap:wrap;min-height:32px">
+      <span style="opacity:.5">No snapshots yet — run a watcher or click Snapshot Now</span>
+    </div>
+    <div id="intel-change-log" style="margin-top:10px;font-size:10px;color:var(--muted2);max-height:120px;overflow-y:auto"></div>
+  </div>
+
+  <!-- Notification Center -->
+  <div style="background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:14px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:11px;font-weight:700;color:var(--text)">🔔 Notification Centre</div>
+      <button onclick="PM3.notify.clearAll()" style="background:var(--bg3);border:0.5px solid var(--border2);color:var(--muted2);border-radius:6px;padding:3px 10px;font-size:10px;cursor:pointer;font-family:inherit">Clear All</button>
+    </div>
+    <div id="intel-notif-list" style="font-size:11px;color:var(--muted2);min-height:40px">
+      <div style="text-align:center;padding:12px 0;opacity:.5">No notifications yet</div>
+    </div>
+  </div>
+
+</div>
+<!-- /page-intelligence -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//  PRODMIND 3.0 — AI INTELLIGENCE ENGINE
+//  EPICs: 01 Command Center · 02 Snapshot · 03 Watchers
+//         04 Health Score · 05 Recommendations · 06 Notifications
+//         07 Memory Graph
+// ═══════════════════════════════════════════════════════════════════
+var PM3 = (function(){
+
+  var _project = localStorage.getItem('pm3_project') || 'HIP';
+  var _notifs  = JSON.parse(localStorage.getItem('pm3_notifs')||'[]');
+  var _memory  = JSON.parse(localStorage.getItem('pm3_memory')||'{}');
+  var _watIntervals = [];
+
+  // ── Helpers ────────────────────────────────────────────────────
+
+  function _setStatus(watcherKey, status, colour){
+    var el = document.getElementById('watcher-'+watcherKey+'-status');
+    if(!el) return;
+    var map = {running:'#F5A623',done:'#00C896',error:'#FF4757',idle:'var(--muted2)'};
+    el.textContent = status;
+    el.style.background = (colour||map[status]||'var(--bg3)')+'22';
+    el.style.color = colour||map[status]||'var(--muted2)';
+  }
+
+  function _setResult(watcherKey, html){
+    var el = document.getElementById('watcher-'+watcherKey+'-result');
+    if(el) el.innerHTML = html;
+  }
+
+  function _cardBorder(watcherKey, colour){
+    var el = document.getElementById('watcher-card-'+watcherKey);
+    if(el) el.style.borderColor = colour;
+  }
+
+  async function _aiStream(prompt, outputEl, systemOverride){
+    var _ak = (typeof apiKey !== 'undefined' && apiKey) || localStorage.getItem('pos_api_key') || '';
+    if(!_ak || !outputEl) return '';
+    outputEl.innerHTML = '<span class="stream-cursor"></span>';
+    var full = '';
+    try {
+      var res = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':_ak,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body: JSON.stringify({
+          model:'claude-sonnet-4-20250514', max_tokens:600, stream:true,
+          system: systemOverride || 'You are a senior product intelligence analyst. Be direct, specific, and data-driven. Use bullet points. Keep responses under 250 words.',
+          messages:[{role:'user',content:prompt}]
+        })
+      });
+      var reader=res.body.getReader(); var dec=new TextDecoder(); var buf='';
+      while(true){
+        var _r=await reader.read(); if(_r.done)break;
+        buf+=dec.decode(_r.value,{stream:true});
+        var lines=buf.split('\n'); buf=lines.pop();
+        for(var ln of lines){
+          if(!ln.startsWith('data: '))continue;
+          var d=ln.slice(6).trim(); if(d==='[DONE]'||!d)continue;
+          try{var ev=JSON.parse(d);if(ev.type==='content_block_delta'&&ev.delta?.type==='text_delta'){full+=ev.delta.text;outputEl.innerHTML=(typeof formatMsg==='function'?formatMsg(full):full.replace(/\n/g,'<br>'))+'<span class="stream-cursor"></span>';}}catch(_){}
+        }
+      }
+      outputEl.innerHTML = typeof formatMsg==='function' ? formatMsg(full) : full.replace(/\n/g,'<br>');
+    } catch(e){ outputEl.innerHTML='<span style="color:var(--red)">Error: '+e.message+'</span>'; }
+    return full;
+  }
+
+  // ── Notification Engine (EPIC 06) ──────────────────────────────
+
+  var notify = {
+    _add: function(type, title, detail, source){
+      var n = { id: Date.now(), type:type, title:title, detail:detail, source:source, ts: new Date().toLocaleTimeString() };
+      _notifs.unshift(n);
+      if(_notifs.length > 50) _notifs = _notifs.slice(0,50);
+      localStorage.setItem('pm3_notifs', JSON.stringify(_notifs));
+      notify.renderBadge();
+      notify.renderPanel();
+      if(typeof toast === 'function'){
+        var col = type==='critical'?'error':type==='warning'?'warning':'success';
+        toast(title, col);
+      }
+    },
+    critical: function(title, detail, source){ notify._add('critical',title,detail,source||'Watcher'); },
+    warning:  function(title, detail, source){ notify._add('warning', title,detail,source||'Watcher'); },
+    opportunity: function(title, detail, source){ notify._add('opportunity',title,detail,source||'Intelligence'); },
+    renderBadge: function(){
+      var badge = document.getElementById('intel-notif-badge');
+      var unread = _notifs.filter(function(n){return !n.read;}).length;
+      if(badge){ badge.style.display = unread>0?'inline':'none'; badge.textContent=unread; }
+    },
+    renderPanel: function(){
+      var el = document.getElementById('intel-notif-list');
+      if(!el || !_notifs.length){ if(el) el.innerHTML='<div style="text-align:center;padding:12px 0;opacity:.5">No notifications yet</div>'; return; }
+      var COL = {critical:'#FF4757',warning:'#F5A623',opportunity:'#00C896'};
+      el.innerHTML = _notifs.slice(0,20).map(function(n){
+        return '<div style="display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:0.5px solid var(--border)">'
+          +'<div style="width:6px;height:6px;border-radius:50%;background:'+(COL[n.type]||'#666')+';margin-top:4px;flex-shrink:0"></div>'
+          +'<div style="flex:1"><div style="font-weight:600;color:var(--text)">'+(n.title||'')+'</div>'
+          +'<div style="color:var(--muted2);font-size:10px;margin-top:1px">'+(n.detail||'')+'</div></div>'
+          +'<div style="font-size:9px;color:var(--muted);white-space:nowrap">'+n.ts+'</div></div>';
+      }).join('');
+    },
+    clearAll: function(){ _notifs=[]; localStorage.setItem('pm3_notifs','[]'); notify.renderBadge(); notify.renderPanel(); }
+  };
+
+  // ── Snapshot Engine (EPIC 02) ───────────────────────────────────
+
+  var snapshot = {
+    _key: function(proj){ return 'pm3_snap_'+(proj||_project); },
+
+    capture: async function(proj){
+      proj = proj || _project;
+      if(typeof jiraFetch !== 'function'){ toast('Jira not connected','warning'); return null; }
+      toast('📸 Capturing snapshot for '+proj+'…');
+      try {
+        var [rOpen, rDone, rBug, rAll] = await Promise.all([
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND sprint in openSprints() AND statusCategory!="Done"')+'&maxResults=100&fields=summary,status,issuetype,assignee,customfield_10028,updated'),
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND sprint in openSprints() AND statusCategory=Done')+'&maxResults=100&fields=summary,customfield_10028,updated'),
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND issuetype=Bug AND statusCategory!="Done"')+'&maxResults=50&fields=summary,priority,updated'),
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND statusCategory="In Progress"')+'&maxResults=50&fields=summary,assignee,customfield_10028,updated')
+        ]);
+        var dO=await rOpen.json(), dD=await rDone.json(), dB=await rBug.json(), dA=await rAll.json();
+        var sumSP=function(iss){ return (iss||[]).reduce(function(s,i){return s+(parseFloat(i.fields?.customfield_10028)||0);},0); };
+        var snap = {
+          ts: Date.now(),
+          project: proj,
+          open: dO.issues?.length||0,
+          done: dD.issues?.length||0,
+          bugs: dB.issues?.length||0,
+          inProgress: dA.issues?.length||0,
+          openSP: Math.round(sumSP(dO.issues)),
+          doneSP: Math.round(sumSP(dD.issues)),
+          assignees: [...new Set((dO.issues||[]).map(function(i){return i.fields?.assignee?.displayName;}).filter(Boolean))],
+          bugKeys: (dB.issues||[]).slice(0,10).map(function(i){return i.key;}),
+          openKeys: (dO.issues||[]).map(function(i){return i.key;}),
+          openIssues: (dO.issues||[]).map(function(i){return {key:i.key,summary:i.fields.summary,assignee:i.fields?.assignee?.displayName||'Unassigned',sp:i.fields?.customfield_10028||0,updated:i.fields?.updated};})
+        };
+        var history = JSON.parse(localStorage.getItem(snapshot._key(proj))||'[]');
+        history.unshift(snap);
+        if(history.length>96) history=history.slice(0,96);
+        localStorage.setItem(snapshot._key(proj), JSON.stringify(history));
+
+        // Memory graph update (EPIC 07)
+        _memory[proj] = _memory[proj]||{};
+        _memory[proj].lastSnapshot = snap;
+        _memory[proj].snapCount = (_memory[proj].snapCount||0)+1;
+        localStorage.setItem('pm3_memory', JSON.stringify(_memory));
+
+        snapshot.renderHistory();
+        snapshot.detectChanges(proj);
+        document.getElementById('intel-last-run').textContent = 'Last: '+new Date().toLocaleTimeString();
+        toast('✅ Snapshot captured — '+snap.open+' open, '+snap.bugs+' bugs','success');
+        return snap;
+      } catch(e){ toast('Snapshot error: '+e.message,'error'); return null; }
+    },
+
+    getLatest: function(proj){ var h=JSON.parse(localStorage.getItem(snapshot._key(proj||_project))||'[]'); return h[0]||null; },
+    getHistory: function(proj, n){ return JSON.parse(localStorage.getItem(snapshot._key(proj||_project))||'[]').slice(0,n||96); },
+
+    detectChanges: function(proj){
+      var h = snapshot.getHistory(proj,3);
+      if(h.length<2) return;
+      var curr=h[0], prev=h[1];
+      var changes=[];
+      if(curr.bugs > prev.bugs+2) changes.push({type:'critical', title:'Bug spike: '+prev.bugs+'→'+curr.bugs+' open bugs', detail:proj});
+      if(curr.open > prev.open+5) changes.push({type:'warning', title:'Scope growth: '+prev.open+'→'+curr.open+' open items', detail:proj});
+      if(curr.done > prev.done+3) changes.push({type:'opportunity', title:'Velocity: '+( curr.done-prev.done)+' items completed since last snapshot', detail:proj});
+      if(curr.inProgress>curr.assignees.length*2) changes.push({type:'warning', title:'High WIP: '+curr.inProgress+' items in progress for '+curr.assignees.length+' people', detail:proj});
+      changes.forEach(function(c){ notify[c.type](c.title, c.detail+' — '+new Date().toLocaleTimeString(), 'Change Detection'); });
+
+      var log = document.getElementById('intel-change-log');
+      if(log && changes.length){
+        log.innerHTML = '<div style="font-weight:600;margin-bottom:4px;color:var(--text)">Latest changes:</div>'
+          + changes.map(function(c){ return '<div style="padding:3px 0;border-bottom:0.5px solid var(--border)">'+c.title+'</div>'; }).join('');
+      }
+    },
+
+    renderHistory: function(){
+      var proj = _project;
+      var h = snapshot.getHistory(proj, 24);
+      var el = document.getElementById('intel-snapshot-timeline');
+      if(!el) return;
+      if(!h.length){ el.innerHTML='<span style="opacity:.5">No snapshots yet</span>'; return; }
+      var maxOpen=Math.max.apply(null,h.map(function(s){return s.open;}));
+      el.innerHTML = h.map(function(s,i){
+        var age = Math.round((Date.now()-s.ts)/60000);
+        var ageStr = age<60 ? age+'m ago' : Math.round(age/60)+'h ago';
+        var h_pct = maxOpen>0 ? Math.round((s.open/maxOpen)*100) : 0;
+        var col = s.bugs>5?'#FF4757':s.bugs>2?'#F5A623':'#00C896';
+        return '<div title="'+ageStr+': '+s.open+' open · '+s.done+' done · '+s.bugs+' bugs" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:default">'
+          +'<div style="width:20px;background:'+col+'33;border-radius:3px 3px 0 0;height:'+Math.max(8,h_pct*.5)+'px;border-top:2px solid '+col+'"></div>'
+          +'<div style="font-size:8px;color:var(--muted);transform:rotate(-45deg);margin-top:4px;white-space:nowrap">'+ageStr+'</div>'
+          +'</div>';
+      }).join('');
+    }
+  };
+
+  // ── Health Score Engine (EPIC 04.1) ────────────────────────────
+
+  var health = {
+    calculate: async function(proj){
+      proj = proj || _project;
+      var snap = snapshot.getLatest(proj);
+      if(!snap) snap = await snapshot.capture(proj);
+      if(!snap) return;
+
+      var total = snap.open + snap.done;
+      var completionRate = total>0 ? snap.done/total : 0;
+      var bugRate = snap.open>0 ? snap.bugs/snap.open : 0;
+      var wipRatio = snap.assignees.length>0 ? snap.inProgress/snap.assignees.length : 0;
+
+      // Delivery (0-100): completion rate
+      var delScore = Math.round(Math.min(100, completionRate*120));
+
+      // Quality (0-100): inverse bug rate
+      var qualScore = Math.round(Math.max(0, 100 - bugRate*200));
+
+      // Team (0-100): WIP per person (ideal = 2, max penalty at 5+)
+      var teamScore = Math.round(Math.max(0, 100 - Math.max(0, wipRatio-2)*20));
+
+      // Strategic (0-100): based on snapshots trend
+      var h = snapshot.getHistory(proj,5);
+      var stratScore = 70;
+      if(h.length>=3){
+        var trend = h[0].done - h[2].done;
+        stratScore = Math.min(100, Math.max(30, 70+trend*5));
+      }
+
+      var overall = Math.round(delScore*.35 + qualScore*.30 + teamScore*.20 + stratScore*.15);
+
+      // Render
+      var c=function(v){return v>=80?'#00C896':v>=60?'#F5A623':'#FF4757';};
+      var setEl=function(id,v){var e=document.getElementById(id);if(e){e.textContent=v;e.style.color=c(v);}};
+      setEl('intel-health-score',overall);
+      setEl('intel-del-score',delScore);
+      setEl('intel-qual-score',qualScore);
+      setEl('intel-team-score',teamScore);
+      setEl('intel-strat-score',stratScore);
+      var bar=document.getElementById('intel-health-bar-fill');
+      if(bar){ bar.style.width=overall+'%'; bar.style.background=overall>=80?'linear-gradient(90deg,#00C896,#4C9AFF)':overall>=60?'linear-gradient(90deg,#F5A623,#FFD93D)':'linear-gradient(90deg,#FF4757,#F5A623)'; }
+      var lbl=document.getElementById('intel-health-label');
+      if(lbl) lbl.innerHTML='<span style="color:'+c(overall)+';font-weight:800">'+(overall>=80?'Excellent 🟢':overall>=60?'Good 🔵':overall>=45?'Fair 🟡':'At Risk 🔴')+'</span><br><span style="font-size:9px;color:var(--muted2)">'+snap.open+' open · '+snap.bugs+' bugs · '+snap.assignees.length+' team</span>';
+
+      return {overall,delScore,qualScore,teamScore,stratScore,snap};
+    }
+  };
+
+  // ── Watchers (EPIC 03) ─────────────────────────────────────────
+
+  var watchers = {
+
+    sprintRisk: { run: async function(){
+      var proj=_project;
+      _setStatus('sprint','Running…','#F5A623');
+      _cardBorder('sprint','rgba(245,166,35,.4)');
+      try {
+        var snap = await snapshot.capture(proj);
+        if(!snap){ _setStatus('sprint','Error','#FF4757'); return; }
+        var scores = await health.calculate(proj);
+
+        var riskLevel = scores.overall>=75?'LOW':scores.overall>=55?'MEDIUM':'HIGH';
+        var riskColour = riskLevel==='LOW'?'#00C896':riskLevel==='MEDIUM'?'#F5A623':'#FF4757';
+        var summary = 'Open: '+snap.open+' · Done: '+snap.done+' · Bugs: '+snap.bugs+' · In Progress: '+snap.inProgress+' · Health: '+scores.overall+'/100';
+        _setStatus('sprint', riskLevel+' RISK', riskColour);
+        _cardBorder('sprint', riskColour+'44');
+        _setResult('sprint','<span style="color:'+riskColour+';font-weight:700">'+riskLevel+' RISK</span> — '+summary+'<br><span style="color:var(--muted)">Health: '+scores.overall+' · Delivery: '+scores.delScore+' · Quality: '+scores.qualScore+'</span>');
+
+        if(riskLevel==='HIGH') notify.critical('Sprint at HIGH risk: '+scores.overall+'/100 health', proj+' — velocity or quality issues detected', 'Sprint Risk Monitor');
+        else if(riskLevel==='MEDIUM') notify.warning('Sprint at MEDIUM risk: '+scores.overall+'/100 health', proj, 'Sprint Risk Monitor');
+
+        // Feed into alerts panel
+        addAlert({level:riskLevel==='HIGH'?'critical':'warning', text:'Sprint '+riskLevel.toLowerCase()+' risk — health '+scores.overall+'/100', source:'Sprint Monitor'});
+      } catch(e){ _setStatus('sprint','Error','#FF4757'); _setResult('sprint','Error: '+e.message); }
+    }},
+
+    zombie: { run: async function(){
+      var proj=_project;
+      _setStatus('zombie','Running…','#F5A623');
+      _cardBorder('zombie','rgba(245,166,35,.4)');
+      try {
+        if(typeof jiraFetch!=='function'){ _setStatus('zombie','No Jira','#FF4757'); return; }
+        // Tickets not updated in 7+ days in open states
+        var sevenDays = new Date(Date.now()-7*24*3600000).toISOString().slice(0,10);
+        var res = await jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND statusCategory!="Done" AND updated<="'+sevenDays+'" ORDER BY updated ASC')+'&maxResults=20&fields=summary,assignee,updated,status');
+        var data = await res.json();
+        var zombies = data.issues||[];
+
+        if(!zombies.length){
+          _setStatus('zombie','✅ Clean','#00C896'); _cardBorder('zombie','rgba(0,200,150,.3)');
+          _setResult('zombie','No stale tickets — all tickets updated in last 7 days 🎉');
+        } else {
+          _setStatus('zombie',zombies.length+' Found','#FF4757'); _cardBorder('zombie','rgba(255,71,87,.3)');
+          var html = '<div style="color:#FF4757;font-weight:700;margin-bottom:4px">'+zombies.length+' zombie ticket'+(zombies.length>1?'s':'')+':</div>'
+            + zombies.slice(0,5).map(function(i){
+              var daysAgo = Math.round((Date.now()-new Date(i.fields.updated))/86400000);
+              return '<div style="display:flex;justify-content:space-between;border-bottom:0.5px solid var(--border);padding:2px 0"><span style="color:var(--accent)">'+i.key+'</span><span style="color:var(--muted2);font-size:9px">'+daysAgo+'d idle · '+(i.fields?.assignee?.displayName||'Unassigned')+'</span></div>';
+            }).join('');
+          _setResult('zombie',html);
+          notify.warning(zombies.length+' zombie tickets in '+proj, 'No update for 7+ days. Top: '+zombies[0].key, 'Zombie Hunter');
+          addAlert({level:'warning',text:zombies.length+' zombie tickets ('+zombies.length+'+ days stale)',source:'Zombie Hunter'});
+        }
+      } catch(e){ _setStatus('zombie','Error','#FF4757'); _setResult('zombie','Error: '+e.message); }
+    }},
+
+    release: { run: async function(){
+      var proj=_project;
+      _setStatus('release','Running…','#F5A623');
+      _cardBorder('release','rgba(245,166,35,.4)');
+      try {
+        if(typeof jiraFetch!=='function'){ _setStatus('release','No Jira','#FF4757'); return; }
+        var [rCrit, rUAT, rSIT] = await Promise.all([
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND issuetype=Bug AND priority in (Highest,High) AND statusCategory!="Done"')+'&maxResults=10&fields=summary,priority'),
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND status in ("IN UAT","UAT","Ready for UAT")')+'&maxResults=20&fields=summary,assignee'),
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND status in ("IN SIT","SIT","SIT Done","IN SIT")')+'&maxResults=20&fields=summary,status')
+        ]);
+        var dCrit=await rCrit.json(), dUAT=await rUAT.json(), dSIT=await rSIT.json();
+        var critBugs=(dCrit.issues||[]).length, uatItems=(dUAT.issues||[]).length, sitItems=(dSIT.issues||[]).length;
+
+        var verdict = critBugs===0 ? 'GO 🟢' : critBugs<=2 ? 'CONDITIONAL GO 🟡' : 'NO GO 🔴';
+        var vCol = critBugs===0?'#00C896':critBugs<=2?'#F5A623':'#FF4757';
+        _setStatus('release',verdict,vCol); _cardBorder('release',vCol+'44');
+        _setResult('release','<span style="color:'+vCol+';font-weight:700">'+verdict+'</span> — '
+          +critBugs+' critical bugs · '+uatItems+' in UAT · '+sitItems+' in SIT');
+
+        if(critBugs>2) notify.critical('NO GO: '+critBugs+' critical bugs blocking '+proj, 'Release Guardian assessment', 'Release Guardian');
+        addAlert({level:critBugs>2?'critical':critBugs>0?'warning':'ok', text:'Release: '+verdict+' ('+critBugs+' critical bugs)', source:'Release Guardian'});
+      } catch(e){ _setStatus('release','Error','#FF4757'); _setResult('release','Error: '+e.message); }
+    }},
+
+    roadmap: { run: async function(){
+      var proj=_project;
+      _setStatus('roadmap','Running…','#F5A623');
+      _cardBorder('roadmap','rgba(245,166,35,.4)');
+      try {
+        if(typeof jiraFetch!=='function'){ _setStatus('roadmap','No Jira','#FF4757'); return; }
+        var [rEpic, rSprint] = await Promise.all([
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND issuetype=Epic AND statusCategory!="Done"')+'&maxResults=20&fields=summary,status,customfield_10014'),
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND sprint in openSprints() AND issuetype not in (Epic,Sub-task)')+'&maxResults=50&fields=summary,issuetype,customfield_10014')
+        ]);
+        var dEpic=await rEpic.json(), dSprint=await rSprint.json();
+        var epics=(dEpic.issues||[]), sprintItems=(dSprint.issues||[]);
+        var epicKeys=new Set(epics.map(function(e){return e.key;}));
+        var orphaned=sprintItems.filter(function(i){return !i.fields?.customfield_10014 || !epicKeys.has(i.fields.customfield_10014);});
+        var alignPct = sprintItems.length>0 ? Math.round(((sprintItems.length-orphaned.length)/sprintItems.length)*100) : 100;
+        var col = alignPct>=80?'#00C896':alignPct>=60?'#F5A623':'#FF4757';
+        _setStatus('roadmap',alignPct+'% Aligned',col); _cardBorder('roadmap',col+'44');
+        _setResult('roadmap','<span style="color:'+col+';font-weight:700">'+alignPct+'% aligned</span> — '
+          +sprintItems.length+' sprint items · '+epics.length+' epics · '+orphaned.length+' orphaned items');
+        if(alignPct<60) notify.warning('Roadmap drift: only '+alignPct+'% of sprint items linked to epics', proj, 'Roadmap Drift Detector');
+        addAlert({level:alignPct<60?'warning':'ok', text:'Roadmap alignment: '+alignPct+'% ('+orphaned.length+' items unlinked)', source:'Roadmap Drift'});
+      } catch(e){ _setStatus('roadmap','Error','#FF4757'); _setResult('roadmap','Error: '+e.message); }
+    }},
+
+    capacity: { run: async function(){
+      var proj=_project;
+      _setStatus('capacity','Running…','#F5A623');
+      _cardBorder('capacity','rgba(245,166,35,.4)');
+      try {
+        if(typeof jiraFetch!=='function'){ _setStatus('capacity','No Jira','#FF4757'); return; }
+        var res = await jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND sprint in openSprints() AND statusCategory!="Done"')+'&maxResults=100&fields=assignee,customfield_10028,status');
+        var data = await res.json();
+        var issues = data.issues||[];
+        var byPerson={};
+        issues.forEach(function(i){
+          var name=i.fields?.assignee?.displayName||'Unassigned';
+          byPerson[name]=byPerson[name]||{count:0,sp:0};
+          byPerson[name].count++;
+          byPerson[name].sp+=parseFloat(i.fields?.customfield_10028)||0;
+        });
+        var people=Object.entries(byPerson).sort(function(a,b){return b[1].sp-a[1].sp;});
+        var overloaded=people.filter(function(p){return p[1].count>5;});
+        var unassigned=(byPerson['Unassigned']||{}).count||0;
+        var col=overloaded.length>0?'#F5A623':'#00C896';
+        _setStatus('capacity',people.length+' Members',col); _cardBorder('capacity',col+'44');
+        var html='<div style="color:'+col+';font-weight:700;margin-bottom:4px">'+people.length+' team members · '+overloaded.length+' overloaded</div>'
+          +people.slice(0,4).map(function(p){
+            var load=p[1].count;
+            var bar=Math.min(100,load*10);
+            var bc=load>5?'#FF4757':load>3?'#F5A623':'#00C896';
+            return '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">'
+              +'<div style="font-size:9px;width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+p[0].split(' ')[0]+'</div>'
+              +'<div style="flex:1;height:4px;background:var(--bg3);border-radius:2px"><div style="height:100%;width:'+bar+'%;background:'+bc+';border-radius:2px"></div></div>'
+              +'<div style="font-size:9px;color:var(--muted2);width:30px">'+load+' items</div></div>';
+          }).join('');
+        if(unassigned>3) html+='<div style="color:#F5A623;font-size:9px;margin-top:4px">⚠ '+unassigned+' unassigned items</div>';
+        _setResult('capacity',html);
+        if(overloaded.length>0) notify.warning(overloaded.length+' overloaded team members in '+proj, overloaded.map(function(p){return p[0].split(' ')[0]+'('+p[1].count+')';}).join(', '), 'Capacity Monitor');
+        addRecommendation({priority:overloaded.length>0?'high':'low', text:'Rebalance: '+overloaded.length+' overloaded members — redistribute to others', source:'Capacity Monitor'});
+      } catch(e){ _setStatus('capacity','Error','#FF4757'); _setResult('capacity','Error: '+e.message); }
+    }},
+
+    opportunity: { run: async function(){
+      var proj=_project;
+      _setStatus('opportunity','Running…','#F5A623');
+      _cardBorder('opportunity','rgba(245,166,35,.4)');
+      try {
+        if(typeof jiraFetch!=='function'){ _setStatus('opportunity','No Jira','#FF4757'); return; }
+        var [rSmall, rHigh] = await Promise.all([
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND statusCategory="To Do" AND (story_points<=3 OR sp<=3 OR customfield_10028<=3) ORDER BY priority DESC')+'&maxResults=20&fields=summary,priority,customfield_10028'),
+          jiraFetch('/search?jql='+encodeURIComponent('project='+proj+' AND statusCategory="To Do" AND priority in (Highest,High) ORDER BY priority DESC')+'&maxResults=20&fields=summary,priority,customfield_10028,votes')
+        ]);
+        var dSmall=await rSmall.json(), dHigh=await rHigh.json();
+        var quickWins=(dSmall.issues||[]).filter(function(i){return (parseFloat(i.fields?.customfield_10028)||0)<=3;});
+        var highVal=(dHigh.issues||[]);
+
+        _setStatus('opportunity',quickWins.length+' Quick Wins','#00C896'); _cardBorder('opportunity','rgba(0,200,150,.3)');
+        var html='<div style="color:#00C896;font-weight:700;margin-bottom:4px">'+quickWins.length+' quick wins · '+highVal.length+' high value items</div>';
+        html+=quickWins.slice(0,3).map(function(i){return '<div style="display:flex;justify-content:space-between;padding:2px 0;border-bottom:0.5px solid var(--border)"><span style="color:var(--accent)">'+i.key+'</span><span style="font-size:9px;color:var(--muted2)">'+(i.fields?.customfield_10028||'?')+'SP · '+(i.fields?.priority?.name||'?')+'</span></div>';}).join('');
+        _setResult('opportunity',html);
+
+        quickWins.slice(0,3).forEach(function(i){ addOpportunity({text:'Quick win: '+i.key+' — '+i.fields.summary.slice(0,50), impact:'Low effort, fast delivery', source:'Opportunity Engine'}); });
+        if(highVal.length>5) notify.opportunity(highVal.length+' high-value items waiting in backlog', proj+' — potential sprint candidates', 'Opportunity Engine');
+      } catch(e){ _setStatus('opportunity','Error','#FF4757'); _setResult('opportunity','Error: '+e.message); }
+    }}
+  };
+
+  // ── Alert / Opportunity / Recommendation Panels ────────────────
+
+  var _alerts=[], _opps=[], _recs=[];
+
+  function addAlert(item){
+    _alerts.unshift(item);
+    if(_alerts.length>20) _alerts=_alerts.slice(0,20);
+    renderAlerts();
+  }
+  function addOpportunity(item){
+    _opps.unshift(item);
+    if(_opps.length>20) _opps=_opps.slice(0,20);
+    renderOpps();
+  }
+  function addRecommendation(item){
+    _recs.unshift(item);
+    if(_recs.length>20) _recs=_recs.slice(0,20);
+    renderRecs();
+  }
+  function renderAlerts(){
+    var el=document.getElementById('intel-alerts-list');
+    var cnt=document.getElementById('intel-alert-count');
+    if(!el) return;
+    var active=_alerts.filter(function(a){return a.level!=='ok';});
+    if(cnt) cnt.textContent=active.length;
+    if(!active.length){el.innerHTML='<div style="text-align:center;padding:16px 0;opacity:.5;font-size:10px">✅ No active alerts</div>';return;}
+    var COL={critical:'#FF4757',warning:'#F5A623',ok:'#00C896'};
+    el.innerHTML=active.slice(0,8).map(function(a){return '<div style="display:flex;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);align-items:flex-start"><div style="width:5px;height:5px;border-radius:50%;background:'+(COL[a.level]||'#666')+';margin-top:4px;flex-shrink:0"></div><div><div style="color:var(--text);font-weight:500">'+a.text+'</div><div style="font-size:9px;color:var(--muted2)">'+a.source+'</div></div></div>';}).join('');
+  }
+  function renderOpps(){
+    var el=document.getElementById('intel-opps-list');
+    var cnt=document.getElementById('intel-opp-count');
+    if(!el) return;
+    if(cnt) cnt.textContent=_opps.length;
+    if(!_opps.length){el.innerHTML='<div style="text-align:center;padding:16px 0;opacity:.5;font-size:10px">Run Opportunity Engine to find wins</div>';return;}
+    el.innerHTML=_opps.slice(0,6).map(function(o){return '<div style="padding:5px 0;border-bottom:0.5px solid var(--border)"><div style="color:var(--text);font-weight:500">'+o.text+'</div><div style="font-size:9px;color:var(--muted2)">'+o.impact+' · '+o.source+'</div></div>';}).join('');
+  }
+  function renderRecs(){
+    var el=document.getElementById('intel-recs-list');
+    var cnt=document.getElementById('intel-rec-count');
+    if(!el) return;
+    if(cnt) cnt.textContent=_recs.length;
+    if(!_recs.length){el.innerHTML='<div style="text-align:center;padding:16px 0;opacity:.5;font-size:10px">AI recommendations appear after watchers run</div>';return;}
+    var PCOL={high:'#FF4757',medium:'#F5A623',low:'#00C896'};
+    el.innerHTML=_recs.slice(0,6).map(function(r){return '<div style="display:flex;gap:8px;padding:5px 0;border-bottom:0.5px solid var(--border);align-items:flex-start"><div style="font-size:8px;font-weight:700;color:'+(PCOL[r.priority]||'#666')+';margin-top:1px;white-space:nowrap">'+(r.priority||'').toUpperCase()+'</div><div><div style="color:var(--text);font-weight:500">'+r.text+'</div><div style="font-size:9px;color:var(--muted2)">'+r.source+'</div></div></div>';}).join('');
+  }
+
+  // ── Product Pulse (EPIC 04.2) ───────────────────────────────────
+
+  var pulse = {
+    generate: async function(){
+      var proj=_project;
+      var el=document.getElementById('intel-pulse-content');
+      if(!el) return;
+      var snap=snapshot.getLatest(proj);
+      if(!snap){ snap=await snapshot.capture(proj); }
+      if(!snap){ el.innerHTML='<span style="color:var(--red)">Connect Jira first</span>'; return; }
+      var prompt='Generate a concise daily product pulse for '+proj+'.\n\nLive data:\n- Open sprint items: '+snap.open+' ('+snap.openSP+' SP remaining)\n- Completed: '+snap.done+' ('+snap.doneSP+' SP done)\n- Open bugs: '+snap.bugs+'\n- Team size: '+snap.assignees.length+'\n- In Progress: '+snap.inProgress+'\n\nAlerts today: '+_alerts.filter(function(a){return a.level!=='ok';}).length+'\nOpportunities: '+_opps.length+'\n\nFormat as:\n📈 What improved\n📉 What declined\n⚠️ What needs attention\n✅ Recommended actions (3 max)\n\nBe specific, use the numbers. Under 200 words.';
+      await _aiStream(prompt, el);
+      // Save to memory
+      _memory[proj]=_memory[proj]||{};
+      _memory[proj].lastPulse={ts:Date.now(),alerts:_alerts.length,opps:_opps.length};
+      localStorage.setItem('pm3_memory',JSON.stringify(_memory));
+    }
+  };
+
+  // ── Executive Summary (EPIC 01.2) ──────────────────────────────
+
+  var exec = {
+    generate: async function(view){
+      var proj=_project;
+      var el=document.getElementById('intel-exec-content');
+      if(!el) return;
+      ['CEO','CDO','CTO','PO'].forEach(function(v){
+        var btn=document.getElementById('exec-btn-'+v);
+        if(btn) btn.style.background=v===view?'var(--accent)':'var(--bg3)', btn.style.color=v===view?'#fff':'var(--muted2)';
+      });
+      var snap=snapshot.getLatest(proj);
+      if(!snap){ snap=await snapshot.capture(proj); }
+      if(!snap){ el.innerHTML='<span style="color:var(--red)">Connect Jira first</span>'; return; }
+
+      var personas={
+        CEO:'Focus on business risk, revenue impact, strategic alignment. Non-technical. Use £/$ numbers where possible. No jargon.',
+        CDO:'Focus on digital delivery, platform maturity, technical risk, team performance. Balance technical and business language.',
+        CTO:'Focus on technical debt, architecture risks, engineering velocity, quality metrics. Technical audience.',
+        PO:'Focus on sprint health, backlog priorities, customer value, team capacity. Tactical and actionable.'
+      };
+      var prompt='Generate a '+view+' executive summary for product '+proj+'.\n\nAudience instruction: '+personas[view]+'\n\nData:\n- Sprint: '+snap.open+' open ('+snap.openSP+' SP), '+snap.done+' done ('+snap.doneSP+' SP)\n- Bugs: '+snap.bugs+' open\n- Team: '+snap.assignees.length+' people\n- Active alerts: '+_alerts.filter(function(a){return a.level==='critical';}).length+' critical, '+_alerts.filter(function(a){return a.level==='warning';}).length+' warnings\n- Quick wins available: '+_opps.length+'\n\nFormat as:\n## Status: [RAG]\n**Risks:** (2-3 bullets)\n**Progress:** (2-3 bullets)\n**Opportunities:** (1-2 bullets)\n**Ask/Decision needed:** (1 item)\n\nUnder 200 words. Be specific to the '+view+' audience.';
+      await _aiStream(prompt, el);
+    }
+  };
+
+  // ── Run All Watchers ───────────────────────────────────────────
+
+  async function runAllWatchers(){
+    toast('⚡ Running all 6 watchers for '+_project+'…');
+    _alerts=[]; _opps=[]; _recs=[];
+    renderAlerts(); renderOpps(); renderRecs();
+    await Promise.all([
+      watchers.sprintRisk.run(),
+      watchers.zombie.run(),
+      watchers.release.run(),
+      watchers.roadmap.run(),
+      watchers.capacity.run(),
+      watchers.opportunity.run()
+    ]);
+    await health.calculate(_project);
+    document.getElementById('intel-last-run').textContent='Last run: '+new Date().toLocaleTimeString();
+    notify.opportunity('All watchers completed for '+_project, _alerts.filter(function(a){return a.level!=='ok';}).length+' alerts · '+_opps.length+' opportunities', 'Intelligence Hub');
+  }
+
+  // ── Auto-schedule watchers (30 min intervals while tab open) ───
+
+  function startWatchers(){
+    _watIntervals.forEach(clearInterval);
+    _watIntervals=[];
+    // Snapshot every 15 min
+    _watIntervals.push(setInterval(function(){ if(typeof jiraFetch==='function') snapshot.capture(); }, 900000));
+    // Sprint risk every 30 min
+    _watIntervals.push(setInterval(function(){ if(typeof jiraFetch==='function') watchers.sprintRisk.run(); }, 1800000));
+    // Zombie + capacity every 60 min
+    _watIntervals.push(setInterval(function(){ if(typeof jiraFetch==='function'){ watchers.zombie.run(); watchers.capacity.run(); } }, 3600000));
+  }
+
+  // ── switchTab hook: init on first open ─────────────────────────
+  (function(){
+    var _os=window.switchTab;
+    if(!_os) return;
+    window.switchTab=function(tab,el){
+      _os(tab,el);
+      if(tab==='intelligence'){
+        var sel=document.getElementById('intel-project-sel');
+        if(sel) sel.value=_project;
+        snapshot.renderHistory();
+        notify.renderPanel();
+        notify.renderBadge();
+      }
+    };
+  })();
+
+  function setProject(proj){
+    _project=proj;
+    localStorage.setItem('pm3_project',proj);
+    _alerts=[]; _opps=[]; _recs=[];
+    renderAlerts(); renderOpps(); renderRecs();
+    snapshot.renderHistory();
+  }
+
+  // ── Init ────────────────────────────────────────────────────────
+  (function init(){
+    notify.renderBadge();
+    startWatchers();
+  })();
+
+  return {
+    snapshot: snapshot,
+    health:   health,
+    watchers: watchers,
+    notify:   notify,
+    pulse:    pulse,
+    exec:     exec,
+    runAllWatchers: runAllWatchers,
+    setProject: setProject,
+    addAlert: addAlert,
+    addOpportunity: addOpportunity,
+    addRecommendation: addRecommendation
+  };
+
 })();
 </script></body>
 </html>
