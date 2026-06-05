@@ -27576,94 +27576,86 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
 <!-- ══ POD DASHBOARD PAGE ══════════════════════════════════════ -->
 <div class="page" id="page-pod-dashboard">
   <div style="display:flex;flex-direction:column;height:calc(100vh - 96px)">
-    <!-- Header -->
+    <!-- Header with POD Dropdown -->
     <div style="padding:20px 32px;border-bottom:1px solid var(--border2);background:linear-gradient(135deg,var(--bg2) 0%,rgba(108,71,255,0.04) 100%);box-shadow:0 1px 3px rgba(0,0,0,0.08)">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px">
         <div>
-          <h2 style="font-size:18px;font-weight:800;margin:0;color:var(--text);letter-spacing:-0.3px">📊 Aldar Product Portfolio</h2>
-          <p style="font-size:11px;color:var(--muted2);margin:4px 0 0">Multi-POD Intelligence Dashboard — Real-time metrics</p>
+          <h2 style="font-size:18px;font-weight:800;margin:0;color:var(--text);letter-spacing:-0.3px">📊 POD Sprint Dashboard — Elite View</h2>
+          <p style="font-size:11px;color:var(--muted2);margin:4px 0 0">Sprint Progress • Initiatives • Epics • Team Assignments — Live Jira Data</p>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <span id="pod-refresh-status" style="font-size:10px;color:var(--muted2)">⟳ Last updated: Just now</span>
-          <button onclick="refreshPODDashboard()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:7px 14px;font-size:11px;font-weight:600;color:var(--text);cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='var(--bg4)'" onmouseout="this.style.background='var(--bg3)'">🔄 Refresh</button>
+          <span id="pod-refresh-status" style="font-size:10px;color:var(--muted2)">⟳ Updating...</span>
+          <button onclick="refreshPODDashboard()" style="background:#6C47FF;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#5A3DD9'" onmouseout="this.style.background='#6C47FF'">🔄 Refresh Live Data</button>
         </div>
+      </div>
+      <!-- POD Dropdown Selector -->
+      <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+        <label style="font-size:11px;font-weight:700;color:var(--text)">Select POD:</label>
+        <select id="pod-selector" onchange="onPODSelected()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--text);cursor:pointer;font-family:inherit;min-width:180px">
+          <option value="">🌍 All PODs (Portfolio View)</option>
+          <option value="HIP">🏝️ HIP — Harbour Innovation Platform</option>
+          <option value="ADE">📚 ADE — Aldar Education</option>
+          <option value="AGDF">🚀 AGDF — Digital Futures</option>
+          <option value="AGEA">💳 AGEA — Entity Application</option>
+        </select>
+        <span id="pod-status-badge" style="font-size:10px;padding:4px 10px;border-radius:6px;background:var(--bg3);color:var(--muted2);font-weight:600">Loading data...</span>
       </div>
     </div>
 
     <!-- Main Content (Scrollable) -->
-    <div style="flex:1;overflow-y:auto;padding:24px 32px 40px">
-      <!-- Executive Summary -->
-      <div style="margin-bottom:32px">
+    <div style="flex:1;overflow-y:auto;padding:24px 32px 40px" id="pod-main-content">
+      <!-- Sprint Summary Card -->
+      <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-          <div style="width:4px;height:18px;border-radius:2px;background:#6C47FF;box-shadow:0 2px 8px rgba(108,71,255,0.25)"></div>
-          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">📊 Portfolio Capacity</span>
+          <div style="width:4px;height:20px;border-radius:2px;background:#6C47FF"></div>
+          <span style="font-size:13px;font-weight:800;color:var(--text)">SPRINT SUMMARY</span>
+          <span id="sprint-name-badge" style="font-size:10px;padding:4px 10px;border-radius:6px;background:var(--accent-l);color:var(--accent);font-weight:600">Loading...</span>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:20px">
-          <!-- Portfolio Util Card -->
-          <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px;box-shadow:0 2px 4px rgba(0,0,0,0.04)">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">📊</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2)">Portfolio Utilization</div></div>
-            <div style="font-size:32px;font-weight:800;color:var(--text);margin-bottom:4px" id="pod-health-score">84</div>
-            <div style="font-size:10px;color:var(--muted2);margin-bottom:8px">% — Balanced</div>
-            <div style="display:flex;gap:8px;font-size:9px;color:var(--muted2)"><span>Teams: 4</span><span>•</span><span>Engineers: 18</span></div>
-          </div>
-          <!-- Capacity Available Card -->
-          <div style="background:var(--bg2);border:1px solid rgba(0,200,150,0.2);border-radius:12px;padding:16px;background:linear-gradient(135deg,rgba(0,200,150,0.08) 0%,transparent 100%)">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">✓</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#00C896">Available Capacity</div></div>
-            <div style="font-size:24px;font-weight:800;color:#00C896;margin-bottom:4px">23 pts</div>
-            <div style="font-size:10px;color:var(--muted2)">Can take from overflow teams</div>
-            <div style="display:flex;gap:8px;font-size:9px;color:var(--muted2);margin-top:8px"><span>ADE: 8pts</span><span>•</span><span>HIP: 4pts</span><span>•</span><span>+others</span></div>
-          </div>
-          <!-- Overload Alert Card -->
-          <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">🔴</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2)">Overload Alerts</div></div>
-            <div style="display:flex;gap:12px;margin-bottom:8px">
-              <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#FF4757">2</div><div style="font-size:9px;color:var(--muted2)">Critical (100%)</div></div>
-              <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#F5A623">2</div><div style="font-size:9px;color:var(--muted2)">Warning (90%+)</div></div>
-              <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#00C896">14</div><div style="font-size:9px;color:var(--muted2)">Healthy</div></div>
-            </div>
-          </div>
-          <!-- Blockers Card -->
-          <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">⏸️</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2)">Cross-POD Blockers</div></div>
-            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">2 blocking tasks</div>
-            <div style="font-size:9px;color:var(--muted2)">5 teams waiting for unblock</div>
-            <div style="margin-top:8px;padding:8px;background:var(--bg3);border-radius:6px;font-size:9px;color:var(--muted2)">AGDF-234 (day 6/8) blocking HIP, ADE</div>
-          </div>
-        </div>
+        <div id="sprint-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px"></div>
       </div>
 
-      <!-- Team Capacity Section -->
-      <div style="margin-bottom:32px">
+      <!-- Epics Tracking -->
+      <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-          <div style="width:4px;height:18px;border-radius:2px;background:#0052CC;box-shadow:0 2px 8px rgba(0,82,204,0.25)"></div>
-          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">📊 Team Capacity Heatmap</span>
+          <div style="width:4px;height:20px;border-radius:2px;background:#FF6B35"></div>
+          <span style="font-size:13px;font-weight:800;color:var(--text)">EPICS IN PROGRESS</span>
+          <span id="epic-count-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,107,53,0.2);color:#FF6B35;font-weight:600">0 active</span>
         </div>
-        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px">
-          <div id="pod-quality-table" style="font-size:10px;line-height:1.8"></div>
-        </div>
+        <div id="epics-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px"></div>
       </div>
 
-      <!-- Engineer Workload & Available Capacity -->
-      <div style="margin-bottom:32px">
+      <!-- Initiatives & Work -->
+      <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-          <div style="width:4px;height:18px;border-radius:2px;background:#FF6B35;box-shadow:0 2px 8px rgba(255,107,53,0.25)"></div>
-          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">👥 Engineer Capacity & Availability</span>
+          <div style="width:4px;height:20px;border-radius:2px;background:#00C896"></div>
+          <span style="font-size:13px;font-weight:800;color:var(--text)">INITIATIVES & ROADMAP</span>
+          <span id="init-count-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(0,200,150,0.2);color:#00C896;font-weight:600">0 items</span>
         </div>
-        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px;overflow-x:auto">
-          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px">Sorted by Available Capacity (highest first)</div>
-          <canvas id="pod-velocity-chart" height="250"></canvas>
-        </div>
+        <div id="initiatives-container" style="display:flex;flex-direction:column;gap:10px"></div>
       </div>
 
-      <!-- Resource Allocation Alerts -->
-      <div style="margin-bottom:32px">
+      <!-- Team Assignments & Load -->
+      <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-          <div style="width:4px;height:18px;border-radius:2px;background:#E91E8C;box-shadow:0 2px 8px rgba(233,30,140,0.25)"></div>
-          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">⚠️ Capacity Red Flags — Action Needed</span>
+          <div style="width:4px;height:20px;border-radius:2px;background:#4C9AFF"></div>
+          <span style="font-size:13px;font-weight:800;color:var(--text)">TEAM ASSIGNMENTS & WORKLOAD</span>
         </div>
-        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px">
-          <div id="pod-risk-table" style="font-size:10px;line-height:1.8"></div>
+        <div id="assignments-container" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
+      <!-- Status Summary -->
+      <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <div style="width:4px;height:20px;border-radius:2px;background:#E91E8C"></div>
+          <span style="font-size:13px;font-weight:800;color:var(--text)">CRITICAL ISSUES & BLOCKERS</span>
         </div>
+        <div id="blockers-container" style="display:flex;flex-direction:column;gap:10px"></div>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div id="loading-indicator" style="text-align:center;padding:40px;color:var(--muted2);display:none">
+        <div class="loading" style="margin:20px auto"></div>
+        <p style="font-size:11px;margin-top:10px">Fetching live Jira data...</p>
       </div>
     </div>
   </div>
@@ -29868,123 +29860,280 @@ function updateModeBtns(activeMode) {
   }, 900);
 })();
 </script><script>
-// ── POD DASHBOARD — RESOURCE ALLOCATION FOCUS ──────────────────
-// Data: Team capacity, individual workload, cross-POD dependencies, red flags
-var POD_DASHBOARD_DATA={
-  portfolio:{utilization:84,teams:4,engineers:18,blockers:2,redFlags:3},
-  teams:[
-    {key:'HIP',name:'Harbour Innovation Platform',capacity:40,allocated:36,util:90,status:'optimal',lead:'Ahmed',engineers:5,forecast:'On track'},
-    {key:'AGDF',name:'Aldar Digital Futures',capacity:35,allocated:30,util:86,status:'optimal',lead:'Fatima',engineers:4,forecast:'On track'},
-    {key:'ADE',name:'Aldar Education',capacity:40,allocated:28,util:70,status:'available',lead:'Rashid',engineers:5,forecast:'Below cap'},
-    {key:'AGEA',name:'Aldar Entity App',capacity:36,allocated:33,util:92,status:'tight',lead:'Mariam',engineers:4,forecast:'Near limit'}
-  ],
-  engineers:[
-    {name:'Ahmed (HIP)',role:'QA',capacity:10,allocated:7,util:70,team:'HIP',skills:['Testing','Automation']},
-    {name:'Fatima (HIP)',role:'Backend',capacity:10,allocated:10,util:100,team:'HIP',skills:['Node','Kafka'],alert:'overload'},
-    {name:'Khalid (HIP)',role:'Frontend',capacity:10,allocated:9,util:90,team:'HIP',skills:['React','TypeScript']},
-    {name:'Mariam (HIP)',role:'Backend',capacity:10,allocated:8,util:80,team:'HIP',skills:['Java','Spring']},
-    {name:'Noor (HIP)',role:'DevOps',capacity:4,allocated:2,util:50,team:'HIP',skills:['Terraform','K8s']},
-    {name:'Omar (AGDF)',role:'Lead',capacity:8,allocated:8,util:100,team:'AGDF',skills:['Architecture']},
-    {name:'Layla (AGDF)',role:'Frontend',capacity:9,allocated:7,util:78,team:'AGDF',skills:['React','Vue']},
-    {name:'Salim (AGDF)',role:'Backend',capacity:9,allocated:8,util:89,team:'AGDF',skills:['Python','FastAPI']},
-    {name:'Sara (AGDF)',role:'QA',capacity:8,allocated:7,util:88,team:'AGDF',skills:['Manual','Selenium']},
-    {name:'Rashid (ADE)',role:'Lead',capacity:10,allocated:4,util:40,team:'ADE',skills:['Architecture','React'],avail:'High'},
-    {name:'Zahra (ADE)',role:'Backend',capacity:10,allocated:5,util:50,team:'ADE',skills:['Node','MongoDB'],avail:'High'},
-    {name:'Hassan (ADE)',role:'Frontend',capacity:10,allocated:7,util:70,team:'ADE',skills:['React','CSS']},
-    {name:'Dina (ADE)',role:'QA',capacity:10,allocated:7,util:70,team:'ADE',skills:['Testing','Cypress']},
-    {name:'Youssef (ADE)',role:'Backend',capacity:10,allocated:5,util:50,team:'ADE',skills:['Java','Spring'],avail:'High'},
-    {name:'Amira (AGEA)',role:'Lead',capacity:8,allocated:8,util:100,team:'AGEA',skills:['Payments']},
-    {name:'Tarek (AGEA)',role:'Backend',capacity:9,allocated:9,util:100,team:'AGEA',skills:['Payments','Security'],alert:'overload'},
-    {name:'Hana (AGEA)',role:'Frontend',capacity:10,allocated:8,util:80,team:'AGEA',skills:['React','UX']},
-    {name:'Rayan (AGEA)',role:'QA',capacity:9,allocated:8,util:89,team:'AGEA',skills:['API Testing','Load']}
-  ],
-  dependencies:[
-    {blocker:'AGDF-234',task:'Schema migration',blockerTeam:'AGDF',blockerLead:'Omar',status:'In Progress',day:6,total:8,dependents:['HIP','ADE'],blockedCount:3,impact:'High'},
-    {blocker:'HIP-156',task:'Payment API integration',blockerTeam:'HIP',blockerLead:'Ahmed',status:'Code Review',day:4,total:5,dependents:['AGEA'],blockedCount:2,impact:'High'}
-  ],
-  redFlags:[
-    {type:'overload',severity:'CRITICAL',team:'HIP',person:'Fatima',util:100,msg:'Backend @ 100% — move 1-2 tasks'},
-    {type:'overload',severity:'CRITICAL',team:'AGEA',person:'Tarek',util:100,msg:'Payments eng @ 100% — critical path at risk'},
-    {type:'blocker',severity:'HIGH',task:'AGDF-234',days:6,msg:'Schema migration blocking 3 teams (day 6/8)'},
-    {type:'capacity',severity:'INFO',team:'ADE',util:70,msg:'Has 8pts available capacity — can take overflow'}
-  ]
-};
+// ══════════════════════════════════════════════════════════════
+// POD DASHBOARD — LIVE JIRA INTEGRATION (Elite Mode)
+// Pulls real sprint, epic, initiative, and assignment data
+// ══════════════════════════════════════════════════════════════
 
-async function refreshPODDashboard(){
-  // In production: fetch from Jira API
-  // For now: use mock data until Jira integration complete
-  await renderPODDashboard();
-  document.getElementById('pod-refresh-status').textContent='⟳ Last updated: Just now';
+var currentPOD = '';
+var cachedDashboardData = null;
+
+function onPODSelected() {
+  currentPOD = document.getElementById('pod-selector').value;
+  refreshPODDashboard();
 }
 
-async function renderPODDashboard(){
-  var port=POD_DASHBOARD_DATA.portfolio;
-  document.getElementById('pod-health-score').textContent=port.utilization;
+async function refreshPODDashboard() {
+  if (!jiraConfig) {
+    document.getElementById('pod-status-badge').textContent = '⚠️ Jira not configured';
+    document.getElementById('pod-refresh-status').textContent = '⚠️ Configure Jira first';
+    return;
+  }
 
-  // ── TEAM CAPACITY HEATMAP ────────────────────────────────────
-  var capHtml='<div style="display:grid;grid-template-columns:1fr;gap:8px;padding:8px 0">';
-  POD_DASHBOARD_DATA.teams.forEach(function(team){
-    var color=team.util<=70?'#00C896':team.util<=85?'#6C47FF':team.util<=95?'#F5A623':'#FF4757';
-    var statusText=team.util<=70?'Available':team.util<=85?'Optimal':team.util<=95?'Tight':'Overload';
-    var availPts=team.capacity-team.allocated;
-    capHtml+='<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:8px">'
-      +'<div style="flex:0 0 60px"><div style="font-weight:700;color:var(--text)">'+team.key+'</div><div style="font-size:9px;color:var(--muted2)">'+team.engineers+' eng</div></div>'
-      +'<div style="flex:1">'
-      +'<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:10px;color:var(--text)">'+team.name+'</span><span style="font-size:10px;font-weight:700;color:'+color+'">'+team.util+'%</span></div>'
-      +'<div style="width:100%;background:var(--bg2);border-radius:6px;height:6px;overflow:hidden"><div style="background:'+color+';height:100%;width:'+team.util+'%;border-radius:6px"></div></div>'
-      +'<div style="font-size:9px;color:var(--muted2);margin-top:3px">'+team.allocated+'/'+team.capacity+'pts — '+availPts+'pts free — '+statusText+'</div>'
-      +'</div>'
-      +'<button onclick="(function(){switchTab(\'jira\',document.querySelector(\'[data-tab=\\\"jira\\\"]\'));localStorage.setItem(\'jd_proj\',\''+team.key+'\');})()" style="flex:0 0 auto;background:var(--bg2);border:0.5px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:10px;cursor:pointer;color:var(--text)">View</button>'
-      +'</div>';
-  });
-  capHtml+='</div>';
-  document.getElementById('pod-quality-table').innerHTML=capHtml;
+  document.getElementById('loading-indicator').style.display = 'block';
+  document.getElementById('pod-refresh-status').textContent = '⟳ Fetching live data...';
+  document.getElementById('pod-status-badge').textContent = '🔄 Loading...';
 
-  // ── RED FLAGS ────────────────────────────────────────────────
-  var flagHtml='<div style="display:grid;grid-template-columns:1fr;gap:8px;padding:8px 0">';
-  POD_DASHBOARD_DATA.redFlags.forEach(function(flag){
-    var icon=flag.type==='overload'?'🔴':flag.type==='blocker'?'⏸️':flag.type==='capacity'?'✓':flag.type==='vacation'?'🏖️':'⚠️';
-    var color=flag.severity==='CRITICAL'?'#FF4757':flag.severity==='HIGH'?'#F5A623':'#00C896';
-    flagHtml+='<div style="display:flex;gap:10px;padding:10px;background:rgba('+
-      (flag.severity==='CRITICAL'?'255,71,87':flag.severity==='HIGH'?'245,166,35':'0,200,150')
-      +',0.08);border-left:3px solid '+color+';border-radius:6px">'
-      +'<span style="flex:0 0 20px;font-size:16px">'+icon+'</span>'
-      +'<div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--text)">'+flag.msg+'</div>'
-      +(flag.team?'<div style="font-size:9px;color:var(--muted2);margin-top:2px">Team: '+flag.team+'</div>':'')
-      +'</div>'
-      +'</div>';
-  });
-  flagHtml+='</div>';
-  document.getElementById('pod-risk-table').innerHTML=flagHtml;
-
-  // ── ENGINEER CAPACITY TABLE ──────────────────────────────────
-  var engHtml='<div style="display:grid;grid-template-columns:120px 60px 70px 70px 60px 80px;gap:8px;padding:8px 0;font-size:10px;line-height:1.6">'
-    +'<div style="font-weight:700;color:var(--text)">Engineer</div>'
-    +'<div style="font-weight:700;color:var(--text)">Role</div>'
-    +'<div style="font-weight:700;color:var(--text);text-align:center">Allocated</div>'
-    +'<div style="font-weight:700;color:var(--text);text-align:center">Capacity</div>'
-    +'<div style="font-weight:700;color:var(--text);text-align:center">Free</div>'
-    +'<div style="font-weight:700;color:var(--text);text-align:center">Status</div>';
-  var sorted=POD_DASHBOARD_DATA.engineers.slice().sort(function(a,b){return b.capacity-b.allocated-(a.capacity-a.allocated)});
-  sorted.forEach(function(eng){
-    var free=eng.capacity-eng.allocated;
-    var statusIcon=eng.alert?'🔴':free>=3?'✓✓':free>0?'✓':'⚠️';
-    var statusColor=eng.alert?'#FF4757':free>=3?'#00C896':free>0?'#F5A623':'#FF4757';
-    engHtml+='<div style="color:var(--text)">'+eng.name+'</div>'
-      +'<div style="color:var(--muted2)">'+eng.role+'</div>'
-      +'<div style="text-align:center;color:var(--text)">'+eng.allocated+'</div>'
-      +'<div style="text-align:center;color:var(--muted2)">'+eng.capacity+'</div>'
-      +'<div style="text-align:center;color:'+statusColor+';font-weight:600">'+free+'</div>'
-      +'<div style="text-align:center;color:'+statusColor+'">'+statusIcon+'</div>';
-  });
-  engHtml+='</div>';
-
-  // Insert engineer table into velocity chart area
-  if(document.getElementById('pod-velocity-chart')){
-    var parent=document.getElementById('pod-velocity-chart').parentElement;
-    parent.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px">👥 Engineer Capacity — Sorted by Available Capacity</div>'+engHtml;
+  try {
+    var dashData = await fetchLivePODDashboardData(currentPOD);
+    if (dashData) {
+      renderPODDashboard(dashData);
+      var now = new Date();
+      document.getElementById('pod-refresh-status').textContent = '✅ Last updated: ' + now.toLocaleTimeString();
+    } else {
+      document.getElementById('pod-refresh-status').textContent = '⚠️ Failed to fetch data';
+    }
+  } catch (e) {
+    console.error('POD Dashboard error:', e);
+    document.getElementById('pod-refresh-status').textContent = '⚠️ Error: ' + e.message;
+  } finally {
+    document.getElementById('loading-indicator').style.display = 'none';
   }
 }
+
+async function fetchLivePODDashboardData(podKey) {
+  try {
+    // Determine which projects to query
+    var projects = podKey ? [podKey] : ['HIP', 'ADE', 'AGDF', 'AGEA'];
+    var projectsJql = projects.map(p => '"' + p + '"').join(',');
+
+    // Query 1: Get current active sprint
+    var sprintsRes = await jiraFetch('/board/1/sprint?state=active&maxResults=5', {_workerAuth: true});
+    if (!sprintsRes.ok) {
+      console.warn('Could not fetch sprints');
+      return null;
+    }
+    var sprintData = (await sprintsRes.json()).values || [];
+    if (sprintData.length === 0) {
+      console.warn('No active sprint found');
+      return null;
+    }
+    var activeSprint = sprintData[0];
+    var sprintId = activeSprint.id;
+    var sprintName = activeSprint.name;
+
+    // Query 2: Get all issues in sprint
+    var issuesJql = 'sprint=' + sprintId + ' AND project IN (' + projectsJql + ')';
+    var issuesRes = await jiraFetch(
+      '/search?jql=' + encodeURIComponent(issuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels',
+      {_workerAuth: true}
+    );
+    if (!issuesRes.ok) return null;
+    var issues = (await issuesRes.json()).issues || [];
+
+    // Query 3: Get all epics
+    var epicsRes = await jiraFetch(
+      '/search?jql=type=Epic AND project IN (' + projectsJql + ')&maxResults=50&fields=key,summary,status,customfield_10011',
+      {_workerAuth: true}
+    );
+    var epics = epicsRes.ok ? (await epicsRes.json()).issues || [] : [];
+
+    // Aggregate data
+    var summary = {
+      sprint: sprintName,
+      sprintId: sprintId,
+      projects: projects,
+      totalIssues: issues.length,
+      inProgress: 0,
+      completed: 0,
+      todo: 0,
+      totalPoints: 0,
+      completedPoints: 0,
+      assignees: {}
+    };
+
+    var epicMap = {};
+    epics.forEach(function(epic) {
+      epicMap[epic.key] = {
+        key: epic.key,
+        title: epic.fields.summary,
+        status: epic.fields.status.name,
+        issues: []
+      };
+    });
+
+    issues.forEach(function(issue) {
+      var points = issue.fields.customfield_10028 || 0;
+      var status = issue.fields.status.name;
+      var assignee = issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned';
+      var type = issue.fields.issuetype.name;
+
+      // Aggregate status
+      if (status === 'Done') { summary.completed++; summary.completedPoints += points; }
+      else if (status === 'In Progress') { summary.inProgress++; }
+      else { summary.todo++; }
+      summary.totalPoints += points;
+
+      // Assign to assignee
+      if (!summary.assignees[assignee]) {
+        summary.assignees[assignee] = { issues: 0, points: 0, tasks: [] };
+      }
+      summary.assignees[assignee].issues++;
+      summary.assignees[assignee].points += points;
+      summary.assignees[assignee].tasks.push(issue.key + ': ' + issue.fields.summary);
+
+      // Link to epic
+      if (issue.fields.parent && epicMap[issue.fields.parent.key]) {
+        epicMap[issue.fields.parent.key].issues.push({
+          key: issue.key,
+          title: issue.fields.summary,
+          status: status,
+          points: points,
+          assignee: assignee
+        });
+      }
+    });
+
+    return {
+      sprint: summary,
+      epics: Object.values(epicMap),
+      issues: issues,
+      assignees: summary.assignees
+    };
+
+  } catch (e) {
+    console.error('Error fetching POD data:', e);
+    return null;
+  }
+}
+
+function renderPODDashboard(data) {
+  if (!data) return;
+
+  var podLabel = currentPOD ? currentPOD : 'All PODs';
+  document.getElementById('pod-status-badge').textContent = '✅ ' + podLabel;
+
+  // ── SPRINT SUMMARY ──────────────────────────────────────────
+  var s = data.sprint;
+  var velocity = Math.round((s.completedPoints / (s.totalPoints || 1)) * 100);
+  var progress = s.totalPoints > 0 ? Math.round((s.completedPoints / s.totalPoints) * 100) : 0;
+
+  document.getElementById('sprint-name-badge').textContent = s.sprint;
+
+  var summaryCards = [
+    { label: 'Total Items', value: s.totalIssues, unit: '', color: '#6C47FF' },
+    { label: 'In Progress', value: s.inProgress, unit: 'items', color: '#F5A623' },
+    { label: 'Completed', value: s.completed, unit: 'items', color: '#00C896' },
+    { label: 'Story Points', value: s.totalPoints, unit: 'total', color: '#4C9AFF' },
+    { label: 'Completion', value: progress, unit: '%', color: progress >= 70 ? '#00C896' : '#F5A623' },
+    { label: 'To Do', value: s.todo, unit: 'items', color: '#FF6B35' }
+  ];
+
+  var summaryHtml = '';
+  summaryCards.forEach(function(card) {
+    summaryHtml += '<div style="background:var(--bg3);border-radius:8px;padding:12px;border-left:4px solid ' + card.color + '">'
+      + '<div style="font-size:11px;color:var(--muted2);font-weight:600">' + card.label + '</div>'
+      + '<div style="font-size:20px;font-weight:800;color:' + card.color + ';margin-top:4px">' + card.value + '</div>'
+      + '<div style="font-size:9px;color:var(--muted2);margin-top:2px">' + card.unit + '</div>'
+      + '</div>';
+  });
+  document.getElementById('sprint-summary-cards').innerHTML = summaryHtml;
+
+  // ── EPICS ───────────────────────────────────────────────────
+  var epicsHtml = '';
+  document.getElementById('epic-count-badge').textContent = data.epics.length + ' active';
+
+  data.epics.forEach(function(epic) {
+    if (epic.issues.length === 0) return; // Skip epics with no issues in sprint
+    var doneCount = epic.issues.filter(i => i.status === 'Done').length;
+    var progress = Math.round((doneCount / epic.issues.length) * 100);
+    var progressColor = progress >= 70 ? '#00C896' : progress >= 40 ? '#F5A623' : '#FF4757';
+
+    epicsHtml += '<div style="background:var(--bg3);border-radius:8px;padding:12px;border-left:4px solid ' + progressColor + '">'
+      + '<div style="font-weight:700;color:var(--text);margin-bottom:8px">' + epic.key + ': ' + epic.title + '</div>'
+      + '<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">' + epic.status + '</div>'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+      + '<div style="flex:1;background:var(--bg2);border-radius:4px;height:6px;overflow:hidden"><div style="background:' + progressColor + ';height:100%;width:' + progress + '%"></div></div>'
+      + '<span style="font-size:10px;font-weight:700;color:' + progressColor + '">' + doneCount + '/' + epic.issues.length + '</span>'
+      + '</div>'
+      + '<div style="display:flex;flex-wrap:wrap;gap:4px;font-size:9px">';
+
+    epic.issues.forEach(function(issue) {
+      var statusColor = issue.status === 'Done' ? '#00C896' : issue.status === 'In Progress' ? '#F5A623' : '#6b7280';
+      epicsHtml += '<span style="background:' + statusColor + '22;color:' + statusColor + ';padding:2px 6px;border-radius:3px;font-weight:600">' + issue.key + '</span>';
+    });
+
+    epicsHtml += '</div></div>';
+  });
+  document.getElementById('epics-container').innerHTML = epicsHtml || '<p style="color:var(--muted2);text-align:center;padding:20px">No epics in current sprint</p>';
+
+  // ── INITIATIVES (using labels as proxy) ──────────────────────
+  var initMap = {};
+  data.issues.forEach(function(issue) {
+    var labels = issue.fields.labels || [];
+    labels.forEach(function(label) {
+      if (!initMap[label]) initMap[label] = { issues: 0, points: 0, done: 0 };
+      initMap[label].issues++;
+      initMap[label].points += (issue.fields.customfield_10028 || 0);
+      if (issue.fields.status.name === 'Done') initMap[label].done++;
+    });
+  });
+
+  var initHtml = '';
+  Object.keys(initMap).forEach(function(initName) {
+    var init = initMap[initName];
+    var progress = Math.round((init.done / init.issues) * 100);
+    var color = progress >= 70 ? '#00C896' : progress >= 40 ? '#F5A623' : '#FF6B35';
+
+    initHtml += '<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:8px;border-left:4px solid ' + color + '">'
+      + '<div style="flex:1">'
+      + '<div style="font-weight:700;color:var(--text);font-size:11px">' + initName + '</div>'
+      + '<div style="font-size:10px;color:var(--muted2);margin-top:2px">' + init.done + '/' + init.issues + ' done • ' + init.points + ' pts</div>'
+      + '</div>'
+      + '<div style="text-align:right">'
+      + '<div style="font-size:14px;font-weight:800;color:' + color + '">' + progress + '%</div>'
+      + '</div>'
+      + '</div>';
+  });
+
+  document.getElementById('init-count-badge').textContent = Object.keys(initMap).length + ' items';
+  document.getElementById('initiatives-container').innerHTML = initHtml || '<p style="color:var(--muted2);text-align:center;padding:20px">No labeled initiatives</p>';
+
+  // ── TEAM ASSIGNMENTS ────────────────────────────────────────
+  var assignHtml = '';
+  Object.keys(data.assignees).sort().forEach(function(assignee) {
+    var assign = data.assignees[assignee];
+    assignHtml += '<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:8px">'
+      + '<div style="flex:0 0 100px"><div style="font-weight:700;color:var(--text);font-size:11px">' + assignee + '</div></div>'
+      + '<div style="flex:1">'
+      + '<div style="font-size:10px;color:var(--muted2)">' + assign.issues + ' issues • ' + assign.points + ' story pts</div>'
+      + '</div>'
+      + '<div style="text-align:right;font-size:10px;color:var(--accent);font-weight:600">' + assign.points + 'pts</div>'
+      + '</div>';
+  });
+  document.getElementById('assignments-container').innerHTML = assignHtml || '<p style="color:var(--muted2);text-align:center;padding:20px">No assignments yet</p>';
+
+  // ── BLOCKERS (issues with 'blocker' in status) ──────────────
+  var blockers = data.issues.filter(i => i.fields.labels && i.fields.labels.includes('blocker'));
+  var blockerHtml = '';
+  blockers.forEach(function(issue) {
+    blockerHtml += '<div style="display:flex;gap:10px;padding:10px;background:rgba(255,71,87,0.08);border-left:4px solid #FF4757;border-radius:6px">'
+      + '<span style="flex:0 0 20px;font-size:16px">🔴</span>'
+      + '<div style="flex:1">'
+      + '<div style="font-weight:700;color:var(--text);font-size:11px">' + issue.key + ': ' + issue.fields.summary + '</div>'
+      + '<div style="font-size:10px;color:var(--muted2);margin-top:2px">Assigned: ' + (issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned') + '</div>'
+      + '</div>'
+      + '</div>';
+  });
+  document.getElementById('blockers-container').innerHTML = blockerHtml || '<p style="color:#00C896;text-align:center;padding:20px">✅ No blockers</p>';
+}
+
+// Auto-refresh every 60 seconds
+setInterval(function(){
+  if(document.getElementById('page-pod-dashboard') && document.getElementById('page-pod-dashboard').style.display !== 'none'){
+    refreshPODDashboard();
+  }
+}, 60000);
 
 // ── Sprint Report Engine ──────────────────────────────────────
 var _srData = null;
