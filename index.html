@@ -27596,78 +27596,70 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
       <div style="margin-bottom:32px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <div style="width:4px;height:18px;border-radius:2px;background:#6C47FF;box-shadow:0 2px 8px rgba(108,71,255,0.25)"></div>
-          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">📊 Executive Summary</span>
+          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">📊 Portfolio Capacity</span>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:20px">
-          <!-- Health Card -->
+          <!-- Portfolio Util Card -->
           <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px;box-shadow:0 2px 4px rgba(0,0,0,0.04)">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">📈</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2)">Portfolio Health</div></div>
-            <div style="font-size:32px;font-weight:800;color:var(--text);margin-bottom:4px" id="pod-health-score">87</div>
-            <div style="font-size:10px;color:var(--muted2);margin-bottom:8px">/100 — Excellent</div>
-            <div style="display:flex;gap:8px;font-size:9px;color:var(--muted2)"><span>Velocity ↑12%</span><span>•</span><span>Quality 92%</span><span>•</span><span>Delivery 94%</span></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">📊</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2)">Portfolio Utilization</div></div>
+            <div style="font-size:32px;font-weight:800;color:var(--text);margin-bottom:4px" id="pod-health-score">84</div>
+            <div style="font-size:10px;color:var(--muted2);margin-bottom:8px">% — Balanced</div>
+            <div style="display:flex;gap:8px;font-size:9px;color:var(--muted2)"><span>Teams: 4</span><span>•</span><span>Engineers: 18</span></div>
           </div>
-          <!-- Revenue Card -->
+          <!-- Capacity Available Card -->
           <div style="background:var(--bg2);border:1px solid rgba(0,200,150,0.2);border-radius:12px;padding:16px;background:linear-gradient(135deg,rgba(0,200,150,0.08) 0%,transparent 100%)">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">💰</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#00C896">Business Impact</div></div>
-            <div style="font-size:24px;font-weight:800;color:#00C896;margin-bottom:4px">+$2.1M</div>
-            <div style="font-size:10px;color:var(--muted2)">Revenue from shipped features (30d)</div>
-            <div style="display:flex;gap:8px;font-size:9px;color:var(--muted2);margin-top:8px"><span>Engagement +8%</span><span>•</span><span>Savings -$57K</span></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">✓</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#00C896">Available Capacity</div></div>
+            <div style="font-size:24px;font-weight:800;color:#00C896;margin-bottom:4px">23 pts</div>
+            <div style="font-size:10px;color:var(--muted2)">Can take from overflow teams</div>
+            <div style="display:flex;gap:8px;font-size:9px;color:var(--muted2);margin-top:8px"><span>ADE: 8pts</span><span>•</span><span>HIP: 4pts</span><span>•</span><span>+others</span></div>
           </div>
-          <!-- Alerts Card -->
+          <!-- Overload Alert Card -->
           <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">⚠️</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2)">Alerts</div></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">🔴</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2)">Overload Alerts</div></div>
             <div style="display:flex;gap:12px;margin-bottom:8px">
-              <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#FF4757">0</div><div style="font-size:9px;color:var(--muted2)">Critical</div></div>
-              <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#F5A623">2</div><div style="font-size:9px;color:var(--muted2)">Warnings</div></div>
-              <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#00C896">10</div><div style="font-size:9px;color:var(--muted2)">Good ✓</div></div>
+              <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#FF4757">2</div><div style="font-size:9px;color:var(--muted2)">Critical (100%)</div></div>
+              <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#F5A623">2</div><div style="font-size:9px;color:var(--muted2)">Warning (90%+)</div></div>
+              <div style="flex:1"><div style="font-size:20px;font-weight:800;color:#00C896">14</div><div style="font-size:9px;color:var(--muted2)">Healthy</div></div>
             </div>
           </div>
-          <!-- Team Utilization Card -->
+          <!-- Blockers Card -->
           <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">👥</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2)">Team Capacity</div></div>
-            <div style="width:100%;background:var(--bg3);border-radius:6px;height:8px;margin-bottom:8px;overflow:hidden"><div style="background:linear-gradient(90deg,#00C896,#6C47FF);height:100%;width:85%;border-radius:6px"></div></div>
-            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">85%</div>
-            <div style="font-size:9px;color:var(--muted2)">Optimal utilization</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><span style="font-size:20px">⏸️</span><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--muted2)">Cross-POD Blockers</div></div>
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">2 blocking tasks</div>
+            <div style="font-size:9px;color:var(--muted2)">5 teams waiting for unblock</div>
+            <div style="margin-top:8px;padding:8px;background:var(--bg3);border-radius:6px;font-size:9px;color:var(--muted2)">AGDF-234 (day 6/8) blocking HIP, ADE</div>
           </div>
         </div>
       </div>
 
-      <!-- POD Project Cards -->
+      <!-- Team Capacity Section -->
       <div style="margin-bottom:32px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <div style="width:4px;height:18px;border-radius:2px;background:#0052CC;box-shadow:0 2px 8px rgba(0,82,204,0.25)"></div>
-          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">🎯 Project PODs</span>
+          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">📊 Team Capacity Heatmap</span>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px" id="pod-projects-grid">
-          <!-- POD cards generated by JS -->
+        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px">
+          <div id="pod-quality-table" style="font-size:10px;line-height:1.8"></div>
         </div>
       </div>
 
-      <!-- Analytics Charts -->
+      <!-- Engineer Workload & Available Capacity -->
       <div style="margin-bottom:32px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <div style="width:4px;height:18px;border-radius:2px;background:#FF6B35;box-shadow:0 2px 8px rgba(255,107,53,0.25)"></div>
-          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">📈 Analytics</span>
+          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">👥 Engineer Capacity & Availability</span>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:12px">
-          <!-- Velocity Chart -->
-          <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px;min-height:300px">
-            <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px">Velocity Trend (Last 6 Sprints)</div>
-            <canvas id="pod-velocity-chart" height="250"></canvas>
-          </div>
-          <!-- Quality Table -->
-          <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px;min-height:300px;overflow-x:auto">
-            <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px">Quality Metrics (Bug Rate %)</div>
-            <div id="pod-quality-table" style="font-size:10px;line-height:1.8"></div>
-          </div>
+        <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px;overflow-x:auto">
+          <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px">Sorted by Available Capacity (highest first)</div>
+          <canvas id="pod-velocity-chart" height="250"></canvas>
         </div>
       </div>
 
-      <!-- Risk Assessment -->
+      <!-- Resource Allocation Alerts -->
       <div style="margin-bottom:32px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <div style="width:4px;height:18px;border-radius:2px;background:#E91E8C;box-shadow:0 2px 8px rgba(233,30,140,0.25)"></div>
-          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">⚠️ Risk Heatmap</span>
+          <span style="font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:0.12em;color:var(--text)">⚠️ Capacity Red Flags — Action Needed</span>
         </div>
         <div style="background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:16px">
           <div id="pod-risk-table" style="font-size:10px;line-height:1.8"></div>
@@ -29876,8 +29868,123 @@ function updateModeBtns(activeMode) {
   }, 900);
 })();
 </script><script>
-// ── POD DASHBOARD DATA & FUNCTIONS ────────────────────────────
-var POD_DASHBOARD_DATA={portfolio:{health:87,velocity:151,velocityPlan:160,quality:92,delivery:94,teamUtilization:85},pods:[{key:'HIP',name:'Harbour',health:87,velocity:47,status:'GREEN',quality:92,delivery:97,team:89,completed:47,planned:50,bugs:5,dueDate:'June 15',forecast:'ON TRACK'},{key:'AGDF',name:'Digital Futures',health:85,velocity:35,status:'GREEN',quality:88,delivery:93,team:85,completed:35,planned:36,bugs:4,dueDate:'June 13',forecast:'EARLY'},{key:'ADE',name:'Aldar Education',health:72,velocity:28,status:'AMBER',quality:78,delivery:89,team:75,completed:25,planned:30,bugs:6,dueDate:'June 20',forecast:'AT RISK'},{key:'AGEA',name:'Entity Application',health:89,velocity:41,status:'GREEN',quality:94,delivery:98,team:91,completed:41,planned:42,bugs:2,dueDate:'June 14',forecast:'ON TRACK'}],velocityTrend:[52,48,42,45,51,47],sprintLabels:['S20','S21','S22','S23','S24','S25']};async function refreshPODDashboard(){await renderPODDashboard();document.getElementById('pod-refresh-status').textContent='⟳ Last updated: Just now'}async function renderPODDashboard(){document.getElementById('pod-health-score').textContent=POD_DASHBOARD_DATA.portfolio.health;var grid=document.getElementById('pod-projects-grid');grid.innerHTML='';POD_DASHBOARD_DATA.pods.forEach(function(pod){var statusClass='pod-status-'+pod.status.toLowerCase();var card=document.createElement('div');card.className='pod-project-card';card.onclick=function(){switchTab('jira',document.querySelector('[data-tab="jira"]'));localStorage.setItem('jd_proj',pod.key)};var pct=Math.round((pod.completed/pod.planned)*100);card.innerHTML='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px"><div><div style="font-size:13px;font-weight:800;color:var(--text)">'+pod.name+'</div><div style="font-size:10px;color:var(--muted2);font-weight:600;margin-top:2px">'+pod.key+'</div></div><span class="pod-status-badge '+statusClass+'"><span style="width:6px;height:6px;border-radius:50%;background:currentColor;display:inline-block"></span>'+pod.status+'</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px"><div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--text)">'+pod.health+'</div><div style="font-size:9px;color:var(--muted2);margin-top:2px">Health</div></div><div style="background:var(--bg3);border-radius:8px;padding:8px;text-align:center"><div style="font-size:20px;font-weight:800;color:var(--text)">'+pod.velocity+'</div><div style="font-size:9px;color:var(--muted2);margin-top:2px">Velocity</div></div></div><div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:9px;font-weight:600;color:var(--text)">Progress</span><span style="font-size:9px;font-weight:700;color:var(--text)">'+pod.completed+'/'+pod.planned+'</span></div><div class="pod-progress-bar"><div class="pod-progress-fill" style="width:'+pct+'%"></div></div></div><div style="font-size:9px;line-height:1.6;color:var(--muted2);margin-bottom:10px"><div>Quality: '+pod.quality+'% | Delivery: '+pod.delivery+'%</div><div>Team: '+pod.team+'% utilization | '+pod.bugs+' bugs</div><div style="margin-top:4px">📅 '+pod.dueDate+' — '+pod.forecast+'</div></div><button onclick="(function(){switchTab(\'jira\',document.querySelector(\'[data-tab=\\\"jira\\\"]\'));localStorage.setItem(\'jd_proj\',\''+pod.key+'\');})()" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:6px;font-size:10px;font-weight:600;color:var(--text);cursor:pointer;transition:all 0.2s" onmouseover="this.style.background=\'var(--bg4)\'" onmouseout="this.style.background=\'var(--bg3)\'" style="width:100%;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:6px;font-size:10px;font-weight:600;color:var(--text);cursor:pointer">View Details →</button>';grid.appendChild(card)});var qualityHtml='<div style="display:grid;grid-template-columns:80px 60px 60px 60px 60px 80px;gap:8px;padding:8px 0"><div style="font-weight:700;color:var(--text)">POD</div><div style="font-weight:700;color:var(--text);text-align:center">Open</div><div style="font-weight:700;color:var(--text);text-align:center">P0</div><div style="font-weight:700;color:var(--text);text-align:center">P1</div><div style="font-weight:700;color:var(--text);text-align:center">P2</div><div style="font-weight:700;color:var(--text)">Rate</div>';POD_DASHBOARD_DATA.pods.forEach(function(pod){var rate=((pod.bugs/(pod.completed+pod.bugs))*100).toFixed(1);var rateColor=rate<15?'#00C896':rate<20?'#F5A623':'#FF4757';qualityHtml+='<div style="color:var(--muted2)">'+pod.key+'</div><div style="text-align:center;color:var(--text);font-weight:600">'+pod.bugs+'</div><div style="text-align:center;color:var(--text)">0</div><div style="text-align:center;color:var(--text)">2</div><div style="text-align:center;color:var(--text)">'+(pod.bugs-2)+'</div><div style="color:'+rateColor+';font-weight:700">'+rate+'%</div>'});qualityHtml+='</div>';document.getElementById('pod-quality-table').innerHTML=qualityHtml;var riskHtml='<div style="display:grid;grid-template-columns:1fr 80px;gap:8px;padding:8px 0"><div style="font-weight:700;color:var(--text)">Critical Risks</div><div style="font-weight:700;color:var(--text);text-align:center">Status</div>';var risks=[{name:'ADE: Scope creep (+5 items)',status:'🟡 Mitigating'},{name:'HIP: Schema migration slip (20%)',status:'🟡 Monitoring'},{name:'AGDF: Code review bottleneck (3.2d)',status:'🟡 Escalated'}];risks.forEach(function(risk){riskHtml+='<div style="color:var(--muted2);padding:6px 0">'+risk.name+'</div><div style="text-align:center;color:var(--text);font-weight:600;padding:6px 0">'+risk.status+'</div>'});riskHtml+='</div>';document.getElementById('pod-risk-table').innerHTML=riskHtml;var canvas=document.getElementById('pod-velocity-chart');if(canvas&&canvas.getContext){drawVelocityChart(canvas,POD_DASHBOARD_DATA.velocityTrend)}}function drawVelocityChart(canvas,data){var ctx=canvas.getContext('2d');var width=canvas.width;var height=canvas.height;var padding=40;var max=Math.max.apply(Math,data)*1.2;ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--bg2').trim();ctx.fillRect(0,0,width,height);ctx.strokeStyle=getComputedStyle(document.documentElement).getPropertyValue('--border2').trim();ctx.lineWidth=0.5;for(var i=0;i<=5;i++){var y=padding+(height-padding*2)*(i/5);ctx.beginPath();ctx.moveTo(padding,y);ctx.lineTo(width-padding,y);ctx.stroke()}ctx.strokeStyle='#6C47FF';ctx.lineWidth=3;ctx.beginPath();for(var i=0;i<data.length;i++){var x=padding+(width-padding*2)*(i/(data.length-1));var y=height-padding-(height-padding*2)*(data[i]/max);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke();ctx.fillStyle='#6C47FF';for(var i=0;i<data.length;i++){var x=padding+(width-padding*2)*(i/(data.length-1));var y=height-padding-(height-padding*2)*(data[i]/max);ctx.beginPath();ctx.arc(x,y,4,0,Math.PI*2);ctx.fill()}}setTimeout(function(){if(document.getElementById('pod-projects-grid')){renderPODDashboard()}},500);
+// ── POD DASHBOARD — RESOURCE ALLOCATION FOCUS ──────────────────
+// Data: Team capacity, individual workload, cross-POD dependencies, red flags
+var POD_DASHBOARD_DATA={
+  portfolio:{utilization:84,teams:4,engineers:18,blockers:2,redFlags:3},
+  teams:[
+    {key:'HIP',name:'Harbour Innovation Platform',capacity:40,allocated:36,util:90,status:'optimal',lead:'Ahmed',engineers:5,forecast:'On track'},
+    {key:'AGDF',name:'Aldar Digital Futures',capacity:35,allocated:30,util:86,status:'optimal',lead:'Fatima',engineers:4,forecast:'On track'},
+    {key:'ADE',name:'Aldar Education',capacity:40,allocated:28,util:70,status:'available',lead:'Rashid',engineers:5,forecast:'Below cap'},
+    {key:'AGEA',name:'Aldar Entity App',capacity:36,allocated:33,util:92,status:'tight',lead:'Mariam',engineers:4,forecast:'Near limit'}
+  ],
+  engineers:[
+    {name:'Ahmed (HIP)',role:'QA',capacity:10,allocated:7,util:70,team:'HIP',skills:['Testing','Automation']},
+    {name:'Fatima (HIP)',role:'Backend',capacity:10,allocated:10,util:100,team:'HIP',skills:['Node','Kafka'],alert:'overload'},
+    {name:'Khalid (HIP)',role:'Frontend',capacity:10,allocated:9,util:90,team:'HIP',skills:['React','TypeScript']},
+    {name:'Mariam (HIP)',role:'Backend',capacity:10,allocated:8,util:80,team:'HIP',skills:['Java','Spring']},
+    {name:'Noor (HIP)',role:'DevOps',capacity:4,allocated:2,util:50,team:'HIP',skills:['Terraform','K8s']},
+    {name:'Omar (AGDF)',role:'Lead',capacity:8,allocated:8,util:100,team:'AGDF',skills:['Architecture']},
+    {name:'Layla (AGDF)',role:'Frontend',capacity:9,allocated:7,util:78,team:'AGDF',skills:['React','Vue']},
+    {name:'Salim (AGDF)',role:'Backend',capacity:9,allocated:8,util:89,team:'AGDF',skills:['Python','FastAPI']},
+    {name:'Sara (AGDF)',role:'QA',capacity:8,allocated:7,util:88,team:'AGDF',skills:['Manual','Selenium']},
+    {name:'Rashid (ADE)',role:'Lead',capacity:10,allocated:4,util:40,team:'ADE',skills:['Architecture','React'],avail:'High'},
+    {name:'Zahra (ADE)',role:'Backend',capacity:10,allocated:5,util:50,team:'ADE',skills:['Node','MongoDB'],avail:'High'},
+    {name:'Hassan (ADE)',role:'Frontend',capacity:10,allocated:7,util:70,team:'ADE',skills:['React','CSS']},
+    {name:'Dina (ADE)',role:'QA',capacity:10,allocated:7,util:70,team:'ADE',skills:['Testing','Cypress']},
+    {name:'Youssef (ADE)',role:'Backend',capacity:10,allocated:5,util:50,team:'ADE',skills:['Java','Spring'],avail:'High'},
+    {name:'Amira (AGEA)',role:'Lead',capacity:8,allocated:8,util:100,team:'AGEA',skills:['Payments']},
+    {name:'Tarek (AGEA)',role:'Backend',capacity:9,allocated:9,util:100,team:'AGEA',skills:['Payments','Security'],alert:'overload'},
+    {name:'Hana (AGEA)',role:'Frontend',capacity:10,allocated:8,util:80,team:'AGEA',skills:['React','UX']},
+    {name:'Rayan (AGEA)',role:'QA',capacity:9,allocated:8,util:89,team:'AGEA',skills:['API Testing','Load']}
+  ],
+  dependencies:[
+    {blocker:'AGDF-234',task:'Schema migration',blockerTeam:'AGDF',blockerLead:'Omar',status:'In Progress',day:6,total:8,dependents:['HIP','ADE'],blockedCount:3,impact:'High'},
+    {blocker:'HIP-156',task:'Payment API integration',blockerTeam:'HIP',blockerLead:'Ahmed',status:'Code Review',day:4,total:5,dependents:['AGEA'],blockedCount:2,impact:'High'}
+  ],
+  redFlags:[
+    {type:'overload',severity:'CRITICAL',team:'HIP',person:'Fatima',util:100,msg:'Backend @ 100% — move 1-2 tasks'},
+    {type:'overload',severity:'CRITICAL',team:'AGEA',person:'Tarek',util:100,msg:'Payments eng @ 100% — critical path at risk'},
+    {type:'blocker',severity:'HIGH',task:'AGDF-234',days:6,msg:'Schema migration blocking 3 teams (day 6/8)'},
+    {type:'capacity',severity:'INFO',team:'ADE',util:70,msg:'Has 8pts available capacity — can take overflow'}
+  ]
+};
+
+async function refreshPODDashboard(){
+  // In production: fetch from Jira API
+  // For now: use mock data until Jira integration complete
+  await renderPODDashboard();
+  document.getElementById('pod-refresh-status').textContent='⟳ Last updated: Just now';
+}
+
+async function renderPODDashboard(){
+  var port=POD_DASHBOARD_DATA.portfolio;
+  document.getElementById('pod-health-score').textContent=port.utilization;
+
+  // ── TEAM CAPACITY HEATMAP ────────────────────────────────────
+  var capHtml='<div style="display:grid;grid-template-columns:1fr;gap:8px;padding:8px 0">';
+  POD_DASHBOARD_DATA.teams.forEach(function(team){
+    var color=team.util<=70?'#00C896':team.util<=85?'#6C47FF':team.util<=95?'#F5A623':'#FF4757';
+    var statusText=team.util<=70?'Available':team.util<=85?'Optimal':team.util<=95?'Tight':'Overload';
+    var availPts=team.capacity-team.allocated;
+    capHtml+='<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:8px">'
+      +'<div style="flex:0 0 60px"><div style="font-weight:700;color:var(--text)">'+team.key+'</div><div style="font-size:9px;color:var(--muted2)">'+team.engineers+' eng</div></div>'
+      +'<div style="flex:1">'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:10px;color:var(--text)">'+team.name+'</span><span style="font-size:10px;font-weight:700;color:'+color+'">'+team.util+'%</span></div>'
+      +'<div style="width:100%;background:var(--bg2);border-radius:6px;height:6px;overflow:hidden"><div style="background:'+color+';height:100%;width:'+team.util+'%;border-radius:6px"></div></div>'
+      +'<div style="font-size:9px;color:var(--muted2);margin-top:3px">'+team.allocated+'/'+team.capacity+'pts — '+availPts+'pts free — '+statusText+'</div>'
+      +'</div>'
+      +'<button onclick="(function(){switchTab(\'jira\',document.querySelector(\'[data-tab=\\\"jira\\\"]\'));localStorage.setItem(\'jd_proj\',\''+team.key+'\');})()" style="flex:0 0 auto;background:var(--bg2);border:0.5px solid var(--border2);border-radius:6px;padding:6px 10px;font-size:10px;cursor:pointer;color:var(--text)">View</button>'
+      +'</div>';
+  });
+  capHtml+='</div>';
+  document.getElementById('pod-quality-table').innerHTML=capHtml;
+
+  // ── RED FLAGS ────────────────────────────────────────────────
+  var flagHtml='<div style="display:grid;grid-template-columns:1fr;gap:8px;padding:8px 0">';
+  POD_DASHBOARD_DATA.redFlags.forEach(function(flag){
+    var icon=flag.type==='overload'?'🔴':flag.type==='blocker'?'⏸️':flag.type==='capacity'?'✓':flag.type==='vacation'?'🏖️':'⚠️';
+    var color=flag.severity==='CRITICAL'?'#FF4757':flag.severity==='HIGH'?'#F5A623':'#00C896';
+    flagHtml+='<div style="display:flex;gap:10px;padding:10px;background:rgba('+
+      (flag.severity==='CRITICAL'?'255,71,87':flag.severity==='HIGH'?'245,166,35':'0,200,150')
+      +',0.08);border-left:3px solid '+color+';border-radius:6px">'
+      +'<span style="flex:0 0 20px;font-size:16px">'+icon+'</span>'
+      +'<div style="flex:1"><div style="font-size:11px;font-weight:600;color:var(--text)">'+flag.msg+'</div>'
+      +(flag.team?'<div style="font-size:9px;color:var(--muted2);margin-top:2px">Team: '+flag.team+'</div>':'')
+      +'</div>'
+      +'</div>';
+  });
+  flagHtml+='</div>';
+  document.getElementById('pod-risk-table').innerHTML=flagHtml;
+
+  // ── ENGINEER CAPACITY TABLE ──────────────────────────────────
+  var engHtml='<div style="display:grid;grid-template-columns:120px 60px 70px 70px 60px 80px;gap:8px;padding:8px 0;font-size:10px;line-height:1.6">'
+    +'<div style="font-weight:700;color:var(--text)">Engineer</div>'
+    +'<div style="font-weight:700;color:var(--text)">Role</div>'
+    +'<div style="font-weight:700;color:var(--text);text-align:center">Allocated</div>'
+    +'<div style="font-weight:700;color:var(--text);text-align:center">Capacity</div>'
+    +'<div style="font-weight:700;color:var(--text);text-align:center">Free</div>'
+    +'<div style="font-weight:700;color:var(--text);text-align:center">Status</div>';
+  var sorted=POD_DASHBOARD_DATA.engineers.slice().sort(function(a,b){return b.capacity-b.allocated-(a.capacity-a.allocated)});
+  sorted.forEach(function(eng){
+    var free=eng.capacity-eng.allocated;
+    var statusIcon=eng.alert?'🔴':free>=3?'✓✓':free>0?'✓':'⚠️';
+    var statusColor=eng.alert?'#FF4757':free>=3?'#00C896':free>0?'#F5A623':'#FF4757';
+    engHtml+='<div style="color:var(--text)">'+eng.name+'</div>'
+      +'<div style="color:var(--muted2)">'+eng.role+'</div>'
+      +'<div style="text-align:center;color:var(--text)">'+eng.allocated+'</div>'
+      +'<div style="text-align:center;color:var(--muted2)">'+eng.capacity+'</div>'
+      +'<div style="text-align:center;color:'+statusColor+';font-weight:600">'+free+'</div>'
+      +'<div style="text-align:center;color:'+statusColor+'">'+statusIcon+'</div>';
+  });
+  engHtml+='</div>';
+
+  // Insert engineer table into velocity chart area
+  if(document.getElementById('pod-velocity-chart')){
+    var parent=document.getElementById('pod-velocity-chart').parentElement;
+    parent.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:12px">👥 Engineer Capacity — Sorted by Available Capacity</div>'+engHtml;
+  }
+}
 
 // ── Sprint Report Engine ──────────────────────────────────────
 var _srData = null;
