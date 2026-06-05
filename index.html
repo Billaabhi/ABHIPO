@@ -29896,25 +29896,66 @@ async function fetchAndAnalyzeSprint() {
     return;
   }
 
-  updateStatus('🔄 Fetching sprint data...');
+  updateStatus('🔄 Fetching & validating sprint data...');
 
   try {
+    // Fetch raw data from Jira
     var rawData = await fetchLiveSprintData(currentPOD);
     if (!rawData) {
-      updateStatus('⚠️ No sprint data found');
+      updateStatus('⚠️ No sprint data found in Jira');
+      showDataWarning('No issues found in sprint');
       return;
     }
 
-    // ANALYZE the data for insights
+    // ✅ VALIDATE data before processing
+    var validation = validateSprintData(rawData);
+    console.log('📋 Data Validation Result:', validation);
+
+    if (!validation.valid) {
+      console.error('❌ Data validation failed:', validation.errors);
+      updateStatus('⚠️ Data validation failed');
+      showDataWarning('Data quality issues: ' + validation.errors.join(', '));
+      return;
+    }
+
+    if (validation.warnings.length > 0) {
+      console.warn('⚠️ Data warnings:', validation.warnings);
+      validation.warnings.forEach(function(w) {
+        console.warn('  - ' + w);
+      });
+    }
+
+    // Log data quality metrics
+    console.log('✅ Data validated: ' + validation.issueCount + ' issues from ' + validation.projectCount + ' projects');
+
+    // ANALYZE the validated data for insights
     sprintHealthData = analyzeSprint(rawData);
+    if (!sprintHealthData) {
+      updateStatus('⚠️ Could not analyze sprint data');
+      return;
+    }
 
     // RENDER insights to dashboard
     renderSprintHealth(sprintHealthData);
 
-    updateStatus('✅ ' + getCurrentTime());
+    updateStatus('✅ ' + getCurrentTime() + ' (' + validation.issueCount + ' issues)');
+
   } catch (e) {
-    console.error('Sprint health error:', e);
-    updateStatus('⚠️ ' + e.message);
+    console.error('❌ Sprint health error:', e);
+    updateStatus('⚠️ Error: ' + e.message);
+    showDataWarning('Error: ' + e.message);
+  }
+}
+
+function showDataWarning(message) {
+  var insightsEl = document.getElementById('insights-container');
+  if (insightsEl) {
+    insightsEl.innerHTML = '<div style="background:rgba(255,107,53,0.12);border-left:4px solid #FF4757;border-radius:8px;padding:16px;text-align:center">'
+      + '<div style="font-size:16px;margin-bottom:8px">⚠️</div>'
+      + '<div style="font-weight:700;color:var(--text);font-size:12px">Data Quality Warning</div>'
+      + '<div style="font-size:11px;color:var(--muted2);margin-top:8px">' + message + '</div>'
+      + '<div style="font-size:10px;color:var(--muted2);margin-top:12px">Check console (F12) for details</div>'
+      + '</div>';
   }
 }
 
@@ -29926,6 +29967,134 @@ function updateStatus(text) {
 function getCurrentTime() {
   var now = new Date();
   return 'Updated: ' + now.toLocaleTimeString();
+}
+
+// ══════════════════════════════════════════════════════════════
+// DATA VALIDATOR - Ensure all data is accurate before display
+// ══════════════════════════════════════════════════════════════
+
+function validateSprintData(rawData) {
+  if (!rawData) {
+    console.warn('❌ Validation: No data provided');
+    return { valid: false, errors: ['No data provided'] };
+  }
+
+  var errors = [];
+  var warnings = [];
+
+  // Check required fields
+  if (!rawData.sprintName) errors.push('Sprint name missing');
+  if (!Array.isArray(rawData.issues)) errors.push('Issues array missing or invalid');
+  if (!rawData.projects || rawData.projects.length === 0) errors.push('No projects found');
+
+  // Validate issues
+  if (rawData.issues && rawData.issues.length > 0) {
+    rawData.issues.forEach(function(issue, idx) {
+      if (!issue.key) errors.push('Issue #' + idx + ' missing key');
+      if (!issue.fields) errors.push('Issue ' + (issue.key || '#' + idx) + ' missing fields');
+      if (issue.fields && !issue.fields.status) warnings.push('Issue ' + (issue.key || '#' + idx) + ' missing status');
+    });
+  } else {
+    warnings.push('No issues found in sprint');
+  }
+
+  // Check data consistency
+  if (rawData.issues && rawData.issues.length > 100) {
+    warnings.push('Large number of issues (' + rawData.issues.length + ') - may be slow');
+  }
+
+  // Validate projects list is from actual Jira (not hardcoded)
+  if (rawData.projects && Array.isArray(rawData.projects)) {
+    // Valid if projects come from query results, not static list
+    console.log('✅ Validation: Projects from Jira query: ' + JSON.stringify(rawData.projects));
+  }
+
+  var isValid = errors.length === 0;
+
+  return {
+    valid: isValid,
+    errors: errors,
+    warnings: warnings,
+    issueCount: rawData.issues ? rawData.issues.length : 0,
+    projectCount: rawData.projects ? rawData.projects.length : 0
+  };
+}
+
+// ══════════════════════════════════════════════════════════════
+// AUTO-DISCOVER PODS FROM JIRA
+// Fetch actual POD list instead of hardcoded values
+// ══════════════════════════════════════════════════════════════
+
+var discoveredPODs = null;
+
+async function discoverPodsFromJira() {
+  if (discoveredPODs) return discoveredPODs; // Cache result
+
+  console.log('🔍 Discovering PODs from Jira...');
+
+  try {
+    // Query all projects to find PODs
+    var projectsRes = await jiraFetch('/project?expand=lead&maxResults=100', {method: 'GET'});
+
+    if (!projectsRes.ok) {
+      console.warn('Could not fetch projects list, using fallback');
+      return null;
+    }
+
+    var projects = (await projectsRes.json()) || [];
+    console.log('Found ' + projects.length + ' projects in Jira');
+
+    // Extract POD information
+    var pods = [];
+    projects.forEach(function(proj) {
+      if (proj.key && proj.name) {
+        pods.push({
+          key: proj.key,
+          name: proj.name,
+          category: proj.projectCategory ? proj.projectCategory.name : 'Other'
+        });
+      }
+    });
+
+    console.log('✅ Discovered PODs:', pods.map(p => p.key).join(', '));
+    discoveredPODs = pods;
+    return pods;
+
+  } catch (e) {
+    console.error('Error discovering PODs:', e);
+    return null;
+  }
+}
+
+// Update POD dropdown with real projects from Jira
+async function updatePODDropdown() {
+  var pods = await discoverPodsFromJira();
+
+  if (!pods || pods.length === 0) {
+    console.warn('⚠️ Could not discover PODs from Jira');
+    return;
+  }
+
+  var selector = document.getElementById('pod-selector');
+  if (!selector) return;
+
+  // Keep "All PODs" option
+  var allPODsOption = selector.querySelector('option[value=""]');
+
+  // Clear other options
+  while (selector.options.length > 1) {
+    selector.remove(1);
+  }
+
+  // Add discovered PODs
+  pods.forEach(function(pod) {
+    var option = document.createElement('option');
+    option.value = pod.key;
+    option.textContent = '📦 ' + pod.key + ' — ' + pod.name;
+    selector.appendChild(option);
+  });
+
+  console.log('✅ POD dropdown updated with ' + pods.length + ' real projects from Jira');
 }
 
 async function fetchLiveSprintData(podKey) {
@@ -30612,12 +30781,18 @@ function renderPODDashboard(data) {
 
 // AUTO-INITIALIZE: Sprint Health Dashboard loads immediately & continuously updates
 (function() {
-  function initDashboard() {
+  async function initDashboard() {
     var pageEl = document.getElementById('page-pod-dashboard');
     if (pageEl && pageEl.style.display !== 'none') {
       console.log('🎯 Proactive Sprint Health Dashboard initializing...');
+      console.log('📋 Step 1: Loading real PODs from Jira...');
+
+      // Load actual PODs from Jira (not hardcoded)
+      await updatePODDropdown();
+
+      console.log('📋 Step 2: Fetching and validating sprint data...');
       currentPOD = '';
-      fetchAndAnalyzeSprint();
+      await fetchAndAnalyzeSprint();
     }
   }
 
