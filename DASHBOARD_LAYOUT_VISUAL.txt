@@ -1,0 +1,150 @@
+╔════════════════════════════════════════════════════════════════════════════════════════╗
+║                   📊 POD SPRINT DASHBOARD — ELITE VIEW                                  ║
+║  Sprint Progress • Initiatives • Epics • Team Assignments — Live Jira Data               ║
+║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╣
+║                                                                     ⟳ Last updated: now │
+║                                                        🔄 Refresh Live Data              │
+║━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╣
+║ Select POD:  [🌍 All PODs  ▼]    ✅ All PODs                                            ║
+╠════════════════════════════════════════════════════════════════════════════════════════╣
+║                                                                                          ║
+║ ┌──────────────────────────────────────────────────────────────────────────────────┐   ║
+║ │ SPRINT SUMMARY                                                      Sprint 25    │   ║
+║ ├──────────────────────────────────────────────────────────────────────────────────┤   ║
+║ │                                                                                   │   ║
+║ │ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐           │   ║
+║ │ │  Total Items │ │ In Progress  │ │  Completed   │ │Story Points  │           │   ║
+║ │ │      24      │ │      8       │ │      12      │ │      89      │           │   ║
+║ │ │  items       │ │  items       │ │  items       │ │  total       │           │   ║
+║ │ └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘           │   ║
+║ │                                                                                   │   ║
+║ │ ┌──────────────┐ ┌──────────────┐                                               │   ║
+║ │ │  Completion  │ │    To Do     │                                               │   ║
+║ │ │     50%      │ │      4       │                                               │   ║
+║ │ │  on track    │ │    items     │                                               │   ║
+║ │ └──────────────┘ └──────────────┘                                               │   ║
+║ │                                                                                   │   ║
+║ └──────────────────────────────────────────────────────────────────────────────────┘   ║
+║                                                                                          ║
+║ ┌──────────────────────────────────────────────────────────────────────────────────┐   ║
+║ │ EPICS IN PROGRESS                                                    3 active   │   ║
+║ ├──────────────────────────────────────────────────────────────────────────────────┤   ║
+║ │                                                                                   │   ║
+║ │ ┌────────────────────────────┐ ┌────────────────────────────┐                  │   ║
+║ │ │ HIP-1001: User Auth        │ │ AGDF-234: Schema           │                  │   ║
+║ │ │ [████████░░░░░░░] 50%      │ │ [██████████░░░░] 65%       │                  │   ║
+║ │ │ 3/6 done                   │ │ 5/7 done                   │                  │   ║
+║ │ │ HIP-2001 ✓ HIP-2002 ⟳     │ │ AGDF-1001 ✓ AGDF-1002 ✓   │                  │   ║
+║ │ │ HIP-2003 ⟳ HIP-2004 ⚪    │ │ AGDF-1003 ⟳ AGDF-1004 ⚪  │                  │   ║
+║ │ └────────────────────────────┘ └────────────────────────────┘                  │   ║
+║ │                                                                                   │   ║
+║ └──────────────────────────────────────────────────────────────────────────────────┘   ║
+║                                                                                          ║
+║ ┌──────────────────────────────────────────────────────────────────────────────────┐   ║
+║ │ INITIATIVES & ROADMAP                                                 4 items   │   ║
+║ ├──────────────────────────────────────────────────────────────────────────────────┤   ║
+║ │                                                                                   │   ║
+║ │ 🏢 Enterprise Features: 8 issues • 34 pts • 62% complete                        │   ║
+║ │ 📱 Mobile App: 5 issues • 21 pts • 40% complete                                 │   ║
+║ │ 🔐 Security Hardening: 3 issues • 16 pts • 100% complete ✓                     │   ║
+║ │ ⚡ Performance: 2 issues • 8 pts • 25% complete                                 │   ║
+║ │                                                                                   │   ║
+║ └──────────────────────────────────────────────────────────────────────────────────┘   ║
+║                                                                                          ║
+║ ┌──────────────────────────────────────────────────────────────────────────────────┐   ║
+║ │ TEAM ASSIGNMENTS & WORKLOAD                                                      │   ║
+║ ├──────────────────────────────────────────────────────────────────────────────────┤   ║
+║ │                                                                                   │   ║
+║ │ Ahmed (HIP)             [3 issues • 11 story pts]                                │   ║
+║ │ Fatima (HIP)            [5 issues • 18 story pts]         ← Busy!               │   ║
+║ │ Khalid (HIP)            [4 issues • 13 story pts]                                │   ║
+║ │ Rashid (ADE)            [2 issues • 8 story pts]                                 │   ║
+║ │ Zahra (ADE)             [1 issue • 6 story pts]           ← Has capacity        │   ║
+║ │ Omar (AGDF)             [6 issues • 22 story pts]         ← Very busy!          │   ║
+║ │                                                                                   │   ║
+║ └──────────────────────────────────────────────────────────────────────────────────┘   ║
+║                                                                                          ║
+║ ┌──────────────────────────────────────────────────────────────────────────────────┐   ║
+║ │ CRITICAL ISSUES & BLOCKERS                                                       │   ║
+║ ├──────────────────────────────────────────────────────────────────────────────────┤   ║
+║ │                                                                                   │   ║
+║ │ 🔴 HIP-234: Database schema migration — Assigned: Khalid (HIP)                  │   ║
+║ │ 🔴 AGDF-189: Payment gateway integration — Assigned: Omar (AGDF)                │   ║
+║ │                                                                                   │   ║
+║ └──────────────────────────────────────────────────────────────────────────────────┘   ║
+║                                                                                          ║
+╚════════════════════════════════════════════════════════════════════════════════════════╝
+
+
+KEY INDICATORS:
+
+Status Icons:
+  ✓  = Done
+  ⟳  = In Progress
+  ⚪  = To Do
+  ✓✓ = Completed
+
+Color Codes:
+  🟢 Green (70%+)      = On track
+  🟡 Yellow (40-70%)   = At risk
+  🔴 Red (<40%)        = Needs help
+  🟣 Purple            = Data field
+
+Workload Indicators:
+  → Busy!              = High workload
+  → Very busy!         = Critical overload
+  → Has capacity       = Available
+
+Auto-Updates:
+  🔄 Every 60 seconds from Jira
+  No manual refresh needed
+
+
+WHAT EACH SECTION TELLS YOU:
+
+1. SPRINT SUMMARY
+   ├─ Are we on track? (Completion % should be 40-60% mid-sprint)
+   ├─ What's the WIP? (In Progress should be 5-8 ideally)
+   └─ How much left? (To Do items decreasing over sprint)
+
+2. EPICS IN PROGRESS
+   ├─ Which features are on track? (Green bars)
+   ├─ Which are at risk? (Yellow/red bars)
+   └─ How's the breakdown? (Done vs pending issues)
+
+3. INITIATIVES & ROADMAP
+   ├─ Strategic progress (labeled items by initiative)
+   ├─ What's our priority? (items in current sprint)
+   └─ When will it ship? (completion % → days left)
+
+4. TEAM ASSIGNMENTS & WORKLOAD
+   ├─ Who's busiest? (highest story points)
+   ├─ Who has capacity? (lowest story points)
+   └─ Are we balanced? (compare numbers across team)
+
+5. CRITICAL ISSUES & BLOCKERS
+   ├─ What's blocking us? (red blockers)
+   ├─ Who can fix it? (assigned engineer)
+   └─ How long? (estimate from status)
+
+
+DAILY USAGE PATTERN:
+
+Morning Standup (10:00 AM):
+  1. Open POD Dashboard
+  2. Glance at completion % → "Are we on track?"
+  3. Scan epics → "What's at risk?"
+  4. Check blockers → "What needs help?"
+  5. Review assignments → "Is anyone overloaded?"
+
+Decision Making:
+  → Red blocker? → Escalate to PO
+  → Engineer overloaded? → Reassign work
+  → Epic at risk? → Add resources
+  → All green? → Keep momentum
+
+Weekly Planning:
+  → Compare completion % to previous week
+  → Check epic trend (getting better?)
+  → Review assignment distribution
+  → Plan next sprint with this data
