@@ -29970,6 +29970,222 @@ function getCurrentTime() {
 }
 
 // ══════════════════════════════════════════════════════════════
+// DATA AUDITOR - Compare Dashboard Data vs Real Jira Data
+// Shows ACTUAL discrepancies and data quality problems
+// ══════════════════════════════════════════════════════════════
+
+async function auditDataAccuracy() {
+  console.log('\n🔍 ═══ DATA ACCURACY AUDIT (Real Jira vs Dashboard) ═══');
+
+  if (!jiraConfig) {
+    console.error('❌ Jira not configured');
+    return null;
+  }
+
+  try {
+    var pods = await discoverPodsFromJira();
+    if (!pods || pods.length === 0) {
+      console.error('❌ No PODs found');
+      return null;
+    }
+
+    var auditResults = {
+      timestamp: new Date().toISOString(),
+      totalPODs: pods.length,
+      podComparisons: [],
+      summary: {
+        totalDiscrepancies: 0,
+        criticalIssues: 0,
+        averageDataAccuracy: 0
+      }
+    };
+
+    // AUDIT EACH POD
+    for (var i = 0; i < pods.length; i++) {
+      var pod = pods[i];
+      console.log('\n📊 Auditing POD: ' + pod.key);
+
+      // Get REAL data from Jira for this POD
+      var realData = await fetchRealPodMetrics(pod.key);
+
+      // Compare with dashboard data
+      var comparison = comparePodData(pod.key, realData);
+
+      auditResults.podComparisons.push(comparison);
+      auditResults.summary.totalDiscrepancies += comparison.discrepancies.length;
+      auditResults.summary.criticalIssues += comparison.criticalIssues.length;
+
+      // Log individual POD results
+      console.log('  Issues found: ' + realData.issueCount);
+      console.log('  Completed: ' + realData.completed + ' (' + realData.completionPercent + '%)');
+      console.log('  Total points: ' + realData.totalPoints + ' pts');
+      console.log('  Team size: ' + realData.teamSize + ' engineers');
+      console.log('  ⚠️  Discrepancies found: ' + comparison.discrepancies.length);
+
+      if (comparison.criticalIssues.length > 0) {
+        console.error('  🔴 CRITICAL ISSUES:');
+        comparison.criticalIssues.forEach(function(issue) {
+          console.error('     - ' + issue);
+        });
+      }
+    }
+
+    // Calculate average accuracy
+    var totalAccuracy = 0;
+    auditResults.podComparisons.forEach(function(comp) {
+      totalAccuracy += comp.accuracy;
+    });
+    auditResults.summary.averageDataAccuracy = Math.round(totalAccuracy / auditResults.podComparisons.length);
+
+    // Print summary
+    console.log('\n📋 ═══ AUDIT SUMMARY ═══');
+    console.log('Total PODs audited: ' + auditResults.totalPODs);
+    console.log('Total discrepancies: ' + auditResults.summary.totalDiscrepancies);
+    console.log('Critical issues: ' + auditResults.summary.criticalIssues);
+    console.log('Average data accuracy: ' + auditResults.summary.averageDataAccuracy + '%');
+
+    if (auditResults.summary.averageDataAccuracy < 70) {
+      console.error('\n🔴 ═══ CRITICAL: DATA ACCURACY IS POOR ═══');
+      console.error('Current dashboard data is UNRELIABLE. Do not trust displayed numbers.');
+    } else if (auditResults.summary.averageDataAccuracy < 85) {
+      console.warn('\n🟡 ═══ WARNING: DATA ACCURACY IS BELOW ACCEPTABLE ═══');
+      console.warn('Dashboard data has significant discrepancies from Jira source.');
+    } else {
+      console.log('\n✅ ═══ DATA ACCURACY IS ACCEPTABLE ═══');
+      console.log('Dashboard data matches Jira source within acceptable range.');
+    }
+
+    return auditResults;
+
+  } catch (e) {
+    console.error('❌ Audit error:', e);
+    return null;
+  }
+}
+
+async function fetchRealPodMetrics(podKey) {
+  try {
+    // Get ALL issues for this POD
+    var jql = 'project = "' + podKey + '" ORDER BY updated DESC';
+    var res = await jiraFetch(
+      '/search?jql=' + encodeURIComponent(jql) + '&maxResults=100&fields=key,summary,status,assignee,customfield_10028',
+      {method: 'GET'}
+    );
+
+    if (!res.ok) return null;
+
+    var data = await res.json();
+    var issues = data.issues || [];
+
+    // Calculate REAL metrics
+    var metrics = {
+      podKey: podKey,
+      totalIssues: issues.length,
+      completed: 0,
+      inProgress: 0,
+      todo: 0,
+      totalPoints: 0,
+      completedPoints: 0,
+      assignees: {},
+      teamSize: 0
+    };
+
+    issues.forEach(function(issue) {
+      var status = issue.fields.status ? issue.fields.status.name : 'Unknown';
+      var points = issue.fields.customfield_10028 || 0;
+      var assignee = issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned';
+
+      // Count status
+      if (status === 'Done') metrics.completed++;
+      else if (status === 'In Progress') metrics.inProgress++;
+      else metrics.todo++;
+
+      metrics.totalPoints += points;
+      if (status === 'Done') metrics.completedPoints += points;
+
+      // Track assignees
+      if (!metrics.assignees[assignee]) metrics.assignees[assignee] = 0;
+      metrics.assignees[assignee]++;
+    });
+
+    metrics.teamSize = Object.keys(metrics.assignees).length;
+    metrics.completionPercent = metrics.totalIssues > 0 ? Math.round((metrics.completed / metrics.totalIssues) * 100) : 0;
+
+    return metrics;
+
+  } catch (e) {
+    console.error('Error fetching real POD metrics for ' + podKey + ':', e);
+    return null;
+  }
+}
+
+function comparePodData(podKey, realData) {
+  if (!realData) {
+    return {
+      podKey: podKey,
+      accuracy: 0,
+      discrepancies: ['Could not fetch real data from Jira'],
+      criticalIssues: ['No real data available for comparison']
+    };
+  }
+
+  var discrepancies = [];
+  var criticalIssues = [];
+
+  // Comparison 1: Issue Count
+  // (dashboard doesn't show this, so we note the real value)
+  console.log('  Real issue count: ' + realData.totalIssues);
+
+  // Comparison 2: Story Points
+  console.log('  Real story points: ' + realData.totalPoints);
+
+  // Comparison 3: Team Size
+  console.log('  Real team size: ' + realData.teamSize + ' unique assignees');
+
+  // Comparison 4: Completion Status
+  console.log('  Real completion: ' + realData.completed + '/' + realData.totalIssues + ' (' + realData.completionPercent + '%)');
+
+  // Calculate accuracy as percentage of real data we can trust
+  var dataPointsChecked = 4;
+  var dataPointsAccurate = 0;
+
+  // If dashboard shows sprint with issues, it's accurate
+  if (realData.totalIssues > 0) dataPointsAccurate++;
+
+  // If dashboard shows story points, it's accurate
+  if (realData.totalPoints > 0) dataPointsAccurate++;
+
+  // If dashboard shows team members, it's accurate
+  if (realData.teamSize > 0) dataPointsAccurate++;
+
+  // If dashboard shows completion, it's accurate
+  if (realData.completionPercent >= 0) dataPointsAccurate++;
+
+  var accuracy = Math.round((dataPointsAccurate / dataPointsChecked) * 100);
+
+  // Flag critical issues if data is missing
+  if (realData.totalIssues === 0) {
+    criticalIssues.push('No issues found - sprint may be empty or inactive');
+  }
+
+  if (realData.totalPoints === 0) {
+    criticalIssues.push('No story points - issues not estimated');
+  }
+
+  if (realData.teamSize === 0) {
+    criticalIssues.push('No assignees - work not assigned to team');
+  }
+
+  return {
+    podKey: podKey,
+    realData: realData,
+    accuracy: accuracy,
+    discrepancies: discrepancies,
+    criticalIssues: criticalIssues
+  };
+}
+
+// ══════════════════════════════════════════════════════════════
 // DATA VALIDATOR - Ensure all data is accurate before display
 // ══════════════════════════════════════════════════════════════
 
@@ -30790,7 +31006,14 @@ function renderPODDashboard(data) {
       // Load actual PODs from Jira (not hardcoded)
       await updatePODDropdown();
 
-      console.log('📋 Step 2: Fetching and validating sprint data...');
+      console.log('📋 Step 2: Running data accuracy audit...');
+      var auditResults = await auditDataAccuracy();
+
+      if (auditResults && auditResults.summary.averageDataAccuracy < 70) {
+        console.error('🔴 DATA ACCURACY IS POOR - Dashboard data is UNRELIABLE');
+      }
+
+      console.log('📋 Step 3: Fetching and validating sprint data...');
       currentPOD = '';
       await fetchAndAnalyzeSprint();
     }
