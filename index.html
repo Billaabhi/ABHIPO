@@ -30339,14 +30339,16 @@ async function fetchLiveSprintData(podKey) {
     var issues = (await sprintRes.json()).issues || [];
     console.log('Found ' + issues.length + ' issues');
 
-    // Extract sprint name
+    // Extract sprint data (FIXED: Keep full sprint object for date calculations)
     var sprintName = 'Current Sprint';
     var sprintDates = '';
+    var sprintObject = null;
     for (var i = 0; i < issues.length; i++) {
       if (issues[i].fields.sprint) {
-        sprintName = issues[i].fields.sprint.name;
-        if (issues[i].fields.sprint.startDate) {
-          sprintDates = issues[i].fields.sprint.startDate.split('T')[0];
+        sprintObject = issues[i].fields.sprint;
+        sprintName = sprintObject.name;
+        if (sprintObject.startDate) {
+          sprintDates = sprintObject.startDate.split('T')[0];
         }
         break;
       }
@@ -30355,6 +30357,7 @@ async function fetchLiveSprintData(podKey) {
     return {
       sprintName: sprintName,
       sprintDates: sprintDates,
+      sprint: sprintObject, // Store full sprint object for calculations
       projects: projects,
       issues: issues,
       fetched: new Date()
@@ -30426,14 +30429,51 @@ function analyzeSprint(rawData) {
   return summary;
 }
 
+// CALCULATE REAL SPRINT PROGRESS (Fix #2: Replace hardcoded days)
+function calculateSprintProgress(sprint) {
+  if (!sprint || !sprint.startDate || !sprint.endDate) {
+    // Fallback if no sprint data
+    return {
+      daysPassed: 3,
+      daysRemaining: 7,
+      totalDays: 10,
+      percentComplete: 30
+    };
+  }
+
+  var now = new Date();
+  var startDate = new Date(sprint.startDate);
+  var endDate = new Date(sprint.endDate);
+
+  var daysPassed = Math.floor((now - startDate) / (1000 * 60 * 60 * 24));
+  var daysRemaining = Math.floor((endDate - now) / (1000 * 60 * 60 * 24));
+  var totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+
+  // Clamp to reasonable values
+  daysPassed = Math.max(0, Math.min(daysPassed, totalDays));
+  daysRemaining = Math.max(0, Math.min(daysRemaining, totalDays));
+
+  return {
+    daysPassed: daysPassed,
+    daysRemaining: daysRemaining,
+    totalDays: totalDays,
+    percentComplete: totalDays > 0 ? Math.round((daysPassed / totalDays) * 100) : 0
+  };
+}
+
 function generateInsights(summary) {
   var insights = [];
   var completion = summary.totalIssues > 0 ? Math.round((summary.done / summary.totalIssues) * 100) : 0;
-  var velocity = Math.round((summary.donePoints / (summary.totalPoints || 1)) * 100);
-  var daysPassed = 3; // Assume day 3 of sprint
-  var daysRemaining = 7; // Assume 10 day sprint
-  var pointVelocityPerDay = summary.donePoints / daysPassed;
-  var projectedCompletion = Math.round(pointVelocityPerDay * 10);
+
+  // FIXED: Calculate real velocity (points/day, not completion %)
+  var sprintProgress = calculateSprintProgress(summary.sprint || {});
+  var daysPassed = sprintProgress.daysPassed;
+  var daysRemaining = sprintProgress.daysRemaining;
+
+  // Real velocity: points completed per day
+  var velocity = daysPassed > 0 ? Math.round((summary.donePoints / daysPassed) * 100) / 100 : 0;
+  var pointVelocityPerDay = velocity; // This is now actual points/day
+  var projectedCompletion = Math.round(pointVelocityPerDay * (daysPassed + daysRemaining));
 
   // INSIGHT 1: Completion Status
   if (completion >= 60) {
@@ -30482,21 +30522,53 @@ function generateInsights(summary) {
     });
   }
 
-  // INSIGHT 3: Overloaded team members
+  // INSIGHT 3: Overloaded team members (FIXED: capacity-aware, not arbitrary 15pts)
+  // Calculate team capacity based on sprint length
+  var sprintLengthDays = daysPassed + daysRemaining;
+  var baseCapacityPerEngineer = 10; // 10 pts per engineer per 2-week sprint
+  var adjustedCapacityPerEngineer = (baseCapacityPerEngineer / 10) * sprintLengthDays;
+
   var overloaded = [];
+  var teamCapacityInfo = [];
+
   Object.keys(summary.assignees).forEach(function(name) {
     var assignee = summary.assignees[name];
-    if (assignee.points > 15) {
-      overloaded.push(name + ' (' + assignee.points + 'pts)');
+    // Team capacity = base * sprint length / 10 days
+    var capacity = adjustedCapacityPerEngineer;
+    var utilization = assignee.points / capacity;
+
+    teamCapacityInfo.push({
+      name: name,
+      assignedPoints: assignee.points,
+      capacity: Math.round(capacity * 10) / 10,
+      utilization: Math.round(utilization * 100),
+      status: utilization > 1.1 ? 'OVERLOADED' : 'OK'
+    });
+
+    // Flag if >110% capacity
+    if (utilization > 1.1) {
+      overloaded.push(name + ' (' + assignee.points + 'pts / ' + Math.round(capacity * 10) / 10 + ' capacity: ' + Math.round(utilization * 100) + '%)');
     }
   });
+
+  // Log capacity breakdown
+  console.log('👥 Team Capacity:', teamCapacityInfo);
+
   if (overloaded.length > 0) {
     insights.push({
       type: 'warning',
       emoji: '👥',
-      title: 'Team Overloaded',
-      message: overloaded.join(', ') + ' have high workload.',
+      title: 'Team Members Overloaded',
+      message: overloaded.join(', ') + ' exceeding capacity.',
       action: 'Redistribute work or reduce scope for these team members.'
+    });
+  } else if (Object.keys(summary.assignees).length > 0) {
+    insights.push({
+      type: 'positive',
+      emoji: '✅',
+      title: 'Team Capacity Healthy',
+      message: 'Team workload is balanced. No members overloaded.',
+      action: 'Maintain current sprint pace.'
     });
   }
 
@@ -30544,17 +30616,57 @@ function detectRisks(summary) {
   return risks;
 }
 
+// AUTO-DISCOVER ALL PODs FROM JIRA (Fix #1: Replace hardcoded list)
+async function fetchAllPODsFromJira() {
+  try {
+    var res = await jiraFetch('/rest/api/3/projects?expand=lead&maxResults=100');
+    if (!res.ok || !res.values) {
+      console.warn('⚠️ Could not fetch projects from Jira');
+      return [];
+    }
+
+    var pods = res.values.map(p => ({
+      key: p.key,
+      name: p.name,
+      category: p.category || 'Other'
+    }));
+
+    console.log('✅ Discovered ' + pods.length + ' PODs from Jira:',
+                pods.map(p => p.key).join(', '));
+
+    // Cache the result
+    localStorage.setItem('discoveredPODs', JSON.stringify(pods));
+    return pods;
+  } catch (e) {
+    console.error('Error fetching PODs:', e);
+    return [];
+  }
+}
+
 async function fetchLivePODDashboardData(podKey) {
   try {
-    // Determine which projects to query
-    var projects = podKey ? [podKey] : ['HIP', 'ADE', 'AGDF', 'AGEA'];
+    // Determine which projects to query - AUTO-DISCOVER from Jira instead of hardcoded
+    var projects;
+    if (podKey) {
+      projects = [podKey];
+    } else {
+      var allPODs = await fetchAllPODsFromJira();
+      projects = allPODs.map(p => p.key);
+
+      // Fallback to hardcoded list only if fetch fails
+      if (projects.length === 0) {
+        console.warn('⚠️ POD discovery failed, using fallback list');
+        projects = ['HIP', 'ADE', 'AGDF', 'AGEA'];
+      }
+    }
+
     var projectsJql = projects.map(p => '"' + p + '"').join(',');
 
     console.log('POD Dashboard: Fetching data for projects:', projects);
 
-    // Query 1: Get all issues in ANY active sprint (current or upcoming)
-    // Using JQL: find issues assigned to sprints that are not closed
-    var sprintIssuesJql = 'sprint in openSprints() AND project IN (' + projectsJql + ')';
+    // Query 1: Get all issues in ACTIVE sprint only (FIXED: was openSprints() including future)
+    // Using JQL: find issues in current active sprint only
+    var sprintIssuesJql = 'sprint = currentSprint() AND project IN (' + projectsJql + ')';
     var sprintIssuesRes = await jiraFetch(
       '/search?jql=' + encodeURIComponent(sprintIssuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint',
       {method: 'GET'}
