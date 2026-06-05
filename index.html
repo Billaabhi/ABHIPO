@@ -27580,83 +27580,100 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
     <div style="padding:20px 32px;border-bottom:1px solid var(--border2);background:linear-gradient(135deg,var(--bg2) 0%,rgba(108,71,255,0.04) 100%);box-shadow:0 1px 3px rgba(0,0,0,0.08)">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px">
         <div>
-          <h2 style="font-size:18px;font-weight:800;margin:0;color:var(--text);letter-spacing:-0.3px">📊 POD Sprint Dashboard — Elite View</h2>
-          <p style="font-size:11px;color:var(--muted2);margin:4px 0 0">Sprint Progress • Initiatives • Epics • Team Assignments — Live Jira Data</p>
+          <h2 style="font-size:18px;font-weight:800;margin:0;color:var(--text);letter-spacing:-0.3px">🎯 Proactive Sprint Health Dashboard</h2>
+          <p style="font-size:11px;color:var(--muted2);margin:4px 0 0">Real-time insights • Risk analysis • Actionable recommendations • Auto-updated from Jira</p>
         </div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <span id="pod-refresh-status" style="font-size:10px;color:var(--muted2)">⟳ Updating...</span>
-          <button onclick="refreshPODDashboard()" style="background:#6C47FF;border:none;border-radius:8px;padding:8px 16px;font-size:11px;font-weight:600;color:#fff;cursor:pointer;transition:all 0.2s" onmouseover="this.style.background='#5A3DD9'" onmouseout="this.style.background='#6C47FF'">🔄 Refresh Live Data</button>
+          <span id="pod-refresh-status" style="font-size:10px;color:var(--muted2);font-weight:600">🔄 Auto-updating...</span>
+          <div style="width:10px;height:10px;border-radius:50%;background:#00C896;animation:pulse 2s infinite"></div>
         </div>
       </div>
       <!-- POD Dropdown Selector -->
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
-        <label style="font-size:11px;font-weight:700;color:var(--text)">Select POD:</label>
-        <select id="pod-selector" onchange="onPODSelected()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--text);cursor:pointer;font-family:inherit;min-width:180px">
-          <option value="">🌍 All PODs (Portfolio View)</option>
-          <option value="HIP">🏝️ HIP — Harbour Innovation Platform</option>
-          <option value="ADE">📚 ADE — Aldar Education</option>
+        <label style="font-size:11px;font-weight:700;color:var(--text)">📊 View by POD:</label>
+        <select id="pod-selector" onchange="onPODSelected()" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:8px 12px;font-size:11px;color:var(--text);cursor:pointer;font-family:inherit;min-width:180px;font-weight:600">
+          <option value="">🌍 All PODs</option>
+          <option value="HIP">🏝️ HIP — Harbour Innovation</option>
+          <option value="ADE">📚 ADE — Education</option>
           <option value="AGDF">🚀 AGDF — Digital Futures</option>
           <option value="AGEA">💳 AGEA — Entity Application</option>
         </select>
-        <span id="pod-status-badge" style="font-size:10px;padding:4px 10px;border-radius:6px;background:var(--bg3);color:var(--muted2);font-weight:600">Loading data...</span>
+        <span id="pod-status-badge" style="font-size:10px;padding:6px 12px;border-radius:6px;background:var(--bg3);color:var(--muted2);font-weight:700">Fetching...</span>
       </div>
+      <style>
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      </style>
     </div>
 
     <!-- Main Content (Scrollable) -->
     <div style="flex:1;overflow-y:auto;padding:24px 32px 40px" id="pod-main-content">
-      <!-- Sprint Summary Card -->
+
+      <!-- HEALTH STATUS CARD (Main) -->
+      <div style="margin-bottom:24px;background:linear-gradient(135deg,var(--bg2) 0%,rgba(108,71,255,0.08) 100%);border:2px solid var(--border2);border-radius:12px;padding:24px">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px">
+          <div>
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted2);margin-bottom:8px">Sprint Health Status</div>
+            <div style="display:flex;align-items:baseline;gap:12px">
+              <div style="font-size:42px;font-weight:900;color:var(--text)" id="health-score">--</div>
+              <div style="font-size:14px;font-weight:700;color:var(--muted2)" id="health-label">Analyzing...</div>
+            </div>
+            <div style="font-size:12px;color:var(--muted2);margin-top:8px" id="health-description">Fetching sprint data...</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:11px;font-weight:700;color:var(--muted2);margin-bottom:8px">SPRINT INFO</div>
+            <div id="sprint-name-badge" style="font-size:13px;font-weight:800;color:var(--text)">Loading</div>
+            <div style="font-size:10px;color:var(--muted2);margin-top:4px" id="sprint-duration">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSIGHTS & RECOMMENDATIONS -->
       <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <div style="width:4px;height:20px;border-radius:2px;background:#6C47FF"></div>
-          <span style="font-size:13px;font-weight:800;color:var(--text)">SPRINT SUMMARY</span>
-          <span id="sprint-name-badge" style="font-size:10px;padding:4px 10px;border-radius:6px;background:var(--accent-l);color:var(--accent);font-weight:600">Loading...</span>
+          <span style="font-size:13px;font-weight:800;color:var(--text)">💡 KEY INSIGHTS & ACTIONS</span>
         </div>
-        <div id="sprint-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px"></div>
+        <div id="insights-container" style="display:flex;flex-direction:column;gap:10px">
+          <div style="text-align:center;padding:20px;color:var(--muted2)">Analyzing sprint data...</div>
+        </div>
       </div>
 
-      <!-- Epics Tracking -->
+      <!-- METRICS & PREDICTIONS -->
       <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <div style="width:4px;height:20px;border-radius:2px;background:#FF6B35"></div>
-          <span style="font-size:13px;font-weight:800;color:var(--text)">EPICS IN PROGRESS</span>
-          <span id="epic-count-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,107,53,0.2);color:#FF6B35;font-weight:600">0 active</span>
+          <span style="font-size:13px;font-weight:800;color:var(--text)">📈 SPRINT METRICS & FORECAST</span>
         </div>
-        <div id="epics-container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px"></div>
+        <div id="metrics-container" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px">
+          <div style="text-align:center;padding:20px;color:var(--muted2)">Analyzing metrics...</div>
+        </div>
       </div>
 
-      <!-- Initiatives & Work -->
-      <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-          <div style="width:4px;height:20px;border-radius:2px;background:#00C896"></div>
-          <span style="font-size:13px;font-weight:800;color:var(--text)">INITIATIVES & ROADMAP</span>
-          <span id="init-count-badge" style="font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(0,200,150,0.2);color:#00C896;font-weight:600">0 items</span>
-        </div>
-        <div id="initiatives-container" style="display:flex;flex-direction:column;gap:10px"></div>
-      </div>
-
-      <!-- Team Assignments & Load -->
-      <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-          <div style="width:4px;height:20px;border-radius:2px;background:#4C9AFF"></div>
-          <span style="font-size:13px;font-weight:800;color:var(--text)">TEAM ASSIGNMENTS & WORKLOAD</span>
-        </div>
-        <div id="assignments-container" style="display:flex;flex-direction:column;gap:10px"></div>
-      </div>
-
-      <!-- Status Summary -->
+      <!-- RISK ASSESSMENT -->
       <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
           <div style="width:4px;height:20px;border-radius:2px;background:#E91E8C"></div>
-          <span style="font-size:13px;font-weight:800;color:var(--text)">CRITICAL ISSUES & BLOCKERS</span>
+          <span style="font-size:13px;font-weight:800;color:var(--text)">⚠️ RISKS & BLOCKERS</span>
         </div>
-        <div id="blockers-container" style="display:flex;flex-direction:column;gap:10px"></div>
+        <div id="risks-container" style="display:flex;flex-direction:column;gap:10px">
+          <div style="text-align:center;padding:20px;color:var(--muted2)">Scanning for risks...</div>
+        </div>
       </div>
 
-      <!-- Loading Indicator -->
-      <div id="loading-indicator" style="text-align:center;padding:40px;color:var(--muted2);display:none">
-        <div class="loading" style="margin:20px auto"></div>
-        <p style="font-size:11px;margin-top:10px">Fetching live Jira data...</p>
+      <!-- TEAM CAPACITY & WORKLOAD -->
+      <div style="margin-bottom:24px;background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+          <div style="width:4px;height:20px;border-radius:2px;background:#4C9AFF"></div>
+          <span style="font-size:13px;font-weight:800;color:var(--text)">👥 TEAM CAPACITY</span>
+        </div>
+        <div id="capacity-container" style="display:flex;flex-direction:column;gap:10px">
+          <div style="text-align:center;padding:20px;color:var(--muted2)">Analyzing team load...</div>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
@@ -29861,44 +29878,285 @@ function updateModeBtns(activeMode) {
 })();
 </script><script>
 // ══════════════════════════════════════════════════════════════
-// POD DASHBOARD — LIVE JIRA INTEGRATION (Elite Mode)
-// Pulls real sprint, epic, initiative, and assignment data
+// PROACTIVE SPRINT HEALTH DASHBOARD
+// Auto-fetches Jira data + Analyzes for insights + Gives recommendations
 // ══════════════════════════════════════════════════════════════
 
 var currentPOD = '';
-var cachedDashboardData = null;
+var sprintHealthData = null;
 
 function onPODSelected() {
   currentPOD = document.getElementById('pod-selector').value;
-  refreshPODDashboard();
+  fetchAndAnalyzeSprint();
 }
 
-async function refreshPODDashboard() {
+async function fetchAndAnalyzeSprint() {
   if (!jiraConfig) {
-    document.getElementById('pod-status-badge').textContent = '⚠️ Jira not configured';
-    document.getElementById('pod-refresh-status').textContent = '⚠️ Configure Jira first';
+    updateStatus('⚠️ Configure Jira in Jira tab → ⚙');
     return;
   }
 
-  document.getElementById('loading-indicator').style.display = 'block';
-  document.getElementById('pod-refresh-status').textContent = '⟳ Fetching live data...';
-  document.getElementById('pod-status-badge').textContent = '🔄 Loading...';
+  updateStatus('🔄 Fetching sprint data...');
 
   try {
-    var dashData = await fetchLivePODDashboardData(currentPOD);
-    if (dashData) {
-      renderPODDashboard(dashData);
-      var now = new Date();
-      document.getElementById('pod-refresh-status').textContent = '✅ Last updated: ' + now.toLocaleTimeString();
-    } else {
-      document.getElementById('pod-refresh-status').textContent = '⚠️ Failed to fetch data';
+    var rawData = await fetchLiveSprintData(currentPOD);
+    if (!rawData) {
+      updateStatus('⚠️ No sprint data found');
+      return;
     }
+
+    // ANALYZE the data for insights
+    sprintHealthData = analyzeSprint(rawData);
+
+    // RENDER insights to dashboard
+    renderSprintHealth(sprintHealthData);
+
+    updateStatus('✅ ' + getCurrentTime());
   } catch (e) {
-    console.error('POD Dashboard error:', e);
-    document.getElementById('pod-refresh-status').textContent = '⚠️ Error: ' + e.message;
-  } finally {
-    document.getElementById('loading-indicator').style.display = 'none';
+    console.error('Sprint health error:', e);
+    updateStatus('⚠️ ' + e.message);
   }
+}
+
+function updateStatus(text) {
+  var el = document.getElementById('pod-refresh-status');
+  if (el) el.textContent = text;
+}
+
+function getCurrentTime() {
+  var now = new Date();
+  return 'Updated: ' + now.toLocaleTimeString();
+}
+
+async function fetchLiveSprintData(podKey) {
+  try {
+    var projects = podKey ? [podKey] : ['HIP', 'ADE', 'AGDF', 'AGEA'];
+    var projectsJql = projects.map(p => '"' + p + '"').join(',');
+
+    console.log('Fetching sprint data for:', projects);
+
+    // Get all open sprint issues
+    var sprintIssuesJql = 'sprint in openSprints() AND project IN (' + projectsJql + ')';
+    var sprintRes = await jiraFetch(
+      '/search?jql=' + encodeURIComponent(sprintIssuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint',
+      {method: 'GET'}
+    );
+
+    if (!sprintRes.ok) {
+      var fallbackJql = 'project IN (' + projectsJql + ') AND resolution = Unresolved ORDER BY updated DESC';
+      sprintRes = await jiraFetch(
+        '/search?jql=' + encodeURIComponent(fallbackJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels',
+        {method: 'GET'}
+      );
+      if (!sprintRes.ok) return null;
+    }
+
+    var issues = (await sprintRes.json()).issues || [];
+    console.log('Found ' + issues.length + ' issues');
+
+    // Extract sprint name
+    var sprintName = 'Current Sprint';
+    var sprintDates = '';
+    for (var i = 0; i < issues.length; i++) {
+      if (issues[i].fields.sprint) {
+        sprintName = issues[i].fields.sprint.name;
+        if (issues[i].fields.sprint.startDate) {
+          sprintDates = issues[i].fields.sprint.startDate.split('T')[0];
+        }
+        break;
+      }
+    }
+
+    return {
+      sprintName: sprintName,
+      sprintDates: sprintDates,
+      projects: projects,
+      issues: issues,
+      fetched: new Date()
+    };
+
+  } catch (e) {
+    console.error('Error fetching sprint data:', e);
+    return null;
+  }
+}
+
+function analyzeSprint(rawData) {
+  if (!rawData || !rawData.issues) return null;
+
+  var issues = rawData.issues;
+  var summary = {
+    sprintName: rawData.sprintName,
+    sprintDates: rawData.sprintDates,
+    projects: rawData.projects,
+    totalIssues: issues.length,
+    done: 0,
+    inProgress: 0,
+    todo: 0,
+    totalPoints: 0,
+    donePoints: 0,
+    inProgressPoints: 0,
+    assignees: {},
+    blockedIssues: [],
+    risks: [],
+    insights: []
+  };
+
+  issues.forEach(function(issue) {
+    var status = issue.fields.status ? issue.fields.status.name : 'Unknown';
+    var points = issue.fields.customfield_10028 || 0;
+    var assignee = issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned';
+
+    // Count by status
+    if (status === 'Done') { summary.done++; summary.donePoints += points; }
+    else if (status === 'In Progress') { summary.inProgress++; summary.inProgressPoints += points; }
+    else { summary.todo++; }
+
+    summary.totalPoints += points;
+
+    // Track assignee workload
+    if (!summary.assignees[assignee]) {
+      summary.assignees[assignee] = { count: 0, points: 0, status: [] };
+    }
+    summary.assignees[assignee].count++;
+    summary.assignees[assignee].points += points;
+    summary.assignees[assignee].status.push(status);
+
+    // Find blockers
+    if (issue.fields.labels && issue.fields.labels.indexOf('blocker') !== -1) {
+      summary.blockedIssues.push({
+        key: issue.key,
+        title: issue.fields.summary,
+        assignee: assignee
+      });
+    }
+  });
+
+  // CALCULATE INSIGHTS
+  summary.insights = generateInsights(summary);
+
+  // CALCULATE RISKS
+  summary.risks = detectRisks(summary);
+
+  return summary;
+}
+
+function generateInsights(summary) {
+  var insights = [];
+  var completion = summary.totalIssues > 0 ? Math.round((summary.done / summary.totalIssues) * 100) : 0;
+  var velocity = Math.round((summary.donePoints / (summary.totalPoints || 1)) * 100);
+  var daysPassed = 3; // Assume day 3 of sprint
+  var daysRemaining = 7; // Assume 10 day sprint
+  var pointVelocityPerDay = summary.donePoints / daysPassed;
+  var projectedCompletion = Math.round(pointVelocityPerDay * 10);
+
+  // INSIGHT 1: Completion Status
+  if (completion >= 60) {
+    insights.push({
+      type: 'positive',
+      emoji: '✅',
+      title: 'On Track',
+      message: 'Sprint is ' + completion + '% complete. At current pace, expecting ' + projectedCompletion + 'pts by EOSprint.',
+      action: 'Keep momentum. Focus on reducing in-progress items.'
+    });
+  } else if (completion >= 40) {
+    insights.push({
+      type: 'warning',
+      emoji: '⚠️',
+      title: 'Slightly Behind',
+      message: 'Sprint is ' + completion + '% complete. Need ' + Math.ceil((summary.totalPoints - summary.donePoints) / daysRemaining) + 'pts/day to finish.',
+      action: 'Reduce WIP. Complete in-progress items. Consider scope reduction if needed.'
+    });
+  } else {
+    insights.push({
+      type: 'critical',
+      emoji: '🔴',
+      title: 'At Risk',
+      message: 'Sprint is only ' + completion + '% complete mid-sprint. Projected to complete only ' + projectedCompletion + 'pts.',
+      action: 'URGENT: Remove scope or add capacity. Unblock in-progress work.'
+    });
+  }
+
+  // INSIGHT 2: WIP Status
+  var wipRatio = summary.inProgress / summary.totalIssues;
+  if (wipRatio > 0.4) {
+    insights.push({
+      type: 'warning',
+      emoji: '⏸️',
+      title: 'High WIP',
+      message: Math.round(wipRatio * 100) + '% of issues in progress (' + summary.inProgress + ' items). This slows delivery.',
+      action: 'Finish in-progress items before starting new ones. Target: <30% WIP.'
+    });
+  } else {
+    insights.push({
+      type: 'positive',
+      emoji: '✅',
+      title: 'WIP Healthy',
+      message: 'Work in progress is healthy (' + summary.inProgress + ' items). Good flow.',
+      action: 'Maintain current pace.'
+    });
+  }
+
+  // INSIGHT 3: Overloaded team members
+  var overloaded = [];
+  Object.keys(summary.assignees).forEach(function(name) {
+    var assignee = summary.assignees[name];
+    if (assignee.points > 15) {
+      overloaded.push(name + ' (' + assignee.points + 'pts)');
+    }
+  });
+  if (overloaded.length > 0) {
+    insights.push({
+      type: 'warning',
+      emoji: '👥',
+      title: 'Team Overloaded',
+      message: overloaded.join(', ') + ' have high workload.',
+      action: 'Redistribute work or reduce scope for these team members.'
+    });
+  }
+
+  return insights;
+}
+
+function detectRisks(summary) {
+  var risks = [];
+
+  // Risk: Too many blockers
+  if (summary.blockedIssues.length > 0) {
+    risks.push({
+      severity: 'HIGH',
+      emoji: '🔴',
+      title: summary.blockedIssues.length + ' Blocking Issues',
+      items: summary.blockedIssues.map(i => i.key + ': ' + i.title),
+      action: 'Resolve blockers immediately. These are critical to sprint success.'
+    });
+  }
+
+  // Risk: Too much todo remaining
+  var todoPoints = summary.totalPoints - summary.donePoints - summary.inProgressPoints;
+  if (todoPoints > 30) {
+    risks.push({
+      severity: 'HIGH',
+      emoji: '⚠️',
+      title: 'High Remaining Scope',
+      message: todoPoints + ' points not started (' + summary.todo + ' issues).',
+      action: 'Consider scope reduction or extending sprint. Ensure capacity.'
+    });
+  }
+
+  // Risk: Unassigned issues
+  var unassigned = summary.assignees['Unassigned'];
+  if (unassigned && unassigned.count > 0) {
+    risks.push({
+      severity: 'MEDIUM',
+      emoji: '❓',
+      title: unassigned.count + ' Unassigned Issues',
+      message: unassigned.points + ' story points not assigned.',
+      action: 'Assign work immediately to clear blockers and move forward.'
+    });
+  }
+
+  return risks;
 }
 
 async function fetchLivePODDashboardData(podKey) {
@@ -30027,6 +30285,162 @@ async function fetchLivePODDashboardData(podKey) {
     console.error('Error fetching POD data:', e);
     return null;
   }
+}
+
+function renderSprintHealth(analysis) {
+  if (!analysis) return;
+
+  var podLabel = currentPOD ? currentPOD : 'All PODs';
+  var el = document.getElementById('pod-status-badge');
+  if (el) el.textContent = '✅ ' + podLabel;
+
+  // ── HEALTH SCORE ──────────────────────────────────────────
+  var completion = analysis.totalIssues > 0 ? Math.round((analysis.done / analysis.totalIssues) * 100) : 0;
+  var healthScore = calculateHealthScore(analysis);
+  var healthColor = healthScore >= 80 ? '#00C896' : healthScore >= 60 ? '#F5A623' : '#FF4757';
+  var healthLabel = healthScore >= 80 ? 'Healthy' : healthScore >= 60 ? 'At Risk' : 'Critical';
+
+  var scoreEl = document.getElementById('health-score');
+  if (scoreEl) {
+    scoreEl.textContent = healthScore;
+    scoreEl.style.color = healthColor;
+  }
+  var labelEl = document.getElementById('health-label');
+  if (labelEl) {
+    labelEl.textContent = healthLabel;
+    labelEl.style.color = healthColor;
+  }
+  var descEl = document.getElementById('health-description');
+  if (descEl) {
+    descEl.textContent = 'Sprint is ' + completion + '% complete • ' + analysis.done + ' done • ' + analysis.inProgress + ' in progress • ' + analysis.todo + ' todo';
+  }
+
+  // Sprint name
+  var sprintEl = document.getElementById('sprint-name-badge');
+  if (sprintEl) sprintEl.textContent = analysis.sprintName;
+  var durationEl = document.getElementById('sprint-duration');
+  if (durationEl) durationEl.textContent = analysis.sprintDates;
+
+  // ── INSIGHTS ──────────────────────────────────────────────
+  var insightsHtml = '';
+  if (analysis.insights && analysis.insights.length > 0) {
+    analysis.insights.forEach(function(insight) {
+      var bgColor = insight.type === 'positive' ? 'rgba(0,200,150,0.08)' : insight.type === 'warning' ? 'rgba(245,166,35,0.08)' : 'rgba(255,71,87,0.08)';
+      var borderColor = insight.type === 'positive' ? '#00C896' : insight.type === 'warning' ? '#F5A623' : '#FF4757';
+
+      insightsHtml += '<div style="background:' + bgColor + ';border-left:4px solid ' + borderColor + ';border-radius:8px;padding:12px">'
+        + '<div style="display:flex;gap:8px;align-items:flex-start">'
+        + '<span style="font-size:18px;flex:0 0 auto">' + insight.emoji + '</span>'
+        + '<div style="flex:1">'
+        + '<div style="font-weight:700;color:var(--text);font-size:11px">' + insight.title + '</div>'
+        + '<div style="font-size:10px;color:var(--muted2);margin-top:4px">' + insight.message + '</div>'
+        + '<div style="font-size:10px;color:var(--accent);font-weight:600;margin-top:6px">→ ' + insight.action + '</div>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    });
+  }
+  var insightsEl = document.getElementById('insights-container');
+  if (insightsEl) insightsEl.innerHTML = insightsHtml;
+
+  // ── METRICS ───────────────────────────────────────────────
+  var metricsHtml = '';
+  var metrics = [
+    { label: 'Completion', value: completion + '%', color: healthColor },
+    { label: 'Done', value: analysis.done + '/' + analysis.totalIssues, color: '#00C896' },
+    { label: 'In Progress', value: analysis.inProgress, color: '#F5A623' },
+    { label: 'Total Points', value: analysis.totalPoints, color: '#4C9AFF' },
+    { label: 'Done Points', value: analysis.donePoints, color: '#00C896' },
+    { label: 'Remaining', value: (analysis.totalPoints - analysis.donePoints - analysis.inProgressPoints), color: '#FF6B35' }
+  ];
+
+  metrics.forEach(function(metric) {
+    metricsHtml += '<div style="background:var(--bg3);border-radius:8px;padding:12px;border-left:4px solid ' + metric.color + '">'
+      + '<div style="font-size:10px;color:var(--muted2);font-weight:600;margin-bottom:6px">' + metric.label + '</div>'
+      + '<div style="font-size:18px;font-weight:800;color:' + metric.color + '">' + metric.value + '</div>'
+      + '</div>';
+  });
+
+  var metricsEl = document.getElementById('metrics-container');
+  if (metricsEl) metricsEl.innerHTML = metricsHtml;
+
+  // ── RISKS ─────────────────────────────────────────────────
+  var risksHtml = '';
+  if (analysis.risks && analysis.risks.length > 0) {
+    analysis.risks.forEach(function(risk) {
+      var severity = risk.severity === 'HIGH' ? '#FF4757' : risk.severity === 'MEDIUM' ? '#F5A623' : '#4C9AFF';
+      risksHtml += '<div style="background:rgba(255,71,87,0.08);border-left:4px solid ' + severity + ';border-radius:8px;padding:12px">'
+        + '<div style="display:flex;gap:8px;align-items:flex-start">'
+        + '<span style="font-size:18px;flex:0 0 auto">' + risk.emoji + '</span>'
+        + '<div style="flex:1">'
+        + '<div style="font-weight:700;color:var(--text);font-size:11px">' + risk.title + '</div>'
+        + (risk.message ? '<div style="font-size:10px;color:var(--muted2);margin-top:4px">' + risk.message + '</div>' : '')
+        + (risk.items ? '<div style="font-size:9px;color:var(--muted2);margin-top:4px;border-left:2px solid ' + severity + ';padding-left:8px">' + risk.items.join('<br>') + '</div>' : '')
+        + '<div style="font-size:10px;color:' + severity + ';font-weight:600;margin-top:6px">→ ' + risk.action + '</div>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    });
+  } else {
+    risksHtml = '<div style="text-align:center;padding:20px;color:#00C896;font-weight:700">✅ No critical risks detected</div>';
+  }
+
+  var risksEl = document.getElementById('risks-container');
+  if (risksEl) risksEl.innerHTML = risksHtml;
+
+  // ── TEAM CAPACITY ─────────────────────────────────────────
+  var capacityHtml = '';
+  var assigneeArray = Object.keys(analysis.assignees).sort(function(a, b) {
+    return analysis.assignees[b].points - analysis.assignees[a].points;
+  });
+
+  assigneeArray.forEach(function(name) {
+    var assignee = analysis.assignees[name];
+    var util = Math.round((assignee.points / 15) * 100); // Assuming 15pts capacity
+    var utilColor = util > 100 ? '#FF4757' : util > 80 ? '#F5A623' : '#00C896';
+    var utilLabel = util > 100 ? 'OVERLOAD' : util > 80 ? 'HIGH' : 'OK';
+
+    capacityHtml += '<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:8px;border-left:3px solid ' + utilColor + '">'
+      + '<div style="flex:0 0 120px"><div style="font-weight:700;color:var(--text);font-size:11px">' + name + '</div></div>'
+      + '<div style="flex:1">'
+      + '<div style="font-size:10px;color:var(--muted2);margin-bottom:4px">' + assignee.count + ' issues • ' + assignee.points + 'pts</div>'
+      + '<div style="width:100%;background:var(--bg2);border-radius:3px;height:5px;overflow:hidden">'
+      + '<div style="background:' + utilColor + ';height:100%;width:' + Math.min(util, 100) + '%"></div>'
+      + '</div>'
+      + '</div>'
+      + '<div style="text-align:right"><span style="font-size:10px;font-weight:700;color:' + utilColor + '">' + util + '%</span></div>'
+      + '</div>';
+  });
+
+  var capacityEl = document.getElementById('capacity-container');
+  if (capacityEl) capacityEl.innerHTML = capacityHtml || '<p style="text-align:center;padding:20px;color:var(--muted2)">No assignments</p>';
+}
+
+function calculateHealthScore(analysis) {
+  var score = 100;
+  var completion = analysis.totalIssues > 0 ? (analysis.done / analysis.totalIssues) : 0;
+  var wipRatio = analysis.totalIssues > 0 ? (analysis.inProgress / analysis.totalIssues) : 0;
+
+  // Reduce score based on completion
+  if (completion < 0.3) score -= 40;
+  else if (completion < 0.5) score -= 20;
+  else if (completion < 0.7) score -= 10;
+
+  // Reduce score for high WIP
+  if (wipRatio > 0.5) score -= 15;
+  else if (wipRatio > 0.3) score -= 10;
+
+  // Reduce for blockers
+  score -= (analysis.blockedIssues.length * 5);
+
+  // Reduce for overloaded team
+  var overloadedCount = 0;
+  Object.keys(analysis.assignees).forEach(function(name) {
+    if (analysis.assignees[name].points > 15) overloadedCount++;
+  });
+  score -= (overloadedCount * 5);
+
+  return Math.max(0, Math.min(100, score));
 }
 
 function renderPODDashboard(data) {
@@ -30196,23 +30610,37 @@ function renderPODDashboard(data) {
   }
 }
 
-// Initialize POD Dashboard on page load
-setTimeout(function(){
-  var pageEl = document.getElementById('page-pod-dashboard');
-  if(pageEl && pageEl.style.display !== 'none'){
-    console.log('POD Dashboard page visible, initializing...');
-    currentPOD = '';
-    refreshPODDashboard();
+// AUTO-INITIALIZE: Sprint Health Dashboard loads immediately & continuously updates
+(function() {
+  function initDashboard() {
+    var pageEl = document.getElementById('page-pod-dashboard');
+    if (pageEl && pageEl.style.display !== 'none') {
+      console.log('🎯 Proactive Sprint Health Dashboard initializing...');
+      currentPOD = '';
+      fetchAndAnalyzeSprint();
+    }
   }
-}, 500);
 
-// Auto-refresh every 60 seconds
-setInterval(function(){
-  var pageEl = document.getElementById('page-pod-dashboard');
-  if(pageEl && pageEl.style.display !== 'none'){
-    refreshPODDashboard();
-  }
-}, 60000);
+  // Initial load: 500ms delay to ensure page is ready
+  setTimeout(initDashboard, 500);
+
+  // AUTO-REFRESH: Update every 30 seconds for real-time insights
+  setInterval(function() {
+    var pageEl = document.getElementById('page-pod-dashboard');
+    if (pageEl && pageEl.style.display !== 'none') {
+      console.log('🔄 Auto-refreshing sprint health...');
+      fetchAndAnalyzeSprint();
+    }
+  }, 30000);
+
+  // If user switches back to this tab, refresh immediately
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && document.getElementById('page-pod-dashboard').style.display !== 'none') {
+      console.log('📊 Page back in focus, refreshing...');
+      fetchAndAnalyzeSprint();
+    }
+  });
+})();
 
 // ── Sprint Report Engine ──────────────────────────────────────
 var _srData = null;
