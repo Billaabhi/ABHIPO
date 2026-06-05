@@ -29907,41 +29907,63 @@ async function fetchLivePODDashboardData(podKey) {
     var projects = podKey ? [podKey] : ['HIP', 'ADE', 'AGDF', 'AGEA'];
     var projectsJql = projects.map(p => '"' + p + '"').join(',');
 
-    // Query 1: Get current active sprint
-    var sprintsRes = await jiraFetch('/board/1/sprint?state=active&maxResults=5', {_workerAuth: true});
-    if (!sprintsRes.ok) {
-      console.warn('Could not fetch sprints');
-      return null;
-    }
-    var sprintData = (await sprintsRes.json()).values || [];
-    if (sprintData.length === 0) {
-      console.warn('No active sprint found');
-      return null;
-    }
-    var activeSprint = sprintData[0];
-    var sprintId = activeSprint.id;
-    var sprintName = activeSprint.name;
+    console.log('POD Dashboard: Fetching data for projects:', projects);
 
-    // Query 2: Get all issues in sprint
-    var issuesJql = 'sprint=' + sprintId + ' AND project IN (' + projectsJql + ')';
-    var issuesRes = await jiraFetch(
-      '/search?jql=' + encodeURIComponent(issuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels',
-      {_workerAuth: true}
+    // Query 1: Get all issues in ANY active sprint (current or upcoming)
+    // Using JQL: find issues assigned to sprints that are not closed
+    var sprintIssuesJql = 'sprint in openSprints() AND project IN (' + projectsJql + ')';
+    var sprintIssuesRes = await jiraFetch(
+      '/search?jql=' + encodeURIComponent(sprintIssuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint',
+      {method: 'GET'}
     );
-    if (!issuesRes.ok) return null;
-    var issues = (await issuesRes.json()).issues || [];
 
-    // Query 3: Get all epics
+    if (!sprintIssuesRes.ok) {
+      console.warn('Could not fetch sprint issues, trying alternative JQL');
+      // Fallback: get all non-done issues
+      var fallbackJql = 'project IN (' + projectsJql + ') AND resolution = Unresolved ORDER BY updated DESC';
+      sprintIssuesRes = await jiraFetch(
+        '/search?jql=' + encodeURIComponent(fallbackJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels',
+        {method: 'GET'}
+      );
+      if (!sprintIssuesRes.ok) {
+        console.error('Failed to fetch issues');
+        return null;
+      }
+    }
+
+    var issues = (await sprintIssuesRes.json()).issues || [];
+    console.log('Found ' + issues.length + ' issues');
+
+    if (issues.length === 0) {
+      console.warn('No issues found');
+      return {
+        sprint: { sprint: 'No Active Sprint', totalIssues: 0, inProgress: 0, completed: 0, todo: 0, totalPoints: 0, completedPoints: 0, assignees: {} },
+        epics: [],
+        issues: [],
+        assignees: {}
+      };
+    }
+
+    // Extract sprint name from first issue that has sprint info
+    var sprintName = 'Current Sprint';
+    for (var i = 0; i < issues.length; i++) {
+      if (issues[i].fields.sprint) {
+        sprintName = issues[i].fields.sprint.name;
+        break;
+      }
+    }
+
+    // Query 2: Get all epics
     var epicsRes = await jiraFetch(
-      '/search?jql=type=Epic AND project IN (' + projectsJql + ')&maxResults=50&fields=key,summary,status,customfield_10011',
-      {_workerAuth: true}
+      '/search?jql=type=Epic AND project IN (' + projectsJql + ')&maxResults=50&fields=key,summary,status',
+      {method: 'GET'}
     );
     var epics = epicsRes.ok ? (await epicsRes.json()).issues || [] : [];
+    console.log('Found ' + epics.length + ' epics');
 
     // Aggregate data
     var summary = {
       sprint: sprintName,
-      sprintId: sprintId,
       projects: projects,
       totalIssues: issues.length,
       inProgress: 0,
@@ -29957,16 +29979,15 @@ async function fetchLivePODDashboardData(podKey) {
       epicMap[epic.key] = {
         key: epic.key,
         title: epic.fields.summary,
-        status: epic.fields.status.name,
+        status: epic.fields.status ? epic.fields.status.name : 'Unknown',
         issues: []
       };
     });
 
     issues.forEach(function(issue) {
       var points = issue.fields.customfield_10028 || 0;
-      var status = issue.fields.status.name;
+      var status = issue.fields.status ? issue.fields.status.name : 'Unknown';
       var assignee = issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned';
-      var type = issue.fields.issuetype.name;
 
       // Aggregate status
       if (status === 'Done') { summary.completed++; summary.completedPoints += points; }
@@ -29982,7 +30003,7 @@ async function fetchLivePODDashboardData(podKey) {
       summary.assignees[assignee].points += points;
       summary.assignees[assignee].tasks.push(issue.key + ': ' + issue.fields.summary);
 
-      // Link to epic
+      // Link to epic (if issue has parent epic)
       if (issue.fields.parent && epicMap[issue.fields.parent.key]) {
         epicMap[issue.fields.parent.key].issues.push({
           key: issue.key,
@@ -29994,6 +30015,7 @@ async function fetchLivePODDashboardData(podKey) {
       }
     });
 
+    console.log('Summary:', summary);
     return {
       sprint: summary,
       epics: Object.values(epicMap),
@@ -30008,25 +30030,37 @@ async function fetchLivePODDashboardData(podKey) {
 }
 
 function renderPODDashboard(data) {
-  if (!data) return;
+  if (!data) {
+    console.warn('No data to render');
+    document.getElementById('pod-status-badge').textContent = '⚠️ No data';
+    return;
+  }
 
   var podLabel = currentPOD ? currentPOD : 'All PODs';
   document.getElementById('pod-status-badge').textContent = '✅ ' + podLabel;
 
   // ── SPRINT SUMMARY ──────────────────────────────────────────
   var s = data.sprint;
+  if (!s) {
+    console.warn('No sprint data');
+    return;
+  }
+
   var velocity = Math.round((s.completedPoints / (s.totalPoints || 1)) * 100);
   var progress = s.totalPoints > 0 ? Math.round((s.completedPoints / s.totalPoints) * 100) : 0;
 
-  document.getElementById('sprint-name-badge').textContent = s.sprint;
+  var sprintNameEl = document.getElementById('sprint-name-badge');
+  if (sprintNameEl) {
+    sprintNameEl.textContent = s.sprint || 'No Sprint';
+  }
 
   var summaryCards = [
-    { label: 'Total Items', value: s.totalIssues, unit: '', color: '#6C47FF' },
-    { label: 'In Progress', value: s.inProgress, unit: 'items', color: '#F5A623' },
-    { label: 'Completed', value: s.completed, unit: 'items', color: '#00C896' },
-    { label: 'Story Points', value: s.totalPoints, unit: 'total', color: '#4C9AFF' },
+    { label: 'Total Items', value: s.totalIssues || 0, unit: '', color: '#6C47FF' },
+    { label: 'In Progress', value: s.inProgress || 0, unit: 'items', color: '#F5A623' },
+    { label: 'Completed', value: s.completed || 0, unit: 'items', color: '#00C896' },
+    { label: 'Story Points', value: s.totalPoints || 0, unit: 'total', color: '#4C9AFF' },
     { label: 'Completion', value: progress, unit: '%', color: progress >= 70 ? '#00C896' : '#F5A623' },
-    { label: 'To Do', value: s.todo, unit: 'items', color: '#FF6B35' }
+    { label: 'To Do', value: s.todo || 0, unit: 'items', color: '#FF6B35' }
   ];
 
   var summaryHtml = '';
@@ -30037,52 +30071,67 @@ function renderPODDashboard(data) {
       + '<div style="font-size:9px;color:var(--muted2);margin-top:2px">' + card.unit + '</div>'
       + '</div>';
   });
-  document.getElementById('sprint-summary-cards').innerHTML = summaryHtml;
+  var summaryCardsEl = document.getElementById('sprint-summary-cards');
+  if (summaryCardsEl) {
+    summaryCardsEl.innerHTML = summaryHtml;
+  }
 
   // ── EPICS ───────────────────────────────────────────────────
   var epicsHtml = '';
-  document.getElementById('epic-count-badge').textContent = data.epics.length + ' active';
+  var epicCountEl = document.getElementById('epic-count-badge');
+  if (epicCountEl) {
+    epicCountEl.textContent = (data.epics ? data.epics.length : 0) + ' active';
+  }
 
-  data.epics.forEach(function(epic) {
-    if (epic.issues.length === 0) return; // Skip epics with no issues in sprint
-    var doneCount = epic.issues.filter(i => i.status === 'Done').length;
-    var progress = Math.round((doneCount / epic.issues.length) * 100);
-    var progressColor = progress >= 70 ? '#00C896' : progress >= 40 ? '#F5A623' : '#FF4757';
+  if (data.epics && data.epics.length > 0) {
+    data.epics.forEach(function(epic) {
+      if (!epic.issues || epic.issues.length === 0) return; // Skip epics with no issues
+      var doneCount = epic.issues.filter(function(i) { return i.status === 'Done'; }).length;
+      var progress = Math.round((doneCount / epic.issues.length) * 100);
+      var progressColor = progress >= 70 ? '#00C896' : progress >= 40 ? '#F5A623' : '#FF4757';
 
-    epicsHtml += '<div style="background:var(--bg3);border-radius:8px;padding:12px;border-left:4px solid ' + progressColor + '">'
-      + '<div style="font-weight:700;color:var(--text);margin-bottom:8px">' + epic.key + ': ' + epic.title + '</div>'
-      + '<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">' + epic.status + '</div>'
-      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
-      + '<div style="flex:1;background:var(--bg2);border-radius:4px;height:6px;overflow:hidden"><div style="background:' + progressColor + ';height:100%;width:' + progress + '%"></div></div>'
-      + '<span style="font-size:10px;font-weight:700;color:' + progressColor + '">' + doneCount + '/' + epic.issues.length + '</span>'
-      + '</div>'
-      + '<div style="display:flex;flex-wrap:wrap;gap:4px;font-size:9px">';
+      epicsHtml += '<div style="background:var(--bg3);border-radius:8px;padding:12px;border-left:4px solid ' + progressColor + '">'
+        + '<div style="font-weight:700;color:var(--text);margin-bottom:8px">' + (epic.key || 'EPIC') + ': ' + (epic.title || 'Unknown') + '</div>'
+        + '<div style="font-size:10px;color:var(--muted2);margin-bottom:8px">' + (epic.status || 'Unknown') + '</div>'
+        + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'
+        + '<div style="flex:1;background:var(--bg2);border-radius:4px;height:6px;overflow:hidden"><div style="background:' + progressColor + ';height:100%;width:' + progress + '%"></div></div>'
+        + '<span style="font-size:10px;font-weight:700;color:' + progressColor + '">' + doneCount + '/' + epic.issues.length + '</span>'
+        + '</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:4px;font-size:9px">';
 
-    epic.issues.forEach(function(issue) {
-      var statusColor = issue.status === 'Done' ? '#00C896' : issue.status === 'In Progress' ? '#F5A623' : '#6b7280';
-      epicsHtml += '<span style="background:' + statusColor + '22;color:' + statusColor + ';padding:2px 6px;border-radius:3px;font-weight:600">' + issue.key + '</span>';
+      epic.issues.forEach(function(issue) {
+        var statusColor = issue.status === 'Done' ? '#00C896' : issue.status === 'In Progress' ? '#F5A623' : '#6b7280';
+        epicsHtml += '<span style="background:' + statusColor + '22;color:' + statusColor + ';padding:2px 6px;border-radius:3px;font-weight:600">' + (issue.key || '?') + '</span>';
+      });
+
+      epicsHtml += '</div></div>';
     });
+  }
 
-    epicsHtml += '</div></div>';
-  });
-  document.getElementById('epics-container').innerHTML = epicsHtml || '<p style="color:var(--muted2);text-align:center;padding:20px">No epics in current sprint</p>';
+  var epicsContainerEl = document.getElementById('epics-container');
+  if (epicsContainerEl) {
+    epicsContainerEl.innerHTML = epicsHtml || '<p style="color:var(--muted2);text-align:center;padding:20px">No epics in current sprint</p>';
+  }
 
   // ── INITIATIVES (using labels as proxy) ──────────────────────
   var initMap = {};
-  data.issues.forEach(function(issue) {
-    var labels = issue.fields.labels || [];
-    labels.forEach(function(label) {
-      if (!initMap[label]) initMap[label] = { issues: 0, points: 0, done: 0 };
-      initMap[label].issues++;
-      initMap[label].points += (issue.fields.customfield_10028 || 0);
-      if (issue.fields.status.name === 'Done') initMap[label].done++;
+  if (data.issues && data.issues.length > 0) {
+    data.issues.forEach(function(issue) {
+      if (!issue.fields) return;
+      var labels = issue.fields.labels || [];
+      labels.forEach(function(label) {
+        if (!initMap[label]) initMap[label] = { issues: 0, points: 0, done: 0 };
+        initMap[label].issues++;
+        initMap[label].points += (issue.fields.customfield_10028 || 0);
+        if (issue.fields.status && issue.fields.status.name === 'Done') initMap[label].done++;
+      });
     });
-  });
+  }
 
   var initHtml = '';
   Object.keys(initMap).forEach(function(initName) {
     var init = initMap[initName];
-    var progress = Math.round((init.done / init.issues) * 100);
+    var progress = init.issues > 0 ? Math.round((init.done / init.issues) * 100) : 0;
     var color = progress >= 70 ? '#00C896' : progress >= 40 ? '#F5A623' : '#FF6B35';
 
     initHtml += '<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:8px;border-left:4px solid ' + color + '">'
@@ -30096,41 +30145,71 @@ function renderPODDashboard(data) {
       + '</div>';
   });
 
-  document.getElementById('init-count-badge').textContent = Object.keys(initMap).length + ' items';
-  document.getElementById('initiatives-container').innerHTML = initHtml || '<p style="color:var(--muted2);text-align:center;padding:20px">No labeled initiatives</p>';
+  var initBadgeEl = document.getElementById('init-count-badge');
+  if (initBadgeEl) {
+    initBadgeEl.textContent = Object.keys(initMap).length + ' items';
+  }
+  var initContainerEl = document.getElementById('initiatives-container');
+  if (initContainerEl) {
+    initContainerEl.innerHTML = initHtml || '<p style="color:var(--muted2);text-align:center;padding:20px">No labeled initiatives</p>';
+  }
 
   // ── TEAM ASSIGNMENTS ────────────────────────────────────────
   var assignHtml = '';
-  Object.keys(data.assignees).sort().forEach(function(assignee) {
-    var assign = data.assignees[assignee];
-    assignHtml += '<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:8px">'
-      + '<div style="flex:0 0 100px"><div style="font-weight:700;color:var(--text);font-size:11px">' + assignee + '</div></div>'
-      + '<div style="flex:1">'
-      + '<div style="font-size:10px;color:var(--muted2)">' + assign.issues + ' issues • ' + assign.points + ' story pts</div>'
-      + '</div>'
-      + '<div style="text-align:right;font-size:10px;color:var(--accent);font-weight:600">' + assign.points + 'pts</div>'
-      + '</div>';
-  });
-  document.getElementById('assignments-container').innerHTML = assignHtml || '<p style="color:var(--muted2);text-align:center;padding:20px">No assignments yet</p>';
+  if (data.assignees) {
+    Object.keys(data.assignees).sort().forEach(function(assignee) {
+      var assign = data.assignees[assignee];
+      assignHtml += '<div style="display:flex;align-items:center;gap:12px;padding:10px;background:var(--bg3);border-radius:8px">'
+        + '<div style="flex:0 0 100px"><div style="font-weight:700;color:var(--text);font-size:11px">' + assignee + '</div></div>'
+        + '<div style="flex:1">'
+        + '<div style="font-size:10px;color:var(--muted2)">' + (assign.issues || 0) + ' issues • ' + (assign.points || 0) + ' story pts</div>'
+        + '</div>'
+        + '<div style="text-align:right;font-size:10px;color:var(--accent);font-weight:600">' + (assign.points || 0) + 'pts</div>'
+        + '</div>';
+    });
+  }
+  var assignContainerEl = document.getElementById('assignments-container');
+  if (assignContainerEl) {
+    assignContainerEl.innerHTML = assignHtml || '<p style="color:var(--muted2);text-align:center;padding:20px">No assignments yet</p>';
+  }
 
   // ── BLOCKERS (issues with 'blocker' in status) ──────────────
-  var blockers = data.issues.filter(i => i.fields.labels && i.fields.labels.includes('blocker'));
+  var blockers = [];
+  if (data.issues && data.issues.length > 0) {
+    blockers = data.issues.filter(function(i) {
+      return i.fields && i.fields.labels && i.fields.labels.indexOf('blocker') !== -1;
+    });
+  }
   var blockerHtml = '';
   blockers.forEach(function(issue) {
     blockerHtml += '<div style="display:flex;gap:10px;padding:10px;background:rgba(255,71,87,0.08);border-left:4px solid #FF4757;border-radius:6px">'
       + '<span style="flex:0 0 20px;font-size:16px">🔴</span>'
       + '<div style="flex:1">'
-      + '<div style="font-weight:700;color:var(--text);font-size:11px">' + issue.key + ': ' + issue.fields.summary + '</div>'
+      + '<div style="font-weight:700;color:var(--text);font-size:11px">' + (issue.key || '?') + ': ' + (issue.fields.summary || 'Unknown') + '</div>'
       + '<div style="font-size:10px;color:var(--muted2);margin-top:2px">Assigned: ' + (issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned') + '</div>'
       + '</div>'
       + '</div>';
   });
-  document.getElementById('blockers-container').innerHTML = blockerHtml || '<p style="color:#00C896;text-align:center;padding:20px">✅ No blockers</p>';
+  var blockerContainerEl = document.getElementById('blockers-container');
+  if (blockerContainerEl) {
+    blockerContainerEl.innerHTML = blockerHtml || '<p style="color:#00C896;text-align:center;padding:20px">✅ No blockers</p>';
+  }
 }
+
+// Initialize POD Dashboard on page load
+setTimeout(function(){
+  var pageEl = document.getElementById('page-pod-dashboard');
+  if(pageEl && pageEl.style.display !== 'none'){
+    console.log('POD Dashboard page visible, initializing...');
+    currentPOD = '';
+    refreshPODDashboard();
+  }
+}, 500);
 
 // Auto-refresh every 60 seconds
 setInterval(function(){
-  if(document.getElementById('page-pod-dashboard') && document.getElementById('page-pod-dashboard').style.display !== 'none'){
+  var pageEl = document.getElementById('page-pod-dashboard');
+  if(pageEl && pageEl.style.display !== 'none'){
     refreshPODDashboard();
   }
 }, 60000);
