@@ -15,15 +15,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { path, token, instance } = req.query;
+    const { path } = req.query;
+    const jiraToken = req.headers['x-jira-token'] || process.env.JIRA_TOKEN;
+    const jiraInstance = req.headers['x-jira-instance'] || process.env.JIRA_INSTANCE;
 
     if (!path) {
       return res.status(400).json({ error: 'Missing path parameter' });
     }
-
-    // Get Jira config from request
-    const jiraToken = token || process.env.JIRA_TOKEN;
-    const jiraInstance = instance || process.env.JIRA_INSTANCE;
 
     if (!jiraToken || !jiraInstance) {
       return res.status(401).json({

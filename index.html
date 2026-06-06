@@ -29941,9 +29941,15 @@ async function jiraHubAction(action) {
       };
       var jql = jqlMap[action] || ('project = "'+proj+'" AND statusCategory != Done ORDER BY priority DESC');
       var url = proxyBase + '?path=' + enc('/rest/api/3/search/jql');
+      var cfg = jiraConfig || {};
       var res = await fetch(url, {
         method: 'POST',
-        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'X-Jira-Token': cfg.token || '',
+          'X-Jira-Instance': (cfg.domain ? 'https://' + cfg.domain : '')
+        },
         body: JSON.stringify({ jql: jql, maxResults: 40, fields: ['summary','status','issuetype','priority','assignee','customfield_10028'] })
       });
       if (res.ok) {
@@ -30109,7 +30115,14 @@ async function jiraHubTicketAction(mode) {
   if (proxyBase) {
     try {
       var url = proxyBase + '?path=' + encodeURIComponent('/rest/api/3/issue/' + key + '?fields=summary,description,status,issuetype,priority,assignee,customfield_10028,labels,comment');
-      var res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+      var cfg = jiraConfig || {};
+      var res = await fetch(url, {
+        headers: {
+          'Accept': 'application/json',
+          'X-Jira-Token': cfg.token || '',
+          'X-Jira-Instance': (cfg.domain ? 'https://' + cfg.domain : '')
+        }
+      });
       if (res.ok) {
         var data = await res.json();
         var f = data.fields || {};
@@ -30291,12 +30304,15 @@ window.jiraFetch = async function(path, opts) {
       }, 15000)
     );
 
+    var cfg = jiraConfig || {};
     var res = await Promise.race([
       fetch(url, {
         method: method,
         headers: Object.assign(
           { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          _auth ? { 'Authorization': _auth } : {}
+          _auth ? { 'Authorization': _auth } : {},
+          cfg.token ? { 'X-Jira-Token': cfg.token } : {},
+          cfg.domain ? { 'X-Jira-Instance': 'https://' + cfg.domain } : {}
         ),
         body: opts.body || undefined
       }),
@@ -32085,7 +32101,14 @@ async function generateSprintReport() {
   async function fetchJira(jql, maxResults, fields) {
     fields = fields || 'summary,status,issuetype,priority,assignee,customfield_10028,updated';
     var url = proxyBase + '?path=' + enc('/rest/api/3/search?jql=' + enc(jql) + '&maxResults=' + (maxResults||50) + '&fields=' + fields);
-    var res = await fetch(url, { headers: { 'Accept':'application/json' } });
+    var cfg = jiraConfig || {};
+    var res = await fetch(url, {
+      headers: {
+        'Accept': 'application/json',
+        'X-Jira-Token': cfg.token || '',
+        'X-Jira-Instance': (cfg.domain ? 'https://' + cfg.domain : '')
+      }
+    });
     if (!res.ok) return { issues: [], total: 0 };
     return await res.json();
   }
