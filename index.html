@@ -41,11 +41,14 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;transition:background .25s,color .25s}
 
+/* P2 FIX #7: Animation optimizations - use transform instead of position changes */
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fi{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes tooltipFadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tooltipFadeOut{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-4px)}}
 
 /* ── TOPBAR ── */
 .topbar{height:54px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:10px;flex-shrink:0;position:sticky;top:0;z-index:200;box-shadow:var(--shadow-sm)}
@@ -56,7 +59,8 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .live-badge{display:flex;align-items:center;gap:5px;background:var(--green-l);border:0.5px solid rgba(0,200,150,0.25);border-radius:20px;padding:3px 10px;font-size:9.5px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.04em}
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2.5s infinite}
 .tr{margin-left:auto;display:flex;gap:6px;align-items:center}
-.theme-toggle{background:var(--bg3);border:0.5px solid var(--border2);border-radius:20px;padding:4px 11px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--muted2);transition:all .2s;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+/* P2 FIX #7: Optimize theme toggle animation */
+.theme-toggle{background:var(--bg3);border:0.5px solid var(--border2);border-radius:20px;padding:4px 11px;font-size:11px;cursor:pointer;display:flex;align-items:center;gap:5px;color:var(--muted2);transition:color 0.2s,border-color 0.2s,background-color 0.2s;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;will-change:color,background-color}
 .theme-toggle:hover{color:var(--text);border-color:var(--border2);background:var(--bg4)}
 .api-btn{display:flex;align-items:center;gap:6px;background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:5px 12px;font-size:10px;font-weight:600;color:var(--muted2);cursor:pointer;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:all .2s}
 .api-btn:hover{color:var(--text);border-color:var(--border2)}
@@ -71,14 +75,14 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .nav-tabs::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 .nav-tabs::-webkit-scrollbar-thumb:hover{background:var(--muted)}
 .nav-tabs::-webkit-scrollbar{display:none}
+/* P2 FIX #7: Optimize nav-tab animations */
 .nav-tab{
   display:flex;align-items:center;gap:5px;padding:6px 14px;
   border-radius:8px;border:0.5px solid transparent;
   font-size:11px;font-weight:600;color:var(--muted2);
-  cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0;
+  cursor:pointer;transition:color 0.2s,background-color 0.2s,border-color 0.2s;white-space:nowrap;flex-shrink:0;will-change:background-color,color;
 }
 .nav-tab:hover{color:var(--text);background:var(--bg3);border-color:var(--border2)}
-.nav-tab:hover{background:var(--bg3);color:var(--text)}
 .nav-tab.active{
   background:var(--accent-l);
   border-color:var(--accent-m);
@@ -112,7 +116,8 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 /* Top stats row */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
 /* P1 FIX #7: Text overflow handling */
-.stat-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm);max-width:100%;word-wrap:break-word}
+/* P2 FIX #7: Optimize stat-card animations with transform */
+.stat-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s;box-shadow:var(--shadow-sm);max-width:100%;word-wrap:break-word;will-change:transform}
 .stat-card:hover{border-color:var(--accent-m);transform:translateY(-2px);box-shadow:var(--shadow)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc)}
 /* General overflow fixes */
@@ -133,15 +138,18 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .widget-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:0.5px solid var(--border);background:var(--bg3)}
 .widget-title{font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px}
 .widget-actions{display:flex;gap:5px}
+/* P2 FIX #7: Optimize button animations using transform */
 .wbtn{
   background:var(--accent);color:#fff;border:none;
   border-radius:7px;padding:5px 12px;
   font-size:10.5px;font-weight:700;cursor:pointer;
-  font-family:'Space Grotesk',sans-serif;transition:all .12s;
+  font-family:'Space Grotesk',sans-serif;transition:opacity 0.2s,transform 0.2s;
+  will-change:transform,opacity;
 }
-.wbtn:hover{filter:brightness(1.1)}
+.wbtn:hover{opacity:1.1}
 .wbtn:active{transform:scale(0.96)}
-.wbtn-ghost{background:var(--bg4);border:0.5px solid var(--border2);color:var(--muted2);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:500;cursor:pointer;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:all .15s}
+/* P2 FIX #7: Optimize ghost button animations */
+.wbtn-ghost{background:var(--bg4);border:0.5px solid var(--border2);color:var(--muted2);border-radius:6px;padding:4px 10px;font-size:10px;font-weight:500;cursor:pointer;font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;transition:color 0.2s,border-color 0.2s;will-change:color,border-color}
 .wbtn-ghost:hover{color:var(--text);border-color:var(--accent-m)}
 .widget-body{padding:14px}
 
@@ -676,6 +684,48 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
   .active-brain-pill{display:none}
   .qa-grid,.qa-grid.qa-5{grid-template-columns:repeat(2,1fr)}
 }
+
+/* P2 FIX #1: Mobile Responsiveness - Tablets (480-768px) */
+@media(min-width:480px) and (max-width:768px){
+  .home-wrap,.tab-page{padding:12px 12px}
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .widgets-grid{grid-template-columns:1fr 1fr}
+  .bl-hdr,.bl-item{grid-template-columns:1.5fr 60px 60px 60px 60px 70px 70px 70px;font-size:10px}
+  .ctx-grid{grid-template-columns:1fr}
+  .ctx-team-grid{grid-template-columns:repeat(3,1fr)}
+  .form-row{grid-template-columns:1fr 1fr}
+  button,input,select,textarea{min-height:44px}
+  .wbtn,.modal-primary{min-height:44px;font-size:11px;padding:10px 16px}
+  .nav-tabs{height:40px}
+}
+
+/* P2 FIX #1: Mobile Responsiveness - Small screens (<480px) */
+@media(max-width:479px){
+  .home-wrap,.tab-page{padding:10px 10px}
+  .stats-row{grid-template-columns:1fr}
+  .widgets-grid{grid-template-columns:1fr}
+  .pr-grid{grid-template-columns:1fr}
+  .bl-hdr,.bl-item{grid-template-columns:2fr 50px 50px 50px!important;font-size:9px}
+  .ctx-grid{grid-template-columns:1fr}
+  .ctx-team-grid{grid-template-columns:repeat(2,1fr)}
+  .ctx-cap-row{grid-template-columns:repeat(2,1fr)}
+  .form-row{grid-template-columns:1fr}
+  .kpi-grid{grid-template-columns:1fr}
+  .doc-types{grid-template-columns:repeat(2,1fr)}
+  .rm-grid{grid-template-columns:1fr}
+  .tmpl-grid{grid-template-columns:1fr}
+  .nav-tabs{height:38px;padding:0 6px}
+  .nav-tab{padding:4px 10px;font-size:10px}
+  button,input,select,textarea{min-height:44px;font-size:12px;padding:10px 12px}
+  .wbtn,.wbtn-ghost,.modal-primary,.modal-secondary{min-height:44px}
+  .stat-card{padding:12px 14px}
+  .widget-body{padding:12px}
+}
+
+/* P2 FIX #1: Hide scroll tabs on mobile, show dropdown */
+@media(max-width:768px){
+  .nav-tabs{overflow-y:hidden;overflow-x:auto}
+}
 /* ══ SLASH COMMAND SYSTEM ═══════════════════════════════ */
 .slash-palette{
   position:absolute;bottom:calc(100% + 8px);left:0;right:0;
@@ -754,6 +804,57 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 }
 /* Highlight match in command name */
 .slash-match{color:var(--text);background:rgba(108,71,255,.18);border-radius:2px;padding:0 1px}
+
+/* P2 FIX #6: Tooltip System */
+.tooltip{position:relative;cursor:help}
+.tooltip:after{
+  content:attr(data-tooltip);
+  position:absolute;
+  bottom:calc(100% + 8px);
+  left:50%;
+  transform:translateX(-50%);
+  background:var(--bg2);
+  color:var(--text);
+  padding:8px 12px;
+  border-radius:6px;
+  font-size:11px;
+  white-space:nowrap;
+  border:0.5px solid var(--border2);
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  opacity:0;
+  visibility:hidden;
+  transition:opacity 0.15s ease,visibility 0.15s ease;
+  pointer-events:none;
+  z-index:1000;
+}
+.tooltip:before{
+  content:'';
+  position:absolute;
+  bottom:calc(100% + 3px);
+  left:50%;
+  transform:translateX(-50%);
+  border:5px solid transparent;
+  border-top-color:var(--bg2);
+  opacity:0;
+  visibility:hidden;
+  transition:opacity 0.15s ease,visibility 0.15s ease;
+  z-index:999;
+}
+.tooltip:hover:after,.tooltip:hover:before{
+  opacity:1;
+  visibility:visible;
+}
+/* P2 FIX #6: Tooltip below variant */
+.tooltip.below:after{
+  bottom:auto;
+  top:calc(100% + 8px);
+}
+.tooltip.below:before{
+  bottom:auto;
+  top:calc(100% + 3px);
+  border-top-color:transparent;
+  border-bottom-color:var(--bg2);
+}
 
 
 /* ── SLASH COMMAND SYSTEM ────────────────────────────────── */
@@ -4477,13 +4578,15 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
     <span class="modal-icon">🔑</span>
     <div class="modal-title">Connect your API Key</div>
     <div class="modal-sub">Session-only — never saved to disk.</div>
+    <!-- P2 FIX #5: Add ARIA labels to form fields -->
     <div class="modal-field">
-      <label>Anthropic API Key</label>
+      <label for="api-key-input">Anthropic API Key</label>
       <div class="modal-input-row">
-        <input type="password" id="api-key-input" placeholder="sk-ant-api03-..."/>
-        <button class="eye-btn" onclick="toggleKey()" id="eye-btn">👁</button>
+        <input type="password" id="api-key-input" placeholder="sk-ant-api03-..." aria-label="Anthropic API Key" aria-describedby="api-key-hint"/>
+        <button class="eye-btn" onclick="toggleKey()" id="eye-btn" aria-label="Toggle API key visibility">👁</button>
       </div>
     </div>
+    <div id="api-key-hint" style="display:none">Get a key at console.anthropic.com</div>
     <div class="modal-hint">Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank">console.anthropic.com</a> → API Keys → Create Key</div>
     <div class="modal-btn-row">
       <button class="modal-secondary" onclick="closeModal()">Skip for now</button>
@@ -4530,8 +4633,9 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
     </div>
     <button onclick="document.getElementById('shortcut-palette').style.display='flex'" title="Keyboard shortcuts (?)" style="background:rgba(255,255,255,.06);border:0.5px solid rgba(255,255,255,.1);border-radius:8px;padding:5px 10px;color:rgba(255,255,255,.5);font-size:11px;cursor:pointer;font-family:inherit;font-weight:700">?</button>
     <button onclick="openHowToUse()" title="How to use ProdMind effectively" style="background:rgba(108,71,255,0.12);border:0.5px solid rgba(108,71,255,0.3);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--accent);cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:5px" onmouseover="this.style.background='var(--accent)';this.style.color='#fff'" onmouseout="this.style.background='rgba(108,71,255,0.12)';this.style.color='var(--accent)'">✦ How to use me</button>
-        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀️ Light</button>
-    <button class="api-btn" id="api-btn" onclick="openModal()"><div class="dot"></div><span id="api-btn-text">Add API Key</span></button>
+        <!-- P2 FIX #5: Add ARIA labels for accessibility -->
+        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme between light and dark mode">☀️ Light</button>
+    <button class="api-btn" id="api-btn" onclick="openModal()" aria-label="Add or configure API key"><div class="dot"></div><span id="api-btn-text">Add API Key</span></button>
   </div>
 </div>
 
@@ -4607,7 +4711,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
       <span class="home-search-icon">🔍</span>
       <input type="text" id="global-search"
         placeholder="Search backlog, KPIs, roadmap, gates, docs… (Ctrl+K)"
-        oninput="globalSearch(this.value)"/>
+        oninput="debouncedGlobalSearch(this.value)"/>
       <div id="global-search-results" style="display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg);border:0.5px solid var(--border);border-radius:8px;max-height:280px;overflow-y:auto;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,0.2)"></div>
     </div>
 
@@ -5822,7 +5926,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
     <div id="bl-dor-warn" style="display:none;background:rgba(255,71,87,0.08);border:0.5px solid rgba(255,71,87,0.25);border-radius:6px;padding:7px 12px;font-size:10px;font-weight:600;color:var(--red);margin-bottom:8px"></div>
     <!-- Backlog search + filter bar -->
     <div style="display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;align-items:center">
-      <input type="text" id="bl-search" placeholder="Search backlog..." oninput="filterBacklog()"
+      <input type="text" id="bl-search" placeholder="Search backlog..." oninput="debouncedFilterBacklog()"
         style="flex:1;min-width:160px;padding:6px 10px;border:0.5px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text);font-size:11px;outline:none"/>
       <select id="bl-filter-status" onchange="filterBacklog()" style="font-size:10px;padding:5px 8px;border:0.5px solid var(--border);border-radius:6px;background:var(--bg2);color:var(--text)">
         <option value="all">All status</option><option value="backlog">Backlog</option><option value="sprint">In Sprint</option><option value="done">Done</option>
@@ -6233,7 +6337,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
         <h2 style="margin:0">📚 Templates Library</h2>
         <input type="text" id="tmpl-search" placeholder="Search templates…"
           style="font-size:11px;padding:4px 10px;border-radius:8px;border:0.5px solid var(--border2);background:var(--bg3);color:var(--text);font-family:inherit;outline:none;width:160px"
-          oninput="searchTemplates(this.value)"/>
+          oninput="debouncedSearchTemplates(this.value)"/>
       </div>
       <span id="tmpl-count-label" style="font-size:11px;color:var(--muted2)">Loading...</span>
       <div style="display:flex;gap:6px;margin-left:auto">
@@ -6364,7 +6468,7 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
       <input type="text" id="cmd-search"
         placeholder="Search commands…"
         style="font-size:11px;padding:6px 12px;border:0.5px solid var(--border2);border-radius:8px;background:var(--bg3);color:var(--text);font-family:inherit;outline:none;width:220px"
-        oninput="filterCmdRepo(this.value)"/>
+        oninput="debouncedFilterCmdRepo(this.value)"/>
       <span id="cmd-results-lbl" style="font-size:10px;color:var(--muted)"></span>
       <div style="margin-left:auto;display:flex;gap:6px">
         <button class="gbtn" onclick="setCmdView('grid')" id="cmd-view-grid" style="font-size:10px;background:var(--accent);color:#fff;border-color:var(--accent)">⊞ Grid</button>
@@ -7140,6 +7244,45 @@ let sprintHistory=[],gateProjects=[],stakeholderItems=[],debtItems=[],feedbackIt
 let selectedBrains=['po'],activeDocType='',docOutput='',selectedSwatchColor='#6C47FF';
 let csvPending=null,pendingImageId=null,isDark=localStorage.getItem('pos_theme')!=='light';
 let activeBrain='po';
+
+/* P2 FIX #3: Theme persistence - restore on page load */
+(function(){
+  const savedTheme = localStorage.getItem('pos_theme_preference');
+  if(savedTheme){
+    isDark = savedTheme === 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }
+})();
+
+/* P2 FIX #2: Performance - Add debounce utility for search/input handlers */
+function debounce(func, wait = 300){
+  let timeout;
+  return function executedFunction(...args){
+    const later = ()=>{
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+/* P2 FIX #2: Create debounced versions of search handlers */
+const debouncedGlobalSearch = debounce(function(query){
+  globalSearch(query);
+}, 300);
+
+const debouncedFilterBacklog = debounce(function(){
+  filterBacklog();
+}, 300);
+
+const debouncedSearchTemplates = debounce(function(q){
+  searchTemplates(q);
+}, 300);
+
+const debouncedFilterCmdRepo = debounce(function(q){
+  filterCmdRepo(q);
+}, 300);
 
 // ── XSS protection — escape all user-supplied strings before innerHTML ──
 function escapeHtml(str){
@@ -10328,11 +10471,18 @@ Make this ready to facilitate tomorrow morning.`;
 }
 
 // ══ THEME ══
+/* P2 FIX #3: Theme persistence - save and restore properly */
 function toggleTheme(){
   isDark=!isDark;
-  document.documentElement.setAttribute('data-theme',isDark?'dark':'light');
+  const theme = isDark?'dark':'light';
+  document.documentElement.setAttribute('data-theme', theme);
   document.getElementById('theme-toggle').textContent=isDark?'☀️ Light':'🌙 Dark';
-  try{ localStorage.setItem('pos_theme', isDark?'dark':'light'); }catch(e){}
+  try{
+    localStorage.setItem('pos_theme', theme);
+    localStorage.setItem('pos_theme_preference', theme);
+  }catch(e){
+    console.warn('[THEME] Failed to save preference:', e);
+  }
 }
 
 // ══ TAB SWITCHING ══
@@ -13188,6 +13338,34 @@ document.addEventListener('keydown',e=>{
   }
 });
 
+/* P2 FIX #4: Add keyboard navigation shortcuts */
+document.addEventListener('keydown',e=>{
+  // Escape: Close modals/dialogs
+  if(e.key==='Escape'){
+    const apiModal=document.getElementById('api-modal');
+    const csvModal=document.getElementById('csv-modal');
+    if(apiModal&&!apiModal.classList.contains('hidden')){closeModal();e.preventDefault()}
+    else if(csvModal&&!csvModal.classList.contains('hidden')){closeCsvModal();e.preventDefault()}
+    // Close other visible modals
+    const allModals=document.querySelectorAll('[id*="modal"][style*="display:flex"]');
+    allModals.forEach(m=>{if(m.style.display==='flex')m.style.display='none'});
+  }
+
+  // Ctrl+S: Save (prevent default, trigger save)
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){
+    e.preventDefault();
+    if(typeof saveCtx==='function'){saveCtx();showAutoSaveIndicator('saved')}
+  }
+
+  // Ctrl+Shift+N: New item (context-aware)
+  if((e.ctrlKey||e.metaKey)&&e.shiftKey&&e.key==='N'){
+    e.preventDefault();
+    const activeTab=document.querySelector('.page.active')?.id;
+    if(activeTab==='page-backlog'&&typeof toggleBacklogForm==='function'){toggleBacklogForm()}
+    else if(activeTab==='page-roadmap'&&typeof toggleRoadmapForm==='function'){toggleRoadmapForm()}
+  }
+});
+
 // ══════════════════════════════════════════
 // DASHBOARD HEALTH PANEL
 // ══════════════════════════════════════════
@@ -13309,54 +13487,77 @@ function logBurndownDay(){
   toast(`Day ${day} logged: ${spRemaining} SP remaining`);
 }
 
+/* P2 FIX #8: Chart rendering with error handling */
 function renderBurndown(){
   const el=document.getElementById('burndown-chart');
   if(!el) return;
   if(burndownLog.length===0){el.innerHTML='<div style="font-size:10px;color:var(--muted);text-align:center;padding:12px">No burndown data yet — click Log Day to start</div>';return;}
-  const spDays=parseInt(productContext.sprintDays||10);
-  const totalSP=backlogItems.filter(b=>b.status==='sprint').reduce((s,b)=>s+(parseInt(b.sp)||0),0);
-  const w=340,h=100,pad=24;
-  const xStep=(w-pad*2)/Math.max(spDays-1,1);
-  const yScale=(h-pad*2)/Math.max(totalSP,1);
-  // Ideal line
-  const idealPts=Array.from({length:spDays},(_, i)=>`${pad+i*xStep},${pad+(1-i/(spDays-1))*(h-pad*2)}`).join(' ');
-  // Actual line
-  const actualPts=burndownLog.map((d,i)=>`${pad+Math.min(d.day-1,spDays-1)*xStep},${Math.max(pad,h-pad-d.remaining*yScale)}`).join(' ');
-  const lastPoint=burndownLog[burndownLog.length-1];
-  const onTrack=lastPoint&&lastPoint.remaining<=(totalSP*(1-lastPoint.day/spDays));
 
-  // ══ JIRA OFFICIAL BURNDOWN METRIC ══
-  // Calculate burn rate from actual data
-  const burnRate = burndownLog.length > 1
-    ? Math.round((burndownLog[0].remaining - lastPoint.remaining) / (lastPoint.day - 1) * 10) / 10
-    : 0;
-  const daysRemaining = Math.max(spDays - (lastPoint?.day || 0), 0);
-  const projectedCompletion = lastPoint.remaining - (burnRate * daysRemaining);
-  const willComplete = projectedCompletion <= 0;
+  try{
+    const spDays=parseInt(productContext.sprintDays||10);
+    const totalSP=backlogItems.filter(b=>b.status==='sprint').reduce((s,b)=>s+(parseInt(b.sp)||0),0);
+    const w=340,h=100,pad=24;
+    const xStep=(w-pad*2)/Math.max(spDays-1,1);
+    const yScale=(h-pad*2)/Math.max(totalSP,1);
+    // Ideal line
+    const idealPts=Array.from({length:spDays},(_, i)=>`${pad+i*xStep},${pad+(1-i/(spDays-1))*(h-pad*2)}`).join(' ');
+    // Actual line
+    const actualPts=burndownLog.map((d,i)=>`${pad+Math.min(d.day-1,spDays-1)*xStep},${Math.max(pad,h-pad-d.remaining*yScale)}`).join(' ');
+    const lastPoint=burndownLog[burndownLog.length-1];
+    const onTrack=lastPoint&&lastPoint.remaining<=(totalSP*(1-lastPoint.day/spDays));
 
-  console.log('✅ JIRA OFFICIAL DAILY BURNDOWN METRIC');
-  console.log('├─ Day ' + (lastPoint?.day || 0) + ': ' + lastPoint.remaining + ' SP remaining');
-  console.log('├─ Ideal: ' + Math.round(totalSP * (1 - (lastPoint?.day || 0) / spDays)) + ' SP remaining');
-  console.log('├─ Burn Rate: ' + burnRate + ' SP/day');
-  console.log('├─ Days Left: ' + daysRemaining);
-  console.log('├─ Projected Completion: ' + projectedCompletion + ' SP');
-  console.log('└─ Status: ' + (willComplete ? 'Will Complete' : 'At Risk'));
-  console.log('');
+    // ══ JIRA OFFICIAL BURNDOWN METRIC ══
+    // Calculate burn rate from actual data
+    const burnRate = burndownLog.length > 1
+      ? Math.round((burndownLog[0].remaining - lastPoint.remaining) / (lastPoint.day - 1) * 10) / 10
+      : 0;
+    const daysRemaining = Math.max(spDays - (lastPoint?.day || 0), 0);
+    const projectedCompletion = lastPoint.remaining - (burnRate * daysRemaining);
+    const willComplete = projectedCompletion <= 0;
 
-  el.innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Sprint Burndown (Daily Remaining Points)</div>
-      <div style="font-size:9px;font-weight:700;color:${onTrack?'var(--green)':'var(--red)'}">${onTrack?'On Track':'Behind'} | Burn: ${burnRate} SP/day</div>
-    </div>
-    <svg width="${w}" height="${h}" style="overflow:visible;display:block">
-      <polyline points="${idealPts}" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4,3"/>
-      <polyline points="${actualPts}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
-      ${burndownLog.map(d=>`<circle cx="${pad+Math.min(d.day-1,spDays-1)*xStep}" cy="${Math.max(pad,h-pad-d.remaining*yScale)}" r="3.5" fill="var(--accent)" title="Day ${d.day}: ${d.remaining} SP remaining"/>`).join('')}
-    </svg>
-    <div style="display:flex;gap:16px;margin-top:4px;font-size:9px;color:var(--muted)">
-      <span style="color:var(--border)">-- ideal</span><span style="color:var(--accent)">— actual</span>
-      <span style="margin-left:auto">Total: ${totalSP} SP | Day ${lastPoint?.day||0}/${spDays} | Remaining: ${lastPoint?.remaining||totalSP} SP</span>
-    </div>`;
+    console.log('✅ JIRA OFFICIAL DAILY BURNDOWN METRIC');
+    console.log('├─ Day ' + (lastPoint?.day || 0) + ': ' + lastPoint.remaining + ' SP remaining');
+    console.log('├─ Ideal: ' + Math.round(totalSP * (1 - (lastPoint?.day || 0) / spDays)) + ' SP remaining');
+    console.log('├─ Burn Rate: ' + burnRate + ' SP/day');
+    console.log('├─ Days Left: ' + daysRemaining);
+    console.log('├─ Projected Completion: ' + projectedCompletion + ' SP');
+    console.log('└─ Status: ' + (willComplete ? 'Will Complete' : 'At Risk'));
+    console.log('');
+
+    el.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Sprint Burndown (Daily Remaining Points)</div>
+        <div style="font-size:9px;font-weight:700;color:${onTrack?'var(--green)':'var(--red)'}">${onTrack?'On Track':'Behind'} | Burn: ${burnRate} SP/day</div>
+      </div>
+      <svg width="${w}" height="${h}" style="overflow:visible;display:block">
+        <polyline points="${idealPts}" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <polyline points="${actualPts}" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+        ${burndownLog.map(d=>`<circle cx="${pad+Math.min(d.day-1,spDays-1)*xStep}" cy="${Math.max(pad,h-pad-d.remaining*yScale)}" r="3.5" fill="var(--accent)" title="Day ${d.day}: ${d.remaining} SP remaining"/>`).join('')}
+      </svg>
+      <div style="display:flex;gap:16px;margin-top:4px;font-size:9px;color:var(--muted)">
+        <span style="color:var(--border)">-- ideal</span><span style="color:var(--accent)">— actual</span>
+        <span style="margin-left:auto">Total: ${totalSP} SP | Day ${lastPoint?.day||0}/${spDays} | Remaining: ${lastPoint?.remaining||totalSP} SP</span>
+      </div>`;
+  }catch(err){
+    console.error('[CHART ERROR] Burndown rendering failed:', err);
+    el.innerHTML=`
+      <div style="background:rgba(255,71,87,0.1);border:0.5px solid rgba(255,71,87,0.3);border-radius:8px;padding:12px">
+        <div style="font-size:11px;color:var(--red);font-weight:600;margin-bottom:6px">⚠ Chart rendering failed</div>
+        <div style="font-size:10px;color:var(--muted);margin-bottom:8px">The burndown chart could not be rendered. Here's your data as a table instead:</div>
+        <table style="width:100%;font-size:9px;border-collapse:collapse;color:var(--text)">
+          <tr style="border-bottom:0.5px solid var(--border)">
+            <th style="text-align:left;padding:4px 0">Day</th>
+            <th style="text-align:left;padding:4px 0">Remaining</th>
+            <th style="text-align:left;padding:4px 0">Date</th>
+          </tr>
+          ${burndownLog.map(d=>`<tr style="border-bottom:0.5px solid var(--border)">
+            <td style="padding:4px 0">${d.day}</td>
+            <td style="padding:4px 0">${d.remaining} SP</td>
+            <td style="padding:4px 0">${d.date}</td>
+          </tr>`).join('')}
+        </table>
+      </div>`;
+  }
 }
 
 // ══════════════════════════════════════════
