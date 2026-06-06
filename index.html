@@ -6531,6 +6531,8 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="cf"><label>Category</label><select id="dl-cat"><option>Product</option><option>Technical</option><option>Commercial</option><option>Process</option><option>Team</option></select></div>
       <div class="cf"><label>Owner</label><input id="dl-owner" placeholder="Name or role"/></div>
+      <div class="cf"><label>Business Impact (optional)</label><textarea id="dl-impact" style="min-height:50px" placeholder="What is the business impact of this decision? Revenue, users, risk, timeline?"></textarea></div>
+      <div class="cf"><label>Affected Backlog Items (IDs, comma-separated)</label><input id="dl-affected" placeholder="e.g. HIP-123, HIP-456" style="font-family:monospace"/></div>
     </div>
     <div style="display:flex;gap:8px;margin-top:4px">
       <button class="gbtn" style="flex:1" onclick="aiFilldecision()">🤖 AI Fill rationale</button>
@@ -24080,8 +24082,47 @@ document.addEventListener('DOMContentLoaded', function() {
   // P1 FIX #2, #9: Load chat history on startup
   if(typeof loadChatHistory === 'function') loadChatHistory();
 
+  // ENHANCEMENT: Start Jira auto-sync (refresh metrics every 15 minutes)
+  initJiraAutoSync();
+
   console.log('[INIT] ProductOS loaded with all P1 fixes');
 });
+
+// ENHANCEMENT: Auto-sync Jira data to keep metrics current
+function initJiraAutoSync() {
+  // Sync immediately on load
+  if(apiKey && typeof fetchLiveSprintData === 'function') {
+    const selectedPod = document.querySelector('[data-pod-selected]')?.getAttribute('data-pod-selected') || '';
+    if(selectedPod) {
+      console.log('[JIRA-SYNC] Initial sync for POD:', selectedPod);
+      fetchLiveSprintData(selectedPod).catch(e => console.warn('⚠️ Initial Jira sync failed:', e));
+    }
+  }
+
+  // Schedule periodic sync every 15 minutes
+  setInterval(async () => {
+    if(!apiKey) {
+      console.log('[JIRA-SYNC] Skipping (no API key configured)');
+      return;
+    }
+
+    try {
+      const selectedPod = document.querySelector('[data-pod-selected]')?.getAttribute('data-pod-selected') || '';
+      if(selectedPod && typeof fetchLiveSprintData === 'function') {
+        console.log('[JIRA-SYNC] Syncing POD:', selectedPod);
+        const data = await fetchLiveSprintData(selectedPod);
+        if(data) {
+          console.log('✅ Jira sync complete - ' + data.issues.length + ' issues fetched');
+          localStorage.setItem('jira_last_sync', new Date().toLocaleTimeString());
+        }
+      }
+    } catch(e) {
+      console.warn('⚠️ Jira auto-sync failed:', e);
+    }
+  }, 15 * 60 * 1000); // 15 minutes
+
+  console.log('[JIRA-SYNC] Auto-sync initialized (15-min intervals)');
+}
 
 
 // ══ SLASH RECOMMENDATIONS IN CHAT ═══════════════════════════
@@ -24938,18 +24979,32 @@ function renderDecisionLog() {
 
   list.innerHTML = decisionLog.map((d, i) => {
     const color = DL_CATS[d.category] || '#6C47FF';
+    // ENHANCEMENT: Show impact and affected items
+    const affectedHtml = (d.affectedItems && d.affectedItems.length > 0)
+      ? `<div style="font-size:10px;color:var(--muted2);margin-top:6px;display:flex;gap:6px;flex-wrap:wrap">
+           <span>🔗 Affects:</span>
+           ${d.affectedItems.map(item => `<span style="background:${color}18;color:${color};padding:2px 6px;border-radius:4px;font-family:monospace;font-weight:600">${escapeHtml(item)}</span>`).join('')}
+         </div>`
+      : '';
+    const impactHtml = d.businessImpact
+      ? `<div style="font-size:10px;color:var(--text);margin-top:4px;background:var(--bg3);padding:8px;border-radius:6px;line-height:1.4">
+           <strong>💼 Impact:</strong> ${escapeHtml(d.businessImpact)}
+         </div>`
+      : '';
     return `<div class="dl-card" style="--dl-color:${color}">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
         <div style="flex:1">
-          <div class="dl-card-title">${d.title}</div>
-          <div class="dl-card-what">${d.what}</div>
+          <div class="dl-card-title">${escapeHtml(d.title)}</div>
+          <div class="dl-card-what">${escapeHtml(d.what)}</div>
           <div class="dl-card-meta">
             <span class="dl-card-tag" style="color:${color}">${d.category}</span>
             <span>📅 ${d.date}</span>
             <span>👤 ${d.owner||'—'}</span>
             ${d.status ? `<span class="dl-card-tag" style="background:rgba(108,71,255,.1);color:var(--accent)">${d.status}</span>` : ''}
           </div>
-          ${d.reversal ? `<div class="dl-reversal">⚡ Reversal condition: ${d.reversal}</div>` : ''}
+          ${d.reversal ? `<div class="dl-reversal">⚡ Reversal condition: ${escapeHtml(d.reversal)}</div>` : ''}
+          ${impactHtml}
+          ${affectedHtml}
         </div>
         <button class="gbtn" style="font-size:9.5px;padding:3px 9px;flex-shrink:0" onclick="deleteDecision(${i})">✕</button>
       </div>
@@ -24971,6 +25026,12 @@ function saveDecision() {
   const what = document.getElementById('dl-what')?.value.trim();
   const why = document.getElementById('dl-why')?.value.trim();
   if (!title || !what) { toast('Add a title and what was decided', 'warning'); return; }
+
+  // ENHANCEMENT: Track decision impact and affected items
+  const impactStr = document.getElementById('dl-impact')?.value.trim() || '';
+  const affectedStr = document.getElementById('dl-affected')?.value.trim() || '';
+  const affectedItems = affectedStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+
   const d = {
     id: Date.now(),
     title, what, why,
@@ -24978,6 +25039,8 @@ function saveDecision() {
     reversal: document.getElementById('dl-reversal')?.value.trim(),
     category: document.getElementById('dl-cat')?.value || 'Product',
     owner: document.getElementById('dl-owner')?.value.trim(),
+    businessImpact: impactStr,  // NEW: Track business impact
+    affectedItems: affectedItems,  // NEW: Link to backlog items
     date: new Date().toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}),
     status: 'Active'
   };
@@ -24985,8 +25048,12 @@ function saveDecision() {
   localStorage.setItem('prodmind_decisions', JSON.stringify(decisionLog));
   closeDecisionModal();
   renderDecisionLog();
-  toast('✅ Decision logged', 'success');
-  ['dl-title','dl-what','dl-why','dl-alts','dl-reversal','dl-owner'].forEach(id => {
+
+  // NEW: Log the decision with impact tracking
+  console.log('✅ Decision logged:', d.title, 'Affects:', affectedItems.length > 0 ? affectedItems : 'none');
+  toast('✅ Decision logged' + (affectedItems.length > 0 ? ' (links to ' + affectedItems.length + ' items)' : ''), 'success');
+
+  ['dl-title','dl-what','dl-why','dl-alts','dl-reversal','dl-owner','dl-impact','dl-affected'].forEach(id => {
     const el = document.getElementById(id); if (el) el.value = '';
   });
 }
