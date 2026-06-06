@@ -12076,15 +12076,6 @@ function toDataUrl(file){ return new Promise((res,rej)=>{ const r=new FileReader
 function toText(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsText(file); }); }
 function toArrayBuffer(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.onerror=rej; r.readAsArrayBuffer(file); }); }
 
-function handleChatFileSelect(e){
-  const files = Array.from(e.target.files);
-  if(!files.length) return;
-  e.target.value='';
-  processChatFiles(files).then(()=>{
-    toast(`📎 ${files.length} file${files.length>1?'s':''} ready — type your question and send`);
-  });
-}
-
 async function processFiles(files){
   if(!files.length)return;
   const prog=document.getElementById('kb-prog');const bar=document.getElementById('kb-prog-bar');
@@ -20180,14 +20171,6 @@ function _richCopy(htmlContent, plainText, successMsg){
 }
 
 // ── Shared: plain text copy fallback ───────────────
-function _copyPlain(text){
-  navigator.clipboard.writeText(text).then(function(){ toast('✅ Copied'); }).catch(function(){
-    var t=document.createElement('textarea');
-    t.value=text; document.body.appendChild(t); t.select();
-    document.execCommand('copy'); document.body.removeChild(t);
-    toast('✅ Copied');
-  });
-}
 
 // ── Chat message: export as doc ─────────────────────
 function _exportDoc(msgId){
@@ -25061,233 +25044,6 @@ async function aiGenerateDecision() {
 }
 
 // ══ STAKEHOLDERS ═══════════════════════════════════════════════
-let stakeholders = JSON.parse(localStorage.getItem('prodmind_stakeholders') || '[]');
-
-function renderStakeholders() {
-  const list = document.getElementById('stakeholder-list');
-  const empty = document.getElementById('sh-empty');
-  if (!list) return;
-  if (!stakeholders.length) {
-    list.innerHTML = '';
-    if (empty) empty.style.display='flex';
-    ['grid-manage','grid-satisfy','grid-inform','grid-monitor'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.innerHTML='<span style="font-size:10px;color:var(--muted2)">None yet</span>';
-    });
-    return;
-  }
-  if (empty) empty.style.display='none';
-
-  // Render table
-  list.innerHTML = `<div class="sh-card sh-head">
-    <div class="sh-cell">Name / Role</div>
-    <div class="sh-cell">Power</div>
-    <div class="sh-cell">Interest</div>
-    <div class="sh-cell">Strategy</div>
-    <div class="sh-cell">Comms</div>
-    <div class="sh-cell">Actions</div>
-  </div>` + stakeholders.map((s,i) => {
-    const quad = getQuadrant(s.power, s.interest);
-    const stratMap = {manage:'🔴 Manage Closely', satisfy:'🟡 Keep Satisfied', inform:'🔵 Keep Informed', monitor:'⚪ Monitor'};
-    return `<div class="sh-card">
-      <div class="sh-cell"><div style="font-weight:700">${s.name}</div><div style="font-size:10.5px;color:var(--muted2)">${s.role}</div></div>
-      <div class="sh-cell"><span style="font-weight:800;color:var(--accent);font-family:'JetBrains Mono',monospace">${s.power}/5</span></div>
-      <div class="sh-cell"><span style="font-weight:800;color:var(--blue);font-family:'JetBrains Mono',monospace">${s.interest}/5</span></div>
-      <div class="sh-cell" style="font-size:11px">${stratMap[quad]||'—'}</div>
-      <div class="sh-cell" style="font-size:11px;color:var(--muted2)">${s.comms}</div>
-      <div class="sh-cell" style="display:flex;gap:5px">
-        <button class="gbtn" style="font-size:9px;padding:3px 8px" onclick="viewStakeholder(${i})">View</button>
-        <button class="gbtn" style="font-size:9px;padding:3px 8px;color:var(--red)" onclick="deleteStakeholder(${i})">✕</button>
-      </div>
-    </div>`;
-  }).join('');
-
-  // Update grid
-  const grids = {manage:[],satisfy:[],inform:[],monitor:[]};
-  stakeholders.forEach(s => { const q=getQuadrant(s.power,s.interest); if(grids[q]) grids[q].push(s); });
-  Object.entries(grids).forEach(([quad, items]) => {
-    const el = document.getElementById('grid-'+quad);
-    if (el) el.innerHTML = items.length
-      ? items.map(s=>`<div class="sh-grid-name" title="${s.role}">${s.name}</div>`).join('')
-      : '<span style="font-size:10px;color:var(--muted2);opacity:.5">None</span>';
-  });
-
-  // P1 FIX #15: Render power-interest 2x2 grid
-  setTimeout(()=>renderPowerInterestGrid(), 100);
-}
-
-function getQuadrant(power, interest) {
-  if (power >= 3 && interest >= 3) return 'manage';
-  if (power >= 3 && interest < 3) return 'satisfy';
-  if (power < 3 && interest >= 3) return 'inform';
-  return 'monitor';
-}
-
-// P1 FIX #15: Stakeholder power-interest grid rendering with proper 2x2 layout
-function renderPowerInterestGrid(){
-  const gridContainer = document.getElementById('power-interest-grid');
-  if(!gridContainer || !stakeholders.length) return;
-
-  // Create SVG-based 2x2 grid
-  let gridHtml = `
-    <svg width="100%" height="400" viewBox="0 0 500 400" style="border:1px solid var(--border);border-radius:8px;background:var(--bg3)">
-      <!-- Grid lines -->
-      <line x1="250" y1="0" x2="250" y2="400" stroke="var(--border)" stroke-width="2" stroke-dasharray="5,5"/>
-      <line x1="0" y1="200" x2="500" y2="200" stroke="var(--border)" stroke-width="2" stroke-dasharray="5,5"/>
-
-      <!-- Labels -->
-      <text x="250" y="20" font-size="12" font-weight="700" text-anchor="middle" fill="var(--accent)">HIGH INTEREST</text>
-      <text x="250" y="385" font-size="12" font-weight="700" text-anchor="middle" fill="var(--muted2)">LOW INTEREST</text>
-      <text x="15" y="200" font-size="12" font-weight="700" text-anchor="start" fill="var(--accent)" transform="rotate(-90 15 200)">LOW POWER</text>
-      <text x="485" y="200" font-size="12" font-weight="700" text-anchor="end" fill="var(--accent)" transform="rotate(-90 485 200)">HIGH POWER</text>
-
-      <!-- Quadrant labels -->
-      <text x="125" y="100" font-size="11" font-weight="600" text-anchor="middle" fill="var(--yellow)">KEEP INFORMED</text>
-      <text x="375" y="100" font-size="11" font-weight="600" text-anchor="middle" fill="var(--red)">MANAGE CLOSELY</text>
-      <text x="125" y="320" font-size="11" font-weight="600" text-anchor="middle" fill="var(--muted2)">MONITOR</text>
-      <text x="375" y="320" font-size="11" font-weight="600" text-anchor="middle" fill="var(--yellow)">KEEP SATISFIED</text>
-  `;
-
-  // Place stakeholders on grid
-  stakeholders.forEach((s, idx) => {
-    const x = 50 + (s.power / 5) * 400;
-    const y = 350 - (s.interest / 5) * 300;
-    const color = s.power >= 3 && s.interest >= 3 ? '#FF4757' : s.power >= 3 ? '#F5A623' : s.interest >= 3 ? '#29B6F6' : '#999';
-
-    gridHtml += `
-      <circle cx="${x}" cy="${y}" r="20" fill="${color}" opacity="0.7" stroke="var(--bg)" stroke-width="2"/>
-      <text x="${x}" y="${y}" font-size="10" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#fff" title="${s.name} (${s.role})">${s.name.substring(0,1).toUpperCase()}</text>
-    `;
-  });
-
-  gridHtml += '</svg>';
-  gridContainer.innerHTML = gridHtml;
-
-  // Render list below grid
-  const listHtml = stakeholders.map(s => `
-    <div style="padding:8px 12px;border-radius:6px;background:var(--bg3);margin-bottom:6px;display:flex;gap:8px;align-items:center">
-      <span style="font-weight:700;font-size:11px">${s.name}</span>
-      <span style="font-size:10px;color:var(--muted2)">Power ${s.power}/5 | Interest ${s.interest}/5</span>
-      <span style="margin-left:auto;font-size:10px;color:var(--accent)">${getQuadrantLabel(getQuadrant(s.power,s.interest))}</span>
-    </div>
-  `).join('');
-
-  const listContainer = document.getElementById('grid-list');
-  if(listContainer) listContainer.innerHTML = listHtml;
-}
-
-function getQuadrantLabel(quad){
-  const labels = {manage:'🔴 Manage', satisfy:'🟡 Satisfy', inform:'🔵 Inform', monitor:'⚪ Monitor'};
-  return labels[quad] || 'Unknown';
-}
-
-function openStakeholderModal() {
-  const m = document.getElementById('sh-modal');
-  if (m) { m.style.display='flex'; document.body.style.overflow='hidden'; }
-}
-function closeShModal() {
-  const m = document.getElementById('sh-modal');
-  if (m) { m.style.display='none'; document.body.style.overflow=''; }
-}
-
-function saveStakeholder() {
-  const name = document.getElementById('sh-name')?.value.trim();
-  const role = document.getElementById('sh-role')?.value.trim();
-  if (!name || !role) { toast('Name and role required', 'warning'); return; }
-
-  // P1 FIX #14: RACI matrix calculation from stakeholder power/interest
-  const power = parseInt(document.getElementById('sh-power')?.value||3);
-  const interest = parseInt(document.getElementById('sh-interest')?.value||3);
-
-  // RACI assignment based on power + interest
-  let raci_responsible = power >= 4 && interest >= 4;
-  let raci_accountable = power >= 4;
-  let raci_consulted = interest >= 4;
-  let raci_informed = true; // Everyone is informed
-
-  const s = {
-    id: Date.now(), name, role,
-    power: power,
-    interest: interest,
-    cares: document.getElementById('sh-cares')?.value.trim(),
-    risk: document.getElementById('sh-risk')?.value.trim(),
-    comms: document.getElementById('sh-comms')?.value||'As needed',
-    raci_responsible, raci_accountable, raci_consulted, raci_informed,
-    date: new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})
-  };
-  stakeholders.push(s);
-  localStorage.setItem('prodmind_stakeholders', JSON.stringify(stakeholders));
-  closeShModal();
-  renderStakeholders();
-  toast('✅ Stakeholder added with RACI matrix', 'success');
-}
-
-function deleteStakeholder(i) {
-  stakeholders.splice(i,1);
-  localStorage.setItem('prodmind_stakeholders', JSON.stringify(stakeholders));
-  renderStakeholders();
-  toast('Stakeholder removed');
-}
-
-function viewStakeholder(i) {
-  const s = stakeholders[i];
-  const brief = document.getElementById('sh-ai-brief');
-  if (brief) {
-    const quad = getQuadrant(s.power, s.interest);
-    const strategies = {
-      manage: `Manage closely — schedule regular 1:1s, involve in key decisions early, give visibility into sprint progress. Risk if disengaged: ${s.risk||'High — can block progress'}`,
-      satisfy: `Keep satisfied — concise monthly updates focused on outcomes and ROI. They have authority but low day-to-day interest. Avoid overwhelming with detail.`,
-      inform: `Keep informed — regular updates in their preferred format. They care deeply but have limited authority. Make them feel heard — they're often the best internal champions.`,
-      monitor: `Monitor — ad-hoc updates on significant events only. Don't over-communicate. Check in if their situation changes.`
-    };
-    brief.innerHTML = `<div style="font-weight:700;margin-bottom:6px">${s.name} — ${s.role}</div><div style="font-size:11.5px;line-height:1.65;color:var(--muted2)">${strategies[quad]}</div>${s.cares?`<div style="margin-top:8px;font-size:11px;color:var(--text)"><strong>Cares about:</strong> ${s.cares}</div>`:''}`;
-  }
-}
-
-async function aiAnalyseStakeholders() {
-  if (!apiKey) { openModal(); return; }
-  if (!stakeholders.length) { toast('Add stakeholders first', 'warning'); return; }
-  toast('🤖 Analysing stakeholder landscape…');
-  const brief = document.getElementById('sh-ai-brief');
-  if (brief) brief.innerHTML = '<div style="color:var(--muted2);font-size:12px">Analysing…</div>';
-  try {
-    const shList = stakeholders.map(s=>`${s.name} (${s.role}) — Power:${s.power}/5, Interest:${s.interest}/5`).join('\n');
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:700,
-        system:'You are a senior product consultant specialising in stakeholder management.',
-        messages:[{role:'user',content:`Analyse this stakeholder landscape and give me a strategic engagement brief:\n\n${shList}\n\nProduct context:${getCtx()}\n\nOutput: 3-4 sentences covering: top risk, biggest champion opportunity, and the one relationship to invest in most this sprint.`}]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.map(b=>b.text||'').join('');
-    if (brief && text) brief.innerHTML = `<div style="font-size:12px;line-height:1.65;color:var(--text)">${text}</div>`;
-  } catch(e) { toast('AI unavailable', 'error'); }
-}
-
-async function aiStakeholderStrategy() {
-  if (!apiKey) { openModal(); return; }
-  const name = document.getElementById('sh-name')?.value.trim();
-  const role = document.getElementById('sh-role')?.value.trim();
-  const cares = document.getElementById('sh-cares')?.value.trim();
-  if (!name) { toast('Enter a name first', 'warning'); return; }
-  toast('🤖 Generating engagement strategy…');
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514', max_tokens:400,
-        system:'You are a senior product consultant.',
-        messages:[{role:'user',content:`Write a 2-sentence stakeholder engagement strategy for ${name} (${role}) who cares about: ${cares||'not specified'}.\n\nContext:${getCtx()}`}]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.map(b=>b.text||'').join('');
-    if (text) { const el = document.getElementById('sh-cares'); if(el) el.value = (el.value+'\n\nStrategy: '+text).trim(); }
-  } catch(e) { toast('AI unavailable','error'); }
-}
 
 // ══ SPRINT HEALTH ══════════════════════════════════════════════
 async function runSprintHealthScore() {
@@ -28623,10 +28379,6 @@ function _adfToText(node){
   if(node.type==='hardBreak') return '\n';
   if(node.content) return node.content.map(_adfToText).join('');
   return '';
-}
-
-function escapeHtml(s){
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 // ── Sub-tab switching ─────────────────────────────────────────
