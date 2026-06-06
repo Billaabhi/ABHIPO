@@ -24043,6 +24043,21 @@ document.addEventListener('DOMContentLoaded', function() {
   renderBacklog();
   renderRoadmap();
 
+  // ── 8b. MISSING RENDER CALLS - NOW FIXED! ──────────────────
+  // These were causing data to be invisible (fetched but not displayed)
+  if(typeof renderKpis === 'function') renderKpis();  // FIX: KPI cards not showing
+  if(typeof renderDecisionLog === 'function') renderDecisionLog();  // FIX: Decision log not showing
+
+  // Recalculate RICE scores on backlog page load (not just on AI button)
+  if(backlogItems && backlogItems.length > 0) {
+    backlogItems.forEach(item => {
+      if(!item.rice || item.rice === 0) {
+        item.rice = calcRice(item.reach || 0, item.impact || 0, item.confidence || 0, item.effort || 1);
+      }
+    });
+    console.log('[INIT] Recalculated RICE scores for ' + backlogItems.length + ' backlog items');
+  }
+
   // ── 9. KPI alerts + health ─────────────────────────────────
   checkKpiAlerts();
   refreshDashHealth();
