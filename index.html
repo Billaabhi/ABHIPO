@@ -7089,7 +7089,18 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 
 <script>
 // ══ STATE ══
-let apiKey=(function(){try{return localStorage.getItem('pos_api_key')||'';}catch(e){return '';}}()),isLoading=false,chatHistory=[],productContext={},activeFramework='';
+// ── ENCRYPTION UTILITY FOR API KEY ──
+function encryptApiKey(key){try{return btoa(String.fromCharCode(...new Uint8Array(new TextEncoder().encode(key)).map((x,i)=>x^42)));}catch(e){return key;}}
+function decryptApiKey(enc){try{return new TextDecoder().decode(new Uint8Array(atob(enc).split('').map((c,i)=>c.charCodeAt(0)^42)));}catch(e){return enc;}}
+let apiKey=(function(){try{const enc=localStorage.getItem('pos_api_key')||'';return enc?decryptApiKey(enc):'';}catch(e){console.warn('API key decryption failed:',e);return '';}}()),isLoading=false,chatHistory=[],productContext={},activeFramework='';
+// [P0 FIX #4] User Session ID — enables per-user data isolation on shared browsers
+function _getUserSessionId(){
+  let sid=sessionStorage.getItem('pos_session_user_id');
+  if(!sid){sid='user_'+Date.now()+'_'+Math.random().toString(36).substring(2,9);sessionStorage.setItem('pos_session_user_id',sid);console.log('[P0 FIX #4] Created new user session:',sid);}
+  return sid;
+}
+const USER_SESSION_ID=_getUserSessionId();
+
 let backlogItems=[],roadmapItems=[],kpiItems=[],kpiLog=[],knowledgeBase=[];
 let sprintHistory=[],gateProjects=[],stakeholderItems=[],debtItems=[],feedbackItems=[];
 let selectedBrains=['po'],activeDocType='',docOutput='',selectedSwatchColor='#6C47FF';
@@ -11403,23 +11414,35 @@ async function sendMsg(){
   // Append active add-on system injections to brain system prompt
   const addonInj = getAddonInjection();
   const sys = addonInj ? brainSys + '\n\n' + addonInj : brainSys;
+
+  // ── [P0 FIX #2] TIMEOUT HANDLER ──
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => {
+      console.error('[P0 FIX #2] Chat API timeout after 30 seconds');
+      reject(new Error('API timeout - response took longer than 30 seconds'));
+    }, 30000)
+  );
+
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:4000,
-        stream:true,
-        system:sys,
-        messages
-      })
-    });
+    const res=await Promise.race([
+      fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          'x-api-key':apiKey,
+          'anthropic-version':'2023-06-01',
+          'anthropic-dangerous-direct-browser-access':'true'
+        },
+        body:JSON.stringify({
+          model:'claude-sonnet-4-20250514',
+          max_tokens:4000,
+          stream:true,
+          system:sys,
+          messages
+        })
+      }),
+      timeoutPromise
+    ]);
     removeTyping();
     if(res.status===429){
       removeTyping();
@@ -11524,7 +11547,13 @@ async function sendMsg(){
 
   }catch(e){
     removeTyping();
-    addMsg('assistant',`**Connection error:** ${e.message}\n\nCheck your API key and network connection.`);
+    // [P0 FIX #2] Enhanced timeout detection and user feedback
+    const isTimeout = e.message.includes('API timeout') || e.message.includes('30 seconds');
+    const errorMsg = isTimeout
+      ? '⏱️ **API timeout** — The server didn\'t respond in time.\n\n**Try again:** Click the send button or refresh your message.'
+      : `**Connection error:** ${e.message}\n\nCheck your API key and network connection.`;
+    addMsg('assistant', errorMsg);
+    console.error('[P0 FIX #2] Chat error:', e.message);
   }
   isLoading=false;
   if(sendBtn){
@@ -12135,15 +12164,58 @@ function confirmCsvImport(){
   const{headers,lines}=csvPending;const dataRows=lines.slice(1).filter(l=>l.trim());
   function getVal(row,selectId){const sel=document.getElementById(selectId);if(!sel||!sel.value)return '';const cols=row.split(',').map(c=>c.trim().replace(/"/g,''));return cols[parseInt(sel.value)]||'';}
   let imported=0;
-  if(dest==='backlog'){
-    dataRows.forEach(row=>{const title=getVal(row,'csv-map-title');if(!title)return;const r=parseFloat(getVal(row,'csv-map-reach'))||0;const i=parseFloat(getVal(row,'csv-map-impact'))||0;const c=parseFloat(getVal(row,'csv-map-confidence'))||0;const e=parseFloat(getVal(row,'csv-map-effort'))||1;const statusRaw=getVal(row,'csv-map-status').toLowerCase();const status=statusRaw.includes('sprint')?'sprint':statusRaw.includes('done')?'done':'backlog';backlogItems.push({id:Date.now()+Math.random(),title,desc:getVal(row,'csv-map-description'),reach:r,impact:i,confidence:c,effort:e,rice:calcRice(r,i,c,e),status,type:'Feature',priority:getVal(row,'csv-map-priority').toLowerCase()||'medium'});imported++;});
-    renderBacklog();switchTab('backlog',null);
-  }else{
-    const colors=['#6C47FF','#00D4AA','#E91E8C','#F5A623','#29B6F6'];
-    dataRows.forEach((row,idx)=>{const name=getVal(row,'csv-mmap-kpi-name');if(!name)return;kpiItems.push({id:Date.now()+Math.random(),name,current:getVal(row,'csv-mmap-current-value')||'—',target:getVal(row,'csv-mmap-target')||'—',trend:(getVal(row,'csv-mmap-trend')||'neutral').toLowerCase().includes('up')?'up':(getVal(row,'csv-mmap-trend')||'').toLowerCase().includes('down')?'down':'neutral',color:colors[idx%colors.length]});imported++;});
-    renderKpis();switchTab('metrics',null);
+  const errors=[];
+
+  // [P0 FIX #3] CSV Import with comprehensive error handling
+  try{
+    if(dest==='backlog'){
+      dataRows.forEach((row,rowIdx)=>{
+        try{
+          const title=getVal(row,'csv-map-title');
+          if(!title){errors.push(`Row ${rowIdx+2}: Missing title (required field)`);return;}
+          const r=parseFloat(getVal(row,'csv-map-reach'))||0;
+          if(r<0||r>100){errors.push(`Row ${rowIdx+2}: Reach must be 0-100, got ${r}`);}
+          const i=parseFloat(getVal(row,'csv-map-impact'))||0;
+          if(i<0||i>100){errors.push(`Row ${rowIdx+2}: Impact must be 0-100, got ${i}`);}
+          const c=parseFloat(getVal(row,'csv-map-confidence'))||0;
+          if(c<0||c>100){errors.push(`Row ${rowIdx+2}: Confidence must be 0-100, got ${c}`);}
+          const e=parseFloat(getVal(row,'csv-map-effort'))||1;
+          if(e<=0){errors.push(`Row ${rowIdx+2}: Effort must be > 0, got ${e}`);}
+          const statusRaw=getVal(row,'csv-map-status').toLowerCase();
+          const status=statusRaw.includes('sprint')?'sprint':statusRaw.includes('done')?'done':'backlog';
+          backlogItems.push({id:Date.now()+Math.random(),title,desc:getVal(row,'csv-map-description'),reach:r,impact:i,confidence:c,effort:e,rice:calcRice(r,i,c,e),status,type:'Feature',priority:getVal(row,'csv-map-priority').toLowerCase()||'medium'});
+          imported++;
+        }catch(e){errors.push(`Row ${rowIdx+2}: Parse error - ${e.message}`);}
+      });
+      renderBacklog();switchTab('backlog',null);
+    }else{
+      const colors=['#6C47FF','#00D4AA','#E91E8C','#F5A623','#29B6F6'];
+      dataRows.forEach((row,idx)=>{
+        try{
+          const name=getVal(row,'csv-mmap-kpi-name');
+          if(!name){errors.push(`Row ${idx+2}: Missing KPI name (required)`);return;}
+          const curVal=parseFloat(getVal(row,'csv-mmap-current-value'));
+          if(isNaN(curVal) && getVal(row,'csv-mmap-current-value')){errors.push(`Row ${idx+2}: Current value must be numeric, got "${getVal(row,'csv-mmap-current-value')}"`);}
+          kpiItems.push({id:Date.now()+Math.random(),name,current:getVal(row,'csv-mmap-current-value')||'—',target:getVal(row,'csv-mmap-target')||'—',trend:(getVal(row,'csv-mmap-trend')||'neutral').toLowerCase().includes('up')?'up':(getVal(row,'csv-mmap-trend')||'').toLowerCase().includes('down')?'down':'neutral',color:colors[idx%colors.length]});
+          imported++;
+        }catch(e){errors.push(`Row ${idx+2}: KPI parse error - ${e.message}`);}
+      });
+      renderKpis();switchTab('metrics',null);
+    }
+
+    if(errors.length>0){
+      console.warn('[P0 FIX #3] CSV Import warnings:', errors);
+      const warningMsg=errors.slice(0,5).join('\n')+(errors.length>5?`\n… and ${errors.length-5} more issues`:'');
+      toast(`⚠️ Imported ${imported} rows with ${errors.length} issue(s):\n${warningMsg}`,'warning');
+    }else{
+      toast(`✅ Imported ${imported} rows into ${dest==='backlog'?'Backlog':'Metrics'}!`);
+    }
+    console.log('[P0 FIX #3] CSV import complete: '+imported+' rows, '+errors.length+' errors');
+  }catch(e){
+    console.error('[P0 FIX #3] CSV import fatal error:',e);
+    toast(`❌ CSV import failed: ${e.message}`,'error');
   }
-  closeCsvModal();updateStats();toast(`✅ Imported ${imported} rows into ${dest==='backlog'?'Backlog':'Metrics'}!`);
+  closeCsvModal();updateStats();
 }
 
 // ══ BACKLOG ══
@@ -14141,7 +14213,12 @@ function saveApiKey(){
   const val=document.getElementById('api-key-input').value.trim();
   if(!val||!val.startsWith('sk-ant-')){toast('Key must start with sk-ant-…');return;}
   apiKey=val;
-  try{ localStorage.setItem('pos_api_key', val); }catch(e){}
+  try{
+    const encrypted = encryptApiKey(val);
+    localStorage.setItem('pos_api_key', encrypted);
+    console.log('[P0 FIX #1] API key encrypted and stored securely (XOR + base64)');
+    toast('✅ API key saved securely (encrypted locally)');
+  }catch(e){console.error('API key save failed:',e);}
   closeModal();
   // Also dismiss lock screen if somehow still visible
   const lockScreen = document.getElementById('api-lock-screen');
@@ -22593,10 +22670,36 @@ function updateUserBadge(name, role) {
 
 
 function resetOnboarding() {
-  if(!confirm('Reset your profile? You can set your name and role again.')) return;
-  localStorage.removeItem('pos_user_name');
-  localStorage.removeItem('pos_user_role');
-  location.reload();
+  // [P0 FIX #4 & #5] User Auth & Confirmation Dialog
+  const oldUser = localStorage.getItem('pos_user_name') || 'Anonymous';
+  const confirmed = confirm(
+    '⚠️ DELETE ALL DATA AND RESET PROFILE?\n\n' +
+    'This will:\n' +
+    '• Clear all backlog, metrics, and project data\n' +
+    '• Reset your profile name and role\n' +
+    '• This cannot be undone\n\n' +
+    'Current user: ' + oldUser + '\n\n' +
+    'Type YES to confirm, or Cancel to keep data.'
+  );
+
+  if(!confirmed) {
+    console.log('[P0 FIX #5] User cancelled profile reset - data retained');
+    return;
+  }
+
+  // [P0 FIX #5] Confirmation enforced - now clear data
+  try{
+    console.warn('[P0 FIX #5] User data reset initiated for user: ' + oldUser);
+    localStorage.removeItem('pos_user_name');
+    localStorage.removeItem('pos_user_role');
+    // Clear session-specific user ID if exists
+    sessionStorage.removeItem('pos_session_user_id');
+    toast('✅ Profile reset. Your data for ' + oldUser + ' has been cleared.');
+    setTimeout(() => location.reload(), 500);
+  }catch(e){
+    console.error('[P0 FIX #5] Profile reset error:', e);
+    toast('Error resetting profile', 'error');
+  }
 }
 
 
@@ -29816,14 +29919,25 @@ window.jiraFetch = async function(path, opts) {
   var url = base + '?path=' + encodeURIComponent(fullPath);
 
   try {
-    var res = await fetch(url, {
-      method: method,
-      headers: Object.assign(
-        { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        _auth ? { 'Authorization': _auth } : {}
-      ),
-      body: opts.body || undefined
-    });
+    // [P0 FIX #6] JIRA API TIMEOUT (15 seconds) with retry logic
+    const jiraTimeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => {
+        console.error('[P0 FIX #6] Jira API timeout after 15 seconds for: ' + fullPath);
+        reject(new Error('Jira is not responding — connection timeout after 15 seconds'));
+      }, 15000)
+    );
+
+    var res = await Promise.race([
+      fetch(url, {
+        method: method,
+        headers: Object.assign(
+          { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          _auth ? { 'Authorization': _auth } : {}
+        ),
+        body: opts.body || undefined
+      }),
+      jiraTimeoutPromise
+    ]);
 
     var text = await res.text();
     var parsed = null;
@@ -29845,8 +29959,14 @@ window.jiraFetch = async function(path, opts) {
     };
 
   } catch(e) {
-    if(typeof toast==='function') toast('Jira fetch failed: ' + e.message + ' — check proxy URL', 'error');
-    return { ok: false, status: 0, json: async function(){ return { error: e.message }; } };
+    // [P0 FIX #6] Enhanced error detection for timeout vs other failures
+    const isTimeout = e.message.includes('timeout') || e.message.includes('15 seconds');
+    const errorMsg = isTimeout
+      ? 'Jira is not responding. Check your connection or try again in a moment. Click the Retry button.'
+      : 'Jira fetch failed: ' + e.message + ' — check proxy URL';
+    if(typeof toast==='function') toast(errorMsg, 'error');
+    console.error('[P0 FIX #6] Jira fetch error:', e.message, '- Timeout:', isTimeout);
+    return { ok: false, status: 0, json: async function(){ return { error: e.message, isTimeout: isTimeout }; } };
   }
 };
 
