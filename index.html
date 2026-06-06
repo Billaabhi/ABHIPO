@@ -67,6 +67,8 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .api-btn.connected{color:var(--green);border-color:rgba(0,200,150,0.28);background:rgba(0,200,150,0.07)}
 .api-btn .dot{width:5px;height:5px;border-radius:50%;background:var(--muted);flex-shrink:0}
 .api-btn.connected .dot{background:var(--green);animation:pulse 2.5s infinite}
+/* Jira Connection Status Indicator */
+#jira-status-indicator{width:8px;height:8px;border-radius:50%;flex-shrink:0;animation:pulse 3s ease-in-out infinite;cursor:pointer}
 
 /* ── NAV TABS ── */
 .nav-tabs{height:42px;background:var(--bg2);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 8px;gap:1px;overflow-x:auto;overflow-y:hidden;position:sticky;top:54px;z-index:190;scroll-behavior:smooth;scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
@@ -28256,6 +28258,145 @@ let jiraConfig = null;
 let _jiraContextIssue = null;
 let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '/api/jira';
 
+// ═══════════════════════════════════════════════════════════════
+// JIRA Connection Monitor & Error Recovery System
+// ═══════════════════════════════════════════════════════════════
+const JiraMonitor = {
+  status: 'unknown', // unknown, connected, disconnected, error
+  lastCheck: null,
+  failureCount: 0,
+  successCount: 0,
+  lastError: null,
+  metrics: {
+    totalRequests: 0,
+    successfulRequests: 0,
+    failedRequests: 0,
+    totalDuration: 0,
+    p95Duration: []
+  },
+
+  // Check if Jira is accessible
+  async check() {
+    try {
+      const cfg = jiraConfig || {};
+      if (!cfg.token || !cfg.domain) {
+        this.status = 'disconnected';
+        return false;
+      }
+
+      const res = await fetch('/api/jira?path=/myself&skipCache=true', {
+        headers: {
+          'X-Jira-Token': cfg.token,
+          'X-Jira-Instance': 'https://' + cfg.domain
+        }
+      });
+
+      if (res.ok) {
+        this.status = 'connected';
+        this.failureCount = 0;
+        this.successCount++;
+        this.lastCheck = new Date();
+        console.log('✅ Jira connection: OK');
+        return true;
+      } else if (res.status === 401) {
+        this.status = 'error';
+        this.lastError = 'Invalid or expired token';
+        this.failureCount++;
+        console.warn('⚠️ Jira: Token invalid/expired');
+        return false;
+      } else {
+        this.status = 'disconnected';
+        this.failureCount++;
+        console.warn('⚠️ Jira: HTTP ' + res.status);
+        return false;
+      }
+    } catch (error) {
+      this.status = 'disconnected';
+      this.failureCount++;
+      this.lastError = error.message;
+      console.error('❌ Jira connection failed:', error.message);
+      return false;
+    }
+  },
+
+  // Record API call metrics
+  recordMetric(duration, success = true) {
+    this.metrics.totalRequests++;
+    if (success) {
+      this.metrics.successfulRequests++;
+    } else {
+      this.metrics.failedRequests++;
+    }
+    this.metrics.totalDuration += duration;
+    this.metrics.p95Duration.push(duration);
+    if (this.metrics.p95Duration.length > 100) {
+      this.metrics.p95Duration.shift();
+    }
+  },
+
+  // Get P95 response time
+  getP95() {
+    if (this.metrics.p95Duration.length === 0) return 0;
+    const sorted = [...this.metrics.p95Duration].sort((a, b) => a - b);
+    const index = Math.floor(sorted.length * 0.95);
+    return sorted[index] || 0;
+  },
+
+  // Get success rate
+  getSuccessRate() {
+    if (this.metrics.totalRequests === 0) return 100;
+    return Math.round((this.metrics.successfulRequests / this.metrics.totalRequests) * 100);
+  },
+
+  // Update UI indicator
+  updateUI() {
+    const indicator = document.getElementById('jira-status-indicator');
+    if (!indicator) return;
+
+    const colors = {
+      connected: '#00C896',
+      disconnected: '#FF4757',
+      error: '#F5A623',
+      unknown: '#999'
+    };
+
+    indicator.style.background = colors[this.status] || colors.unknown;
+
+    let title = `Jira: ${this.status}`;
+    if (this.lastCheck) {
+      const timeAgo = Math.round((Date.now() - this.lastCheck) / 1000);
+      title += ` (checked ${timeAgo}s ago)`;
+    }
+    if (this.lastError) {
+      title += ` - ${this.lastError}`;
+    }
+
+    indicator.title = title;
+    indicator.dataset.status = this.status;
+  },
+
+  // Report metrics
+  report() {
+    console.log('📊 JIRA Monitor Report:');
+    console.log(`  Status: ${this.status}`);
+    console.log(`  Requests: ${this.metrics.totalRequests} (${this.getSuccessRate()}% success)`);
+    console.log(`  P95 time: ${this.getP95()}ms`);
+    console.log(`  Avg time: ${Math.round(this.metrics.totalDuration / Math.max(1, this.metrics.totalRequests))}ms`);
+    if (this.lastError) {
+      console.log(`  Last error: ${this.lastError}`);
+    }
+  }
+};
+
+// Check Jira connection every 5 minutes
+setInterval(() => JiraMonitor.check(), 5 * 60 * 1000);
+
+// Initial check on load (after page settles)
+setTimeout(() => {
+  JiraMonitor.check();
+  JiraMonitor.updateUI();
+}, 2000);
+
 // ── Init: restore saved config ────────────────────────────────
 (function(){
   // Restore saved credentials and proxy URL
@@ -30296,6 +30437,8 @@ window.jiraFetch = async function(path, opts) {
   var url = base + '?path=' + encodeURIComponent(fullPath);
 
   try {
+    const startTime = Date.now();
+
     // [P0 FIX #6] JIRA API TIMEOUT (15 seconds) with retry logic
     const jiraTimeoutPromise = new Promise((_, reject) =>
       setTimeout(() => {
@@ -30319,13 +30462,24 @@ window.jiraFetch = async function(path, opts) {
       jiraTimeoutPromise
     ]);
 
+    const duration = Date.now() - startTime;
     var text = await res.text();
     var parsed = null;
     try { parsed = JSON.parse(text); } catch(_) { parsed = { error: text || 'Empty response' }; }
 
+    // Record metrics
+    JiraMonitor.recordMetric(duration, res.ok);
+    JiraMonitor.updateUI();
+
     if (!res.ok) {
       var errMsg = (parsed && (parsed.message || (parsed.errorMessages && parsed.errorMessages[0]))) || ('HTTP ' + res.status);
       if(typeof toast==='function') toast('Jira error: ' + errMsg, 'error');
+
+      // Try fallback to cache
+      if (method === 'GET' && window._jiraCache[cacheKey]) {
+        console.log('⚠️ Using cached data (Jira failed)');
+        return { ok: true, status: 200, json: async function() { return window._jiraCache[cacheKey]; }, cached: true };
+      }
     }
 
     if (method === 'GET' && res.ok && parsed && !parsed.errorMessages && !parsed.error) {
@@ -30335,7 +30489,9 @@ window.jiraFetch = async function(path, opts) {
     return {
       ok: res.ok, status: res.status,
       json: async function() { return parsed; },
-      text: async function() { return text; }
+      text: async function() { return text; },
+      cached: false,
+      duration: duration
     };
 
   } catch(e) {
@@ -30346,7 +30502,19 @@ window.jiraFetch = async function(path, opts) {
       : 'Jira fetch failed: ' + e.message + ' — check proxy URL';
     if(typeof toast==='function') toast(errorMsg, 'error');
     console.error('[P0 FIX #6] Jira fetch error:', e.message, '- Timeout:', isTimeout);
-    return { ok: false, status: 0, json: async function(){ return { error: e.message, isTimeout: isTimeout }; } };
+
+    // Record failure metric
+    JiraMonitor.recordMetric(0, false);
+    JiraMonitor.failureCount++;
+    JiraMonitor.updateUI();
+
+    // Try fallback to cache even on network error
+    if (method === 'GET' && window._jiraCache[cacheKey]) {
+      console.log('⚠️ Network error - using cached data');
+      return { ok: true, status: 200, json: async function() { return window._jiraCache[cacheKey]; }, cached: true, error: e.message };
+    }
+
+    return { ok: false, status: 0, json: async function(){ return { error: e.message, isTimeout: isTimeout }; }, cached: false };
   }
 };
 
