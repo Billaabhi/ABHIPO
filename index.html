@@ -27630,7 +27630,7 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
           </div>
         </div>
         <label style="font-size:10px;font-weight:800;color:var(--muted2);display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.08em">Worker API Endpoint</label>
-        <input id="jcfg-proxy" placeholder="https://prodmind-jira-proxy.abhinavbilla1991.workers.dev"
+        <input id="jcfg-proxy" placeholder="/api/jira or https://yourproxy.com/jira"
           style="width:100%;background:rgba(255,255,255,0.02);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;font-size:12px;color:var(--text);font-family:monospace;outline:none;box-sizing:border-box;margin-bottom:16px;transition:all 0.2s;box-shadow:0 1px 2px rgba(0,0,0,0.04)"
           onfocus="this.style.borderColor='rgba(0,82,204,0.6)';this.style.background='rgba(0,82,204,0.02)';this.style.boxShadow='0 0 0 3px rgba(0,82,204,0.1)'" onblur="this.style.borderColor='var(--border2)';this.style.background='rgba(255,255,255,0.02)';this.style.boxShadow='0 1px 2px rgba(0,0,0,0.04)'"/>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -28254,7 +28254,7 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
 
 let jiraConfig = null;
 let _jiraContextIssue = null;
-let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
+let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '/api/jira';
 
 // ── Init: restore saved config ────────────────────────────────
 (function(){
@@ -28264,7 +28264,7 @@ let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-ji
     if (saved) jiraConfig = JSON.parse(saved);
   } catch(_){}
 
-  var savedProxy = localStorage.getItem('pm_jira_proxy') || 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
+  var savedProxy = localStorage.getItem('pm_jira_proxy') || '/api/jira';
   jiraProxyUrl = savedProxy;
   localStorage.setItem('pm_jira_proxy', savedProxy);
 
@@ -28313,7 +28313,7 @@ function closeJiraConnectModal(){
 
 // ── Save config and test ──────────────────────────────────────
 async function saveJiraConfig(){
-  var WORKER_URL = 'https://prodmind-jira-proxy.abhinavbilla1991.workers.dev';
+  var WORKER_URL = '/api/jira';
   var proxyEl = document.getElementById('jm-proxy');
   var proxy   = ((proxyEl && proxyEl.value) || WORKER_URL).trim().replace(/\/+$/,'');
   if (!proxy) proxy = WORKER_URL;
