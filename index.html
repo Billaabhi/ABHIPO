@@ -30598,8 +30598,158 @@ var currentPOD = '';
 var sprintHealthData = null;
 
 function onPODSelected() {
+  var previousPOD = currentPOD;
   currentPOD = document.getElementById('pod-selector').value;
-  fetchAndAnalyzeSprint();
+
+  var podLabel = currentPOD ? currentPOD : 'All PODs';
+  console.log('[POD CHANGED] From ' + (previousPOD || 'All PODs') + ' to ' + podLabel);
+
+  // Update all POD-dependent views
+  updateAllPODDependentViews();
+}
+
+async function updateAllPODDependentViews() {
+  console.log('[POD UPDATE] Fetching data for POD:', currentPOD || 'All PODs');
+
+  if (!jiraConfig) {
+    updateStatus('⚠️ Configure Jira in Jira tab → ⚙');
+    return;
+  }
+
+  try {
+    // Fetch raw data from Jira for selected POD
+    var rawData = await fetchLiveSprintData(currentPOD);
+    if (!rawData) {
+      updateStatus('⚠️ No sprint data found for POD: ' + (currentPOD || 'All PODs'));
+      showDataWarning('No issues found in sprint for this POD');
+      return;
+    }
+
+    // Validate data
+    var validation = validateSprintData(rawData);
+    if (!validation.valid) {
+      console.error('❌ Data validation failed:', validation.errors);
+      updateStatus('⚠️ Data validation failed');
+      return;
+    }
+
+    // Analyze sprint data
+    sprintHealthData = analyzeSprint(rawData);
+    if (!sprintHealthData) {
+      updateStatus('⚠️ Could not analyze sprint data');
+      return;
+    }
+
+    // Update all dependent views
+    console.log('[POD UPDATE] Updating Sprint Health view...');
+    await updateSprintHealthView(currentPOD, sprintHealthData);
+
+    console.log('[POD UPDATE] Updating Sprint Report view...');
+    await updateSprintReportView(currentPOD, rawData, sprintHealthData);
+
+    console.log('[POD UPDATE] Updating My Week Plan view...');
+    await updateMyWeekPlanView(currentPOD, rawData);
+
+    updateStatus('✅ ' + getCurrentTime() + ' (' + validation.issueCount + ' issues)');
+    console.log('[POD UPDATE] All views updated for:', currentPOD || 'All PODs');
+
+    // Start auto-refresh timer
+    startPODAutoRefresh();
+
+  } catch (e) {
+    console.error('❌ POD update error:', e);
+    updateStatus('⚠️ Error: ' + e.message);
+    showDataWarning('Error: ' + e.message);
+  }
+}
+
+async function updateSprintHealthView(podKey, analysis) {
+  console.log('[SPRINT HEALTH] Updating view for POD:', podKey || 'All PODs');
+
+  if (!analysis) {
+    console.warn('[SPRINT HEALTH] No analysis data provided');
+    return;
+  }
+
+  // Update the Pod Dashboard rendering
+  renderSprintHealth(analysis);
+}
+
+async function updateSprintReportView(podKey, rawData, analysis) {
+  console.log('[SPRINT REPORT] Updating view for POD:', podKey || 'All PODs');
+
+  if (!rawData) {
+    console.warn('[SPRINT REPORT] No raw data provided');
+    return;
+  }
+
+  // Set the project selector in Sprint Report to current POD
+  if (podKey) {
+    var projectSelect = document.getElementById('sr-project');
+    if (projectSelect) {
+      projectSelect.value = podKey;
+      console.log('[SPRINT REPORT] Set project selector to:', podKey);
+    }
+  }
+
+  // Trigger sprint report generation for the selected POD
+  try {
+    await generateSprintReport();
+    console.log('[SPRINT REPORT] Generated for POD:', podKey || 'All PODs');
+  } catch (e) {
+    console.warn('[SPRINT REPORT] Could not auto-generate:', e.message);
+  }
+}
+
+async function updateMyWeekPlanView(podKey, rawData) {
+  console.log('[MY WEEK PLAN] Updating view for POD:', podKey || 'All PODs');
+
+  if (!rawData) {
+    console.warn('[MY WEEK PLAN] No raw data provided');
+    return;
+  }
+
+  // Auto-populate week plan inputs with POD context if possible
+  var sprintInput = document.getElementById('wk-sprint');
+  if (sprintInput && rawData.sprint) {
+    sprintInput.value = 'Sprint: ' + (rawData.sprint.name || podKey || 'Current');
+    console.log('[MY WEEK PLAN] Pre-filled sprint context:', sprintInput.value);
+  }
+
+  // Clear previous output to indicate fresh data is needed
+  var weekOutput = document.getElementById('week-plan-output');
+  if (weekOutput) {
+    weekOutput.style.display = 'none';
+  }
+  var weekEmpty = document.getElementById('week-plan-empty');
+  if (weekEmpty) {
+    weekEmpty.style.display = 'flex';
+  }
+
+  console.log('[MY WEEK PLAN] Updated for POD:', podKey || 'All PODs');
+}
+
+var podAutoRefreshTimer = null;
+
+function startPODAutoRefresh() {
+  // Clear existing timer
+  if (podAutoRefreshTimer) {
+    clearInterval(podAutoRefreshTimer);
+    console.log('[AUTO-REFRESH] Cleared existing timer');
+  }
+
+  // Auto-refresh every 30 seconds for selected POD
+  var podKey = currentPOD || 'All PODs';
+  podAutoRefreshTimer = setInterval(async function() {
+    console.log('[AUTO-REFRESH] Updating POD:', podKey);
+    try {
+      await updateAllPODDependentViews();
+    } catch (e) {
+      console.warn('[AUTO-REFRESH] Update failed:', e.message);
+    }
+  }, 30000); // 30 seconds
+
+  console.log('[AUTO-REFRESH] Started for POD:', podKey, '(interval: 30s)');
 }
 
 async function fetchAndAnalyzeSprint() {
@@ -31980,7 +32130,7 @@ function renderPODDashboard(data) {
 
       console.log('📋 Step 3: Fetching and validating sprint data...');
       currentPOD = '';
-      await fetchAndAnalyzeSprint();
+      await updateAllPODDependentViews();
     }
   }
 
@@ -31991,16 +32141,16 @@ function renderPODDashboard(data) {
   setInterval(function() {
     var pageEl = document.getElementById('page-pod-dashboard');
     if (pageEl && pageEl.style.display !== 'none') {
-      console.log('🔄 Auto-refreshing sprint health...');
-      fetchAndAnalyzeSprint();
+      console.log('🔄 Auto-refreshing POD dashboard...');
+      updateAllPODDependentViews();
     }
   }, 30000);
 
   // If user switches back to this tab, refresh immediately
   document.addEventListener('visibilitychange', function() {
     if (!document.hidden && document.getElementById('page-pod-dashboard').style.display !== 'none') {
-      console.log('📊 Page back in focus, refreshing...');
-      fetchAndAnalyzeSprint();
+      console.log('📊 Page back in focus, refreshing POD dashboard...');
+      updateAllPODDependentViews();
     }
   });
 })();
