@@ -111,9 +111,15 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 
 /* Top stats row */
 .stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-.stat-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm)}
+/* P1 FIX #7: Text overflow handling */
+.stat-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden;cursor:pointer;transition:all .2s;box-shadow:var(--shadow-sm);max-width:100%;word-wrap:break-word}
 .stat-card:hover{border-color:var(--accent-m);transform:translateY(-2px);box-shadow:var(--shadow)}
 .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc)}
+/* General overflow fixes */
+.card, [class*="card"], [class*="item"]{max-width:100%;word-wrap:break-word;overflow-x:hidden}
+.card-title, .item-title, h3, h4{max-width:100%;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.card-desc, .item-desc, p{max-width:100%;word-wrap:break-word;word-break:break-word}
+.multi-line-text{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;max-width:100%}
 .stat-label{font-size:9.5px;color:var(--muted2);font-weight:600;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
 .stat-val{font-size:28px;font-weight:800;letter-spacing:-.03em;color:var(--sc)}
 .stat-sub{font-size:9.5px;color:var(--muted2);margin-top:4px}
@@ -527,9 +533,12 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 .pr-filter-btn.on{background:var(--accent-l);color:var(--accent);border-color:var(--accent-m)}
 
 /* ── MODALS ── */
+/* P1 FIX #6: Modal z-index management */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:1000;display:flex;align-items:center;justify-content:center}
 .modal-overlay.hidden{display:none}
+.modal-overlay.dialog{z-index:1100}
 .modal-box{background:var(--bg2);border:0.5px solid var(--border2);border-radius:16px;padding:26px;width:400px;max-width:90vw;box-shadow:0 32px 80px rgba(0,0,0,.6);animation:fi .25s ease}
+.toast{z-index:2000}
 .modal-icon{font-size:28px;margin-bottom:10px;display:block}
 .modal-title{font-size:17px;font-weight:700;margin-bottom:5px}
 .modal-sub{font-size:12px;color:var(--muted2);line-height:1.6;margin-bottom:16px}
@@ -7086,6 +7095,8 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 </div>
 
 <div class="toast" id="toast"><span>✓</span><span id="toast-msg"></span></div>
+<!-- P1 FIX #9, #11: Auto-save indicator -->
+<div id="auto-save-indicator" style="position:fixed;top:64px;right:20px;padding:8px 14px;border-radius:6px;background:var(--bg2);border:0.5px solid var(--border);font-size:11px;font-weight:600;display:none;z-index:500;white-space:nowrap;box-shadow:var(--shadow-sm)"></div>
 
 <script>
 // ══ STATE ══
@@ -7093,6 +7104,29 @@ body{font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,'Segoe UI',san
 function encryptApiKey(key){try{return btoa(String.fromCharCode(...new Uint8Array(new TextEncoder().encode(key)).map((x,i)=>x^42)));}catch(e){return key;}}
 function decryptApiKey(enc){try{return new TextDecoder().decode(new Uint8Array(atob(enc).split('').map((c,i)=>c.charCodeAt(0)^42)));}catch(e){return enc;}}
 let apiKey=(function(){try{const enc=localStorage.getItem('pos_api_key')||'';return enc?decryptApiKey(enc):'';}catch(e){console.warn('API key decryption failed:',e);return '';}}()),isLoading=false,chatHistory=[],productContext={},activeFramework='';
+
+// P1 FIX #9: Chat history persistence
+function loadChatHistory(){
+  try{
+    const saved = localStorage.getItem('pos_chat_history');
+    if(saved){
+      chatHistory = JSON.parse(saved).slice(-100); // Keep last 100 messages
+      console.log('[LOADED] Chat history: '+chatHistory.length+' messages');
+    }
+  }catch(e){
+    console.error('[LOAD ERROR] Chat history:', e);
+    chatHistory = [];
+  }
+}
+
+function saveChatHistory(){
+  try{
+    localStorage.setItem('pos_chat_history', JSON.stringify(chatHistory.slice(-100)));
+    console.log('[SAVED] Chat history: '+chatHistory.length+' messages');
+  }catch(e){
+    console.error('[SAVE ERROR] Chat history:', e);
+  }
+}
 // [P0 FIX #4] User Session ID — enables per-user data isolation on shared browsers
 function _getUserSessionId(){
   let sid=sessionStorage.getItem('pos_session_user_id');
@@ -7116,6 +7150,54 @@ function escapeHtml(str){
     .replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;')
     .replace(/'/g,'&#039;');
+}
+
+// P1 FIX #1: Form validation helpers
+function showValidationError(elementId, errorMsg){
+  const el = document.getElementById(elementId);
+  if(!el) return;
+  el.style.borderColor = 'var(--red)';
+  el.style.borderWidth = '2px';
+  el.title = errorMsg;
+  setTimeout(()=>{
+    el.style.borderColor = '';
+    el.style.borderWidth = '';
+  }, 4000);
+}
+
+function validateEmail(email){
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
+}
+
+function validateNumber(value, min, max){
+  const n = parseFloat(value);
+  if(isNaN(n)) return false;
+  return n >= min && n <= max;
+}
+
+// P1 FIX #9: Auto-save indicator
+let autoSaveTimeout = null;
+function showAutoSaveIndicator(state){
+  const ind = document.getElementById('auto-save-indicator');
+  if(!ind) return;
+  ind.style.display = 'block';
+  clearTimeout(autoSaveTimeout);
+  if(state === 'editing'){
+    ind.textContent = '✎ Editing...';
+    ind.style.color = 'var(--muted)';
+  }else if(state === 'saving'){
+    ind.textContent = '⟳ Saving...';
+    ind.style.color = 'var(--amber)';
+  }else if(state === 'saved'){
+    ind.textContent = '✓ Saved';
+    ind.style.color = 'var(--green)';
+    autoSaveTimeout = setTimeout(()=>{ind.style.display = 'none';}, 2000);
+  }else if(state === 'error'){
+    ind.textContent = '✗ Save failed - retry';
+    ind.style.color = 'var(--red)';
+    autoSaveTimeout = setTimeout(()=>{ind.style.display = 'none';}, 5000);
+  }
 }
 
 const THEME_COLORS={growth:'#6C47FF',retention:'#E91E8C',infra:'#F5A623',ux:'#00D4AA',data:'#29B6F6',other:'#888'};
@@ -10255,17 +10337,31 @@ function toggleTheme(){
 
 // ══ TAB SWITCHING ══
 function switchTab(tab,el){
+  // P1 FIX #5: Tab switching with proper active class management and logging
+  const prevTab = document.querySelector('.page.active')?.id?.replace('page-', '') || 'unknown';
+
+  // Remove active from all
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+
+  // Add active to new tab
   const page = document.getElementById('page-'+tab);
-  if(page) page.classList.add('active');
-  if(el) el.classList.add('active');
-  else {
+  if(page) {
+    page.classList.add('active');
+    console.log('[TAB SWITCH] From '+prevTab+' to '+tab);
+  }
+
+  // Set active nav indicator
+  if(el) {
+    el.classList.add('active');
+  } else {
     const tabs={home:0,chat:1,backlog:2,roadmap:3,metrics:4,docs:5,templates:6,prompts:7,commands:8,'decision-log':9,stakeholders:10,'sprint-health':11,strategy:12,experiments:13,mom:14,persona:15,'week-planner':16,'north-star':17,'monte-carlo':18,jira:19};
     const idx=tabs[tab];
     const navTabs = document.querySelectorAll('.nav-tab');
     if(idx!==undefined && navTabs[idx]) navTabs[idx].classList.add('active');
   }
+
+  // Load tab-specific content
   if(tab==='prompts')  buildPromptRepo();
   if(tab==='templates') buildTemplates && buildTemplates();
   if(tab==='commands') buildCmdRepo();
@@ -10411,6 +10507,9 @@ function getRoleLeaveBreakdown(){
 })();
 
 function updateCapacity(){
+  // P1 FIX #3: Capacity calculations trigger on input change
+  showAutoSaveIndicator('editing');
+
   // ── Read all inputs ──────────────────────────────────────────
   const sprintDays   = parseInt(document.getElementById('ctx-sprint-days')?.value||10);
   const daysLost     = Math.min(parseInt(document.getElementById('ctx-days-lost')?.value||0), sprintDays-1);
@@ -11403,6 +11502,8 @@ async function sendMsg(){
     ]};
   }
   chatHistory.push({role:'user',content:fullPrompt});
+  // P1 FIX #9: Save chat history after each message
+  if(typeof saveChatHistory === 'function') saveChatHistory();
 
   // Clear attachments after send
   chatAttachments=[]; chatPendingImage=null;
@@ -11541,6 +11642,8 @@ async function sendMsg(){
       if(acts){ acts.style.opacity='1'; acts.style.pointerEvents='auto'; }
       d.classList.remove('streaming');
       chatHistory.push({role:'assistant', content:fullText});
+      // P1 FIX #9: Save chat history after AI response
+      if(typeof saveChatHistory === 'function') saveChatHistory();
     } else {
       bb.innerHTML = formatMsg('**Empty response.** Try a shorter prompt or check your API key.');
     }
@@ -11593,8 +11696,34 @@ async function processChatFiles(files){
 }
 
 async function processChatFile(file){
+  // P1 FIX #12: File upload size limits validation
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+  const MAX_TOTAL_SIZE = 100 * 1024 * 1024; // 100 MB
+  const ALLOWED_FORMATS = ['pdf','csv','xlsx','xls','doc','docx','txt','md','png','jpg','jpeg','gif','webp'];
+
   const ext  = file.name.split('.').pop().toLowerCase();
   const sizeKb = Math.round(file.size/1024);
+  const sizeMb = (file.size / (1024*1024)).toFixed(1);
+
+  // Validate file format
+  if(!ALLOWED_FORMATS.includes(ext)){
+    toast('File type not allowed - use: '+ALLOWED_FORMATS.join(', '),'error');
+    return;
+  }
+
+  // Validate file size
+  if(file.size > MAX_FILE_SIZE){
+    toast('File too large - max 10MB per file ('+sizeMb+'MB)','error');
+    return;
+  }
+
+  // Check total size
+  const totalSize = chatAttachments.reduce((sum, att) => sum + att.sizeKb, 0) * 1024 + file.size;
+  if(totalSize > MAX_TOTAL_SIZE){
+    toast('Total files exceed 100MB limit','error');
+    return;
+  }
+
   const id   = Date.now() + Math.random();
   const isImg = ['png','jpg','jpeg','gif','webp'].includes(ext);
 
@@ -12223,16 +12352,45 @@ function toggleAddForm(){const f=document.getElementById('add-item-form');f.styl
 function calcRice(r,i,c,e){if(!r||!i||!c||!e)return 0;return Math.round((r*i*(c/100))/e);}
 
 function addBacklogItem(){
-  const title=document.getElementById('bi-title').value.trim();if(!title){toast('Please enter a title');return;}
+  // P1 FIX #1: Form validation - required fields, number ranges, dropdown validation
+  const title=document.getElementById('bi-title').value.trim();
+  if(!title){showValidationError('bi-title', 'Title is required');toast('Title required','error');return;}
+  const desc=document.getElementById('bi-desc').value.trim();
+  if(!desc){showValidationError('bi-desc', 'Description is required');toast('Description required','error');return;}
+  const sp=document.getElementById('bi-sp').value.trim();
+  if(!sp){showValidationError('bi-sp', 'Story Points required');toast('SP estimate required','error');return;}
+  const status=document.getElementById('bi-status').value;
+  if(!status || status===''){showValidationError('bi-status', 'Status must be selected');toast('Status required','error');return;}
+
   const r=parseFloat(document.getElementById('bi-reach').value)||0;
+  if(r<0){showValidationError('bi-reach', 'Reach cannot be negative');toast('Reach must be >= 0','error');return;}
   const i=parseFloat(document.getElementById('bi-impact').value)||0;
+  if(i<0 || i>3){showValidationError('bi-impact', 'Impact must be 0-3');toast('Impact must be 0-3','error');return;}
   const c=parseFloat(document.getElementById('bi-conf').value)||0;
+  if(c<0 || c>100){showValidationError('bi-conf', 'Confidence must be 0-100');toast('Confidence must be 0-100','error');return;}
   const e=parseFloat(document.getElementById('bi-effort').value)||0.5;
-  const sp=document.getElementById('bi-sp').value;
+  if(e<=0){showValidationError('bi-effort', 'Effort must be > 0');toast('Effort must be positive','error');return;}
+
   const depends  = document.getElementById('bi-depends').value.trim();
   const ac       = document.getElementById('bi-ac').value;
   const design   = document.getElementById('bi-design').value;
   const unknowns = document.getElementById('bi-unknowns').value;
+
+  // P1 FIX #10: Dependency detection - check for circular dependencies
+  if(depends){
+    const depItem = backlogItems.find(bi => bi.id == depends);
+    if(!depItem){showValidationError('bi-depends', 'Dependency not found');toast('Dependency item not found','error');return;}
+    // Check if target already depends on this item (would create cycle)
+    let hasBackRef=false;
+    function checkCycle(itemId){
+      const item = backlogItems.find(b => b.id == itemId);
+      if(!item) return false;
+      if(item.depends == title) return true; // cycle detected
+      if(item.depends) return checkCycle(item.depends);
+      return false;
+    }
+    if(checkCycle(depends)){showValidationError('bi-depends', 'Would create circular dependency');toast('Error: Circular dependency detected - '+depItem.title+' already depends on this','error');return;}
+  }
 
   // DoR enforcement — flag but still allow
   const dorViolations=[];
@@ -12246,13 +12404,22 @@ function addBacklogItem(){
     reach:r,impact:i,confidence:c,effort:e,
     sp:sp||'',
     rice:calcRice(r,i,c,e),
-    status:document.getElementById('bi-status').value,
+    status:status,
     type:document.getElementById('bi-type').value,
     priority:document.getElementById('bi-priority').value,
     depends, ac, design, unknowns,
     dorViolations
   });
-  renderBacklog(); posSave('backlogItems');
+  renderBacklog();
+  // P1 FIX #2: Data persistence - save with logging and error handling
+  try{
+    posSave('backlogItems');
+    console.log('[SAVED] backlogItems: '+backlogItems.length+' items');
+  }catch(e){
+    console.error('[SAVE ERROR] backlogItems:',e);
+    toast('Save failed - retrying','error');
+    setTimeout(()=>posSave('backlogItems'), 1000);
+  }
   ['bi-title','bi-desc','bi-reach','bi-impact','bi-conf','bi-effort','bi-depends'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('bi-sp').value='';
   document.getElementById('bi-status').value='backlog';
@@ -14298,13 +14465,27 @@ function updateStats(){
 
 // ══ TOAST ══
 function toast(msg, type='success'){
+  // P1 FIX #4: Error notifications with auto-hide
   const t = document.getElementById('toast');
   const tm = document.getElementById('toast-msg');
   if(!t||!tm) return;
-  tm.textContent = msg;
+
+  // Format error messages
+  let displayMsg = msg;
+  if(type === 'error' && !msg.startsWith('Error:') && !msg.startsWith('⚠️')){
+    displayMsg = 'Error: ' + msg;
+  }
+
+  tm.textContent = displayMsg;
   t.className = 'toast show toast-' + type;
   clearTimeout(t._hideTimer);
-  t._hideTimer = setTimeout(()=>{ t.classList.remove('show'); }, type==='error'?4000:2200);
+  const duration = type==='error'?5000:(type==='warning'?4000:2200);
+  t._hideTimer = setTimeout(()=>{ t.classList.remove('show'); }, duration);
+
+  // Log errors to console
+  if(type==='error'){
+    console.error('[USER ERROR] '+displayMsg);
+  }
 }
 
 // ══ PROMPT REPOSITORY ══
@@ -21820,12 +22001,21 @@ const POS_KEYS = {
 };
 
 function posSave(key) {
+  // P1 FIX #2: Data persistence with logging and error handling
   try {
     const k = POS_KEYS[key];
     if(!k) return;
     const val = eval(key); // get global var by name
-    localStorage.setItem(k, JSON.stringify(val));
-  } catch(e) { /* storage full or private mode */ }
+    const jsonStr = JSON.stringify(val);
+    localStorage.setItem(k, jsonStr);
+    const itemCount = Array.isArray(val) ? val.length : Object.keys(val).length;
+    console.log('[SAVED] Key: '+k+', items: '+itemCount);
+    showAutoSaveIndicator('saved');
+  } catch(e) {
+    console.error('[SAVE ERROR] Key: '+key+', Error:', e.message);
+    toast('Storage error: '+e.message,'error');
+    showAutoSaveIndicator('error');
+  }
 }
 
 function posSaveAll() {
@@ -21833,22 +22023,62 @@ function posSaveAll() {
 }
 
 function posLoad() {
+  // P1 FIX #2: Data restoration with safe JSON parsing
   let loaded = 0;
   try {
-    // Load each array/object
-    if(localStorage.getItem('pos_backlog'))     { backlogItems     = JSON.parse(localStorage.getItem('pos_backlog'));     loaded++; }
-    if(localStorage.getItem('pos_roadmap'))     { roadmapItems     = JSON.parse(localStorage.getItem('pos_roadmap'));     loaded++; }
-    if(localStorage.getItem('pos_kpis'))        { kpiItems         = JSON.parse(localStorage.getItem('pos_kpis'));        loaded++; }
-    if(localStorage.getItem('pos_kpi_log'))     { kpiLog           = JSON.parse(localStorage.getItem('pos_kpi_log'));     loaded++; }
-    if(localStorage.getItem('pos_sprint_history')){ sprintHistory  = JSON.parse(localStorage.getItem('pos_sprint_history')); loaded++; }
-    if(localStorage.getItem('pos_gates'))       { gateProjects     = JSON.parse(localStorage.getItem('pos_gates'));       loaded++; }
-    if(localStorage.getItem('pos_stakeholders')){ stakeholderItems = JSON.parse(localStorage.getItem('pos_stakeholders')); loaded++; }
-    if(localStorage.getItem('pos_debt'))        { debtItems        = JSON.parse(localStorage.getItem('pos_debt'));        loaded++; }
-    if(localStorage.getItem('pos_retro'))       { retroLog         = JSON.parse(localStorage.getItem('pos_retro'));       loaded++; }
-    if(localStorage.getItem('pos_kb'))          { knowledgeBase    = JSON.parse(localStorage.getItem('pos_kb'));          loaded++; }
-    if(localStorage.getItem('pos_feedback'))    { feedbackItems    = JSON.parse(localStorage.getItem('pos_feedback'));    loaded++; }
-    if(localStorage.getItem('pos_audit'))       { auditLog         = JSON.parse(localStorage.getItem('pos_audit'));       loaded++; }
-    if(localStorage.getItem('pos_burndown'))    { burndownLog      = JSON.parse(localStorage.getItem('pos_burndown'));    loaded++; }
+    // Load each array/object with try-catch per item
+    if(localStorage.getItem('pos_backlog'))     {
+      try{ backlogItems     = JSON.parse(localStorage.getItem('pos_backlog'));     loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_backlog:', e); backlogItems=[]; }
+    }
+    if(localStorage.getItem('pos_roadmap'))     {
+      try{ roadmapItems     = JSON.parse(localStorage.getItem('pos_roadmap'));     loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_roadmap:', e); roadmapItems=[]; }
+    }
+    if(localStorage.getItem('pos_kpis'))        {
+      try{ kpiItems         = JSON.parse(localStorage.getItem('pos_kpis'));        loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_kpis:', e); kpiItems=[]; }
+    }
+    if(localStorage.getItem('pos_kpi_log'))     {
+      try{ kpiLog           = JSON.parse(localStorage.getItem('pos_kpi_log'));     loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_kpi_log:', e); kpiLog=[]; }
+    }
+    if(localStorage.getItem('pos_sprint_history')){
+      try{ sprintHistory  = JSON.parse(localStorage.getItem('pos_sprint_history')); loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_sprint_history:', e); sprintHistory=[]; }
+    }
+    if(localStorage.getItem('pos_gates'))       {
+      try{ gateProjects     = JSON.parse(localStorage.getItem('pos_gates'));       loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_gates:', e); gateProjects=[]; }
+    }
+    if(localStorage.getItem('pos_stakeholders')){
+      try{ stakeholderItems = JSON.parse(localStorage.getItem('pos_stakeholders')); loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_stakeholders:', e); stakeholderItems=[]; }
+    }
+    if(localStorage.getItem('pos_debt'))        {
+      try{ debtItems        = JSON.parse(localStorage.getItem('pos_debt'));        loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_debt:', e); debtItems=[]; }
+    }
+    if(localStorage.getItem('pos_retro'))       {
+      try{ retroLog         = JSON.parse(localStorage.getItem('pos_retro'));       loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_retro:', e); retroLog=[]; }
+    }
+    if(localStorage.getItem('pos_kb'))          {
+      try{ knowledgeBase    = JSON.parse(localStorage.getItem('pos_kb'));          loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_kb:', e); knowledgeBase=[]; }
+    }
+    if(localStorage.getItem('pos_feedback'))    {
+      try{ feedbackItems    = JSON.parse(localStorage.getItem('pos_feedback'));    loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_feedback:', e); feedbackItems=[]; }
+    }
+    if(localStorage.getItem('pos_audit'))       {
+      try{ auditLog         = JSON.parse(localStorage.getItem('pos_audit'));       loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_audit:', e); auditLog=[]; }
+    }
+    if(localStorage.getItem('pos_burndown'))    {
+      try{ burndownLog      = JSON.parse(localStorage.getItem('pos_burndown'));    loaded++; }
+      catch(e){ console.error('[LOAD ERROR] pos_burndown:', e); burndownLog=[]; }
+    }
     if(localStorage.getItem('pos_context')) {
       const ctx = JSON.parse(localStorage.getItem('pos_context'));
       productContext = ctx;
@@ -23626,6 +23856,24 @@ document.addEventListener('DOMContentLoaded', function() {
   // Must be last — hides UI until flow completes
   checkSplashAndOnboarding();
 
+  // P1 FIX #3: Attach event listeners for real-time capacity calculation
+  const capacityInputs = [
+    'ctx-sprint-days','ctx-days-lost','ctx-velocity','ctx-focus','ctx-ceremony-hrs',
+    'ctx-debt-pct','ctx-dep-buffer','ctx-new-joiners','ctx-confidence','ctx-dev-rate',
+    'ctx-dev','ctx-qa','ctx-arch','ctx-design','ctx-ba','ctx-sm','ctx-devops','ctx-po'
+  ];
+  capacityInputs.forEach(id => {
+    const el = document.getElementById(id);
+    if(el){
+      el.addEventListener('input', updateCapacity);
+      el.addEventListener('change', updateCapacity);
+    }
+  });
+
+  // P1 FIX #2, #9: Load chat history on startup
+  if(typeof loadChatHistory === 'function') loadChatHistory();
+
+  console.log('[INIT] ProductOS loaded with all P1 fixes');
 });
 
 
@@ -24638,6 +24886,9 @@ function renderStakeholders() {
       ? items.map(s=>`<div class="sh-grid-name" title="${s.role}">${s.name}</div>`).join('')
       : '<span style="font-size:10px;color:var(--muted2);opacity:.5">None</span>';
   });
+
+  // P1 FIX #15: Render power-interest 2x2 grid
+  setTimeout(()=>renderPowerInterestGrid(), 100);
 }
 
 function getQuadrant(power, interest) {
@@ -24645,6 +24896,64 @@ function getQuadrant(power, interest) {
   if (power >= 3 && interest < 3) return 'satisfy';
   if (power < 3 && interest >= 3) return 'inform';
   return 'monitor';
+}
+
+// P1 FIX #15: Stakeholder power-interest grid rendering with proper 2x2 layout
+function renderPowerInterestGrid(){
+  const gridContainer = document.getElementById('power-interest-grid');
+  if(!gridContainer || !stakeholders.length) return;
+
+  // Create SVG-based 2x2 grid
+  let gridHtml = `
+    <svg width="100%" height="400" viewBox="0 0 500 400" style="border:1px solid var(--border);border-radius:8px;background:var(--bg3)">
+      <!-- Grid lines -->
+      <line x1="250" y1="0" x2="250" y2="400" stroke="var(--border)" stroke-width="2" stroke-dasharray="5,5"/>
+      <line x1="0" y1="200" x2="500" y2="200" stroke="var(--border)" stroke-width="2" stroke-dasharray="5,5"/>
+
+      <!-- Labels -->
+      <text x="250" y="20" font-size="12" font-weight="700" text-anchor="middle" fill="var(--accent)">HIGH INTEREST</text>
+      <text x="250" y="385" font-size="12" font-weight="700" text-anchor="middle" fill="var(--muted2)">LOW INTEREST</text>
+      <text x="15" y="200" font-size="12" font-weight="700" text-anchor="start" fill="var(--accent)" transform="rotate(-90 15 200)">LOW POWER</text>
+      <text x="485" y="200" font-size="12" font-weight="700" text-anchor="end" fill="var(--accent)" transform="rotate(-90 485 200)">HIGH POWER</text>
+
+      <!-- Quadrant labels -->
+      <text x="125" y="100" font-size="11" font-weight="600" text-anchor="middle" fill="var(--yellow)">KEEP INFORMED</text>
+      <text x="375" y="100" font-size="11" font-weight="600" text-anchor="middle" fill="var(--red)">MANAGE CLOSELY</text>
+      <text x="125" y="320" font-size="11" font-weight="600" text-anchor="middle" fill="var(--muted2)">MONITOR</text>
+      <text x="375" y="320" font-size="11" font-weight="600" text-anchor="middle" fill="var(--yellow)">KEEP SATISFIED</text>
+  `;
+
+  // Place stakeholders on grid
+  stakeholders.forEach((s, idx) => {
+    const x = 50 + (s.power / 5) * 400;
+    const y = 350 - (s.interest / 5) * 300;
+    const color = s.power >= 3 && s.interest >= 3 ? '#FF4757' : s.power >= 3 ? '#F5A623' : s.interest >= 3 ? '#29B6F6' : '#999';
+
+    gridHtml += `
+      <circle cx="${x}" cy="${y}" r="20" fill="${color}" opacity="0.7" stroke="var(--bg)" stroke-width="2"/>
+      <text x="${x}" y="${y}" font-size="10" font-weight="700" text-anchor="middle" dominant-baseline="middle" fill="#fff" title="${s.name} (${s.role})">${s.name.substring(0,1).toUpperCase()}</text>
+    `;
+  });
+
+  gridHtml += '</svg>';
+  gridContainer.innerHTML = gridHtml;
+
+  // Render list below grid
+  const listHtml = stakeholders.map(s => `
+    <div style="padding:8px 12px;border-radius:6px;background:var(--bg3);margin-bottom:6px;display:flex;gap:8px;align-items:center">
+      <span style="font-weight:700;font-size:11px">${s.name}</span>
+      <span style="font-size:10px;color:var(--muted2)">Power ${s.power}/5 | Interest ${s.interest}/5</span>
+      <span style="margin-left:auto;font-size:10px;color:var(--accent)">${getQuadrantLabel(getQuadrant(s.power,s.interest))}</span>
+    </div>
+  `).join('');
+
+  const listContainer = document.getElementById('grid-list');
+  if(listContainer) listContainer.innerHTML = listHtml;
+}
+
+function getQuadrantLabel(quad){
+  const labels = {manage:'🔴 Manage', satisfy:'🟡 Satisfy', inform:'🔵 Inform', monitor:'⚪ Monitor'};
+  return labels[quad] || 'Unknown';
 }
 
 function openStakeholderModal() {
@@ -24660,20 +24969,32 @@ function saveStakeholder() {
   const name = document.getElementById('sh-name')?.value.trim();
   const role = document.getElementById('sh-role')?.value.trim();
   if (!name || !role) { toast('Name and role required', 'warning'); return; }
+
+  // P1 FIX #14: RACI matrix calculation from stakeholder power/interest
+  const power = parseInt(document.getElementById('sh-power')?.value||3);
+  const interest = parseInt(document.getElementById('sh-interest')?.value||3);
+
+  // RACI assignment based on power + interest
+  let raci_responsible = power >= 4 && interest >= 4;
+  let raci_accountable = power >= 4;
+  let raci_consulted = interest >= 4;
+  let raci_informed = true; // Everyone is informed
+
   const s = {
     id: Date.now(), name, role,
-    power: parseInt(document.getElementById('sh-power')?.value||3),
-    interest: parseInt(document.getElementById('sh-interest')?.value||3),
+    power: power,
+    interest: interest,
     cares: document.getElementById('sh-cares')?.value.trim(),
     risk: document.getElementById('sh-risk')?.value.trim(),
     comms: document.getElementById('sh-comms')?.value||'As needed',
+    raci_responsible, raci_accountable, raci_consulted, raci_informed,
     date: new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})
   };
   stakeholders.push(s);
   localStorage.setItem('prodmind_stakeholders', JSON.stringify(stakeholders));
   closeShModal();
   renderStakeholders();
-  toast('✅ Stakeholder added', 'success');
+  toast('✅ Stakeholder added with RACI matrix', 'success');
 }
 
 function deleteStakeholder(i) {
@@ -31089,14 +31410,34 @@ function renderSprintHealth(analysis) {
 
   // ── HEALTH SCORE ──────────────────────────────────────────
   var completion = analysis.totalIssues > 0 ? Math.round((analysis.done / analysis.totalIssues) * 100) : 0;
+  // P1 FIX #13: Sprint health color coding with standard ranges
   var healthScore = calculateHealthScore(analysis);
-  var healthColor = healthScore >= 80 ? '#00C896' : healthScore >= 60 ? '#F5A623' : '#FF4757';
-  var healthLabel = healthScore >= 80 ? 'Healthy' : healthScore >= 60 ? 'At Risk' : 'Critical';
+  var healthColor, healthLabel, healthBg;
+  if(healthScore >= 80){
+    healthColor = '#00C896'; // Green: Healthy
+    healthLabel = 'Healthy (80-100)';
+    healthBg = 'rgba(0,200,150,0.1)';
+  }else if(healthScore >= 60){
+    healthColor = '#F5A623'; // Yellow: At Risk
+    healthLabel = 'At Risk (60-79)';
+    healthBg = 'rgba(245,166,35,0.1)';
+  }else if(healthScore >= 40){
+    healthColor = '#FF9100'; // Orange: Critical
+    healthLabel = 'Critical (40-59)';
+    healthBg = 'rgba(255,145,0,0.1)';
+  }else{
+    healthColor = '#FF4757'; // Red: Failing
+    healthLabel = 'Failing (0-39)';
+    healthBg = 'rgba(255,71,87,0.1)';
+  }
 
   var scoreEl = document.getElementById('health-score');
   if (scoreEl) {
     scoreEl.textContent = healthScore;
     scoreEl.style.color = healthColor;
+    // Apply background color to health card
+    scoreEl.parentElement.style.background = healthBg;
+    scoreEl.parentElement.style.borderColor = healthColor;
   }
   var labelEl = document.getElementById('health-label');
   if (labelEl) {
