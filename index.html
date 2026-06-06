@@ -30952,17 +30952,49 @@ async function updatePODDropdown() {
 
 async function fetchLiveSprintData(podKey) {
   try {
-    var projects = podKey ? [podKey] : ['HIP', 'ADE', 'AGDF', 'AGEA'];
+    // FIX #1: Dynamically fetch ALL projects from Jira instead of hardcoded list
+    var projects = [];
+    if (podKey) {
+      projects = [podKey];
+    } else {
+      try {
+        const allProjects = await jiraFetch('/projects?maxResults=100', {method: 'GET'});
+        if (allProjects.ok) {
+          const data = await allProjects.json();
+          projects = (data.values || []).map(p => p.key);
+          console.log('✅ Discovered ' + projects.length + ' PODs from Jira:', projects);
+        } else {
+          console.warn('⚠️ Could not fetch PODs from Jira, using fallback');
+          projects = ['HIP', 'ADE', 'AGDF', 'AGEA'];
+        }
+      } catch(e) {
+        console.warn('⚠️ Error fetching PODs, using fallback:', e);
+        projects = ['HIP', 'ADE', 'AGDF', 'AGEA'];
+      }
+    }
+
     var projectsJql = projects.map(p => '"' + p + '"').join(',');
 
     console.log('Fetching sprint data for:', projects);
 
-    // Get all open sprint issues
-    var sprintIssuesJql = 'sprint in openSprints() AND project IN (' + projectsJql + ')';
+    // FIX #3: Use currentSprint() instead of openSprints() to filter only ACTIVE sprints
+    // (openSprints() includes future sprints that haven't started yet)
+    var sprintIssuesJql = 'sprint in (currentSprint()) AND project IN (' + projectsJql + ')';
     var sprintRes = await jiraFetch(
       '/search?jql=' + encodeURIComponent(sprintIssuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint',
       {method: 'GET'}
     );
+
+    // If currentSprint() returns no results (sprint just ended), fallback to openSprints()
+    let sprintData = await sprintRes.json();
+    if (!sprintRes.ok || !sprintData.issues || sprintData.issues.length === 0) {
+      console.log('⚠️ currentSprint() returned no results, falling back to openSprints()');
+      var sprintIssuesJqlFallback = 'sprint in openSprints() AND project IN (' + projectsJql + ')';
+      sprintRes = await jiraFetch(
+        '/search?jql=' + encodeURIComponent(sprintIssuesJqlFallback) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint',
+        {method: 'GET'}
+      );
+    }
 
     if (!sprintRes.ok) {
       var fallbackJql = 'project IN (' + projectsJql + ') AND resolution = Unresolved ORDER BY updated DESC';
@@ -31693,15 +31725,33 @@ function calculateHealthScore(analysis) {
   // Reduce for blockers
   score -= (analysis.blockedIssues.length * 5);
 
-  // Reduce for overloaded team (CRITICAL FIX: Use consistent capacity, not hardcoded 15)
+  // FIX #4: Reduce for overloaded team - CAPACITY-AWARE (not arbitrary threshold)
+  // Calculate capacity based on sprint length and team ceremonies
   var overloadedCount = 0;
-  var STANDARD_CAPACITY = 12; // Match the capacity used in generateInsights()
-  var overloadThreshold = STANDARD_CAPACITY * 1.1; // 110% overload = 13.2 points
+  var sprintLengthDays = 10; // Default 2-week sprint
+  var baseCapacity = 10; // Base 10 points per 2-week sprint
+
+  // Adjust capacity based on actual sprint length
+  if (analysis.sprint && analysis.sprint.startDate && analysis.sprint.endDate) {
+    var startDate = new Date(analysis.sprint.startDate);
+    var endDate = new Date(analysis.sprint.endDate);
+    sprintLengthDays = Math.round((endDate - startDate) / (1000 * 60 * 60 * 24));
+    baseCapacity = (baseCapacity / 10) * sprintLengthDays; // Scale to actual sprint length
+  }
+
+  // Get ceremony time from context (stored in productContext)
+  var ceremonyHours = (productContext && productContext.ceremonyHrs) ? parseInt(productContext.ceremonyHrs) : 5;
+  var sprintHours = sprintLengthDays * 8; // 8 hours/day work
+  var ceremonyPct = ceremonyHours / (sprintLengthDays * 5 * 8); // Assuming 5-day work week
+  var workCapacity = baseCapacity * (1 - Math.min(ceremonyPct, 0.3)); // Cap ceremony overhead at 30%
+  var overloadThreshold = workCapacity * 1.1; // 110% = overloaded
 
   Object.keys(analysis.assignees).forEach(function(name) {
-    if (analysis.assignees[name].points > overloadThreshold) {
+    var assignedPoints = analysis.assignees[name].points;
+    if (assignedPoints > overloadThreshold) {
       overloadedCount++;
-      console.warn('⚠️ ' + name + ' overloaded: ' + analysis.assignees[name].points + 'pts > ' + Math.round(overloadThreshold * 10) / 10 + ' capacity');
+      var utilization = Math.round((assignedPoints / workCapacity) * 100);
+      console.warn('⚠️ ' + name + ' overloaded: ' + assignedPoints + ' pts assigned (capacity: ' + Math.round(workCapacity * 10) / 10 + ', utilization: ' + utilization + '%)');
     }
   });
   score -= (overloadedCount * 5);
@@ -31735,8 +31785,13 @@ function renderPODDashboard(data) {
     return;
   }
 
-  var velocity = Math.round((s.completedPoints / (s.totalPoints || 1)) * 100);
+  // FIX #2: Calculate REAL velocity (points/day) not completion percentage
+  var sprintProgress = calculateSprintProgress(s.sprint || {});
+  var daysPassed = Math.max(1, sprintProgress.daysPassed); // Avoid division by zero
+  var velocity = Math.round((s.completedPoints / daysPassed) * 10) / 10;  // Points/day with 1 decimal
   var progress = s.totalPoints > 0 ? Math.round((s.completedPoints / s.totalPoints) * 100) : 0;
+
+  console.log('✅ Velocity calculated: ' + s.completedPoints + ' points / ' + daysPassed + ' days = ' + velocity + ' pts/day');
 
   var sprintNameEl = document.getElementById('sprint-name-badge');
   if (sprintNameEl) {
