@@ -12308,33 +12308,29 @@ async function injectJiraContextIfNeeded(userMsg){
 
   try {
     if(isBacklogQuery){
-      const res = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=20&fields=summary,issuetype,priority,customfield_10028,assignee,status');
-      if(res.ok){
-        const data = await res.json();
+      const data = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=20&fields=summary,issuetype,priority,customfield_10028,assignee,status');
+      if(data && data.success){
         const lines = (data.issues||[]).map(i=>'- '+i.key+': '+i.fields.summary+' ['+i.fields.issuetype?.name+' / '+(i.fields.priority?.name||'?')+' / SP:'+(i.fields.customfield_10028||'?')+']');
         jiraContext += '\n\n--- LIVE JIRA BACKLOG: '+proj+' ('+data.total+' items) ---\n'+lines.join('\n');
       }
     }
     if(isBugQuery){
-      const res = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee');
-      if(res.ok){
-        const data = await res.json();
+      const data = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee');
+      if(data && data.success){
         const lines = (data.issues||[]).map(i=>'- '+i.key+' ['+i.fields.priority?.name+']: '+i.fields.summary+' → '+(i.fields.assignee?.displayName||'Unassigned'));
         jiraContext += '\n\n--- LIVE JIRA OPEN BUGS: '+proj+' ('+data.total+' total) ---\n'+lines.join('\n');
       }
     }
     if(isSprintQuery){
-      const res = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "In Progress" ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
-      if(res.ok){
-        const data = await res.json();
+      const data = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "In Progress" ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+      if(data && data.success){
         const lines = (data.issues||[]).map(i=>'- '+i.key+' ['+i.fields.status?.name+']: '+i.fields.summary+' → '+(i.fields.assignee?.displayName||'Unassigned'));
         jiraContext += '\n\n--- LIVE JIRA IN PROGRESS: '+proj+' ('+data.total+' items) ---\n'+lines.join('\n');
       }
     }
     if(isHighPriQuery){
-      const res = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee,issuetype');
-      if(res.ok){
-        const data = await res.json();
+      const data = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee,issuetype');
+      if(data && data.success){
         const lines = (data.issues||[]).map(i=>'- '+i.key+' ['+i.fields.priority?.name+'/'+i.fields.issuetype?.name+']: '+i.fields.summary);
         jiraContext += '\n\n--- LIVE JIRA HIGH PRIORITY: '+proj+' ('+data.total+' items) ---\n'+lines.join('\n');
       }
@@ -28726,9 +28722,8 @@ async function handleJiraSlashCommand(cmd){
   // /jira sprint PROJECT
   if(subCmd === 'sprint'){
     toast('Loading sprint for '+arg+'...');
-    const res = await fetchJira('/issues?jql='+encodeURIComponent('project = '+arg+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
-    if(!res.ok){ toast('Error: HTTP '+res.status,'error'); return; }
-    const data = await res.json();
+    const data = await fetchJira('/issues?jql='+encodeURIComponent('project = '+arg+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+    if(!data || !data.success){ toast('Error','error'); return; }
     const issues = data.issues || [];
     const nl = '\n';
     const lines = issues.map(function(i){ return '- '+i.key+': '+i.fields.summary+' ['+i.fields.status?.name+' / '+i.fields.priority?.name+']'; });
@@ -28741,9 +28736,8 @@ async function handleJiraSlashCommand(cmd){
   // /jira bugs PROJECT
   if(subCmd === 'bugs'){
     toast('Loading bugs for '+arg+'...');
-    const res = await fetchJira('/issues?jql='+encodeURIComponent('project = '+arg+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,priority,assignee');
-    if(!res.ok){ toast('Error','error'); return; }
-    const data = await res.json();
+    const data = await fetchJira('/issues?jql='+encodeURIComponent('project = '+arg+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,priority,assignee');
+    if(!data || !data.success){ toast('Error','error'); return; }
     const bugs = data.issues || [];
     const nl = '\n';
     const lines = bugs.map(function(i){ return '- '+i.key+' ['+i.fields.priority?.name+']: '+i.fields.summary+' - '+(i.fields.assignee?.displayName||'Unassigned'); });
@@ -28756,9 +28750,8 @@ async function handleJiraSlashCommand(cmd){
   // /jira rice PROJECT
   if(subCmd === 'rice'){
     toast('Loading backlog for RICE — '+arg+'...');
-    const res = await fetchJira('/issues?jql='+encodeURIComponent('project = '+arg+' AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=25&fields=summary,issuetype,priority,customfield_10028');
-    if(!res.ok){ toast('Error','error'); return; }
-    const data = await res.json();
+    const data = await fetchJira('/issues?jql='+encodeURIComponent('project = '+arg+' AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=25&fields=summary,issuetype,priority,customfield_10028');
+    if(!data || !data.success){ toast('Error','error'); return; }
     const nl = '\n';
     const items = (data.issues||[]).map(function(i){ return i.key+': '+i.fields.summary+' ['+i.fields.issuetype?.name+'/'+i.fields.priority?.name+'/SP:'+(i.fields.customfield_10028||'?')+']'; }).join(nl);
     const inp = document.getElementById('chat-input');
