@@ -30339,7 +30339,7 @@ async function fetchLiveSprintData(podKey) {
     var issues = (await sprintRes.json()).issues || [];
     console.log('Found ' + issues.length + ' issues');
 
-    // Extract sprint data (FIXED: Keep full sprint object for date calculations)
+    // Extract sprint data (CRITICAL FIX: Extract actual sprint dates, not just name)
     var sprintName = 'Current Sprint';
     var sprintDates = '';
     var sprintObject = null;
@@ -30347,17 +30347,28 @@ async function fetchLiveSprintData(podKey) {
       if (issues[i].fields.sprint) {
         sprintObject = issues[i].fields.sprint;
         sprintName = sprintObject.name;
+
+        // CRITICAL: Extract actual dates from sprint object
         if (sprintObject.startDate) {
           sprintDates = sprintObject.startDate.split('T')[0];
         }
+
+        // Log what we found for debugging
+        console.log('✅ Sprint Found: ' + sprintName);
+        console.log('   Dates: ' + sprintObject.startDate + ' to ' + sprintObject.endDate);
         break;
       }
+    }
+
+    // If no sprint found in issues, warn user
+    if (!sprintObject) {
+      console.warn('⚠️ No sprint data found in issues. Using fallback values.');
     }
 
     return {
       sprintName: sprintName,
       sprintDates: sprintDates,
-      sprint: sprintObject, // Store full sprint object for calculations
+      sprint: sprintObject, // Store FULL sprint object with dates for calculateSprintProgress()
       projects: projects,
       issues: issues,
       fetched: new Date()
@@ -30390,15 +30401,36 @@ function analyzeSprint(rawData) {
     insights: []
   };
 
+  // Track which issues have story points
+  var issuesWithPoints = 0;
+  var issuesWithoutPoints = 0;
+
   issues.forEach(function(issue) {
     var status = issue.fields.status ? issue.fields.status.name : 'Unknown';
+    var statusCategory = issue.fields.status ? issue.fields.status.statusCategory : null; // Jira standard category
     var points = issue.fields.customfield_10028 || 0;
     var assignee = issue.fields.assignee ? issue.fields.assignee.displayName : 'Unassigned';
 
-    // Count by status
-    if (status === 'Done') { summary.done++; summary.donePoints += points; }
-    else if (status === 'In Progress') { summary.inProgress++; summary.inProgressPoints += points; }
-    else { summary.todo++; }
+    // Track missing story points (critical issue if all are 0)
+    if (points === 0) {
+      issuesWithoutPoints++;
+    } else {
+      issuesWithPoints++;
+    }
+
+    // CRITICAL FIX: Use Jira standard statusCategory instead of exact status name
+    // statusCategory values: TO_DO, IN_PROGRESS, DONE (universal across Jira instances)
+    if (statusCategory === 'DONE' || status === 'Done') {
+      summary.done++;
+      summary.donePoints += points;
+    }
+    else if (statusCategory === 'IN_PROGRESS' || status === 'In Progress') {
+      summary.inProgress++;
+      summary.inProgressPoints += points;
+    }
+    else {
+      summary.todo++;
+    }
 
     summary.totalPoints += points;
 
@@ -30419,6 +30451,23 @@ function analyzeSprint(rawData) {
       });
     }
   });
+
+  // CRITICAL FIX: Log story points validation
+  console.log('📊 Story Points Analysis:');
+  console.log('   Total issues: ' + summary.totalIssues);
+  console.log('   Issues with story points: ' + issuesWithPoints);
+  console.log('   Issues without story points: ' + issuesWithoutPoints);
+  console.log('   Total points: ' + summary.totalPoints);
+
+  if (issuesWithoutPoints === summary.totalIssues) {
+    console.error('❌ CRITICAL: No story points found in ANY issue!');
+    console.error('   Check: customfield_10028 field ID might be wrong for your Jira instance');
+    console.error('   Solution: Check Jira API response to find correct story points field ID');
+  } else if (issuesWithoutPoints > 0) {
+    console.warn('⚠️ WARNING: ' + issuesWithoutPoints + ' issues have no story points');
+  } else {
+    console.log('✅ All issues have story points');
+  }
 
   // CALCULATE INSIGHTS
   summary.insights = generateInsights(summary);
@@ -30473,7 +30522,17 @@ function generateInsights(summary) {
   // Real velocity: points completed per day
   var velocity = daysPassed > 0 ? Math.round((summary.donePoints / daysPassed) * 100) / 100 : 0;
   var pointVelocityPerDay = velocity; // This is now actual points/day
-  var projectedCompletion = Math.round(pointVelocityPerDay * (daysPassed + daysRemaining));
+
+  // CRITICAL FIX: Project ONLY remaining points, not total
+  // OLD: Math.round(pointVelocityPerDay * (daysPassed + daysRemaining)) - WRONG (includes completed)
+  // NEW: Math.round(pointVelocityPerDay * daysRemaining) - CORRECT (only future work)
+  var projectedCompletion = daysPassed > 0 ? Math.round(pointVelocityPerDay * daysRemaining) : summary.totalPoints;
+
+  console.log('📈 Velocity Analysis:');
+  console.log('   Current velocity: ' + pointVelocityPerDay + ' pts/day');
+  console.log('   Days passed: ' + daysPassed + ', Days remaining: ' + daysRemaining);
+  console.log('   Done: ' + summary.donePoints + 'pts, Total: ' + summary.totalPoints + 'pts');
+  console.log('   Projected completion in remaining days: ' + projectedCompletion + 'pts');
 
   // INSIGHT 1: Completion Status
   if (completion >= 60) {
@@ -30523,9 +30582,10 @@ function generateInsights(summary) {
   }
 
   // INSIGHT 3: Overloaded team members (FIXED: capacity-aware, not arbitrary 15pts)
-  // Calculate team capacity based on sprint length
+  // CRITICAL FIX: Single source of truth for capacity
   var sprintLengthDays = daysPassed + daysRemaining;
-  var baseCapacityPerEngineer = 10; // 10 pts per engineer per 2-week sprint
+  var STANDARD_CAPACITY_PER_ENGINEER = 12; // 12 pts per engineer per 2-week sprint (standard Scrum)
+  var baseCapacityPerEngineer = STANDARD_CAPACITY_PER_ENGINEER;
   var adjustedCapacityPerEngineer = (baseCapacityPerEngineer / 10) * sprintLengthDays;
 
   var overloaded = [];
@@ -30620,8 +30680,16 @@ function detectRisks(summary) {
 async function fetchAllPODsFromJira() {
   try {
     var res = await jiraFetch('/rest/api/3/projects?expand=lead&maxResults=100');
-    if (!res.ok || !res.values) {
-      console.warn('⚠️ Could not fetch projects from Jira');
+
+    // CRITICAL FIX: Validate Jira API response (not HTML error page)
+    if (!res || !res.values) {
+      console.error('❌ Invalid Jira response - check proxy configuration');
+      console.error('Response:', res);
+      return [];
+    }
+
+    if (!Array.isArray(res.values)) {
+      console.error('❌ Jira response format invalid - values is not an array');
       return [];
     }
 
@@ -30631,6 +30699,11 @@ async function fetchAllPODsFromJira() {
       category: p.category || 'Other'
     }));
 
+    if (pods.length === 0) {
+      console.warn('⚠️ No projects found in Jira - check if Jira is configured correctly');
+      return [];
+    }
+
     console.log('✅ Discovered ' + pods.length + ' PODs from Jira:',
                 pods.map(p => p.key).join(', '));
 
@@ -30638,7 +30711,8 @@ async function fetchAllPODsFromJira() {
     localStorage.setItem('discoveredPODs', JSON.stringify(pods));
     return pods;
   } catch (e) {
-    console.error('Error fetching PODs:', e);
+    console.error('❌ Error fetching PODs from Jira:', e);
+    console.error('   This usually means: Jira proxy is not configured or not responding');
     return [];
   }
 }
@@ -30930,20 +31004,35 @@ function calculateHealthScore(analysis) {
   // Reduce for blockers
   score -= (analysis.blockedIssues.length * 5);
 
-  // Reduce for overloaded team
+  // Reduce for overloaded team (CRITICAL FIX: Use consistent capacity, not hardcoded 15)
   var overloadedCount = 0;
+  var STANDARD_CAPACITY = 12; // Match the capacity used in generateInsights()
+  var overloadThreshold = STANDARD_CAPACITY * 1.1; // 110% overload = 13.2 points
+
   Object.keys(analysis.assignees).forEach(function(name) {
-    if (analysis.assignees[name].points > 15) overloadedCount++;
+    if (analysis.assignees[name].points > overloadThreshold) {
+      overloadedCount++;
+      console.warn('⚠️ ' + name + ' overloaded: ' + analysis.assignees[name].points + 'pts > ' + Math.round(overloadThreshold * 10) / 10 + ' capacity');
+    }
   });
   score -= (overloadedCount * 5);
+
+  console.log('🏥 Health Score: ' + Math.max(0, Math.min(100, score)) + '/100 (completion: ' + Math.round(completion * 100) + '%, wip: ' + Math.round(wipRatio * 100) + '%, overloaded: ' + overloadedCount + ')');
 
   return Math.max(0, Math.min(100, score));
 }
 
 function renderPODDashboard(data) {
+  // CRITICAL FIX: Add null safety checks
   if (!data) {
-    console.warn('No data to render');
-    document.getElementById('pod-status-badge').textContent = '⚠️ No data';
+    console.error('❌ No data to render - Jira fetch failed');
+    document.getElementById('pod-status-badge').textContent = '⚠️ Unable to fetch data';
+    return;
+  }
+
+  if (!data.sprint) {
+    console.error('❌ No sprint data - check Jira configuration');
+    document.getElementById('pod-status-badge').textContent = '⚠️ No active sprint';
     return;
   }
 
