@@ -32234,9 +32234,9 @@ async function generateSprintReport() {
       + '=== LIVE JIRA DATA — Fetched: ' + today2 + ' ===' + nl
       + 'Open (To Do): ' + (open.total||0) + ' items' + nl
       + 'In Progress: ' + (inprog.total||0) + ' items' + nl
-      + 'Done last 14d: ' + completed + ' items (' + velocity + ' story points)' + nl
+      + 'Done last 14d: ' + doneIssuesCount + ' items (' + sprintVelocity + ' story points)' + nl
       + 'Open Bugs: ' + bugCount + nl
-      + 'Completion rate: ' + completion + '%' + nl + nl
+      + 'Completion rate: ' + completionPercent + '%' + nl + nl
       + 'IN PROGRESS & TO DO (top items):' + nl + issueList + nl + nl
       + 'COMPLETED (last 14d):' + nl + (doneList || 'None') + nl + nl
       + 'OPEN BUGS:' + nl + (bugList || 'None') + nl + nl
