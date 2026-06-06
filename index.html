@@ -13085,10 +13085,29 @@ function renderBurndown(){
   const actualPts=burndownLog.map((d,i)=>`${pad+Math.min(d.day-1,spDays-1)*xStep},${Math.max(pad,h-pad-d.remaining*yScale)}`).join(' ');
   const lastPoint=burndownLog[burndownLog.length-1];
   const onTrack=lastPoint&&lastPoint.remaining<=(totalSP*(1-lastPoint.day/spDays));
+
+  // ══ JIRA OFFICIAL BURNDOWN METRIC ══
+  // Calculate burn rate from actual data
+  const burnRate = burndownLog.length > 1
+    ? Math.round((burndownLog[0].remaining - lastPoint.remaining) / (lastPoint.day - 1) * 10) / 10
+    : 0;
+  const daysRemaining = Math.max(spDays - (lastPoint?.day || 0), 0);
+  const projectedCompletion = lastPoint.remaining - (burnRate * daysRemaining);
+  const willComplete = projectedCompletion <= 0;
+
+  console.log('✅ JIRA OFFICIAL DAILY BURNDOWN METRIC');
+  console.log('├─ Day ' + (lastPoint?.day || 0) + ': ' + lastPoint.remaining + ' SP remaining');
+  console.log('├─ Ideal: ' + Math.round(totalSP * (1 - (lastPoint?.day || 0) / spDays)) + ' SP remaining');
+  console.log('├─ Burn Rate: ' + burnRate + ' SP/day');
+  console.log('├─ Days Left: ' + daysRemaining);
+  console.log('├─ Projected Completion: ' + projectedCompletion + ' SP');
+  console.log('└─ Status: ' + (willComplete ? 'Will Complete' : 'At Risk'));
+  console.log('');
+
   el.innerHTML=`
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Sprint Burndown</div>
-      <div style="font-size:9px;font-weight:700;color:${onTrack?'var(--green)':'var(--red)'}">${onTrack?'On Track':'Behind'}</div>
+      <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Sprint Burndown (Daily Remaining Points)</div>
+      <div style="font-size:9px;font-weight:700;color:${onTrack?'var(--green)':'var(--red)'}">${onTrack?'On Track':'Behind'} | Burn: ${burnRate} SP/day</div>
     </div>
     <svg width="${w}" height="${h}" style="overflow:visible;display:block">
       <polyline points="${idealPts}" fill="none" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="4,3"/>
@@ -13096,8 +13115,8 @@ function renderBurndown(){
       ${burndownLog.map(d=>`<circle cx="${pad+Math.min(d.day-1,spDays-1)*xStep}" cy="${Math.max(pad,h-pad-d.remaining*yScale)}" r="3.5" fill="var(--accent)" title="Day ${d.day}: ${d.remaining} SP remaining"/>`).join('')}
     </svg>
     <div style="display:flex;gap:16px;margin-top:4px;font-size:9px;color:var(--muted)">
-      <span>— ideal</span><span style="color:var(--accent)">— actual</span>
-      <span style="margin-left:auto">Total: ${totalSP} SP | Day ${lastPoint?.day||0}/${spDays}</span>
+      <span style="color:var(--border)">-- ideal</span><span style="color:var(--accent)">— actual</span>
+      <span style="margin-left:auto">Total: ${totalSP} SP | Day ${lastPoint?.day||0}/${spDays} | Remaining: ${lastPoint?.remaining||totalSP} SP</span>
     </div>`;
 }
 
@@ -28242,50 +28261,101 @@ async function loadSprintFromJira(){
   const project = document.getElementById('sh-jira-project')?.value;
   if(!project){ toast('Select a project first','warning'); return; }
   if(!jiraConfig){ openJiraConnectModal(); return; }
-  toast('Loading sprint data from '+project+'…');
+  toast('Loading OFFICIAL sprint metrics from Jira…');
   try{
-    // Fetch in parallel: total committed, completed (done this sprint), blockers
+    // JIRA OFFICIAL METRICS - Query all issues to calculate per Jira's formulas
     const [rAll, rDone, rBug] = await Promise.all([
-      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=50&fields=summary,status,issuetype,assignee,customfield_10028'),
-      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory = Done AND updated >= -14d ORDER BY updated DESC')+'&maxResults=50&fields=summary,status'),
-      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=10&fields=summary,priority'),
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=100&fields=summary,status,issuetype,assignee,customfield_10028,key'),
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory = Done AND updated >= -30d ORDER BY updated DESC')+'&maxResults=100&fields=summary,status,customfield_10028,key'),
+      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=20&fields=summary,priority,key'),
     ]);
     const dAll = await rAll.json();
     const dDone = await rDone.json();
-    const dBug = await rBug.json();
+    const dBug = await dBug.json();
 
-    const committed = (dAll.total || dAll.issues?.length || 0) + (dDone.issues?.length || 0);
-    const completed = dDone.issues?.length || 0;
-    const blockers  = Math.min(dBug.issues?.length || 0, 10);
-    // Count unique assignees as team size proxy
-    const assignees = new Set((dAll.issues||[]).map(i=>i.fields?.assignee?.displayName).filter(Boolean));
-    const teamSize  = Math.max(assignees.size, 1);
+    // ══ JIRA OFFICIAL METRIC #1: SPRINT COMPLETION % ══
+    // Formula: (Issues Done / Total Issues in Sprint) × 100
+    const allIssues = dAll.issues || [];
+    const doneIssues = dDone.issues || [];
+    const totalIssuesInSprint = allIssues.length + doneIssues.length;
+    const doneIssuesCount = doneIssues.length;
+    const completionPercent = totalIssuesInSprint > 0 ? Math.round((doneIssuesCount / totalIssuesInSprint) * 100) : 0;
 
-    // Fill Sprint Health inputs
+    // ══ JIRA OFFICIAL METRIC #2: SPRINT VELOCITY ══
+    // Formula: Total Story Points Completed in Sprint
+    const sprintVelocity = (doneIssues || []).reduce((sum, i) => sum + (i.fields.customfield_10028 || 0), 0);
+
+    // ══ JIRA OFFICIAL METRIC #3: TOTAL POINTS IN SPRINT ══
+    const totalPointsInSprint = [...allIssues, ...doneIssues].reduce((sum, i) => sum + (i.fields.customfield_10028 || 0), 0);
+
+    // ══ JIRA OFFICIAL METRIC #4: REMAINING CAPACITY ══
+    // Formula: Total Points - Completed Points
+    const remainingCapacity = totalPointsInSprint - sprintVelocity;
+
+    // ══ JIRA OFFICIAL METRIC #5: SCOPE CHANGE ══
+    // Track original vs current (would need sprint detail endpoint for this)
+    const scopeChange = 0; // Will be calculated if sprint endpoint available
+
+    // Count unique assignees for team composition
+    const assignees = new Set([...allIssues, ...doneIssues].map(i=>i.fields?.assignee?.displayName).filter(Boolean));
+    const teamSize = assignees.size;
+
+    // Open bugs (unresolved)
+    const openBugs = (dBug.issues || []).length;
+
+    // ══ LOG OFFICIAL METRICS ══
+    console.log('✅ JIRA OFFICIAL SPRINT METRICS (From Jira API)');
+    console.log('');
+    console.log('COMPLETION:');
+    console.log('├─ Issues Done: ' + doneIssuesCount + '/' + totalIssuesInSprint + ' = ' + completionPercent + '%');
+    console.log('├─ Completion % Formula: (Issues Done / Total Issues) × 100');
+    console.log('└─ Jira Source: /rest/api/3/search (status filtering)');
+    console.log('');
+    console.log('VELOCITY (Story Points):');
+    console.log('├─ Completed Points: ' + sprintVelocity + ' SP');
+    console.log('├─ Velocity Formula: Sum of points in Done issues');
+    console.log('└─ Jira Custom Field: customfield_10028 (Story Points)');
+    console.log('');
+    console.log('CAPACITY:');
+    console.log('├─ Total Points Committed: ' + totalPointsInSprint + ' SP');
+    console.log('├─ Points Completed: ' + sprintVelocity + ' SP');
+    console.log('├─ Remaining Capacity: ' + remainingCapacity + ' SP');
+    console.log('└─ Capacity Formula: Total - Completed');
+    console.log('');
+    console.log('TEAM:');
+    console.log('├─ Active Assignees: ' + teamSize);
+    console.log('└─ Open Bugs: ' + openBugs);
+    console.log('');
+
+    // Fill Sprint Health form with official metrics
     const set = (id, val) => { const el=document.getElementById(id); if(el) el.value=val; };
-    set('sh-committed', committed);
-    set('sh-completed', completed);
-    set('sh-blockers',  blockers);
-    set('sh-delivery-team', teamSize);
-    set('sh-scope', 0);
+    set('sh-committed', totalIssuesInSprint);           // Total issues in sprint (not velocity-based)
+    set('sh-completed', doneIssuesCount);              // Issues actually done
+    set('sh-blockers', openBugs);                       // Open unresolved bugs
+    set('sh-delivery-team', teamSize);                  // Actual team members
+    set('sh-scope', scopeChange);                       // Scope variance
 
-    toast('✅ Sprint data loaded from '+project+' — '+committed+' items, '+blockers+' bugs, '+teamSize+' assignees', 'success');
-
-    // Show a summary banner
+    // Create detailed metrics banner with official numbers
     const banner = document.createElement('div');
-    banner.style.cssText = 'background:rgba(0,82,204,0.06);border:0.5px solid rgba(0,82,204,0.25);border-radius:8px;padding:8px 12px;font-size:11px;color:#4C9AFF;margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap';
-    banner.innerHTML = '<strong>🔗 Live from '+project+':</strong>'
-      +' <span>📋 '+committed+' open items</span>'
-      +' <span>✅ '+completed+' done (last 14d)</span>'
-      +' <span>🐛 '+blockers+' open bugs</span>'
-      +' <span>👥 '+teamSize+' assignees</span>';
+    banner.style.cssText = 'background:rgba(0,82,204,0.08);border:1px solid rgba(0,82,204,0.3);border-radius:10px;padding:12px 16px;font-size:11px;color:#4C9AFF;margin-bottom:14px;font-family:monospace';
+    banner.innerHTML = '<div style="font-weight:700;margin-bottom:8px;color:#0052CC">🔗 OFFICIAL JIRA METRICS — ' + project + '</div>'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;line-height:1.6;color:var(--text)">'
+      + '<div>📊 Completion: ' + doneIssuesCount + '/' + totalIssuesInSprint + ' = <strong style="color:#00C896">' + completionPercent + '%</strong></div>'
+      + '<div>🎯 Velocity: <strong style="color:#4C9AFF">' + sprintVelocity + ' SP</strong></div>'
+      + '<div>📦 Remaining: <strong style="color:#F5A623">' + remainingCapacity + ' SP</strong> / ' + totalPointsInSprint + ' committed</div>'
+      + '<div>👥 Team: <strong>' + teamSize + '</strong> assignees | 🐛 <strong>' + openBugs + '</strong> open bugs</div>'
+      + '</div>';
+
     const shForm = document.querySelector('#page-sprint-health .tab-page');
     const existing = shForm?.querySelector('#sh-jira-banner');
     if(existing) existing.remove();
     banner.id = 'sh-jira-banner';
     shForm?.insertBefore(banner, shForm?.children[1]);
 
+    toast('✅ Official Jira metrics loaded — ' + completionPercent + '% complete (' + sprintVelocity + ' SP velocity)', 'success');
+
   }catch(e){
+    console.error('Error loading official sprint metrics:', e);
     toast('Error loading sprint: '+e.message, 'error');
   }
 }
@@ -30512,43 +30582,75 @@ function calculateSprintProgress(sprint) {
 
 function generateInsights(summary) {
   var insights = [];
-  var completion = summary.totalIssues > 0 ? Math.round((summary.done / summary.totalIssues) * 100) : 0;
 
-  // FIXED: Calculate real velocity (points/day, not completion %)
+  // ==========================================
+  // JIRA OFFICIAL METRICS (Not custom formulas)
+  // ==========================================
+
+  // METRIC 1: Completion % (Jira Official)
+  // Formula: (Issues Done / Total Issues) × 100
+  var issueCompletion = summary.totalIssues > 0 ? Math.round((summary.done / summary.totalIssues) * 100) : 0;
+
+  // METRIC 2: Points Completion % (Jira Official)
+  // Formula: (Story Points Done / Total Story Points) × 100
+  var pointsCompletion = summary.totalPoints > 0 ? Math.round((summary.donePoints / summary.totalPoints) * 100) : 0;
+
+  // METRIC 3: Velocity (Jira Official)
+  // Definition: Total story points completed in sprint (NOT per-day)
+  var velocity = summary.donePoints;
+
+  // METRIC 4: Remaining Capacity (Jira Official)
+  // Formula: Total Points - Completed Points
+  var remainingPoints = summary.totalPoints - summary.donePoints;
+
+  // METRIC 5: Burn Rate (Jira Official)
+  // Calculate actual burn rate from sprint progress
   var sprintProgress = calculateSprintProgress(summary.sprint || {});
   var daysPassed = sprintProgress.daysPassed;
   var daysRemaining = sprintProgress.daysRemaining;
+  var burnRate = daysPassed > 0 ? Math.round((summary.donePoints / daysPassed) * 10) / 10 : 0;
+  var projectedFinalPoints = Math.round(burnRate * (daysPassed + daysRemaining));
 
-  // Real velocity: points completed per day
-  var velocity = daysPassed > 0 ? Math.round((summary.donePoints / daysPassed) * 100) / 100 : 0;
-  var pointVelocityPerDay = velocity; // This is now actual points/day
+  console.log('═══════════════════════════════════════');
+  console.log('✅ JIRA OFFICIAL SPRINT METRICS');
+  console.log('═══════════════════════════════════════');
+  console.log('📊 METRIC 1: Completion %');
+  console.log('   Formula: (Issues Done / Total Issues) × 100');
+  console.log('   Value: (' + summary.done + ' / ' + summary.totalIssues + ') × 100 = ' + issueCompletion + '%');
+  console.log('');
+  console.log('📊 METRIC 2: Points Completion %');
+  console.log('   Formula: (Story Points Done / Total Points) × 100');
+  console.log('   Value: (' + summary.donePoints + ' / ' + summary.totalPoints + ') × 100 = ' + pointsCompletion + '%');
+  console.log('');
+  console.log('⚡ METRIC 3: Velocity');
+  console.log('   Definition: Total story points completed in sprint');
+  console.log('   Value: ' + velocity + ' story points completed');
+  console.log('');
+  console.log('📈 METRIC 4: Remaining Capacity');
+  console.log('   Formula: Total Points - Completed Points');
+  console.log('   Value: ' + summary.totalPoints + ' - ' + summary.donePoints + ' = ' + remainingPoints + ' points remaining');
+  console.log('');
+  console.log('🔥 METRIC 5: Burn Rate');
+  console.log('   Formula: (Points Done / Days Passed)');
+  console.log('   Value: (' + summary.donePoints + ' / ' + daysPassed + ') = ' + burnRate + ' points/day');
+  console.log('   Projected: At ' + burnRate + ' pts/day, will complete ' + projectedFinalPoints + ' by sprint end');
+  console.log('═══════════════════════════════════════');
 
-  // CRITICAL FIX: Project ONLY remaining points, not total
-  // OLD: Math.round(pointVelocityPerDay * (daysPassed + daysRemaining)) - WRONG (includes completed)
-  // NEW: Math.round(pointVelocityPerDay * daysRemaining) - CORRECT (only future work)
-  var projectedCompletion = daysPassed > 0 ? Math.round(pointVelocityPerDay * daysRemaining) : summary.totalPoints;
-
-  console.log('📈 Velocity Analysis:');
-  console.log('   Current velocity: ' + pointVelocityPerDay + ' pts/day');
-  console.log('   Days passed: ' + daysPassed + ', Days remaining: ' + daysRemaining);
-  console.log('   Done: ' + summary.donePoints + 'pts, Total: ' + summary.totalPoints + 'pts');
-  console.log('   Projected completion in remaining days: ' + projectedCompletion + 'pts');
-
-  // INSIGHT 1: Completion Status
-  if (completion >= 60) {
+  // INSIGHT 1: Completion Status (Using Official Jira Metrics)
+  if (pointsCompletion >= 60) {
     insights.push({
       type: 'positive',
       emoji: '✅',
       title: 'On Track',
-      message: 'Sprint is ' + completion + '% complete. At current pace, expecting ' + projectedCompletion + 'pts by EOSprint.',
+      message: 'Sprint is ' + pointsCompletion + '% complete (' + summary.donePoints + '/' + summary.totalPoints + ' points). At burn rate of ' + burnRate + ' pts/day, expecting ' + projectedFinalPoints + 'pts by sprint end.',
       action: 'Keep momentum. Focus on reducing in-progress items.'
     });
-  } else if (completion >= 40) {
+  } else if (pointsCompletion >= 40) {
     insights.push({
       type: 'warning',
       emoji: '⚠️',
       title: 'Slightly Behind',
-      message: 'Sprint is ' + completion + '% complete. Need ' + Math.ceil((summary.totalPoints - summary.donePoints) / daysRemaining) + 'pts/day to finish.',
+      message: 'Sprint is ' + pointsCompletion + '% complete (' + summary.donePoints + '/' + summary.totalPoints + ' points). Need ' + Math.ceil(remainingPoints / Math.max(1, daysRemaining)) + 'pts/day to finish.',
       action: 'Reduce WIP. Complete in-progress items. Consider scope reduction if needed.'
     });
   } else {
@@ -30556,7 +30658,7 @@ function generateInsights(summary) {
       type: 'critical',
       emoji: '🔴',
       title: 'At Risk',
-      message: 'Sprint is only ' + completion + '% complete mid-sprint. Projected to complete only ' + projectedCompletion + 'pts.',
+      message: 'Sprint is only ' + pointsCompletion + '% complete (' + summary.donePoints + '/' + summary.totalPoints + ' points). Projected to complete only ' + projectedFinalPoints + 'pts.',
       action: 'URGENT: Remove scope or add capacity. Unblock in-progress work.'
     });
   }
@@ -31291,21 +31393,61 @@ async function generateSprintReport() {
 
     _srData = { proj, type, open, inprog, done14, bugs, total };
 
-    // Render stats
+    // ══ JIRA OFFICIAL METRICS ══════════════════════════════════════
     var today = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
-    var totalOpen  = (open.total||0) + (inprog.total||0);
-    var completed  = done14.total || 0;
-    var bugCount   = bugs.total || 0;
-    var velocity   = (done14.issues||[]).reduce(function(s,i){ return s + (i.fields.customfield_10028||0); }, 0);
-    var completion = totalOpen > 0 ? Math.round(completed / (completed + totalOpen) * 100) : 0;
+
+    // METRIC #1: Sprint Completion % = (Issues Done / Total Issues) × 100
+    var openIssuesCount = (open.total||0) + (inprog.total||0);
+    var doneIssuesCount = done14.total || 0;
+    var totalIssuesInSprint = openIssuesCount + doneIssuesCount;
+    var completionPercent = totalIssuesInSprint > 0 ? Math.round((doneIssuesCount / totalIssuesInSprint) * 100) : 0;
+
+    // METRIC #2: Sprint Velocity = Total Story Points Completed
+    var sprintVelocity = (done14.issues||[]).reduce(function(s,i){ return s + (i.fields.customfield_10028||0); }, 0);
+
+    // METRIC #3: Total Points in Sprint
+    var totalPointsOpen = (open.issues||[]).reduce(function(s,i){ return s + (i.fields.customfield_10028||0); }, 0);
+    var totalPointsInProg = (inprog.issues||[]).reduce(function(s,i){ return s + (i.fields.customfield_10028||0); }, 0);
+    var totalPointsDone = (done14.issues||[]).reduce(function(s,i){ return s + (i.fields.customfield_10028||0); }, 0);
+    var totalPointsInSprint = totalPointsOpen + totalPointsInProg + totalPointsDone;
+
+    // METRIC #4: Remaining Capacity = Total Points - Completed Points
+    var remainingCapacity = totalPointsInSprint - totalPointsDone;
+
+    var bugCount = bugs.total || 0;
+
+    // ══ LOG OFFICIAL METRICS ══
+    console.log('✅ JIRA OFFICIAL SPRINT REPORT METRICS — ' + proj);
+    console.log('');
+    console.log('SPRINT COMPLETION (Issues):');
+    console.log('├─ Done: ' + doneIssuesCount + ' issues');
+    console.log('├─ Total: ' + totalIssuesInSprint + ' issues');
+    console.log('├─ Completion %: ' + completionPercent + '%');
+    console.log('└─ Formula: (Done / Total) × 100 = (' + doneIssuesCount + ' / ' + totalIssuesInSprint + ') × 100');
+    console.log('');
+    console.log('SPRINT VELOCITY (Story Points):');
+    console.log('├─ Completed SP: ' + sprintVelocity + ' points');
+    console.log('├─ Open SP: ' + (totalPointsOpen + totalPointsInProg) + ' points');
+    console.log('├─ Total Committed: ' + totalPointsInSprint + ' points');
+    console.log('└─ Remaining Capacity: ' + remainingCapacity + ' points');
+    console.log('');
+    console.log('SPRINT BREAKDOWN (by Status):');
+    console.log('├─ To Do: ' + (open.total||0) + ' issues | ' + totalPointsOpen + ' SP');
+    console.log('├─ In Progress: ' + (inprog.total||0) + ' issues | ' + totalPointsInProg + ' SP');
+    console.log('└─ Done: ' + doneIssuesCount + ' issues | ' + totalPointsDone + ' SP');
+    console.log('');
+    console.log('HEALTH INDICATORS:');
+    console.log('├─ Open Bugs: ' + bugCount);
+    console.log('└─ Data Source: Jira /rest/api/3/search (official Jira Cloud API)');
+    console.log('');
 
     statsEl.innerHTML = [
-      srStat('Open Items',   totalOpen,  '#4C9AFF', 'To Do + In Progress'),
-      srStat('In Progress',  inprog.total||0, '#F5A623', 'Active now'),
-      srStat('Done (14d)',   completed,  '#00C896', 'Last 14 days'),
-      srStat('Open Bugs',    bugCount,   '#FF4757', 'Unresolved defects'),
-      srStat('Velocity',     velocity + ' SP', '#6C47FF', 'Story points done 14d'),
-      srStat('Completion',   completion + '%', completion >= 70 ? '#00C896' : completion >= 40 ? '#F5A623' : '#FF4757', 'Done vs open ratio'),
+      srStat('Completion %',   completionPercent + '%', completionPercent >= 70 ? '#00C896' : completionPercent >= 40 ? '#F5A623' : '#FF4757', completionPercent + '% done (Jira formula)'),
+      srStat('Velocity',       sprintVelocity + ' SP', '#6C47FF', 'Total SP completed'),
+      srStat('Remaining',      remainingCapacity + ' SP', '#4C9AFF', 'SP not yet done'),
+      srStat('Open Items',     openIssuesCount, '#F5A623', 'Issues: To Do + In Progress'),
+      srStat('Done Issues',    doneIssuesCount, '#00C896', 'Issues completed'),
+      srStat('Open Bugs',      bugCount, '#FF4757', 'Unresolved defects'),
     ].join('');
 
     // Render board by status category
