@@ -22203,10 +22203,18 @@ const POS_KEYS = {
 
 function posSave(key) {
   // P1 FIX #2: Data persistence with logging and error handling
+  // SECURITY FIX: Removed eval() - use window object reference instead
   try {
     const k = POS_KEYS[key];
     if(!k) return;
-    const val = eval(key); // get global var by name
+
+    // SECURITY FIX: Get global variable safely without eval()
+    const val = window[key];
+    if (val === undefined) {
+      console.warn('[SAVE SKIP] ' + key + ' is undefined');
+      return;
+    }
+
     const jsonStr = JSON.stringify(val);
     localStorage.setItem(k, jsonStr);
     const itemCount = Array.isArray(val) ? val.length : Object.keys(val).length;
@@ -32546,145 +32554,6 @@ async function showSprintReport() {
   outDiv.textContent = 'Select your project and click Generate Report to fetch live sprint data from Jira.';
   container.appendChild(hdr);
   container.appendChild(outDiv);
-}
-
-async function generateSprintReport() {
-  var proj = (document.getElementById('sr-proj-sel') || {}).value || localStorage.getItem('jd_proj') || 'HIP';
-  var proxy = (localStorage.getItem('pm_jira_proxy') || '').replace(/\/+$/, '');
-  var out = document.getElementById('sr-output');
-  if (!out) return;
-
-  out.innerHTML = '<div class="loading" style="margin:20px auto"></div><div style="text-align:center;color:var(--muted2);margin-top:10px">Fetching live sprint data from Jira...</div>';
-
-  // Fetch parallel: open items, done this sprint, bugs, high priority
-  var enc = encodeURIComponent;
-  var base = proxy || '';
-  if (!base) { out.innerHTML = '<span style="color:var(--red)">Configure Jira proxy first — Jira tab → ⚙ Configure</span>'; return; }
-
-  try {
-    var [r1, r2, r3, r4] = await Promise.all([
-      fetch(base + '?path=' + enc('/rest/api/3/search?jql=' + enc('"' + proj + '" AND statusCategory in ("To Do","In Progress") ORDER BY updated DESC') + '&maxResults=50&fields=summary,status,issuetype,priority,assignee,customfield_10028')).then(function(r){ return r.json(); }),
-      fetch(base + '?path=' + enc('/rest/api/3/search?jql=' + enc('"' + proj + '" AND statusCategory = Done AND updated >= -14d ORDER BY updated DESC') + '&maxResults=30&fields=summary,status,issuetype,priority,assignee,customfield_10028')).then(function(r){ return r.json(); }),
-      fetch(base + '?path=' + enc('/rest/api/3/search?jql=' + enc('"' + proj + '" AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC') + '&maxResults=20&fields=summary,status,priority,assignee')).then(function(r){ return r.json(); }),
-      fetch(base + '?path=' + enc('/rest/api/3/search?jql=' + enc('"' + proj + '" AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC') + '&maxResults=10&fields=summary,status,priority,assignee')).then(function(r){ return r.json(); }),
-    ]);
-
-    var open   = r1.issues || [];
-    var done   = r2.issues || [];
-    var bugs   = r3.issues || [];
-    var high   = r4.issues || [];
-
-    // Calculate metrics
-    var inProg = open.filter(function(i){ return i.fields.status && i.fields.status.statusCategory && i.fields.status.statusCategory.key === 'indeterminate'; });
-    var toDo   = open.filter(function(i){ return i.fields.status && i.fields.status.statusCategory && i.fields.status.statusCategory.key === 'new'; });
-    var totalSP = done.reduce(function(s,i){ return s + (parseFloat(i.fields.customfield_10028) || 0); }, 0);
-    var bugRate = open.length > 0 ? Math.round(bugs.length / open.length * 100) : 0;
-    var health  = bugs.length >= 5 || bugRate >= 30 ? 'RED' : (bugs.length >= 3 || bugRate >= 15 ? 'AMBER' : 'GREEN');
-    var healthColor = health === 'RED' ? '#FF4757' : health === 'AMBER' ? '#F5A623' : '#00C896';
-
-    // Build report HTML
-    var html = '';
-
-    // Header
-    html += '<div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border2)">'
-      + '<div><div style="font-size:16px;font-weight:700">Sprint Report — ' + proj + '</div>'
-      + '<div style="font-size:11px;color:var(--muted2)">Generated: ' + new Date().toLocaleString() + '</div></div>'
-      + '<div style="margin-left:auto;display:flex;flex-direction:column;align-items:center;background:' + healthColor + '22;border:1px solid ' + healthColor + ';border-radius:8px;padding:8px 16px">'
-      + '<div style="font-size:10px;color:var(--muted2);font-weight:600;text-transform:uppercase">Sprint Health</div>'
-      + '<div style="font-size:20px;font-weight:800;color:' + healthColor + '">' + health + '</div></div></div>';
-
-    // Metrics row
-    html += '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px">';
-    var metrics = [
-      {label:'Completed', value: done.length + ' items', sub: totalSP + ' SP', color:'#00C896'},
-      {label:'In Progress', value: inProg.length + ' items', sub: '', color:'#F5A623'},
-      {label:'To Do', value: toDo.length + ' items', sub: '', color:'#4C9AFF'},
-      {label:'Open Bugs', value: bugs.length + ' bugs', sub: bugRate + '% bug rate', color: bugs.length > 3 ? '#FF4757' : '#00C896'},
-    ];
-    metrics.forEach(function(m) {
-      html += '<div style="background:var(--bg3);border:0.5px solid var(--border2);border-radius:8px;padding:12px;border-top:2px solid ' + m.color + '">'
-        + '<div style="font-size:10px;color:var(--muted2);text-transform:uppercase;font-weight:600;margin-bottom:4px">' + m.label + '</div>'
-        + '<div style="font-size:20px;font-weight:700;color:' + m.color + '">' + m.value + '</div>'
-        + (m.sub ? '<div style="font-size:10px;color:var(--muted2)">' + m.sub + '</div>' : '')
-        + '</div>';
-    });
-    html += '</div>';
-
-    // Completed items
-    html += '<div style="margin-bottom:16px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted2);margin-bottom:8px">✅ Completed This Sprint</div>';
-    if (!done.length) { html += '<div style="color:var(--muted2);font-size:12px;padding:8px">No items completed in the last 14 days</div>'; }
-    done.slice(0,10).forEach(function(i){
-      var f = i.fields;
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border-radius:6px;margin-bottom:4px">'
-        + '<span style="font-family:monospace;font-size:10px;color:#00C896;min-width:80px">' + i.key + '</span>'
-        + '<span style="font-size:12px;flex:1">' + (f.summary || '') + '</span>'
-        + '<span style="font-size:10px;color:var(--muted2)">' + ((f.assignee && f.assignee.displayName.split(' ')[0]) || '—') + '</span>'
-        + (f.customfield_10028 ? '<span style="font-size:10px;background:rgba(0,200,150,0.1);color:#00C896;padding:1px 6px;border-radius:4px">' + f.customfield_10028 + 'sp</span>' : '')
-        + '</div>';
-    });
-    html += '</div>';
-
-    // In Progress
-    html += '<div style="margin-bottom:16px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--muted2);margin-bottom:8px">🔄 In Progress</div>';
-    if (!inProg.length) { html += '<div style="color:var(--muted2);font-size:12px;padding:8px">Nothing in progress</div>'; }
-    inProg.forEach(function(i){
-      var f = i.fields;
-      var prio = f.priority && f.priority.name;
-      var pc = prio === 'Highest' ? '#FF4757' : prio === 'High' ? '#F5A623' : 'var(--muted2)';
-      html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border-radius:6px;margin-bottom:4px">'
-        + '<span style="font-family:monospace;font-size:10px;color:#F5A623;min-width:80px">' + i.key + '</span>'
-        + '<span style="font-size:12px;flex:1">' + (f.summary || '') + '</span>'
-        + '<span style="font-size:10px;color:var(--muted2)">' + ((f.assignee && f.assignee.displayName.split(' ')[0]) || '—') + '</span>'
-        + '<span style="font-size:9px;font-weight:700;color:' + pc + '">' + (prio || '') + '</span>'
-        + '</div>';
-    });
-    html += '</div>';
-
-    // Bugs
-    if (bugs.length) {
-      html += '<div style="margin-bottom:16px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#FF4757;margin-bottom:8px">🐛 Open Bugs (' + bugs.length + ')</div>';
-      bugs.forEach(function(i){
-        var f = i.fields;
-        var prio = f.priority && f.priority.name;
-        var pc = prio === 'Highest' ? '#FF4757' : '#F5A623';
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(255,71,87,0.05);border:0.5px solid rgba(255,71,87,0.2);border-radius:6px;margin-bottom:4px">'
-          + '<span style="font-family:monospace;font-size:10px;color:#FF4757;min-width:80px">' + i.key + '</span>'
-          + '<span style="font-size:12px;flex:1">' + (f.summary || '') + '</span>'
-          + '<span style="font-size:10px;color:var(--muted2)">' + ((f.assignee && f.assignee.displayName.split(' ')[0]) || 'Unassigned') + '</span>'
-          + '<span style="font-size:9px;font-weight:700;color:' + pc + '">' + (prio || '') + '</span>'
-          + '</div>';
-      });
-      html += '</div>';
-    }
-
-    // High priority blockers
-    if (high.length) {
-      html += '<div style="margin-bottom:16px"><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#F5A623;margin-bottom:8px">⚠️ High Priority Items</div>';
-      high.forEach(function(i){
-        var f = i.fields;
-        html += '<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(245,166,35,0.05);border:0.5px solid rgba(245,166,35,0.2);border-radius:6px;margin-bottom:4px">'
-          + '<span style="font-family:monospace;font-size:10px;color:#F5A623;min-width:80px">' + i.key + '</span>'
-          + '<span style="font-size:12px;flex:1">' + (f.summary || '') + '</span>'
-          + '<span style="font-size:10px;color:var(--muted2)">' + ((f.assignee && f.assignee.displayName.split(' ')[0]) || 'Unassigned') + '</span>'
-          + '</div>';
-      });
-      html += '</div>';
-    }
-
-    // AI Analysis button
-    html += '<div style="border-top:1px solid var(--border2);padding-top:14px;margin-top:4px">'
-      + '<button onclick="sendSprintReportToChat()" style="background:var(--accent);color:#fff;border:none;border-radius:7px;padding:8px 20px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">🧠 Send to AI Chat for Deep Analysis</button>'
-      + '<span style="font-size:11px;color:var(--muted2);margin-left:12px">Get sprint narrative, risks and recommendations</span>'
-      + '</div>';
-
-    out.innerHTML = html;
-
-    // Store data for AI chat
-    window._sprintReportData = { proj: proj, open: open, done: done, bugs: bugs, high: high };
-
-  } catch(e) {
-    out.innerHTML = '<span style="color:var(--red)">Error: ' + e.message + '. Check proxy config.</span>';
-  }
 }
 
 // ── Kanban Report ──────────────────────────────────────────────
