@@ -12308,7 +12308,7 @@ async function injectJiraContextIfNeeded(userMsg){
 
   try {
     if(isBacklogQuery){
-      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=20&fields=summary,issuetype,priority,customfield_10028,assignee,status');
+      const res = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=20&fields=summary,issuetype,priority,customfield_10028,assignee,status');
       if(res.ok){
         const data = await res.json();
         const lines = (data.issues||[]).map(i=>'- '+i.key+': '+i.fields.summary+' ['+i.fields.issuetype?.name+' / '+(i.fields.priority?.name||'?')+' / SP:'+(i.fields.customfield_10028||'?')+']');
@@ -12316,7 +12316,7 @@ async function injectJiraContextIfNeeded(userMsg){
       }
     }
     if(isBugQuery){
-      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = "'+proj+'" AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee');
+      const res = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee');
       if(res.ok){
         const data = await res.json();
         const lines = (data.issues||[]).map(i=>'- '+i.key+' ['+i.fields.priority?.name+']: '+i.fields.summary+' → '+(i.fields.assignee?.displayName||'Unassigned'));
@@ -12324,7 +12324,7 @@ async function injectJiraContextIfNeeded(userMsg){
       }
     }
     if(isSprintQuery){
-      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "In Progress" ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+      const res = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND statusCategory = "In Progress" ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
       if(res.ok){
         const data = await res.json();
         const lines = (data.issues||[]).map(i=>'- '+i.key+' ['+i.fields.status?.name+']: '+i.fields.summary+' → '+(i.fields.assignee?.displayName||'Unassigned'));
@@ -12332,7 +12332,7 @@ async function injectJiraContextIfNeeded(userMsg){
       }
     }
     if(isHighPriQuery){
-      const res = await jiraFetch('/search?jql='+encodeURIComponent('project = "'+proj+'" AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee,issuetype');
+      const res = await fetchJira('/issues?jql='+encodeURIComponent('project = "'+proj+'" AND priority in (Highest,High) AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=15&fields=summary,priority,status,assignee,issuetype');
       if(res.ok){
         const data = await res.json();
         const lines = (data.issues||[]).map(i=>'- '+i.key+' ['+i.fields.priority?.name+'/'+i.fields.issuetype?.name+']: '+i.fields.summary);
@@ -12349,10 +12349,9 @@ async function injectJiraContextIfNeeded(userMsg){
   const results = [];
   for(const key of keys.slice(0,3)){
     try{
-      const res = await jiraFetch('/issue/'+key+'?fields=summary,description,status,issuetype,priority,assignee,customfield_10028,labels');
-      if(res.ok){
-        const data = await res.json();
-        const f = data.fields;
+      const data = await fetchJira('/issue?key='+key+'&fields=summary,description,status,issuetype,priority,assignee,customfield_10028,labels');
+      if(data.success && data.issue){
+        const f = data.issue.fields;
         results.push('\n\n--- LIVE JIRA ISSUE: '+key+' ---\nSummary: '+f.summary+'\nType: '+f.issuetype?.name+'\nStatus: '+f.status?.name+'\nPriority: '+f.priority?.name+'\nSP: '+(f.customfield_10028||'?')+'\nAssignee: '+(f.assignee?.displayName||'Unassigned')+'\nDescription: '+_adfToText(f.description).slice(0,800));
       }
     }catch(_){}
@@ -27473,7 +27472,7 @@ function _validateShCommit(committed, deliveryTeam, sprintLength) {
 <script>
 window._jiraNavIssue=function(k){if(typeof switchTab==='function')switchTab('jira',document.getElementById('nav-tab-jira'));setTimeout(function(){if(typeof loadIssueIntoContext==='function')loadIssueIntoContext(k);},400);};
 window.loadJiraHomeWidget=async function(){
-  if (typeof jiraFetch !== 'function') { console.warn('jiraFetch not ready yet'); return; }try{if(typeof jiraConfig==='undefined'||!jiraConfig||!jiraConfig.token)return;var proj=(document.getElementById('jhw-project')&&document.getElementById('jhw-project').value)||'HIP';var r1=await jiraFetch('/search?jql='+encodeURIComponent('project = \"+proj+\" AND statusCategory != Done')+'&maxResults=5&fields=summary,issuetype,priority');var r2=await jiraFetch('/search?jql='+encodeURIComponent('project = \"+proj+\" AND statusCategory = "In Progress"')+'&maxResults=1&fields=summary');var r3=await jiraFetch('/search?jql='+encodeURIComponent('project = \"+proj+\" AND issuetype = Bug AND statusCategory != Done')+'&maxResults=1&fields=summary');var r4=await jiraFetch('/search?jql='+encodeURIComponent('project = \"+proj+\" AND priority in (Highest,High) AND statusCategory != Done')+'&maxResults=1&fields=summary');var d1=await r1.json(),d2=await r2.json(),d3=await r3.json(),d4=await r4.json();var s=document.getElementById('jhw-status');if(s)s.textContent='Live - '+proj;var t=document.getElementById('jhw-total');if(t)t.textContent=d1.total||'0';var ip=document.getElementById('jhw-inprog');if(ip)ip.textContent=d2.total||'0';var bg=document.getElementById('jhw-bugs');if(bg)bg.textContent=d3.total||'0';var hp=document.getElementById('jhw-high');if(hp)hp.textContent=d4.total||'0';var el=document.getElementById('jhw-issues');if(el&&d1.issues&&d1.issues.length){var TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};var html='';for(var i=0;i<d1.issues.length;i++){var iss=d1.issues[i],f=iss.fields,tc=TCOL[f.issuetype&&f.issuetype.name]||'#7a7a90';html+='<div data-k="'+iss.key+'" onclick="window._jiraNavIssue(this.dataset.k)" style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;cursor:pointer;margin-bottom:3px"><span style="font-size:9px;font-family:monospace;color:#4C9AFF">'+iss.key+'</span><span style="font-size:8px;padding:1px 5px;border-radius:3px;background:'+tc+'18;color:'+tc+'">'+(f.issuetype&&f.issuetype.name||'?')+'</span><span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(f.summary||'')+'</span></div>';}el.innerHTML=html;}}catch(e){}};
+  if (typeof fetchJira !== 'function') { console.warn('fetchJira not ready yet'); return; }try{var proj=(document.getElementById('jhw-project')&&document.getElementById('jhw-project').value)||'HIP';var d1=await fetchJira('/issues?jql='+encodeURIComponent('project = '+proj+' AND statusCategory != Done')+'&maxResults=5&fields=summary,issuetype,priority');var d2=await fetchJira('/issues?jql='+encodeURIComponent('project = '+proj+' AND statusCategory = "In Progress"')+'&maxResults=1&fields=summary');var d3=await fetchJira('/issues?jql='+encodeURIComponent('project = '+proj+' AND issuetype = Bug AND statusCategory != Done')+'&maxResults=1&fields=summary');var d4=await fetchJira('/issues?jql='+encodeURIComponent('project = '+proj+' AND priority in (Highest,High) AND statusCategory != Done')+'&maxResults=1&fields=summary');var s=document.getElementById('jhw-status');if(s)s.textContent='Live - '+proj;var t=document.getElementById('jhw-total');if(t)t.textContent=d1.total||'0';var ip=document.getElementById('jhw-inprog');if(ip)ip.textContent=d2.total||'0';var bg=document.getElementById('jhw-bugs');if(bg)bg.textContent=d3.total||'0';var hp=document.getElementById('jhw-high');if(hp)hp.textContent=d4.total||'0';var el=document.getElementById('jhw-issues');if(el&&d1.issues&&d1.issues.length){var TCOL={'Story':'#00C896','Bug':'#FF4757','Task':'#F5A623','Epic':'#6C47FF'};var html='';for(var i=0;i<d1.issues.length;i++){var iss=d1.issues[i],f=iss.fields,tc=TCOL[f.issuetype&&f.issuetype.name]||'#7a7a90';html+='<div data-k="'+iss.key+'" onclick="window._jiraNavIssue(this.dataset.k)" style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border:0.5px solid var(--border);border-radius:7px;cursor:pointer;margin-bottom:3px"><span style="font-size:9px;font-family:monospace;color:#4C9AFF">'+iss.key+'</span><span style="font-size:8px;padding:1px 5px;border-radius:3px;background:'+tc+'18;color:'+tc+'">'+(f.issuetype&&f.issuetype.name||'?')+'</span><span style="font-size:11px;color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(f.summary||'')+'</span></div>';}el.innerHTML=html;}}catch(e){}};
 setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraConfig.token)window.loadJiraHomeWidget();}catch(e){}},3000);
 </script>
 
@@ -28254,331 +28253,63 @@ setTimeout(function(){try{if(typeof jiraConfig!=='undefined'&&jiraConfig&&jiraCo
 //  Write: disabled until post-demo
 // ══════════════════════════════════════════════════════════════
 
-let jiraConfig = null;
 let _jiraContextIssue = null;
-let jiraProxyUrl = localStorage.getItem('pm_jira_proxy') || '/api/jira';
 
-// ═══════════════════════════════════════════════════════════════
-// JIRA Connection Monitor & Error Recovery System
-// ═══════════════════════════════════════════════════════════════
-const JiraMonitor = {
-  status: 'unknown', // unknown, connected, disconnected, error
-  lastCheck: null,
-  failureCount: 0,
-  successCount: 0,
-  lastError: null,
-  metrics: {
-    totalRequests: 0,
-    successfulRequests: 0,
-    failedRequests: 0,
-    totalDuration: 0,
-    p95Duration: []
-  },
+// Note: Jira credential management moved to backend API
+// Modal functions removed — use new /api/jira endpoints instead
 
-  // Check if Jira is accessible
-  async check() {
-    try {
-      const cfg = jiraConfig || {};
-      if (!cfg.token || !cfg.domain) {
-        this.status = 'disconnected';
-        return false;
-      }
-
-      const res = await fetch('/api/jira?path=/myself&skipCache=true', {
-        headers: {
-          'X-Jira-Token': cfg.token,
-          'X-Jira-Instance': 'https://' + cfg.domain
-        }
-      });
-
-      if (res.ok) {
-        this.status = 'connected';
-        this.failureCount = 0;
-        this.successCount++;
-        this.lastCheck = new Date();
-        console.log('✅ Jira connection: OK');
-        return true;
-      } else if (res.status === 401) {
-        this.status = 'error';
-        this.lastError = 'Invalid or expired token';
-        this.failureCount++;
-        console.warn('⚠️ Jira: Token invalid/expired');
-        return false;
-      } else {
-        this.status = 'disconnected';
-        this.failureCount++;
-        console.warn('⚠️ Jira: HTTP ' + res.status);
-        return false;
-      }
-    } catch (error) {
-      this.status = 'disconnected';
-      this.failureCount++;
-      this.lastError = error.message;
-      console.error('❌ Jira connection failed:', error.message);
-      return false;
-    }
-  },
-
-  // Record API call metrics
-  recordMetric(duration, success = true) {
-    this.metrics.totalRequests++;
-    if (success) {
-      this.metrics.successfulRequests++;
-    } else {
-      this.metrics.failedRequests++;
-    }
-    this.metrics.totalDuration += duration;
-    this.metrics.p95Duration.push(duration);
-    if (this.metrics.p95Duration.length > 100) {
-      this.metrics.p95Duration.shift();
-    }
-  },
-
-  // Get P95 response time
-  getP95() {
-    if (this.metrics.p95Duration.length === 0) return 0;
-    const sorted = [...this.metrics.p95Duration].sort((a, b) => a - b);
-    const index = Math.floor(sorted.length * 0.95);
-    return sorted[index] || 0;
-  },
-
-  // Get success rate
-  getSuccessRate() {
-    if (this.metrics.totalRequests === 0) return 100;
-    return Math.round((this.metrics.successfulRequests / this.metrics.totalRequests) * 100);
-  },
-
-  // Update UI indicator
-  updateUI() {
-    const indicator = document.getElementById('jira-status-indicator');
-    if (!indicator) return;
-
-    const colors = {
-      connected: '#00C896',
-      disconnected: '#FF4757',
-      error: '#F5A623',
-      unknown: '#999'
-    };
-
-    indicator.style.background = colors[this.status] || colors.unknown;
-
-    let title = `Jira: ${this.status}`;
-    if (this.lastCheck) {
-      const timeAgo = Math.round((Date.now() - this.lastCheck) / 1000);
-      title += ` (checked ${timeAgo}s ago)`;
-    }
-    if (this.lastError) {
-      title += ` - ${this.lastError}`;
-    }
-
-    indicator.title = title;
-    indicator.dataset.status = this.status;
-  },
-
-  // Report metrics
-  report() {
-    console.log('📊 JIRA Monitor Report:');
-    console.log(`  Status: ${this.status}`);
-    console.log(`  Requests: ${this.metrics.totalRequests} (${this.getSuccessRate()}% success)`);
-    console.log(`  P95 time: ${this.getP95()}ms`);
-    console.log(`  Avg time: ${Math.round(this.metrics.totalDuration / Math.max(1, this.metrics.totalRequests))}ms`);
-    if (this.lastError) {
-      console.log(`  Last error: ${this.lastError}`);
-    }
-  }
-};
-
-// Check Jira connection every 5 minutes
-setInterval(() => JiraMonitor.check(), 5 * 60 * 1000);
-
-// Initial check on load (after page settles)
-setTimeout(() => {
-  JiraMonitor.check();
-  JiraMonitor.updateUI();
-}, 2000);
-
-// ── Init: restore saved config ────────────────────────────────
-(function(){
-  // Restore saved credentials and proxy URL
+// ── NEW: Simple fetch wrapper for backend API ─────────────────
+// All Jira data now comes from /api/jira/* endpoints on backend
+// The backend handles auth, caching, retries, and webhooks
+async function fetchJira(endpoint) {
   try {
-    var saved = localStorage.getItem('pm_jira_config');
-    if (saved) jiraConfig = JSON.parse(saved);
-  } catch(_){}
+    const url = `/api/jira${endpoint}`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
 
-  var savedProxy = localStorage.getItem('pm_jira_proxy') || '/api/jira';
-  jiraProxyUrl = savedProxy;
-  localStorage.setItem('pm_jira_proxy', savedProxy);
-
-  // Pre-fill modal
-  setTimeout(function(){
-    var dm = document.getElementById('jm-domain');
-    var em = document.getElementById('jm-email');
-    var pm = document.getElementById('jm-proxy');
-    if (dm) dm.value = (jiraConfig && jiraConfig.domain) || 'ebdae.atlassian.net';
-    if (em) em.value = (jiraConfig && jiraConfig.email)  || 'abilla@aldar.com';
-    if (pm) pm.value = localStorage.getItem('pm_jira_proxy') || '';
-  }, 500);
-
-  // Show status
-  if (jiraConfig && jiraConfig.email && jiraConfig.token && localStorage.getItem('pm_jira_proxy')) {
-    setJiraStatusConnected(jiraConfig.email.split('@')[0], jiraConfig.domain || 'ebdae.atlassian.net');
-  } else if (jiraConfig && jiraConfig.configured && localStorage.getItem('pm_jira_proxy')) {
-    setJiraStatusConnected(jiraConfig.name || 'Worker Auth', jiraConfig.domain || 'ebdae.atlassian.net');
-  } else if (jiraConfig && jiraConfig.email) {
-    setJiraStatusCredentialsSaved(jiraConfig.domain || 'ebdae.atlassian.net', jiraConfig.email);
-  } else {
-    setJiraStatusDisconnected();
-  }
-})();
-
-// ── Connect modal ─────────────────────────────────────────────
-function openJiraConnectModal(){
-  const el = document.getElementById('jira-modal');
-  if(!el){ console.error('jira-modal not found'); return; }
-  // Pre-fill from saved config (never hardcode defaults)
-  const d=document.getElementById('jm-domain'); if(d) d.value=(jiraConfig && jiraConfig.domain)||'';
-  const e=document.getElementById('jm-email');  if(e) e.value=(jiraConfig && jiraConfig.email)||'';
-  const p=document.getElementById('jm-proxy');  if(p) p.value=localStorage.getItem('pm_jira_proxy')||'';
-  if(jiraConfig && jiraConfig.token){
-    const t=document.getElementById('jm-token'); if(t) t.value=jiraConfig.token;
-  }
-  // Nuclear CSS override — works regardless of any conflicting rules
-  el.style.cssText='position:fixed!important;inset:0!important;background:rgba(0,0,0,0.75)!important;z-index:9999!important;display:flex!important;align-items:center!important;justify-content:center!important';
-}
-function closeJiraConnectModal(){
-  const el=document.getElementById('jira-modal');
-  if(!el) return;
-  el.classList.remove('show');
-  el.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:9999;display:none;align-items:center;justify-content:center';
-}
-
-// ── Save config and test ──────────────────────────────────────
-async function saveJiraConfig(){
-  var WORKER_URL = '/api/jira';
-  var proxyEl = document.getElementById('jm-proxy');
-  var proxy   = ((proxyEl && proxyEl.value) || WORKER_URL).trim().replace(/\/+$/,'');
-  if (!proxy) proxy = WORKER_URL;
-  var domain = (document.getElementById('jm-domain')?.value||'ebdae.atlassian.net').trim().replace(/^https?:\/\//,'');
-  var email  = (document.getElementById('jm-email')?.value||'abilla@aldar.com').trim();
-  var tokenEl = document.getElementById('jm-token');
-  var token   = (tokenEl && tokenEl.value || '').trim();
-  var st     = document.getElementById('jm-status');
-  if (!token) {
-    if(st){ st.textContent = '⚠ Enter your Atlassian API token'; st.style.color='var(--red)'; }
-    return;
-  }
-  jiraProxyUrl = proxy;
-  localStorage.setItem('pm_jira_proxy', proxy);
-  jiraConfig = { domain, email, token };
-  localStorage.setItem('pm_jira_config', JSON.stringify(jiraConfig));
-
-  if(st){ st.textContent='Testing connection…'; st.style.color='var(--muted2)'; }
-
-  try{
-    const res = await jiraFetch('/myself');
-    if(res.ok){
-      const data = await res.json();
-      const name = data.displayName||data.name||email;
-      if(st){ st.textContent='✅ Connected as '+name; st.style.color='#00C896'; }
-      setTimeout(closeJiraConnectModal, 1200);
-      setJiraStatusConnected(name, domain);
-      toast('✅ Jira connected as '+name,'success');
-    } else {
-      if(st){ st.textContent='⚠ Saved but test failed (HTTP '+res.status+') — check API token'; st.style.color='var(--yellow)'; }
-      setJiraStatusCredentialsSaved(domain, email);
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || `HTTP ${res.status}`);
     }
-  } catch(e){
-    if(st){ st.textContent='⚠ Saved — test error: '+e.message; st.style.color='var(--yellow)'; }
-    setJiraStatusCredentialsSaved(domain, email);
-    setTimeout(closeJiraConnectModal, 2000);
+
+    return res.json();
+  } catch (error) {
+    console.error('[Jira API Error]', endpoint, error.message);
+    throw error;
   }
 }
-
-// ── Status banner helpers ─────────────────────────────────────
-function setJiraStatusDisconnected(){
-  const dot=document.getElementById('jira-status-dot');
-  const txt=document.getElementById('jira-status-text');
-  const sub=document.getElementById('jira-status-sub');
-  const banner=document.getElementById('jira-status-banner');
-  const btn=document.getElementById('jira-connect-btn');
-  const testBtn=document.getElementById('jira-test-btn');
-  if(dot){ dot.style.cssText='width:10px;height:10px;border-radius:50%;background:#666;flex-shrink:0'; }
-  if(txt){ txt.textContent='Not connected — click ⚙ Configure to connect'; txt.style.color='var(--muted2)'; }
-  if(sub){ sub.textContent=''; }
-  if(banner){ banner.style.background='var(--bg2)'; banner.style.borderColor='var(--border)'; }
-  if(btn){ btn.textContent='⚙ Configure'; btn.style.color='var(--muted2)'; }
-  if(testBtn) testBtn.style.display='none';
-}
-
-function setJiraStatusCredentialsSaved(domain, email){
-  const dot=document.getElementById('jira-status-dot');
-  const txt=document.getElementById('jira-status-text');
-  const sub=document.getElementById('jira-status-sub');
-  const banner=document.getElementById('jira-status-banner');
-  const btn=document.getElementById('jira-connect-btn');
-  const testBtn=document.getElementById('jira-test-btn');
-  if(dot){ dot.style.cssText='width:10px;height:10px;border-radius:50%;background:#F5A623;box-shadow:0 0 6px #F5A623;flex-shrink:0'; }
-  if(txt){ txt.textContent='Credentials saved — testing…'; txt.style.color='#F5A623'; }
-  if(sub){ sub.textContent=domain+' · '+email; }
-  if(banner){ banner.style.background='rgba(245,166,35,0.06)'; banner.style.borderColor='rgba(245,166,35,0.3)'; }
-  if(btn){ btn.textContent='⚙ Reconfigure'; btn.style.color='#F5A623'; }
-  if(testBtn) testBtn.style.display='block';
-}
-
-function setJiraStatusConnected(name, domain){
-  const dot=document.getElementById('jira-status-dot');
-  const txt=document.getElementById('jira-status-text');
-  const sub=document.getElementById('jira-status-sub');
-  const banner=document.getElementById('jira-status-banner');
-  const btn=document.getElementById('jira-connect-btn');
-  const testBtn=document.getElementById('jira-test-btn');
-  if(dot){ dot.style.cssText='width:10px;height:10px;border-radius:50%;background:#00C896;box-shadow:0 0 8px #00C896;flex-shrink:0'; }
-  if(txt){ txt.textContent='✅ Connected · '+name+' · Read-Only'; txt.style.color='#00C896'; }
-  if(sub){ sub.textContent='Instance: '+domain+' · Projects: HRB · HIP · HUP · SHL · API: Atlassian Cloud v3'; }
-  if(banner){ banner.style.background='rgba(0,200,150,0.05)'; banner.style.borderColor='rgba(0,200,150,0.3)'; }
-  if(btn){ btn.textContent='⚙ Reconfigure'; btn.style.color='#00C896'; }
-  if(testBtn) testBtn.style.display='block';
-}
-
-// ── Live connection test ──────────────────────────────────────
-async function testJiraConnection(){
-  const testBtn = document.getElementById('jira-test-btn');
-  const st      = document.getElementById('jm-status');
-  if (testBtn) { testBtn.textContent = 'Testing…'; testBtn.disabled = true; }
-  if (st) { st.textContent = 'Testing connection to Jira…'; st.style.color = 'var(--muted2)'; }
-  try {
-    const res = await jiraFetch('/myself');
-    if (res.ok) {
-      const data = await res.json();
-      const name = data.displayName || data.name || jiraConfig.email;
-      const domain = jiraConfig.domain || 'ebdae.atlassian.net';
-      setJiraStatusConnected(name, domain);
-      if (st) { st.textContent = '✅ Connected as ' + name; st.style.color = '#00C896'; }
-      setTimeout(closeJiraConnectModal, 1000);
-      toast('✅ Jira connected as ' + name, 'success');
-    } else {
-      const err = await res.json().catch(() => ({}));
-      const msg = err.message || 'HTTP ' + res.status;
-      if (st) { st.textContent = '⚠ ' + msg; st.style.color = 'var(--red)'; }
-      toast('Jira test failed: ' + msg, 'error');
-    }
-  } catch (e) {
-    if (st) { st.textContent = '⚠ ' + e.message; st.style.color = 'var(--red)'; }
-    toast('Connection error: ' + e.message, 'error');
-  }
-  if (testBtn) { testBtn.textContent = '↻ Test Connection'; testBtn.disabled = false; }
-}
-
-// ── Jira API fetch (direct to Atlassian Cloud) ────────────────
-// ── JIRA FETCH — via Vercel proxy (zero CORS) ───────────────
-// Proxy: github.com/Billaabhi/prodmind-jira-proxy → vercel
-// Set proxy URL in Jira tab → ⚙ Configure
 
 const JIRA_CLOUD_ID = 'fd834394-ca79-4414-b7b9-86c7a47cf3e1';
 window._jiraCache = window._jiraCache || {};
 var _jiraCache = window._jiraCache;
 
-// jiraFetch — defined below as window.jiraFetch (proxy path, single canonical implementation)
+// ── Initialize Jira Connection ─────────────────────────────────
+// Check Jira status on startup
+async function initJiraConnection() {
+  try {
+    const status = await fetchJira('/status');
+    if (status.success && status.connected) {
+      console.log('✅ Jira connected as:', status.user);
+      console.log('📍 Instance:', status.instance);
+    } else {
+      console.warn('⚠️ Jira not connected:', status.error);
+    }
+  } catch (error) {
+    console.warn('⚠️ Jira initialization failed:', error.message);
+  }
+}
+
+// Auto-initialize on page load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initJiraConnection);
+} else {
+  setTimeout(initJiraConnection, 1000);
+}
 // ── ADF text extractor ────────────────────────────────────────
 function _adfToText(node){
   if(!node) return '';
@@ -28591,15 +28322,12 @@ function _adfToText(node){
 
 // ── Sub-tab switching ─────────────────────────────────────────
 async function runJiraJQL(){
-  if(!jiraConfig){ openJiraConnectModal(); return; }
   const jql=document.getElementById('jira-jql-input').value.trim();
   if(!jql) return;
   const el=document.getElementById('jira-search-results');
   el.innerHTML='<div style="text-align:center;padding:30px"><div class="loading"></div></div>';
   try{
-    const res=await jiraFetch('/search?jql='+encodeURIComponent(jql)+'&maxResults=50&fields=summary,status,issuetype,priority,assignee');
-    if(!res.ok){const err=await res.json().catch(()=>({}));throw new Error(err.errorMessages?.join(', ')||'HTTP '+res.status);}
-    const data=await res.json();
+    const data=await fetchJira('/issues?jql='+encodeURIComponent(jql)+'&maxResults=50&fields=summary,status,issuetype,priority,assignee');
     renderJiraSearchResults(data.issues||[],data.total||0);
   }catch(e){
     el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted2)">⚠ '+e.message+'</div>';
@@ -28634,9 +28362,9 @@ async function loadIssueIntoContext(key){
   if(!jiraConfig){ openJiraConnectModal(); return; }
   toast('Loading '+key+'…');
   try{
-    const res=await jiraFetch('/issue/'+key+'?fields=summary,description,status,issuetype,priority,assignee,reporter,customfield_10028,labels');
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const data=await res.json();
+    const resp=await fetchJira('/issue?key='+key+'&fields=summary,description,status,issuetype,priority,assignee,reporter,customfield_10028,labels');
+    if(!resp.success) throw new Error(resp.error||'Failed to fetch issue');
+    const data=resp.issue;
     _jiraContextIssue=data;
     const modal=document.getElementById('jira-issue-modal');
     if(!modal){ toast('Modal not ready — try again','warning'); return; }
@@ -28872,14 +28600,11 @@ async function loadSprintFromJira(){
   toast('Loading OFFICIAL sprint metrics from Jira…');
   try{
     // JIRA OFFICIAL METRICS - Query all issues to calculate per Jira's formulas
-    const [rAll, rDone, rBug] = await Promise.all([
-      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=100&fields=summary,status,issuetype,assignee,customfield_10028,key'),
-      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND statusCategory = Done AND updated >= -30d ORDER BY updated DESC')+'&maxResults=100&fields=summary,status,customfield_10028,key'),
-      jiraFetch('/search?jql='+encodeURIComponent('project = '+project+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=20&fields=summary,priority,key'),
+    const [dAll, dDone, dBug] = await Promise.all([
+      fetchJira('/issues?jql='+encodeURIComponent('project = '+project+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=100&fields=summary,status,issuetype,assignee,customfield_10028,key'),
+      fetchJira('/issues?jql='+encodeURIComponent('project = '+project+' AND statusCategory = Done AND updated >= -30d ORDER BY updated DESC')+'&maxResults=100&fields=summary,status,customfield_10028,key'),
+      fetchJira('/issues?jql='+encodeURIComponent('project = '+project+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=20&fields=summary,priority,key'),
     ]);
-    const dAll = await rAll.json();
-    const dDone = await rDone.json();
-    const dBug = await dBug.json();
 
     // ══ JIRA OFFICIAL METRIC #1: SPRINT COMPLETION % ══
     // Formula: (Issues Done / Total Issues in Sprint) × 100
@@ -28985,9 +28710,9 @@ async function handleJiraSlashCommand(cmd){
   if(/^[a-z]+-\d+$/i.test(subCmd)){
     const key = subCmd.toUpperCase();
     toast('Loading '+key+'...');
-    const res = await jiraFetch('/issue/'+key+'?fields=summary,description,status,issuetype,priority,assignee,customfield_10028,labels');
-    if(!res.ok){ toast('Issue not found: '+key,'error'); return; }
-    const data = await res.json();
+    const resp = await fetchJira('/issue?key='+key+'&fields=summary,description,status,issuetype,priority,assignee,customfield_10028,labels');
+    if(!resp.success){ toast('Issue not found: '+key,'error'); return; }
+    const data = resp.issue;
     _jiraContextIssue = data;
     const f = data.fields;
     const nl = '\n';
@@ -29001,7 +28726,7 @@ async function handleJiraSlashCommand(cmd){
   // /jira sprint PROJECT
   if(subCmd === 'sprint'){
     toast('Loading sprint for '+arg+'...');
-    const res = await jiraFetch('/search?jql='+encodeURIComponent('project = '+arg+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
+    const res = await fetchJira('/issues?jql='+encodeURIComponent('project = '+arg+' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,issuetype,priority,assignee,customfield_10028');
     if(!res.ok){ toast('Error: HTTP '+res.status,'error'); return; }
     const data = await res.json();
     const issues = data.issues || [];
@@ -29016,7 +28741,7 @@ async function handleJiraSlashCommand(cmd){
   // /jira bugs PROJECT
   if(subCmd === 'bugs'){
     toast('Loading bugs for '+arg+'...');
-    const res = await jiraFetch('/search?jql='+encodeURIComponent('project = '+arg+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,priority,assignee');
+    const res = await fetchJira('/issues?jql='+encodeURIComponent('project = '+arg+' AND issuetype = Bug AND statusCategory != Done ORDER BY priority DESC')+'&maxResults=20&fields=summary,status,priority,assignee');
     if(!res.ok){ toast('Error','error'); return; }
     const data = await res.json();
     const bugs = data.issues || [];
@@ -29031,7 +28756,7 @@ async function handleJiraSlashCommand(cmd){
   // /jira rice PROJECT
   if(subCmd === 'rice'){
     toast('Loading backlog for RICE — '+arg+'...');
-    const res = await jiraFetch('/search?jql='+encodeURIComponent('project = '+arg+' AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=25&fields=summary,issuetype,priority,customfield_10028');
+    const res = await fetchJira('/issues?jql='+encodeURIComponent('project = '+arg+' AND statusCategory = "To Do" ORDER BY priority DESC')+'&maxResults=25&fields=summary,issuetype,priority,customfield_10028');
     if(!res.ok){ toast('Error','error'); return; }
     const data = await res.json();
     const nl = '\n';
@@ -29086,12 +28811,11 @@ async function loadTicketIntoDocAnalyser(){
   }
 
   try{
-    const res = await jiraFetch('/issue/' + key + '?fields=summary,description,status,issuetype,priority,assignee,reporter,customfield_10028,customfield_10657,customfield_10020,labels');
-    if(!res.ok){
-      const err = await res.json().catch(()=>({}));
-      throw new Error(err.errorMessages?.[0] || 'HTTP ' + res.status);
+    const resp = await fetchJira('/issue?key=' + key + '&fields=summary,description,status,issuetype,priority,assignee,reporter,customfield_10028,customfield_10657,customfield_10020,labels');
+    if(!resp.success){
+      throw new Error(resp.error || 'Failed to fetch issue');
     }
-    const data = await res.json();
+    const data = resp.issue;
 
     // Store as context issue and call the KB loader
     _jiraContextIssue = data;
@@ -29371,9 +29095,9 @@ window.loadJiraIntoSprintHealth = async function(proj) {
   if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading sprint data from ' + proj + '...');
   try {
-    var r1 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC') + '&maxResults=50&fields=summary,status,issuetype,assignee,customfield_10028,priority');
-    var r2 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -14d') + '&maxResults=50&fields=summary');
-    var r3 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Bug AND statusCategory != Done') + '&maxResults=20&fields=summary,priority');
+    var r1 = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory in ("To Do","In Progress") ORDER BY priority DESC') + '&maxResults=50&fields=summary,status,issuetype,assignee,customfield_10028,priority');
+    var r2 = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -14d') + '&maxResults=50&fields=summary');
+    var r3 = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Bug AND statusCategory != Done') + '&maxResults=20&fields=summary,priority');
     if (!r1.ok) throw new Error('HTTP ' + r1.status);
     var d1 = await r1.json(), d2 = r2.ok ? await r2.json() : {issues:[]}, d3 = r3.ok ? await r3.json() : {issues:[]};
     var assignees = new Set((d1.issues||[]).filter(function(i){ return i.fields.assignee; }).map(function(i){ return i.fields.assignee.displayName; }));
@@ -29393,8 +29117,8 @@ window.loadJiraIntoForecast = async function(proj) {
   if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading backlog from ' + proj + ' for Monte Carlo...');
   try {
-    var r1 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do"') + '&maxResults=1&fields=summary');
-    var r2 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -42d') + '&maxResults=50&fields=summary');
+    var r1 = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do"') + '&maxResults=1&fields=summary');
+    var r2 = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -42d') + '&maxResults=50&fields=summary');
     if (!r1.ok) throw new Error('HTTP ' + r1.status);
     var d1 = await r1.json(), d2 = r2.ok ? await r2.json() : {issues:[]};
     var backlog   = d1.total || 0;
@@ -29410,7 +29134,7 @@ window.loadJiraIntoMOM = async function(proj) {
   if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading action items from ' + proj + '...');
   try {
-    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory in ("To Do","In Progress") AND priority in (Highest,High) ORDER BY priority DESC') + '&maxResults=10&fields=summary,assignee,priority,status');
+    var res = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory in ("To Do","In Progress") AND priority in (Highest,High) ORDER BY priority DESC') + '&maxResults=10&fields=summary,assignee,priority,status');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var data = await res.json();
     var items = (data.issues||[]).map(function(i){
@@ -29441,7 +29165,7 @@ window.loadJiraIntoRoadmap = async function(proj) {
   if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading epics from ' + proj + '...');
   try {
-    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Epic ORDER BY priority DESC') + '&maxResults=20&fields=summary,status,priority');
+    var res = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Epic ORDER BY priority DESC') + '&maxResults=20&fields=summary,status,priority');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var data = await res.json();
     var epics = (data.issues||[]).map(function(i){ return i.key + ': ' + i.fields.summary; });
@@ -29459,9 +29183,9 @@ window.loadJiraIntoMetrics = async function(proj) {
   if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading metrics from ' + proj + '...');
   try {
-    var r1 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -30d') + '&maxResults=100&fields=summary');
-    var r2 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Bug AND statusCategory != Done') + '&maxResults=1&fields=summary');
-    var r3 = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do"') + '&maxResults=1&fields=summary');
+    var r1 = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = Done AND updated >= -30d') + '&maxResults=100&fields=summary');
+    var r2 = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND issuetype = Bug AND statusCategory != Done') + '&maxResults=1&fields=summary');
+    var r3 = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do"') + '&maxResults=1&fields=summary');
     var d1 = r1.ok ? await r1.json() : {issues:[], total:0};
     var d2 = r2.ok ? await r2.json() : {total:0};
     var d3 = r3.ok ? await r3.json() : {total:0};
@@ -29481,7 +29205,7 @@ window.loadJiraIntoWeekPlanner = async function(proj) {
   if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading sprint items for ' + proj + '...');
   try {
-    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "In Progress" ORDER BY priority DESC') + '&maxResults=20&fields=summary,assignee,priority,status');
+    var res = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "In Progress" ORDER BY priority DESC') + '&maxResults=20&fields=summary,assignee,priority,status');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var data = await res.json();
     var items = (data.issues||[]).map(function(i){
@@ -29499,7 +29223,7 @@ window.loadJiraIntoStrategy = async function(proj) {
   if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading backlog from ' + proj + '...');
   try {
-    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do" ORDER BY priority DESC') + '&maxResults=25&fields=summary,issuetype,priority,labels');
+    var res = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND statusCategory = "To Do" ORDER BY priority DESC') + '&maxResults=25&fields=summary,issuetype,priority,labels');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var data = await res.json();
     var items = (data.issues||[]).map(function(i){ return '- ' + i.key + ' [' + (i.fields.priority ? i.fields.priority.name : '?') + ']: ' + i.fields.summary; });
@@ -29514,7 +29238,7 @@ window.loadJiraIntoDecisionLog = async function(proj) {
   if (!jiraConfig || !jiraConfig.token) { if(typeof toast==='function') toast('Configure Jira first — open Jira tab','warning'); return; }
   if(typeof toast==='function') toast('Loading from ' + proj + '...');
   try {
-    var res = await jiraFetch('/search?jql=' + encodeURIComponent('project = ' + proj + ' AND priority in (Highest,High) AND issuetype in (Epic,Story) ORDER BY updated DESC') + '&maxResults=10&fields=summary,status,priority');
+    var res = await fetchJira('/issues?jql=' + encodeURIComponent('project = ' + proj + ' AND priority in (Highest,High) AND issuetype in (Epic,Story) ORDER BY updated DESC') + '&maxResults=10&fields=summary,status,priority');
     if (!res.ok) throw new Error('HTTP ' + res.status);
     var data = await res.json();
     var items = (data.issues||[]).map(function(i){ return '- ' + i.key + ': ' + i.fields.summary; });
@@ -29662,9 +29386,8 @@ async function jdFetch(path) {
   var _jdC = window._jdCache2 || {};
   if (_jdC[cacheKey]) return _jdC[cacheKey];
   try {
-    var res = await jiraFetch(path);
-    if (!res || !res.ok) return null;
-    var data = await res.json();
+    var data = await fetchJira(path);
+    if (!data || !data.success) return null;
     _jdC[cacheKey] = data;
     if (typeof window._jdCache2 !== 'undefined') window._jdCache2[cacheKey] = data;
     jdSetConn(true);
@@ -30347,7 +30070,7 @@ async function saveJiraHubConfig() {
 
   // Test connection
   try {
-    var res = await jiraFetch('/rest/api/3/myself');
+    var res = await fetchJira('/status');
     if (res && res.ok) {
       var data = await res.json();
       var name = (data && data.displayName) || 'Worker Auth';
@@ -30387,136 +30110,6 @@ function updateJiraConnBadge(connected, name) {
 }
 
 // jiraFetch — calls ProdMind Jira API (credentials stored server-side in Vercel env vars)
-window.jiraFetch = async function(path, opts) {
-  opts = opts || {};
-  var method   = (opts.method || 'GET').toUpperCase();
-  var cacheKey = method + path;
-  window._jiraCache = window._jiraCache || {};
-
-  // Return cache for GET
-  if (method === 'GET' && window._jiraCache[cacheKey]) {
-    var _cv = window._jiraCache[cacheKey];
-    return { ok: true, status: 200, json: async function(){ return _cv; } };
-  }
-
-  // Get proxy base URL
-  var base = (localStorage.getItem('pm_jira_proxy') || '').replace(/\/+$/, '');
-  if (!base) {
-    if(typeof toast==='function') toast('Jira proxy not set — click ⚙ Configure in the Jira tab', 'error');
-    return { ok: false, status: 0, json: async function(){ return { error: 'Proxy URL not set — click ⚙ Configure' }; } };
-  }
-
-  // Get credentials for Basic auth (optional — worker may handle auth server-side)
-  var _cfg = null;
-  try { _cfg = JSON.parse(localStorage.getItem('pm_jira_config') || 'null'); } catch(_){}
-  var _email = (_cfg && _cfg.email) || '';
-  var _token = (_cfg && _cfg.token) || '';
-  var _workerAuth = _cfg && _cfg.configured && !_email && !_token;
-  if (!_workerAuth && (!_email || !_token)) {
-    if(typeof toast==='function') toast('Jira credentials missing — open Jira tab → ⚙ Configure', 'error');
-    return { ok: false, status: 0, json: async function(){ return { error: 'Jira credentials not set' }; } };
-  }
-  var _auth = (_email && _token) ? 'Basic ' + btoa(_email + ':' + _token) : null;
-
-  // Build URL
-  var fullPath = path.startsWith('/rest/') ? path : '/rest/api/3' + path;
-
-  // GET /search is deprecated (returns 410) — auto-convert to POST /search/jql
-  if (method === 'GET' && fullPath.match(/\/rest\/api\/3\/search\?/)) {
-    try {
-      var _sp = new URLSearchParams(fullPath.split('?')[1] || '');
-      var _jql = _sp.get('jql') || '';
-      var _max = parseInt(_sp.get('maxResults')) || 50;
-      var _flds = (_sp.get('fields') || '').split(',').filter(Boolean);
-      method = 'POST';
-      fullPath = '/rest/api/3/search/jql';
-      opts = Object.assign({}, opts, { method: 'POST', body: JSON.stringify({ jql: _jql, maxResults: _max, fields: _flds.length ? _flds : undefined }) });
-    } catch(_) {}
-  }
-
-  var url = base + '?path=' + encodeURIComponent(fullPath);
-
-  try {
-    const startTime = Date.now();
-
-    // [P0 FIX #6] JIRA API TIMEOUT (15 seconds) with retry logic
-    const jiraTimeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => {
-        console.error('[P0 FIX #6] Jira API timeout after 15 seconds for: ' + fullPath);
-        reject(new Error('Jira is not responding — connection timeout after 15 seconds'));
-      }, 15000)
-    );
-
-    var cfg = jiraConfig || {};
-    var res = await Promise.race([
-      fetch(url, {
-        method: method,
-        headers: Object.assign(
-          { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          _auth ? { 'Authorization': _auth } : {},
-          cfg.token ? { 'X-Jira-Token': cfg.token } : {},
-          cfg.domain ? { 'X-Jira-Instance': 'https://' + cfg.domain } : {}
-        ),
-        body: opts.body || undefined
-      }),
-      jiraTimeoutPromise
-    ]);
-
-    const duration = Date.now() - startTime;
-    var text = await res.text();
-    var parsed = null;
-    try { parsed = JSON.parse(text); } catch(_) { parsed = { error: text || 'Empty response' }; }
-
-    // Record metrics
-    JiraMonitor.recordMetric(duration, res.ok);
-    JiraMonitor.updateUI();
-
-    if (!res.ok) {
-      var errMsg = (parsed && (parsed.message || (parsed.errorMessages && parsed.errorMessages[0]))) || ('HTTP ' + res.status);
-      if(typeof toast==='function') toast('Jira error: ' + errMsg, 'error');
-
-      // Try fallback to cache
-      if (method === 'GET' && window._jiraCache[cacheKey]) {
-        console.log('⚠️ Using cached data (Jira failed)');
-        return { ok: true, status: 200, json: async function() { return window._jiraCache[cacheKey]; }, cached: true };
-      }
-    }
-
-    if (method === 'GET' && res.ok && parsed && !parsed.errorMessages && !parsed.error) {
-      window._jiraCache[cacheKey] = parsed;
-    }
-
-    return {
-      ok: res.ok, status: res.status,
-      json: async function() { return parsed; },
-      text: async function() { return text; },
-      cached: false,
-      duration: duration
-    };
-
-  } catch(e) {
-    // [P0 FIX #6] Enhanced error detection for timeout vs other failures
-    const isTimeout = e.message.includes('timeout') || e.message.includes('15 seconds');
-    const errorMsg = isTimeout
-      ? 'Jira is not responding. Check your connection or try again in a moment. Click the Retry button.'
-      : 'Jira fetch failed: ' + e.message + ' — check proxy URL';
-    if(typeof toast==='function') toast(errorMsg, 'error');
-    console.error('[P0 FIX #6] Jira fetch error:', e.message, '- Timeout:', isTimeout);
-
-    // Record failure metric
-    JiraMonitor.recordMetric(0, false);
-    JiraMonitor.failureCount++;
-    JiraMonitor.updateUI();
-
-    // Try fallback to cache even on network error
-    if (method === 'GET' && window._jiraCache[cacheKey]) {
-      console.log('⚠️ Network error - using cached data');
-      return { ok: true, status: 200, json: async function() { return window._jiraCache[cacheKey]; }, cached: true, error: e.message };
-    }
-
-    return { ok: false, status: 0, json: async function(){ return { error: e.message, isTimeout: isTimeout }; }, cached: false };
-  }
-};
 
 // Init on load
 (function(){
@@ -30955,14 +30548,11 @@ async function fetchRealPodMetrics(podKey) {
   try {
     // Get ALL issues for this POD
     var jql = 'project = "' + podKey + '" ORDER BY updated DESC';
-    var res = await jiraFetch(
-      '/search?jql=' + encodeURIComponent(jql) + '&maxResults=100&fields=key,summary,status,assignee,customfield_10028',
-      {method: 'GET'}
+    var data = await fetchJira(
+      '/issues?jql=' + encodeURIComponent(jql) + '&maxResults=100&fields=key,summary,status,assignee,customfield_10028'
     );
 
-    if (!res.ok) return null;
-
-    var data = await res.json();
+    if (!data || !data.success) return null;
     var issues = data.issues || [];
 
     // Calculate REAL metrics
@@ -31138,7 +30728,7 @@ async function discoverPodsFromJira() {
 
   try {
     // Query all projects to find PODs
-    var projectsRes = await jiraFetch('/project?expand=lead&maxResults=100', {method: 'GET'});
+    var projectsRes = await fetchJira('/projects', {method: 'GET'});
 
     if (!projectsRes.ok) {
       console.warn('Could not fetch projects list, using fallback');
@@ -31209,7 +30799,7 @@ async function fetchLiveSprintData(podKey) {
       projects = [podKey];
     } else {
       try {
-        const allProjects = await jiraFetch('/projects?maxResults=100', {method: 'GET'});
+        const allProjects = await fetchJira('/projects');
         if (allProjects.ok) {
           const data = await allProjects.json();
           projects = (data.values || []).map(p => p.key);
@@ -31231,32 +30821,28 @@ async function fetchLiveSprintData(podKey) {
     // FIX #3: Use currentSprint() instead of openSprints() to filter only ACTIVE sprints
     // (openSprints() includes future sprints that haven't started yet)
     var sprintIssuesJql = 'sprint in (currentSprint()) AND project IN (' + projectsJql + ')';
-    var sprintRes = await jiraFetch(
-      '/search?jql=' + encodeURIComponent(sprintIssuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint',
-      {method: 'GET'}
+    var sprintData = await fetchJira(
+      '/issues?jql=' + encodeURIComponent(sprintIssuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint'
     );
 
     // If currentSprint() returns no results (sprint just ended), fallback to openSprints()
-    let sprintData = await sprintRes.json();
-    if (!sprintRes.ok || !sprintData.issues || sprintData.issues.length === 0) {
+    if (!sprintData || !sprintData.success || !sprintData.issues || sprintData.issues.length === 0) {
       console.log('⚠️ currentSprint() returned no results, falling back to openSprints()');
       var sprintIssuesJqlFallback = 'sprint in openSprints() AND project IN (' + projectsJql + ')';
-      sprintRes = await jiraFetch(
-        '/search?jql=' + encodeURIComponent(sprintIssuesJqlFallback) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint',
-        {method: 'GET'}
+      sprintData = await fetchJira(
+        '/issues?jql=' + encodeURIComponent(sprintIssuesJqlFallback) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint'
       );
     }
 
-    if (!sprintRes.ok) {
+    if (!sprintData || !sprintData.success) {
       var fallbackJql = 'project IN (' + projectsJql + ') AND resolution = Unresolved ORDER BY updated DESC';
-      sprintRes = await jiraFetch(
-        '/search?jql=' + encodeURIComponent(fallbackJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels',
-        {method: 'GET'}
+      sprintData = await fetchJira(
+        '/issues?jql=' + encodeURIComponent(fallbackJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels'
       );
-      if (!sprintRes.ok) return null;
+      if (!sprintData || !sprintData.success) return null;
     }
 
-    var issues = (await sprintRes.json()).issues || [];
+    var issues = sprintData.issues || [];
     console.log('Found ' + issues.length + ' issues');
 
     // Extract sprint data (CRITICAL FIX: Extract actual sprint dates, not just name)
@@ -31631,7 +31217,7 @@ function detectRisks(summary) {
 // AUTO-DISCOVER ALL PODs FROM JIRA (Fix #1: Replace hardcoded list)
 async function fetchAllPODsFromJira() {
   try {
-    var res = await jiraFetch('/rest/api/3/projects?expand=lead&maxResults=100');
+    var res = await fetchJira('/projects');
 
     // CRITICAL FIX: Validate Jira API response (not HTML error page)
     if (!res || !res.values) {
@@ -31693,26 +31279,24 @@ async function fetchLivePODDashboardData(podKey) {
     // Query 1: Get all issues in ACTIVE sprint only (FIXED: was openSprints() including future)
     // Using JQL: find issues in current active sprint only
     var sprintIssuesJql = 'sprint = currentSprint() AND project IN (' + projectsJql + ')';
-    var sprintIssuesRes = await jiraFetch(
-      '/search?jql=' + encodeURIComponent(sprintIssuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint',
-      {method: 'GET'}
+    var sprintIssuesData = await fetchJira(
+      '/issues?jql=' + encodeURIComponent(sprintIssuesJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels,sprint'
     );
 
-    if (!sprintIssuesRes.ok) {
+    if (!sprintIssuesData || !sprintIssuesData.success) {
       console.warn('Could not fetch sprint issues, trying alternative JQL');
       // Fallback: get all non-done issues
       var fallbackJql = 'project IN (' + projectsJql + ') AND resolution = Unresolved ORDER BY updated DESC';
-      sprintIssuesRes = await jiraFetch(
-        '/search?jql=' + encodeURIComponent(fallbackJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels',
-        {method: 'GET'}
+      sprintIssuesData = await fetchJira(
+        '/issues?jql=' + encodeURIComponent(fallbackJql) + '&maxResults=100&fields=key,summary,assignee,status,issuetype,customfield_10028,parent,labels'
       );
-      if (!sprintIssuesRes.ok) {
+      if (!sprintIssuesData || !sprintIssuesData.success) {
         console.error('Failed to fetch issues');
         return null;
       }
     }
 
-    var issues = (await sprintIssuesRes.json()).issues || [];
+    var issues = sprintIssuesData.issues || [];
     console.log('Found ' + issues.length + ' issues');
 
     if (issues.length === 0) {
@@ -31735,11 +31319,10 @@ async function fetchLivePODDashboardData(podKey) {
     }
 
     // Query 2: Get all epics
-    var epicsRes = await jiraFetch(
-      '/search?jql=type=Epic AND project IN (' + projectsJql + ')&maxResults=50&fields=key,summary,status',
-      {method: 'GET'}
+    var epicsData = await fetchJira(
+      '/issues?jql=type=Epic AND project IN (' + projectsJql + ')&maxResults=50&fields=key,summary,status'
     );
-    var epics = epicsRes.ok ? (await epicsRes.json()).issues || [] : [];
+    var epics = epicsData && epicsData.success ? epicsData.issues || [] : [];
     console.log('Found ' + epics.length + ' epics');
 
     // Aggregate data
